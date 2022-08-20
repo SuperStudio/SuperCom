@@ -1,0 +1,811 @@
+﻿<chao:BaseWindow
+    x:Class="SuperCom.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:chao="https://gitee.com/secret/chao-controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SuperCom"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Name="mainWindow"
+    Title="SuperCom-超级串口工具"
+    Width="1000"
+    Height="500"
+    MinWidth="600"
+    Background="{DynamicResource Window.Background}"
+    Foreground="{DynamicResource Window.Foreground}"
+    TitleHeight="0"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <chao:BaseWindow.Resources>
+        <Style x:Key="BgHoverBorder" TargetType="Border">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource Window.Title.Background}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0.8" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource Window.Title.Hover.Background}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </chao:BaseWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Border
+            x:Name="TitleBorder"
+            Grid.Row="0"
+            Background="{DynamicResource Window.Title.Background}"
+            BorderThickness="0"
+            MouseMove="MoveWindow"
+            PreviewMouseLeftButtonDown="MaxCurrentWindow">
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Click="MinWindow" Header="最小化" />
+                    <MenuItem
+                        Name="MaxMenuItem"
+                        Click="OnMaxWindow"
+                        Header="最大化" />
+                    <MenuItem Click="CloseWindow" Header="关闭" />
+                </ContextMenu>
+            </Border.ContextMenu>
+            <Grid Panel.ZIndex="50">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+
+
+                        <Image
+                            Height="25"
+                            Margin="5,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Source="/Resources/Ico/Icon_64.png" />
+                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding ElementName=mainWindow, Path=Title}" />
+
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="20,0"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="70"
+                            Click="OpenContextMenu"
+                            Content="文件"
+                            Style="{StaticResource TitleButton}"
+                            Visibility="Collapsed">
+                            <Button.ContextMenu>
+                                <ContextMenu
+                                    HorizontalOffset="-40"
+                                    StaysOpen="True"
+                                    VerticalOffset="10">
+                                    <MenuItem Header="串口日志另存为" />
+                                    <MenuItem Header="设置" />
+                                    <MenuItem Header="关闭" />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        <Button
+                            Width="70"
+                            Click="ShowAbout"
+                            Content="关于"
+                            Style="{StaticResource TitleButton}" />
+                    </StackPanel>
+                </Grid>
+
+
+
+
+                <StackPanel
+                    Name="TitleStackPanel"
+                    Grid.Column="1"
+                    Height="30"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+                    <Button
+                        Name="themeButton"
+                        Width="40"
+                        Style="{StaticResource NormalButton}"
+                        Tag="{DynamicResource Window.Title.Hover.Background}"
+                        Visibility="Collapsed">
+                        <Viewbox
+                            Width="15"
+                            Height="auto"
+                            VerticalAlignment="Center">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M758.35 121.71H704.7c-14.19 0-27.88 6.14-37.04 17.11-27.48 32.81-106.09 54.05-155.61 54.05s-128.13-21.24-155.61-54.05c-9.26-10.98-22.85-17.11-37.04-17.11h-53.75c-13.08 0-25.57 5.23-34.83 14.7L52.56 317.69c-11.48 11.67-11.48 30.5 0 42.17l108.7 110.62c11.48 11.68 30 11.68 41.47 0l3.62-3.62c3.93-3.93 10.57-1.21 10.57 4.43V856.9c0 25.06 19.93 45.39 44.59 45.39h500.95c24.66 0 44.59-20.33 44.59-45.39V471.19c0-5.64 6.64-8.46 10.57-4.43l3.62 3.63c11.48 11.67 30 11.67 41.47 0l108.7-110.62c11.48-11.67 11.48-30.5 0-42.17L793.18 136.31c-9.26-9.36-21.84-14.6-34.83-14.6z"
+                                Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                        </Viewbox>
+                    </Button>
+
+
+                    <Button
+                        Width="40"
+                        Click="MinWindow"
+                        Style="{StaticResource NormalButton}"
+                        Tag="{DynamicResource Window.Title.Hover.Background}">
+                        <Viewbox
+                            Width="12"
+                            Height="auto"
+                            VerticalAlignment="Center">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M512 0h6144c307.2 0 512 204.8 512 512s-204.8 512-512 512H512c-307.2 0-512-204.8-512-512s204.8-512 512-512z"
+                                Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                        </Viewbox>
+                    </Button>
+                    <Button
+                        Name="ButtonMax"
+                        Width="40"
+                        Click="OnMaxWindow"
+                        Style="{StaticResource NormalButton}"
+                        Tag="{DynamicResource Window.Title.Hover.Background}">
+                        <Viewbox
+                            Width="12"
+                            Height="auto"
+                            VerticalAlignment="Center">
+                            <Path
+                                x:Name="MaxPath"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M834.688 1024H189.312A189.568 189.568 0 0 1 0 834.688V189.312A189.568 189.568 0 0 1 189.312 0h645.376A189.568 189.568 0 0 1 1024 189.312v645.376A189.482667 189.482667 0 0 1 834.688 1024zM189.312 99.712a89.6 89.6 0 0 0-89.6 89.6v645.376a89.6 89.6 0 0 0 89.6 89.6h645.376a89.6 89.6 0 0 0 89.6-89.6V189.312a89.6 89.6 0 0 0-89.6-89.6z"
+                                Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                        </Viewbox>
+                    </Button>
+                    <Button
+                        Name="ButtonClose"
+                        Width="40"
+                        Click="CloseWindow"
+                        Style="{StaticResource NormalButton}"
+                        Tag="{DynamicResource Window.Title.Hover.Deep.Background}">
+                        <Viewbox
+                            Width="12"
+                            Height="auto"
+                            VerticalAlignment="Center">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                        </Viewbox>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="200"
+                    MinWidth="150"
+                    MaxWidth="300" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="{DynamicResource Window.Side.Background}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            Margin="5,0"
+                            MouseLeftButtonUp="RefreshPortsStatus"
+                            Style="{StaticResource RoundHoverBorder}">
+                            <Viewbox Width="auto" Height="13">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M848.738462 608.137846c-8.467692 178.097231-155.963077 319.881846-336.659693 319.881846-186.171077 0-337.132308-150.449231-337.132307-336.068923 0-180.145231 142.178462-327.168 320.787692-335.675077v159.82277l353.122461-192.039385L495.734154 0v160.098462C263.995077 168.684308 78.769231 358.754462 78.769231 591.872 78.769231 830.542769 272.777846 1024 512.157538 1024 746.062769 1024 936.644923 839.286154 945.230769 608.137846h-96.492307z"
+                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Border>
+                        <chao:SearchBox
+                            Name="searchBox"
+                            Grid.Column="1"
+                            Width="auto"
+                            Height="30"
+                            Margin="0"
+                            Padding="0"
+                            VerticalAlignment="Top"
+                            Background="{DynamicResource Window.ToolsBar.Background}"
+                            BorderBrush="#326CF3"
+                            BorderThickness="0"
+                            Foreground="{DynamicResource Window.Foreground}"
+                            HideClearButtonOnMouseLeave="False"
+                            PlaceHolder="搜索"
+                            PlaceHolderForeground="{DynamicResource TextBox.PlaceHolder.Foreground}"
+                            SearchOnTextChanged="False"
+                            ShowClearButton="True"
+                            ShowSearchButton="True"
+                            TextPadding="5 0" />
+
+                    </Grid>
+                    <ListBox
+                        Grid.Row="1"
+                        HorizontalContentAlignment="Stretch"
+                        d:ItemsSource="{d:SampleData ItemCount=5}"
+                        Background="Transparent"
+                        ItemsSource="{Binding SerialComPorts}"
+                        Style="{StaticResource NormalListBox}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid
+                                    Background="{DynamicResource ListBoxItem.Background}"
+                                    PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown"
+                                    Tag="{Binding Name}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Grid.Column="0"
+                                        Width="10"
+                                        Height="10"
+                                        Margin="5"
+                                        CornerRadius="10">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Green" />
+                                                <Style.Triggers>
+
+                                                    <DataTrigger Binding="{Binding Connected}" Value="True">
+                                                        <Setter Property="Background" Value="Red" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        MaxWidth="120"
+                                        Margin="0"
+                                        Padding="10,5"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="{Binding Name}"
+                                        TextTrimming="WordEllipsis"
+                                        TextWrapping="WrapWithOverflow" />
+                                    <Button
+                                        Grid.Column="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Right"
+                                        Click="ConnectPort"
+                                        Tag="{Binding Name}">
+                                        <Button.Style>
+                                            <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
+                                                <Setter Property="Content" Value="连接" />
+
+                                                <Setter Property="Visibility" Value="Hidden" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Connected}" Value="True">
+
+                                                        <Setter Property="Content" Value="断开" />
+                                                        <Setter Property="Background" Value="Red" />
+                                                    </DataTrigger>
+
+                                                    <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+
+
+
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+            <GridSplitter
+                Grid.Column="0"
+                Width="4"
+                Panel.ZIndex="10"
+                Style="{StaticResource HoverSpliter}" />
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+
+                </Grid.RowDefinitions>
+                <ScrollViewer
+                    Grid.Row="0"
+                    HorizontalScrollBarVisibility="Auto"
+                    PreviewMouseWheel="scrollViewer_PreviewMouseWheel"
+                    VerticalScrollBarVisibility="Hidden">
+                    <ItemsControl Name="tabItemsControl" ItemsSource="{Binding PortTabItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Width="150"
+                                    Height="35"
+                                    BorderThickness="1"
+                                    Cursor="Hand"
+                                    PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown"
+                                    Tag="{Binding ID}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource TabItem.Background}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Selected}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ListBoxItem.Selected.Active.Background}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border
+                                            Grid.Column="0"
+                                            Width="10"
+                                            Height="10"
+                                            Margin="5"
+                                            CornerRadius="10">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="Green" />
+                                                    <Style.Triggers>
+
+                                                        <DataTrigger Binding="{Binding Connected}" Value="True">
+                                                            <Setter Property="Background" Value="Red" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            MaxWidth="120"
+                                            Margin="0"
+                                            Padding="10,5"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource BaseTextBlock}"
+                                            Text="{Binding Name}"
+                                            TextTrimming="WordEllipsis"
+                                            TextWrapping="WrapWithOverflow" />
+
+                                        <Border
+                                            x:Name="border"
+                                            Grid.Column="2"
+                                            Background="Transparent"
+                                            BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                            <Button
+                                                Width="20"
+                                                Height="20"
+                                                Margin="5"
+                                                HorizontalAlignment="Right"
+                                                Click="CloseTabItem"
+                                                Style="{StaticResource RoundNormalButton}"
+                                                Tag="{DynamicResource TabItem.Hover.Background}"
+                                                Visibility="Visible">
+                                                <Viewbox
+                                                    Width="10"
+                                                    Height="auto"
+                                                    VerticalAlignment="Center">
+                                                    <Path
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                        Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                </Viewbox>
+                                            </Button>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <TabControl
+                    Name="tabControl"
+                    Grid.Row="1"
+                    Background="Transparent"
+                    ItemContainerStyle="{StaticResource FlatTabItem}"
+                    ItemsSource="{Binding PortTabItems}"
+                    Style="{StaticResource HeaderHideTabControlStyle}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" MinHeight="100" />
+
+
+                                    <RowDefinition Height="5" />
+                                    <RowDefinition Height="auto" MinHeight="100" />
+                                </Grid.RowDefinitions>
+
+                                <Grid
+                                    Name="rootGrid"
+                                    Grid.Row="0"
+                                    Margin="5"
+                                    Loaded="rootGrid_Loaded"
+                                    Tag="{Binding Name}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <Border
+                                        Grid.Row="0"
+                                        Padding="10"
+                                        Background="{DynamicResource TabItem.Background}"
+                                        CornerRadius="5"
+                                        PreviewMouseWheel="Border_PreviewMouseWheel">
+                                        <TextBox
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            ContextMenu="{StaticResource CopyContextMenu}"
+                                            Foreground="{DynamicResource Window.Foreground}"
+                                            IsReadOnly="True"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                            TextChanged="TextBox_TextChanged" />
+                                    </Border>
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Margin="30,20"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom"
+                                        Panel.ZIndex="99"
+                                        Orientation="Vertical">
+
+                                        <Border
+                                            Width="25"
+                                            Height="25"
+                                            CornerRadius="5 5 0 0"
+                                            MouseLeftButtonUp="GotoTop"
+                                            Style="{StaticResource BgHoverBorder}"
+                                            ToolTip="去到顶部">
+
+                                            <Viewbox
+                                                Width="15"
+                                                Height="auto"
+                                                VerticalAlignment="Center">
+                                                <Path
+                                                    Data="M854.016 739.328l-313.344-309.248-313.344 309.248q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504q-29.696-28.672-29.696-68.608t29.696-68.608l376.832-373.76q14.336-14.336 34.304-22.528t40.448-9.216 39.424 5.12 31.232 20.48l382.976 379.904q28.672 28.672 28.672 68.608t-28.672 68.608q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504z"
+                                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                    RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <TransformGroup>
+                                                            <RotateTransform Angle="0" />
+                                                        </TransformGroup>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                            </Viewbox>
+                                        </Border>
+                                        <Border
+                                            Width="25"
+                                            Height="25"
+                                            Padding="3,8,0,0"
+                                            Panel.ZIndex="99"
+                                            CornerRadius="0 0 5 5"
+                                            MouseLeftButtonUp="GotoBottom"
+                                            Style="{StaticResource BgHoverBorder}"
+                                            ToolTip="去到顶部">
+
+                                            <Viewbox
+                                                Width="15"
+                                                Height="auto"
+                                                VerticalAlignment="Center">
+                                                <Path
+                                                    Data="M854.016 739.328l-313.344-309.248-313.344 309.248q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504q-29.696-28.672-29.696-68.608t29.696-68.608l376.832-373.76q14.336-14.336 34.304-22.528t40.448-9.216 39.424 5.12 31.232 20.48l382.976 379.904q28.672 28.672 28.672 68.608t-28.672 68.608q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504z"
+                                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                    RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <TransformGroup>
+                                                            <RotateTransform Angle="180" />
+                                                        </TransformGroup>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                            </Viewbox>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <Border
+                                        Grid.Row="1"
+                                        Margin="0,5,0,0"
+                                        Padding="0,3"
+                                        Background="{DynamicResource Window.Side.Background}"
+                                        CornerRadius="5"
+                                        Tag="{Binding Name}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button
+                                                Width="28"
+                                                Height="24"
+                                                Margin="5,0,0,0"
+                                                Click="ClearData"
+                                                Style="{StaticResource RoundCloseButton}">
+                                                <Viewbox
+                                                    Width="15"
+                                                    Height="auto"
+                                                    Margin="2,5,4,4"
+                                                    VerticalAlignment="Center">
+                                                    <Path
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Data="M687.6 96.4H336.4v91.2h351.1V96.4zM636.7 398v405.5h-73.9V398h73.9z m-175.5 0v405.5h-73.9V398h73.9z m332.1-119.2H230.7l27.9 648.8h506.7l28-648.8zM696.8 5.1c40.4 0 73.3 35.6 73.9 79.8v102.7h147.8c20.2 0 36.6 17.8 37 39.9v41.2c0 5.5-4 10-9 10.1h-70.1L848 941.6c-1.8 42.9-33.7 76.6-72.6 77.3H249.8c-39 0-71.3-33.4-73.7-76l-0.1-1.3-28.5-662.7H77.7c-5 0-9.1-4.4-9.2-9.8v-40.9c0-22.2 16.2-40.2 36.3-40.5h148.4V86.2c0-44.3 32.5-80.4 72.7-81.1h370.9z"
+                                                        Fill="{DynamicResource Window.Foreground}" />
+                                                </Viewbox>
+                                            </Button>
+                                            <ToggleButton
+                                                Width="auto"
+                                                Height="auto"
+                                                Margin="5,0"
+                                                Padding="2,2,4,2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Background="Transparent"
+                                                Click="SetTextBoxScroll"
+                                                Style="{StaticResource FlatToggleButton}">
+                                                <Viewbox
+                                                    Width="20"
+                                                    Height="auto"
+                                                    VerticalAlignment="Center">
+                                                    <Path Data="M187.690667 874.709333h-0.277334a37.504 37.504 0 0 1-26.602666-11.264 37.845333 37.845333 0 0 1-3.904-49.877333l166.762666-229.76-125.013333-125.056a38.229333 38.229333 0 0 1-6.058667-46.336 140.8 140.8 0 0 1 53.504-45.674667 154.24 154.24 0 0 1 67.84-15.552 161.792 161.792 0 0 1 51.84 8.533334l6.4 0.661333c5.781333 0.405333 10.901333 0.981333 15.701334 1.749333a161.877333 161.877333 0 0 0 104.277333-47.253333 144.874667 144.874667 0 0 0 58.474667-90.346667c0-5.802667 0-11.904-0.234667-17.664a80.576 80.576 0 0 1 15.658667-74.858666A84.949333 84.949333 0 0 1 626.858667 106.666667a85.525333 85.525333 0 0 1 54.08 19.328l1.962666 1.941333c18.88 18.432 207.253333 206.933333 209.066667 208.746667A85.930667 85.930667 0 0 1 917.333333 397.888a85.973333 85.973333 0 0 1-25.6 61.205333 67.456 67.456 0 0 1-46.549333 16.874667 199.210667 199.210667 0 0 1-30.229333-3.008 226.176 226.176 0 0 0-15.701334-0.362667h-1.493333a115.605333 115.605333 0 0 0-77.930667 45.205334 210.752 210.752 0 0 0-59.456 118.976c0.917333 7.850667 2.56 21.333333 2.858667 23.125333a144.298667 144.298667 0 0 1-57.258667 165.056 38.229333 38.229333 0 0 1-20.138666 5.717333 38.058667 38.058667 0 0 1-27.093334-11.2l-123.562666-123.733333L209.92 866.986667a36.266667 36.266667 0 0 1-22.229333 7.722666z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                                                </Viewbox>
+                                            </ToggleButton>
+
+
+                                            <Button
+                                                Width="27"
+                                                Height="27"
+                                                Margin="5,0"
+                                                Click="OpenPath"
+                                                Style="{StaticResource RoundTitleButton}">
+                                                <Viewbox
+                                                    Width="20"
+                                                    Height="20"
+                                                    VerticalAlignment="Center">
+                                                    <Path
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Data="M183.232 128c0 0-52.544 0 37.184 0 80.448 0 164.288 0 250.368 0 58.368 0 58.24 128.832 140.864 128.832 50.88 0 228.992 0 228.992 0C906.56 256.832 960 310.272 960 376.128l0 398.656c0 65.856-53.44 119.232-119.296 119.232L183.232 894.016C117.44 894.08 64 840.704 64 774.784L64 247.296C64 181.376 117.44 128 183.232 128z"
+                                                        Fill="{DynamicResource Window.Foreground}" />
+                                                </Viewbox>
+                                            </Button>
+                                            <CheckBox
+                                                Margin="10,0"
+                                                Click="AddTimeStamp"
+                                                Content="加时间戳"
+                                                FontSize="15"
+                                                IsChecked="True"
+                                                Style="{StaticResource NormalCheckBox}" />
+                                            <Button Click="SaveToNewFile" Content="存到新文件" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+
+
+
+
+
+                                <!--<GridSplitter
+                                    Grid.Row="1"
+                                    Height="4"
+                                    HorizontalAlignment="Stretch"
+                                    Panel.ZIndex="10"
+                                    Style="{StaticResource HoverSpliter}" />-->
+
+                                <Grid Grid.Row="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Border
+                                        Grid.Row="0"
+                                        Margin="5,0"
+                                        Padding="5,0"
+                                        Background="{DynamicResource Window.Title.Background}"
+                                        CornerRadius="5">
+                                        <WrapPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="BaudRate" />
+                                            <ComboBox
+                                                MinWidth="100"
+                                                Background="{DynamicResource Window.Side.Background}"
+                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                                SelectedIndex="0"
+                                                SelectionChanged="BaudRateChanged"
+                                                Style="{StaticResource NormalComboBox}"
+                                                Tag="{DynamicResource Window.Side.Hover.Background}"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                <ComboBoxItem>115200</ComboBoxItem>
+                                                <ComboBoxItem>1500000</ComboBoxItem>
+                                            </ComboBox>
+                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="DataBits" />
+                                            <ComboBox
+                                                MinWidth="50"
+                                                Background="{DynamicResource Window.Side.Background}"
+                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                                SelectedIndex="3"
+                                                SelectionChanged="DataBitsChanged"
+                                                Style="{StaticResource NormalComboBox}"
+                                                Tag="{DynamicResource Window.Side.Hover.Background}"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                <ComboBoxItem>5</ComboBoxItem>
+                                                <ComboBoxItem>6</ComboBoxItem>
+                                                <ComboBoxItem>7</ComboBoxItem>
+                                                <ComboBoxItem>8</ComboBoxItem>
+                                            </ComboBox>
+                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="StopBits" />
+                                            <ComboBox
+                                                MinWidth="70"
+                                                Background="{DynamicResource Window.Side.Background}"
+                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                                SelectedIndex="0"
+                                                SelectionChanged="StopBitsChanged"
+                                                Style="{StaticResource NormalComboBox}"
+                                                Tag="{DynamicResource Window.Side.Hover.Background}"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                <ComboBoxItem>One</ComboBoxItem>
+                                                <ComboBoxItem>Two</ComboBoxItem>
+                                                <ComboBoxItem>OnePointFive</ComboBoxItem>
+                                            </ComboBox>
+                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="Parity" />
+                                            <ComboBox
+                                                MinWidth="80"
+                                                Background="{DynamicResource Window.Side.Background}"
+                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                                SelectedIndex="0"
+                                                SelectionChanged="ParityChanged"
+                                                Style="{StaticResource NormalComboBox}"
+                                                Tag="{DynamicResource Window.Side.Hover.Background}"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                <ComboBoxItem>None</ComboBoxItem>
+                                                <ComboBoxItem>Odd</ComboBoxItem>
+                                                <ComboBoxItem>Even</ComboBoxItem>
+                                                <ComboBoxItem>Mark</ComboBoxItem>
+                                                <ComboBoxItem>Space</ComboBoxItem>
+                                            </ComboBox>
+                                            <!--<TextBlock Style="{StaticResource BaseTextBlock}" Text="Flow Controls" />
+                                            <ComboBox
+                                                MinWidth="100"
+                                                Background="{DynamicResource Window.Side.Background}"
+                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                                SelectedIndex="0"
+                                                Style="{StaticResource NormalComboBox}"
+                                                Tag="{DynamicResource Window.Side.Hover.Background}"
+                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                <ComboBoxItem>None</ComboBoxItem>
+                                                <ComboBoxItem>Hardware</ComboBoxItem>
+                                                <ComboBoxItem>Software</ComboBoxItem>
+                                                <ComboBoxItem>Custom</ComboBoxItem>
+                                            </ComboBox>-->
+                                        </WrapPanel>
+                                    </Border>
+
+
+                                    <Grid Grid.Row="2" MinHeight="100">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border
+                                            Margin="5"
+                                            Padding="10"
+                                            Background="{DynamicResource Window.Side.Background}"
+                                            CornerRadius="5">
+                                            <TextBox
+                                                Grid.Column="0"
+                                                AcceptsReturn="True"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                CaretBrush="{DynamicResource Window.Foreground}"
+                                                Foreground="{DynamicResource Window.Foreground}"
+                                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                Text="{Binding WriteData, Mode=TwoWay}" />
+                                        </Border>
+
+                                        <Grid Grid.Column="1">
+                                            <ToggleButton
+                                                Width="auto"
+                                                Height="auto"
+                                                Margin="5,8,8,5"
+                                                Padding="2,4,4,4"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Top"
+                                                Background="Transparent"
+                                                IsChecked="{Binding AddNewLineWhenWrite, Mode=TwoWay}"
+                                                Style="{StaticResource FlatToggleButton}"
+                                                ToolTip="加回车换行">
+                                                <Viewbox
+                                                    Width="20"
+                                                    Height="auto"
+                                                    VerticalAlignment="Center">
+                                                    <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                                                </Viewbox>
+                                            </ToggleButton>
+                                            <Button
+                                                Margin="5,5,7,5"
+                                                Padding="10"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Bottom"
+                                                Click="SendCommand"
+                                                Content="发送"
+                                                Tag="{Binding Name}" />
+                                        </Grid>
+
+
+                                    </Grid>
+
+                                </Grid>
+                            </Grid>
+
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+
+            </Grid>
+        </Grid>
+        <Grid
+            Grid.Row="2"
+            Height="20"
+            Background="{DynamicResource Window.StatusBar.Background}">
+            <TextBox
+                Height="15"
+                Margin="5,0"
+                Padding="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                Background="Transparent"
+                FontSize="12"
+                Foreground="{DynamicResource Window.Foreground}"
+                Style="{StaticResource ReadOnlyTextBox}"
+                Text="{Binding StatusText}"
+                TextWrapping="NoWrap" />
+        </Grid>
+    </Grid>
+</chao:BaseWindow>

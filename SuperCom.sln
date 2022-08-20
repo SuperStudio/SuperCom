@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCom", "SuperCom\SuperCom.csproj", "{7782F9E2-0821-4C05-8DA5-04367CD670FD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C67377D1-C966-479D-B32D-F7089D122596}
+	EndGlobalSection
+EndGlobal

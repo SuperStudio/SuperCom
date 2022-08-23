@@ -3,7 +3,7 @@
 
     <Style
         x:Key="TitleButton"
-        BasedOn="{StaticResource NormalButton}"
+        BasedOn="{StaticResource FlatButton}"
         TargetType="Button">
         <Setter Property="Tag" Value="{DynamicResource Window.Title.Hover.Background}" />
         <Setter Property="Height" Value="30" />

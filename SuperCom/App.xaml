@@ -10,8 +10,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/ChaoControls.Style;Component/XAML/Skin/DefaultColor.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/ChaoControls.Style;Component/Themes/ChaoControls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/XAML/Skin/DefaultColor.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/Themes/SuperControls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/CustomStyle/Basic.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

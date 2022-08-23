@@ -1,4 +1,4 @@
-﻿using ChaoControls.Style;
+﻿using SuperControls.Style;
 using SuperCom.Utils;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace SuperCom.CustomWindows
     /// <summary>
     /// Interaction logic for About.xaml
     /// </summary>
-    public partial class About : ChaoControls.Style.BaseDialog
+    public partial class About : SuperControls.Style.BaseDialog
     {
         public About(Window owner) : base(owner, false)
         {

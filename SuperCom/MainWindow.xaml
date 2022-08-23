@@ -1,11 +1,11 @@
-﻿<chao:BaseWindow
+﻿<super:BaseWindow
     x:Class="SuperCom.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:chao="https://gitee.com/secret/chao-controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:SuperCom"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
     Name="mainWindow"
     Title="SuperCom-超级串口工具"
     Width="1000"
@@ -17,7 +17,7 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <chao:BaseWindow.Resources>
+    <super:BaseWindow.Resources>
         <Style x:Key="BgHoverBorder" TargetType="Border">
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="CornerRadius" Value="0" />
@@ -30,7 +30,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-    </chao:BaseWindow.Resources>
+    </super:BaseWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -118,7 +118,7 @@
                     <Button
                         Name="themeButton"
                         Width="40"
-                        Style="{StaticResource NormalButton}"
+                        Style="{StaticResource FlatButton}"
                         Tag="{DynamicResource Window.Title.Hover.Background}"
                         Visibility="Collapsed">
                         <Viewbox
@@ -136,9 +136,12 @@
 
                     <Button
                         Width="40"
+                        Margin="0"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                         Click="MinWindow"
-                        Style="{StaticResource NormalButton}"
-                        Tag="{DynamicResource Window.Title.Hover.Background}">
+                        Style="{StaticResource FlatButton}">
                         <Viewbox
                             Width="12"
                             Height="auto"
@@ -153,9 +156,12 @@
                     <Button
                         Name="ButtonMax"
                         Width="40"
+                        Margin="0"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                         Click="OnMaxWindow"
-                        Style="{StaticResource NormalButton}"
-                        Tag="{DynamicResource Window.Title.Hover.Background}">
+                        Style="{StaticResource FlatButton}">
                         <Viewbox
                             Width="12"
                             Height="auto"
@@ -171,9 +177,12 @@
                     <Button
                         Name="ButtonClose"
                         Width="40"
+                        Margin="0"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
                         Click="CloseWindow"
-                        Style="{StaticResource NormalButton}"
-                        Tag="{DynamicResource Window.Title.Hover.Deep.Background}">
+                        Style="{StaticResource FlatButton}">
                         <Viewbox
                             Width="12"
                             Height="auto"
@@ -220,7 +229,7 @@
                                     Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
                             </Viewbox>
                         </Border>
-                        <chao:SearchBox
+                        <super:SearchBox
                             Name="searchBox"
                             Grid.Column="1"
                             Width="auto"
@@ -555,8 +564,9 @@
                                                 Width="28"
                                                 Height="24"
                                                 Margin="5,0,0,0"
+                                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
                                                 Click="ClearData"
-                                                Style="{StaticResource RoundCloseButton}">
+                                                Style="{StaticResource RoundNormalButton}">
                                                 <Viewbox
                                                     Width="15"
                                                     Height="auto"
@@ -593,7 +603,7 @@
                                                 Height="27"
                                                 Margin="5,0"
                                                 Click="OpenPath"
-                                                Style="{StaticResource RoundTitleButton}">
+                                                Style="{StaticResource RoundNormalButton}">
                                                 <Viewbox
                                                     Width="20"
                                                     Height="20"
@@ -644,30 +654,18 @@
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="BaudRate" />
                                             <ComboBox
                                                 MinWidth="100"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
-                                                Foreground="{DynamicResource Window.Foreground}"
-                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
                                                 SelectedIndex="0"
                                                 SelectionChanged="BaudRateChanged"
-                                                Style="{StaticResource NormalComboBox}"
-                                                Tag="{DynamicResource Window.Side.Hover.Background}"
-                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                Style="{StaticResource BorderComboBox}">
                                                 <ComboBoxItem>115200</ComboBoxItem>
                                                 <ComboBoxItem>1500000</ComboBoxItem>
                                             </ComboBox>
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="DataBits" />
                                             <ComboBox
                                                 MinWidth="50"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
-                                                Foreground="{DynamicResource Window.Foreground}"
-                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
                                                 SelectedIndex="3"
                                                 SelectionChanged="DataBitsChanged"
-                                                Style="{StaticResource NormalComboBox}"
-                                                Tag="{DynamicResource Window.Side.Hover.Background}"
-                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                Style="{StaticResource BorderComboBox}">
                                                 <ComboBoxItem>5</ComboBoxItem>
                                                 <ComboBoxItem>6</ComboBoxItem>
                                                 <ComboBoxItem>7</ComboBoxItem>
@@ -676,15 +674,9 @@
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="StopBits" />
                                             <ComboBox
                                                 MinWidth="70"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
-                                                Foreground="{DynamicResource Window.Foreground}"
-                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
                                                 SelectedIndex="0"
                                                 SelectionChanged="StopBitsChanged"
-                                                Style="{StaticResource NormalComboBox}"
-                                                Tag="{DynamicResource Window.Side.Hover.Background}"
-                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                Style="{StaticResource BorderComboBox}">
                                                 <ComboBoxItem>One</ComboBoxItem>
                                                 <ComboBoxItem>Two</ComboBoxItem>
                                                 <ComboBoxItem>OnePointFive</ComboBoxItem>
@@ -692,15 +684,9 @@
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="Parity" />
                                             <ComboBox
                                                 MinWidth="80"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
-                                                Foreground="{DynamicResource Window.Foreground}"
-                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
                                                 SelectedIndex="0"
                                                 SelectionChanged="ParityChanged"
-                                                Style="{StaticResource NormalComboBox}"
-                                                Tag="{DynamicResource Window.Side.Hover.Background}"
-                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
+                                                Style="{StaticResource BorderComboBox}">
                                                 <ComboBoxItem>None</ComboBoxItem>
                                                 <ComboBoxItem>Odd</ComboBoxItem>
                                                 <ComboBoxItem>Even</ComboBoxItem>
@@ -715,7 +701,7 @@
                                                 Foreground="{DynamicResource Window.Foreground}"
                                                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
                                                 SelectedIndex="0"
-                                                Style="{StaticResource NormalComboBox}"
+                                                Style="{StaticResource BorderComboBox}"
                                                 Tag="{DynamicResource Window.Side.Hover.Background}"
                                                 ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
                                                 <ComboBoxItem>None</ComboBoxItem>
@@ -808,4 +794,4 @@
                 TextWrapping="NoWrap" />
         </Grid>
     </Grid>
-</chao:BaseWindow>
+</super:BaseWindow>

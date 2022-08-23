@@ -1,8 +1,8 @@
-﻿<chao:BaseDialog
+﻿<super:BaseDialog
     x:Class="SuperCom.CustomWindows.About"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:chao="https://gitee.com/secret/chao-controls"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:SuperCom.CustomWindows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -86,4 +86,4 @@
                 Text="By SuperStudio" />
         </StackPanel>
     </Grid>
-</chao:BaseDialog>
+</super:BaseDialog>

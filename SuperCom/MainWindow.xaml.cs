@@ -1,4 +1,4 @@
-﻿using ChaoControls.Style;
+﻿using SuperControls.Style;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.Utils;
@@ -297,7 +297,7 @@ namespace SuperCom
 
         private void HandleDataReceived(CustomSerialPort serialPort)
         {
-            string line = serialPort.ReadLine();
+            string line = serialPort.ReadExisting();
             string portName = serialPort.PortName;
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (portTabItem != null)
@@ -650,6 +650,11 @@ namespace SuperCom
                 }
             }
             (sender as FrameworkElement).IsEnabled = true;
+        }
+
+        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

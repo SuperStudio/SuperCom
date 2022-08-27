@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SuperCom.Entity
 {
-    public class SerialComPort : INotifyPropertyChanged
+    public class SideComPort : INotifyPropertyChanged
     {
         private string _Name;
         public string Name
@@ -23,8 +23,14 @@ namespace SuperCom.Entity
             get { return _Connected; }
             set { _Connected = value; OnPropertyChanged(); }
         }
+        private PortTabItem _PortTabItem;
+        public PortTabItem PortTabItem
+        {
+            get { return _PortTabItem; }
+            set { _PortTabItem = value; OnPropertyChanged(); }
+        }
 
-        public SerialComPort(string name, bool connected)
+        public SideComPort(string name, bool connected)
         {
             Name = name;
             Connected = connected;

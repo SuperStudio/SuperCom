@@ -121,7 +121,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Entity\SerialComPort.cs" />
+    <Compile Include="Entity\SideComPort.cs" />
     <Compile Include="Entity\PortTabItem.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

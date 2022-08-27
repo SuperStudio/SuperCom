@@ -208,7 +208,7 @@
             <Border Grid.Column="0" Background="{DynamicResource Window.Side.Background}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="0" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
@@ -255,7 +255,7 @@
                         HorizontalContentAlignment="Stretch"
                         d:ItemsSource="{d:SampleData ItemCount=5}"
                         Background="Transparent"
-                        ItemsSource="{Binding SerialComPorts}"
+                        ItemsSource="{Binding SideComPorts}"
                         Style="{StaticResource NormalListBox}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -450,15 +450,18 @@
                     Background="Transparent"
                     ItemContainerStyle="{StaticResource FlatTabItem}"
                     ItemsSource="{Binding PortTabItems}"
-                    Style="{StaticResource HeaderHideTabControlStyle}">
+                    SelectionChanged="tabControl_SelectionChanged"
+                    Style="{StaticResource FlatTabControl}">
                     <TabControl.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
                         </DataTemplate>
                     </TabControl.ItemTemplate>
+
+
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <Grid>
+                            <Grid Name="baseGrid" Tag="{Binding Name}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" MinHeight="100" />
 
@@ -467,11 +470,19 @@
                                     <RowDefinition Height="auto" MinHeight="100" />
                                 </Grid.RowDefinitions>
 
+                                <TextBox
+                                    Grid.Row="0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    Panel.ZIndex="10"
+                                    Background="Green"
+                                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                    TextChanged="PortTextBoxTextChanged" />
+
                                 <Grid
                                     Name="rootGrid"
                                     Grid.Row="0"
                                     Margin="5"
-                                    Loaded="rootGrid_Loaded"
                                     Tag="{Binding Name}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
@@ -483,6 +494,15 @@
                                         Background="{DynamicResource TabItem.Background}"
                                         CornerRadius="5"
                                         PreviewMouseWheel="Border_PreviewMouseWheel">
+                                        <!--<TextBox
+                                            Name="textBox"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            ContextMenu="{StaticResource CopyContextMenu}"
+                                            Foreground="{DynamicResource Window.Foreground}"
+                                            IsReadOnly="True"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                            TextChanged="TextBox_TextChanged" />-->
                                         <TextBox
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -490,7 +510,7 @@
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            TextChanged="TextBox_TextChanged" />
+                                            Text="{Binding Name}" />
                                     </Border>
                                     <StackPanel
                                         Grid.Row="0"
@@ -655,8 +675,8 @@
                                             <ComboBox
                                                 MinWidth="100"
                                                 SelectedIndex="0"
-                                                SelectionChanged="BaudRateChanged"
-                                                Style="{StaticResource BorderComboBox}">
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.BaudRate, Mode=TwoWay}">
                                                 <ComboBoxItem>115200</ComboBoxItem>
                                                 <ComboBoxItem>1500000</ComboBoxItem>
                                             </ComboBox>
@@ -664,8 +684,8 @@
                                             <ComboBox
                                                 MinWidth="50"
                                                 SelectedIndex="3"
-                                                SelectionChanged="DataBitsChanged"
-                                                Style="{StaticResource BorderComboBox}">
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.DataBits, Mode=TwoWay}">
                                                 <ComboBoxItem>5</ComboBoxItem>
                                                 <ComboBoxItem>6</ComboBoxItem>
                                                 <ComboBoxItem>7</ComboBoxItem>
@@ -675,8 +695,8 @@
                                             <ComboBox
                                                 MinWidth="70"
                                                 SelectedIndex="0"
-                                                SelectionChanged="StopBitsChanged"
-                                                Style="{StaticResource BorderComboBox}">
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.StopBits, Mode=TwoWay}">
                                                 <ComboBoxItem>One</ComboBoxItem>
                                                 <ComboBoxItem>Two</ComboBoxItem>
                                                 <ComboBoxItem>OnePointFive</ComboBoxItem>
@@ -685,8 +705,8 @@
                                             <ComboBox
                                                 MinWidth="80"
                                                 SelectedIndex="0"
-                                                SelectionChanged="ParityChanged"
-                                                Style="{StaticResource BorderComboBox}">
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.Parity, Mode=TwoWay}">
                                                 <ComboBoxItem>None</ComboBoxItem>
                                                 <ComboBoxItem>Odd</ComboBoxItem>
                                                 <ComboBoxItem>Even</ComboBoxItem>

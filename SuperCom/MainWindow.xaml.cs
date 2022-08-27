@@ -35,7 +35,7 @@ namespace SuperCom
         public static bool WindowsVisible = true;
         public static TimeSpan FadeInterval { get; set; }
 
-        public List<SerialComPort> SerialPorts { get; set; }
+        public List<SideComPort> SerialPorts { get; set; }
 
 
         public VieModel_Main vieModel { get; set; }
@@ -235,27 +235,46 @@ namespace SuperCom
             string content = button.Content.ToString();
             string portName = button.Tag.ToString();
             bool connected = false;
-
+            SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (sideComPort == null)
+            {
+                MessageCard.Error($"打开 {portName} 失败！");
+                return;
+            }
 
 
             if ("连接".Equals(content))
             {
                 // 连接
                 OpenPortTabItem(portName, true);
-                CustomSerialPort serialPort = new CustomSerialPort(portName);
-                serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
+                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (portTabItem == null)
                 {
-                    HandleDataReceived(serialPort);
-                });
+                    MessageCard.Error($"打开 {portName} 失败！");
+                    return;
+                }
+                CustomSerialPort serialPort;
+                if (portTabItem.SerialPort == null)
+                {
+                    serialPort = new CustomSerialPort(portName);
+                    serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
+                    {
+                        HandleDataReceived(serialPort);
+                    });
+                    portTabItem.SerialPort = serialPort;
+                }
+                else
+                {
+                    serialPort = portTabItem.SerialPort;
+                }
+                sideComPort.PortTabItem = portTabItem;
                 await Task.Run(() =>
                 {
                     try
                     {
 
                         serialPort.Open();
-                        vieModel.SerialPorts.Add(serialPort);
                         connected = true;
-                        PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                         portTabItem.ConnectTime = DateTime.Now;
                     }
                     catch (Exception ex)
@@ -273,18 +292,19 @@ namespace SuperCom
             else
             {
                 // 断开
-                CustomSerialPort serialPort = vieModel.SerialPorts.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (portTabItem == null) return;
+                CustomSerialPort serialPort = portTabItem.SerialPort;
                 if (serialPort != null && serialPort.IsOpen)
                 {
                     serialPort.Close();
                     serialPort.Dispose();
                 }
                 connected = false;
-                vieModel.SerialPorts.Remove(serialPort);
             }
 
             SetTabStatus(portName, connected);
-            foreach (var item in vieModel.SerialComPorts)
+            foreach (var item in vieModel.SideComPorts)
             {
                 if (item.Name.Equals(portName))
                 {
@@ -397,47 +417,47 @@ namespace SuperCom
 
         private void BaudRateChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0) return;
-            ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            int value = PortSetting.DEFAULT_BAUDRATE;
-            int.TryParse(comboBox.Content.ToString(), out value);
-            int index = tabControl.SelectedIndex;
-            if (index < vieModel.SerialPorts?.Count)
-                vieModel.SerialPorts[index].BaudRate = value;
+            //if (e.AddedItems.Count == 0) return;
+            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
+            //int value = PortSetting.DEFAULT_BAUDRATE;
+            //int.TryParse(comboBox.Content.ToString(), out value);
+            //int index = tabControl.SelectedIndex;
+            //if (index < vieModel.SerialPorts?.Count)
+            //    vieModel.SerialPorts[index].BaudRate = value;
         }
 
         private void DataBitsChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0) return;
-            ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            int value = PortSetting.DEFAULT_DATABITS;
-            int.TryParse(comboBox.Content.ToString(), out value);
-            int index = tabControl.SelectedIndex;
-            if (index < vieModel.SerialPorts?.Count)
-                vieModel.SerialPorts[index].DataBits = value;
+            //if (e.AddedItems.Count == 0) return;
+            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
+            //int value = PortSetting.DEFAULT_DATABITS;
+            //int.TryParse(comboBox.Content.ToString(), out value);
+            //int index = tabControl.SelectedIndex;
+            //if (index < vieModel.SerialPorts?.Count)
+            //    vieModel.SerialPorts[index].DataBits = value;
         }
 
         private void StopBitsChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0) return;
-            ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            StopBits value = PortSetting.DEFAULT_STOPBITS;
-            Enum.TryParse(comboBox.Content.ToString(), out value);
-            int index = tabControl.SelectedIndex;
-            if (value == StopBits.None) value = PortSetting.DEFAULT_STOPBITS;
-            if (index < vieModel.SerialPorts?.Count)
-                vieModel.SerialPorts[index].StopBits = value;
+            //if (e.AddedItems.Count == 0) return;
+            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
+            //StopBits value = PortSetting.DEFAULT_STOPBITS;
+            //Enum.TryParse(comboBox.Content.ToString(), out value);
+            //int index = tabControl.SelectedIndex;
+            //if (value == StopBits.None) value = PortSetting.DEFAULT_STOPBITS;
+            //if (index < vieModel.SerialPorts?.Count)
+            //    vieModel.SerialPorts[index].StopBits = value;
         }
 
         private void ParityChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0) return;
-            ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            Parity value = PortSetting.DEFAULT_PARITY;
-            Enum.TryParse(comboBox.Content.ToString(), out value);
-            int index = tabControl.SelectedIndex;
-            if (index < vieModel.SerialPorts?.Count)
-                vieModel.SerialPorts[index].Parity = value;
+            //if (e.AddedItems.Count == 0) return;
+            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
+            //Parity value = PortSetting.DEFAULT_PARITY;
+            //Enum.TryParse(comboBox.Content.ToString(), out value);
+            //int index = tabControl.SelectedIndex;
+            //if (index < vieModel.SerialPorts?.Count)
+            //    vieModel.SerialPorts[index].Parity = value;
         }
 
 
@@ -534,21 +554,7 @@ namespace SuperCom
 
 
 
-        private void rootGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            Grid rootGrid = sender as Grid;
-            if (rootGrid != null && rootGrid.Tag != null)
-            {
-                string portName = rootGrid.Tag.ToString();
-                TextBox textBox = FindTextBox(rootGrid);
-                if (textBox == null) return;
-                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (portTabItem != null)
-                {
-                    portTabItem.TextBox = textBox;
-                }
-            }
-        }
+
 
         private void OpenPath(object sender, RoutedEventArgs e)
         {
@@ -595,7 +601,13 @@ namespace SuperCom
             {
                 string portName = button.Tag.ToString();
                 if (string.IsNullOrEmpty(portName)) return;
-                SerialPort port = vieModel.SerialPorts.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                SideComPort serialComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+                {
+                    MessageCard.Error($"连接串口 {portName} 失败！");
+                    return;
+                }
+                SerialPort port = serialComPort.PortTabItem.SerialPort;
                 PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 if (port != null)
                 {
@@ -652,9 +664,55 @@ namespace SuperCom
             (sender as FrameworkElement).IsEnabled = true;
         }
 
-        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+
+        private string GetPortName(ComboBox comboBox)
+        {
+            if (comboBox != null && comboBox.Tag != null)
+            {
+                return comboBox.Tag.ToString();
+            }
+            return null;
+        }
+
+
+
+
+        private void TextBlock_IsVisibleChanged(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void PortTextBoxTextChanged(object sender, TextChangedEventArgs e)
+        {
+            Console.WriteLine($"TextBox.Text = {(sender as TextBox)?.Text}");
+        }
+        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (tabControl.SelectedItem != null)
+            {
+                tabControl.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    ContentPresenter myContentPresenter = tabControl.Template.FindName("PART_SelectedContentHost", tabControl) as ContentPresenter;
+                    if (myContentPresenter.ContentTemplate == tabControl.ContentTemplate)
+                    {
+                        myContentPresenter.ApplyTemplate();
+                        Grid grid = myContentPresenter.ContentTemplate.FindName("baseGrid", myContentPresenter) as Grid;
+                        if (grid != null && grid.Tag != null)
+                        {
+                            string portName = grid.Tag.ToString();
+                            TextBox textBox = grid.FindName("textBox") as TextBox;
+                            if (textBox == null) return;
+                            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                            if (portTabItem != null && portTabItem.TextBox == null)
+                            {
+                                portTabItem.TextBox = textBox;
+                            }
+                        }
+
+                    }
+                }));
+            }
         }
     }
 }

@@ -50,7 +50,17 @@ namespace SuperCom.Entity
         public PortSetting Setting
         {
             get { return _Setting; }
-            set { _Setting = value; OnPropertyChanged(); }
+            set
+            {
+                _Setting = value;
+                OnPropertyChanged();
+            }
+        }
+        private CustomSerialPort _SerialPort;
+        public CustomSerialPort SerialPort
+        {
+            get { return _SerialPort; }
+            set { _SerialPort = value; OnPropertyChanged(); }
         }
         private bool _ScrollToEnd;
         public bool ScrollToEnd
@@ -77,6 +87,17 @@ namespace SuperCom.Entity
         public bool AddTimeStamp { get; set; }
 
 
+        public void RefreshSettings()
+        {
+            if (SerialPort != null)
+            {
+                SerialPort.BaudRate = Setting.BaudRate;
+                SerialPort.StopBits = Setting.StopBits;
+                SerialPort.Parity = Setting.Parity;
+                SerialPort.DataBits = Setting.DataBits;
+            }
+
+        }
 
         public DateTime ConnectTime { get; set; }
 
@@ -94,16 +115,16 @@ namespace SuperCom.Entity
         public void SaveData(string line)
         {
             //bool zero = line.IndexOf("\0") >= 0;
-            string value = "";
+            string value = line.Replace("\0", "\\0");
             if (AddTimeStamp)
             {
-                value = $"【{DateHelper.Now()}】 " + line.Replace("\0", "\\0");
-                //value = $"【{DateHelper.Now()}】 " + line;
+                int idx = line.IndexOf("\n");
+                if (idx >= 0)
+                {
+                    value = $"{value.Substring(0, idx)}【{DateHelper.Now()}】{value.Substring(idx + 1)}";
+                }
             }
-            else
-            {
-                value = line.Replace("\0", "\\0");
-            }
+            if (value.IndexOf('\n') < 0 && value.IndexOf("\\0\\0") >= 0) value += "\n";
             if (TextBox != null)
             {
                 TextBox.AppendText(value);

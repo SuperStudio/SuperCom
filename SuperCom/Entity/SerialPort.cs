@@ -27,7 +27,7 @@ namespace SuperCom.Entity
             this.BaudRate = Setting.BaudRate;
             this.Parity = Setting.Parity;
             this.DataBits = Setting.DataBits;
-            this.StopBits = Setting.Stopbits;
+            this.StopBits = Setting.StopBits;
         }
 
 

@@ -9,20 +9,23 @@ namespace SuperCom.ViewModel
 
     public class VieModel_Main : ViewModelBase
     {
+        /* 已经打开的选项卡 */
         private ObservableCollection<PortTabItem> _PortTabItems;
         public ObservableCollection<PortTabItem> PortTabItems
         {
             get { return _PortTabItems; }
             set { _PortTabItems = value; RaisePropertyChanged(); }
         }
-        private ObservableCollection<SerialComPort> _SerialComPorts;
-        public ObservableCollection<SerialComPort> SerialComPorts
+
+        /* 侧边栏串口选项 */
+        private ObservableCollection<SideComPort> _SideComPorts;
+        public ObservableCollection<SideComPort> SideComPorts
         {
-            get { return _SerialComPorts; }
-            set { _SerialComPorts = value; RaisePropertyChanged(); }
+            get { return _SideComPorts; }
+            set { _SideComPorts = value; RaisePropertyChanged(); }
         }
 
-        public List<CustomSerialPort> SerialPorts { get; set; }
+        //public List<CustomSerialPort> SerialPorts { get; set; }
         private string _StatusText = "就绪";
         public string StatusText
         {
@@ -38,17 +41,17 @@ namespace SuperCom.ViewModel
         public void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
-            SerialPorts = new List<CustomSerialPort>();
+            //SerialPorts = new List<CustomSerialPort>();
             InitPortSampleData();
         }
 
         public void InitPortSampleData()
         {
             string[] ports = SerialPort.GetPortNames();
-            SerialComPorts = new ObservableCollection<SerialComPort>();
+            SideComPorts = new ObservableCollection<SideComPort>();
             foreach (string port in ports)
             {
-                SerialComPorts.Add(new SerialComPort(port, false));
+                SideComPorts.Add(new SideComPort(port, false));
             }
         }
     }

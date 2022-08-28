@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="Utils\DateHelper.cs" />
     <Compile Include="Utils\FileHelper.cs" />
+    <Compile Include="Utils\TransHelper.cs" />
     <Compile Include="Utils\VisualHelper.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
     <Page Include="CustomStyle\Basic.xaml">

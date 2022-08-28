@@ -8,6 +8,36 @@ namespace SuperCom.Utils
 {
     public static class DateHelper
     {
+
+
+        public static DateTime UnixTimeStampToDateTime(long unixTimeStamp, bool second = true)
+        {
+            DateTimeOffset dateTimeOffset;
+            if (second)
+            {
+                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
+            }
+            else
+            {
+                dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimeStamp);
+            }
+            return dateTimeOffset.DateTime;
+        }
+
+        public static double DateTimeToUnixTimeStamp(DateTime dateTime, bool second = true)
+        {
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, TimeSpan.FromSeconds(0));
+            if (second)
+            {
+                return dateTimeOffset.ToUnixTimeSeconds();
+            }
+            else
+            {
+                return dateTimeOffset.ToUnixTimeMilliseconds();
+            }
+        }
+
+
         public static string Now()
         {
             return DateTime.Now.toLocalDate();

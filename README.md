@@ -23,6 +23,16 @@ SuperCom 是一款**串口调试工具**，支持以下特点：
 - 可以设置波特率、位大小等串口设置
 - 可发送各种 AT 指令
 
+## 特性
+
+一、支持 HEX 与字符串互转
+
+<img src="Image/hex.gif" alt="hex" style="zoom:80%;" />
+
+二、支持时间戳与北京时间互转
+
+<img src="Image/time.gif" alt="time" style="zoom:80%;" />
+
 # 下载
 
 最新版本：[点此下载](https://github.com/SuperStudio/SuperCom/releases)

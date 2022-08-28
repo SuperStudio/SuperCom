@@ -328,9 +328,12 @@ namespace SuperCom
             {
                 try
                 {
-                    serialPort.Open();
-                    portTabItem.ConnectTime = DateTime.Now;
-                    SetPortConnectStatus(portName, true);
+                    if (!serialPort.IsOpen)
+                    {
+                        serialPort.Open();
+                        portTabItem.ConnectTime = DateTime.Now;
+                        SetPortConnectStatus(portName, true);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -550,7 +553,7 @@ namespace SuperCom
             ToggleButton toggleButton = sender as ToggleButton;
             bool fix = (bool)toggleButton.IsChecked;
             PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-            if (portTabItem != null)
+            if (portTabItem != null && portTabItem.TextBox != null)
             {
                 if (fix)
                     portTabItem.TextBox.TextChanged -= TextBox_TextChanged;
@@ -871,6 +874,109 @@ namespace SuperCom
             {
                 Console.WriteLine(SplitPanelType.Bottom);
             }
+        }
+
+        private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            CloseAllPort(null, null);
+        }
+
+        private void OpenHexTransform(object sender, RoutedEventArgs e)
+        {
+            string text = GetCurrentText(sender as FrameworkElement);
+            if (string.IsNullOrEmpty(text)) return;
+            hexTransPopup.IsOpen = true;
+            HexTextBox.Text = text;
+            HexToStr(null, null);
+        }
+
+
+        private string GetCurrentText(FrameworkElement element)
+        {
+            MenuItem menuItem = element as MenuItem;
+            if (menuItem != null && menuItem.Parent is ContextMenu contextMenu)
+            {
+                if (contextMenu.PlacementTarget is TextBox textBox)
+                {
+                    return textBox.SelectedText;
+                }
+            }
+            return null;
+
+        }
+
+        private void OpenTimeTransform(object sender, RoutedEventArgs e)
+        {
+            string text = GetCurrentText(sender as FrameworkElement);
+            if (string.IsNullOrEmpty(text)) return;
+            timeTransPopup.IsOpen = true;
+            TimeStampTextBox.Text = text;
+            TimeStampToLocalTime(null, null);
+        }
+
+        private void HexToStr(object sender, RoutedEventArgs e)
+        {
+            StrTextBox.Text = TransHelper.HexToStr(HexTextBox.Text);
+        }
+
+        private void StrToHex(object sender, RoutedEventArgs e)
+        {
+            string text = TransHelper.StrToHex(StrTextBox.Text);
+            if ((bool)HexToStrSwitch.IsChecked)
+            {
+                HexTextBox.Text = text;
+            }
+            else
+            {
+                HexTextBox.Text = text.ToLower();
+            }
+
+        }
+
+        private void Switch_Click(object sender, RoutedEventArgs e)
+        {
+            Switch obj = sender as Switch;
+            if ((bool)obj.IsChecked)
+            {
+                HexTextBox.Text = HexTextBox.Text.ToUpper();
+            }
+            else
+            {
+                HexTextBox.Text = HexTextBox.Text.ToLower();
+            }
+        }
+
+
+        private void TimeStampToLocalTime(object sender, RoutedEventArgs e)
+        {
+            bool success = long.TryParse(TimeStampTextBox.Text, out long timeStamp);
+            if (!success)
+            {
+                LocalTimeTextBox.Text = "解析失败";
+                return;
+            }
+            try
+            {
+                LocalTimeTextBox.Text = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0).toLocalDate();
+            }
+            catch (Exception ex)
+            {
+                LocalTimeTextBox.Text = ex.Message;
+            }
+        }
+
+        private void LocalTimeToTimeStamp(object sender, RoutedEventArgs e)
+        {
+            bool success = DateTime.TryParse(LocalTimeTextBox.Text, out DateTime dt);
+            if (!success)
+            {
+                TimeStampTextBox.Text = "解析失败";
+            }
+            else
+            {
+                TimeStampTextBox.Text = DateHelper.DateTimeToUnixTimeStamp(dt, TimeComboBox.SelectedIndex == 0).ToString();
+            }
+
         }
     }
 }

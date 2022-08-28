@@ -12,6 +12,7 @@
     Height="500"
     MinWidth="600"
     Background="{DynamicResource Window.Background}"
+    Closing="mainWindow_Closing"
     Foreground="{DynamicResource Window.Foreground}"
     TitleHeight="0"
     WindowStartupLocation="CenterScreen"
@@ -685,6 +686,214 @@
                 Width="4"
                 Panel.ZIndex="10"
                 Style="{StaticResource HoverSpliter}" />
+
+            <Popup
+                x:Name="hexTransPopup"
+                Width="300"
+                Height="auto"
+                AllowsTransparency="True"
+                HorizontalOffset="-150"
+                Placement="Mouse"
+                PopupAnimation="Fade"
+                StaysOpen="False"
+                VerticalOffset="-80">
+                <Grid Margin="5">
+                    <Border
+                        Margin="5"
+                        Background="{DynamicResource Menu.Background}"
+                        CornerRadius="5"
+                        Effect="{StaticResource PopupDropShadowEffect}" />
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Grid.Row="0"
+                                FontWeight="Bold"
+                                Text="HEX" />
+                            <super:Switch
+                                Name="HexToStrSwitch"
+                                Height="16"
+                                Margin="20,0,5,0"
+                                BorderBrush="{DynamicResource Window.Title.Background}"
+                                Click="Switch_Click" />
+                            <TextBlock Text="大写" />
+                        </StackPanel>
+
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,10"
+                            Padding="5"
+                            Background="{DynamicResource Window.Title.Background}"
+                            CornerRadius="5">
+                            <TextBox
+                                Name="HexTextBox"
+                                Grid.Row="1"
+                                MaxHeight="100"
+                                HorizontalAlignment="Stretch"
+                                Background="Transparent"
+                                ContextMenu="{StaticResource TextBoxContextMenu}"
+                                Style="{StaticResource MultiLineTextBox}"
+                                VerticalScrollBarVisibility="Auto" />
+                        </Border>
+
+
+
+                        <TextBlock
+                            Grid.Row="2"
+                            FontWeight="Bold"
+                            Text="字符串" />
+
+                        <Border
+                            Grid.Row="3"
+                            Margin="0,10,0,0"
+                            Padding="5"
+                            Background="{DynamicResource Window.Title.Background}"
+                            CornerRadius="5">
+                            <TextBox
+                                Name="StrTextBox"
+                                Grid.Row="1"
+                                MaxHeight="100"
+                                HorizontalAlignment="Stretch"
+                                Background="Transparent"
+                                ContextMenu="{StaticResource TextBoxContextMenu}"
+                                Style="{StaticResource MultiLineTextBox}"
+                                VerticalScrollBarVisibility="Auto" />
+                        </Border>
+
+                        <WrapPanel
+                            Grid.Row="4"
+                            Margin="0,10"
+                            Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,5,0"
+                                Click="HexToStr"
+                                Content="Hex =&gt; Str"
+                                Style="{StaticResource ButtonPrimary}" />
+                            <Button
+                                Margin="5,0"
+                                Click="StrToHex"
+                                Content="Str =&gt; Hex"
+                                Style="{StaticResource ButtonPrimary}" />
+                        </WrapPanel>
+
+                    </Grid>
+
+                </Grid>
+            </Popup>
+            <Popup
+                x:Name="timeTransPopup"
+                Width="330"
+                Height="auto"
+                AllowsTransparency="True"
+                HorizontalOffset="-150"
+                Placement="Mouse"
+                PopupAnimation="Fade"
+                StaysOpen="False"
+                VerticalOffset="-120">
+                <Grid Margin="5">
+                    <Border
+                        Margin="5"
+                        Background="{DynamicResource Menu.Background}"
+                        CornerRadius="5"
+                        Effect="{StaticResource PopupDropShadowEffect}" />
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock
+                                Grid.Row="0"
+                                VerticalAlignment="Center"
+                                FontWeight="Bold"
+                                Text="时间戳" />
+
+                            <ComboBox
+                                Name="TimeComboBox"
+                                Width="100"
+                                Margin="20,0"
+                                FontSize="10"
+                                SelectedIndex="0"
+                                Style="{StaticResource BorderComboBox}">
+                                <ComboBoxItem Content="秒(s)" />
+                                <ComboBoxItem Content="毫秒(ms)" />
+                            </ComboBox>
+
+
+                        </StackPanel>
+
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,10"
+                            Padding="5"
+                            Background="{DynamicResource Window.Title.Background}"
+                            CornerRadius="5">
+                            <TextBox
+                                Name="TimeStampTextBox"
+                                Grid.Row="1"
+                                MaxHeight="100"
+                                HorizontalAlignment="Stretch"
+                                Background="Transparent"
+                                ContextMenu="{StaticResource TextBoxContextMenu}"
+                                Style="{StaticResource MultiLineTextBox}"
+                                VerticalScrollBarVisibility="Auto" />
+                        </Border>
+
+
+
+                        <TextBlock
+                            Grid.Row="2"
+                            FontWeight="Bold"
+                            Text="北京时间" />
+
+                        <Border
+                            Grid.Row="3"
+                            Margin="0,10,0,0"
+                            Padding="5"
+                            Background="{DynamicResource Window.Title.Background}"
+                            CornerRadius="5">
+                            <TextBox
+                                Name="LocalTimeTextBox"
+                                Grid.Row="1"
+                                MaxHeight="100"
+                                HorizontalAlignment="Stretch"
+                                Background="Transparent"
+                                ContextMenu="{StaticResource TextBoxContextMenu}"
+                                Style="{StaticResource MultiLineTextBox}"
+                                VerticalScrollBarVisibility="Auto" />
+                        </Border>
+
+                        <WrapPanel
+                            Grid.Row="4"
+                            Margin="0,10"
+                            Orientation="Horizontal">
+                            <Button
+                                Margin="0,0,5,0"
+                                Click="TimeStampToLocalTime"
+                                Content="时间戳 =&gt; 北京时间"
+                                Style="{StaticResource ButtonPrimary}" />
+                            <Button
+                                Margin="5,0"
+                                Click="LocalTimeToTimeStamp"
+                                Content="北京时间 =&gt; 时间戳"
+                                Style="{StaticResource ButtonPrimary}" />
+                        </WrapPanel>
+
+                    </Grid>
+
+                </Grid>
+            </Popup>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -831,12 +1040,24 @@
                                             Name="textBox"
                                             Background="Transparent"
                                             BorderThickness="0"
-                                            ContextMenu="{StaticResource CopyContextMenu}"
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            TextChanged="TextBox_TextChanged" />
+                                            TextChanged="TextBox_TextChanged">
+                                            <TextBox.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+
+                                                    <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
+                                                    <MenuItem Click="OpenTimeTransform" Header="时间戳" />
+                                                </ContextMenu>
+                                            </TextBox.ContextMenu>
+                                        </TextBox>
+
+
                                     </Border>
+
+
                                     <StackPanel
                                         Grid.Row="0"
                                         Margin="30,20"

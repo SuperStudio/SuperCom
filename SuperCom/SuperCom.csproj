@@ -38,7 +38,7 @@
     <StartupObject>SuperCom.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\Ico\Icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Ico\ICON_256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
@@ -96,11 +96,15 @@
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Entity\PortSetting.cs" />
-    <Compile Include="Entity\SerialPort.cs">
+    <Compile Include="Entity\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Entity\PortSetting.cs" />
+    <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />
+    <Compile Include="UserControls\PortDataView.xaml.cs">
+      <DependentUpon>PortDataView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\DateHelper.cs" />
     <Compile Include="Utils\FileHelper.cs" />
     <Compile Include="Utils\VisualHelper.cs" />
@@ -127,6 +131,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\PortDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -168,7 +176,7 @@
     <Resource Include="Resources\Ico\Icon_64.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Ico\Icon.ico" />
+    <Resource Include="Resources\Ico\ICON_256.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

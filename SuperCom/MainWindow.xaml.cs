@@ -175,14 +175,16 @@ namespace SuperCom
         {
             Border border = (Border)sender;
             if (border == null) return;
-            string id = border.Tag.ToString();
-            if (string.IsNullOrEmpty(id) || vieModel.PortTabItems?.Count <= 0) return;
+            string portName = border.Tag.ToString();
+            if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
+
             for (int i = 0; i < vieModel.PortTabItems.Count; i++)
             {
-                if (vieModel.PortTabItems[i].ID.Equals(id))
+                if (vieModel.PortTabItems[i].Name.Equals(portName))
                 {
                     vieModel.PortTabItems[i].Selected = true;
-                    tabControl.SelectedIndex = i;
+                    //tabControl.SelectedIndex = i;
+                    SetGridVisible(portName);
                 }
                 else
                 {
@@ -190,6 +192,29 @@ namespace SuperCom
                 }
             }
 
+        }
+
+
+
+        private void SetGridVisible(string portName)
+        {
+            if (string.IsNullOrEmpty(portName)) return;
+            for (int i = 0; i < itemsControl.Items.Count; i++)
+            {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null) continue;
+                Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "baseGrid");
+                if (grid == null || grid.Tag == null) continue;
+                string name = grid.Tag.ToString();
+                if (portName.Equals(name))
+                {
+                    grid.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    grid.Visibility = Visibility.Hidden;
+                }
+            }
         }
 
         private void scrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
@@ -204,13 +229,19 @@ namespace SuperCom
             Button button = sender as Button;
             Grid grid = (button.Parent as Border).Parent as Grid;
             Border border = grid.Parent as Border;
-            string id = border.Tag.ToString();
-            if (string.IsNullOrEmpty(id) || vieModel.PortTabItems?.Count <= 0) return;
+            string portName = border.Tag.ToString();
+            if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
 
+            RemovePortTabItem(portName);
+        }
+
+
+        private void RemovePortTabItem(string portName)
+        {
             int idx = -1;
             for (int i = 0; idx < vieModel.PortTabItems.Count; i++)
             {
-                if (vieModel.PortTabItems[i].ID.Equals(id))
+                if (vieModel.PortTabItems[i].Name.Equals(portName))
                 {
                     idx = i;
                     break;
@@ -218,13 +249,23 @@ namespace SuperCom
             }
             if (idx >= 0)
             {
+                ClosePort(portName);
                 vieModel.PortTabItems.RemoveAt(idx);
             }
         }
 
         private void RefreshPortsStatus(object sender, MouseButtonEventArgs e)
         {
+            List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
             vieModel.InitPortSampleData();
+            for (int i = 0; i < vieModel.SideComPorts.Count; i++)
+            {
+                SideComPort sideComPort = sideComPorts.Where(arg => arg.Name.Equals(vieModel.SideComPorts[i].Name)).FirstOrDefault();
+                if (sideComPort != null)
+                {
+                    vieModel.SideComPorts[i] = sideComPort;
+                }
+            }
         }
 
         private async void ConnectPort(object sender, RoutedEventArgs e)
@@ -234,7 +275,6 @@ namespace SuperCom
             button.IsEnabled = false;
             string content = button.Content.ToString();
             string portName = button.Tag.ToString();
-            bool connected = false;
             SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (sideComPort == null)
             {
@@ -246,73 +286,79 @@ namespace SuperCom
             if ("连接".Equals(content))
             {
                 // 连接
-                OpenPortTabItem(portName, true);
-                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (portTabItem == null)
-                {
-                    MessageCard.Error($"打开 {portName} 失败！");
-                    return;
-                }
-                CustomSerialPort serialPort;
-                if (portTabItem.SerialPort == null)
-                {
-                    serialPort = new CustomSerialPort(portName);
-                    serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
-                    {
-                        HandleDataReceived(serialPort);
-                    });
-                    portTabItem.SerialPort = serialPort;
-                }
-                else
-                {
-                    serialPort = portTabItem.SerialPort;
-                }
-                sideComPort.PortTabItem = portTabItem;
-                await Task.Run(() =>
-                {
-                    try
-                    {
-
-                        serialPort.Open();
-                        connected = true;
-                        portTabItem.ConnectTime = DateTime.Now;
-                    }
-                    catch (Exception ex)
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            string msg = $"打开串口 {portName} 失败：{ex.Message}";
-                            MessageCard.Error(msg);
-                            vieModel.StatusText = msg;
-                        });
-
-                    }
-                });
+                await OpenPort(sideComPort);
             }
             else
             {
                 // 断开
-                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (portTabItem == null) return;
-                CustomSerialPort serialPort = portTabItem.SerialPort;
-                if (serialPort != null && serialPort.IsOpen)
-                {
-                    serialPort.Close();
-                    serialPort.Dispose();
-                }
-                connected = false;
-            }
-
-            SetTabStatus(portName, connected);
-            foreach (var item in vieModel.SideComPorts)
-            {
-                if (item.Name.Equals(portName))
-                {
-                    item.Connected = connected;
-                    break;
-                }
+                ClosePort(portName);
             }
             button.IsEnabled = true;
+        }
+
+        private async Task<bool> OpenPort(SideComPort sideComPort)
+        {
+            if (sideComPort == null) return false;
+            string portName = sideComPort.Name;
+            OpenPortTabItem(portName, true);
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (portTabItem == null)
+            {
+                MessageCard.Error($"打开 {portName} 失败！");
+                return false;
+            }
+            CustomSerialPort serialPort;
+            if (portTabItem.SerialPort == null)
+            {
+                serialPort = new CustomSerialPort(portName);
+                serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
+                {
+                    HandleDataReceived(serialPort);
+                });
+                portTabItem.SerialPort = serialPort;
+            }
+            else
+            {
+                serialPort = portTabItem.SerialPort;
+            }
+            await Task.Delay(1000);
+            portTabItem.TextBox = FindTextBoxByPortName(portName);
+            sideComPort.PortTabItem = portTabItem;
+            await Task.Run(() =>
+            {
+                try
+                {
+                    serialPort.Open();
+                    portTabItem.ConnectTime = DateTime.Now;
+                    SetPortConnectStatus(portName, true);
+                }
+                catch (Exception ex)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        string msg = $"打开串口 {portName} 失败：{ex.Message}";
+                        MessageCard.Error(msg);
+                        vieModel.StatusText = msg;
+                        RemovePortTabItem(portName);
+                    });
+                    SetPortConnectStatus(portName, false);
+                }
+            });
+
+            return true;
+        }
+
+        private void ClosePort(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (portTabItem == null) return;
+            CustomSerialPort serialPort = portTabItem.SerialPort;
+            if (serialPort != null && serialPort.IsOpen)
+            {
+                serialPort.Close();
+                serialPort.Dispose();
+            }
+            SetPortConnectStatus(portName, false);
         }
 
         private void HandleDataReceived(CustomSerialPort serialPort)
@@ -322,20 +368,34 @@ namespace SuperCom
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (portTabItem != null)
             {
-                Dispatcher.Invoke(() =>
+                try
                 {
-                    portTabItem.SaveData(line);
-                });
-
-
-
+                    Dispatcher.Invoke(() =>
+                    {
+                        portTabItem.SaveData(line);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
 
         }
 
-        private void SetTabStatus(string portName, bool status)
+        private void SetPortConnectStatus(string portName, bool status)
         {
+
             foreach (var item in vieModel.PortTabItems)
+            {
+                if (item.Name.Equals(portName))
+                {
+                    item.Connected = status;
+                    break;
+                }
+            }
+
+            foreach (var item in vieModel.SideComPorts)
             {
                 if (item.Name.Equals(portName))
                 {
@@ -352,13 +412,12 @@ namespace SuperCom
                 vieModel.PortTabItems = new System.Collections.ObjectModel.ObservableCollection<PortTabItem>();
 
             bool existed = false;
-            int idx = 0;
             for (int i = 0; i < vieModel.PortTabItems.Count; i++)
             {
-                if (vieModel.PortTabItems[i].ID.Equals(portName))
+                if (vieModel.PortTabItems[i].Name.Equals(portName))
                 {
-                    idx = i;
                     vieModel.PortTabItems[i].Selected = true;
+                    SetGridVisible(portName);
                     existed = true;
                 }
                 else
@@ -368,14 +427,12 @@ namespace SuperCom
             }
             if (!existed)
             {
-                PortTabItem portTabItem = new PortTabItem(portName, connect, portName);
+                PortTabItem portTabItem = new PortTabItem(portName, connect);
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
                 portTabItem.Selected = true;
+                SetGridVisible(portName);
                 vieModel.PortTabItems.Add(portTabItem);
-                idx = vieModel.PortTabItems.Count - 1;
             }
-
-            tabControl.SelectedIndex = idx;
         }
 
         private void Grid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -513,6 +570,20 @@ namespace SuperCom
             return null;
         }
 
+        private TextBox FindTextBoxByPortName(string portName)
+        {
+            if (string.IsNullOrEmpty(portName)) return null;
+            for (int i = 0; i < itemsControl.Items.Count; i++)
+            {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null) continue;
+                Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "rootGrid");
+                if (grid != null && grid.Tag != null && portName.Equals(grid.Tag.ToString())
+                    && FindTextBox(grid) is TextBox textBox) return textBox;
+            }
+            return null;
+        }
+
         private void GotoTop(object sender, MouseButtonEventArgs e)
         {
             StackPanel stackPanel = (sender as Border).Parent as StackPanel;
@@ -617,7 +688,15 @@ namespace SuperCom
                         value += "\r\n";
                     }
                     portTabItem.SaveData($"【SEND】 {value}");
-                    port.Write(value);
+                    try
+                    {
+                        port.Write(value);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageCard.Error(ex.Message);
+                    }
+
                     vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
                 }
             }
@@ -687,31 +766,110 @@ namespace SuperCom
         {
             Console.WriteLine($"TextBox.Text = {(sender as TextBox)?.Text}");
         }
-        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (tabControl.SelectedItem != null)
-            {
-                tabControl.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    ContentPresenter myContentPresenter = tabControl.Template.FindName("PART_SelectedContentHost", tabControl) as ContentPresenter;
-                    if (myContentPresenter.ContentTemplate == tabControl.ContentTemplate)
-                    {
-                        myContentPresenter.ApplyTemplate();
-                        Grid grid = myContentPresenter.ContentTemplate.FindName("baseGrid", myContentPresenter) as Grid;
-                        if (grid != null && grid.Tag != null)
-                        {
-                            string portName = grid.Tag.ToString();
-                            TextBox textBox = grid.FindName("textBox") as TextBox;
-                            if (textBox == null) return;
-                            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                            if (portTabItem != null && portTabItem.TextBox == null)
-                            {
-                                portTabItem.TextBox = textBox;
-                            }
-                        }
 
-                    }
-                }));
+        private void ShowSettingsPopup(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Border border = sender as Border;
+                ContextMenu contextMenu = border.ContextMenu;
+                contextMenu.PlacementTarget = border;
+                contextMenu.Placement = PlacementMode.Top;
+                contextMenu.IsOpen = true;
+            }
+            e.Handled = true;
+        }
+
+        private void ShowSplitPopup(object sender, RoutedEventArgs e)
+        {
+            panelSplitPopup.IsOpen = true;
+        }
+
+        private void ShowContextMenu(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Border border = sender as Border;
+                ContextMenu contextMenu = border.ContextMenu;
+                contextMenu.PlacementTarget = border;
+                contextMenu.Placement = PlacementMode.Bottom;
+                contextMenu.IsOpen = true;
+            }
+            e.Handled = true;
+        }
+
+        private void CloseAllPort(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in vieModel.SideComPorts)
+            {
+                ClosePort(item.Name);
+            }
+        }
+
+        private void OpenAllPort(object sender, RoutedEventArgs e)
+        {
+            foreach (SideComPort item in vieModel.SideComPorts)
+            {
+                OpenPort(item);
+            }
+        }
+
+        private void SplitPanel(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button == null) return;
+            if (button.Parent is Grid grid)
+            {
+                SplitPanel(SplitPanelType.Left | SplitPanelType.Right);
+            }
+            else if (button.Parent is StackPanel panel)
+            {
+                int idx = panel.Children.IndexOf(button);
+                if (idx == 0)
+                {
+                    SplitPanel(SplitPanelType.Top | SplitPanelType.Bottom);
+                }
+                else if (idx == 1)
+                {
+                    SplitPanel(SplitPanelType.Top | SplitPanelType.Bottom | SplitPanelType.Left | SplitPanelType.Right);
+                }
+                else if (idx == 2)
+                {
+                    SplitPanel(SplitPanelType.Bottom | SplitPanelType.Left | SplitPanelType.Right);
+                }
+                else if (idx == 3)
+                {
+                    SplitPanel(SplitPanelType.Top | SplitPanelType.Left | SplitPanelType.Right);
+                }
+                else if (idx == 4)
+                {
+                    SplitPanel(SplitPanelType.None);
+                }
+            }
+            panelSplitPopup.IsOpen = false;
+        }
+
+        private void SplitPanel(SplitPanelType type)
+        {
+            if (type == SplitPanelType.None)
+            {
+                Console.WriteLine(SplitPanelType.None);
+            }
+            if ((type & SplitPanelType.Left) != 0)
+            {
+                Console.WriteLine(SplitPanelType.Left);
+            }
+            if ((type & SplitPanelType.Right) != 0)
+            {
+                Console.WriteLine(SplitPanelType.Right);
+            }
+            if ((type & SplitPanelType.Top) != 0)
+            {
+                Console.WriteLine(SplitPanelType.Top);
+            }
+            if ((type & SplitPanelType.Bottom) != 0)
+            {
+                Console.WriteLine(SplitPanelType.Bottom);
             }
         }
     }

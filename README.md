@@ -11,6 +11,8 @@
 [![Star](https://img.shields.io/github/stars/SuperStudio/SuperCom?label=Star%20this%20repo)](https://github.com/SuperStudio/SuperCom)
 [![Fork](https://img.shields.io/github/forks/SuperStudio/SuperCom?label=Fork%20this%20repo)](https://github.com/SuperStudio/SuperCom/fork)
 
+<img src="Image/image-20220828232341836.png" alt="image-20220828232341836" style="zoom:80%;" />
+
 # 关于
 
 SuperCom 是一款**串口调试工具**，支持以下特点：

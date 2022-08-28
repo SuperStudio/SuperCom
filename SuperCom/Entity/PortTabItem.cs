@@ -12,12 +12,6 @@ namespace SuperCom.Entity
 {
     public class PortTabItem : INotifyPropertyChanged
     {
-        private string _ID;
-        public string ID
-        {
-            get { return _ID; }
-            set { _ID = value; OnPropertyChanged(); }
-        }
         private string _Name;
         public string Name
         {
@@ -146,11 +140,10 @@ namespace SuperCom.Entity
 
 
 
-        public PortTabItem(string name, bool connected, string id)
+        public PortTabItem(string name, bool connected)
         {
             Name = name;
             Connected = connected;
-            ID = id;
             Setting = new PortSetting();
             Builder = new StringBuilder();
             AddTimeStamp = true;

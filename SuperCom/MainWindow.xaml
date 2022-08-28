@@ -73,7 +73,7 @@
                             Margin="5,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
-                            Source="/Resources/Ico/Icon_64.png" />
+                            Source="/Resources/Ico/ICON_64.png" />
                         <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding ElementName=mainWindow, Path=Title}" />
 
                     </StackPanel>
@@ -98,11 +98,7 @@
                                 </ContextMenu>
                             </Button.ContextMenu>
                         </Button>
-                        <Button
-                            Width="70"
-                            Click="ShowAbout"
-                            Content="关于"
-                            Style="{StaticResource TitleButton}" />
+
                     </StackPanel>
                 </Grid>
 
@@ -115,6 +111,313 @@
                     Height="30"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Grid.Column="0"
+                            Width="40"
+                            VerticalAlignment="Stretch"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Click="SplitPanel"
+                            Style="{StaticResource FlatButton}">
+                            <Canvas>
+                                <Rectangle
+                                    Canvas.Left="-11"
+                                    Canvas.Top="-7"
+                                    Width="8"
+                                    Height="15"
+                                    RadiusX="2"
+                                    RadiusY="2"
+                                    Stroke="{DynamicResource Window.Foreground}"
+                                    StrokeThickness="1.5" />
+
+                                <Rectangle
+                                    Canvas.Left="-1"
+                                    Canvas.Top="-8"
+                                    Width="1"
+                                    Height="18"
+                                    Fill="{DynamicResource Window.Foreground}" />
+                                <Rectangle
+                                    Canvas.Left="2"
+                                    Canvas.Top="-7"
+                                    Width="8"
+                                    Height="15"
+                                    RadiusX="2"
+                                    RadiusY="2"
+                                    Stroke="{DynamicResource Window.Foreground}"
+                                    StrokeThickness="1.5" />
+                            </Canvas>
+                        </Button>
+
+
+
+                        <Button
+                            Name="panelSplitBtn"
+                            Grid.Column="1"
+                            Width="15"
+                            Margin="0"
+                            Padding="0"
+                            VerticalAlignment="Stretch"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Click="ShowSplitPopup"
+                            Style="{StaticResource FlatButton}">
+                            <Viewbox
+                                Width="8"
+                                Height="auto"
+                                VerticalAlignment="Center">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z"
+                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Button>
+
+
+
+                        <Popup
+                            x:Name="panelSplitPopup"
+                            Width="auto"
+                            Height="60"
+                            AllowsTransparency="True"
+                            HorizontalOffset="-80"
+                            Placement="Bottom"
+                            PlacementTarget="{Binding ElementName=panelSplitBtn}"
+                            PopupAnimation="Fade"
+                            StaysOpen="False"
+                            VerticalOffset="0">
+                            <Grid Margin="5">
+                                <Border
+                                    Margin="5"
+                                    Background="{DynamicResource Menu.Background}"
+                                    CornerRadius="5"
+                                    Effect="{StaticResource PopupDropShadowEffect}" />
+                                <StackPanel Margin="5" Orientation="Horizontal">
+
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="40"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="SplitPanel"
+                                        Style="{StaticResource FlatButton}">
+                                        <Canvas>
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="-9"
+                                                Width="19"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="2"
+                                                Width="19"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Width="19"
+                                                Height="1"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                        </Canvas>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="40"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="SplitPanel"
+                                        Style="{StaticResource FlatButton}">
+                                        <Canvas>
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="-9"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="2"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-1"
+                                                Canvas.Top="-9"
+                                                Width="1"
+                                                Height="19"
+                                                Fill="{DynamicResource Window.Foreground}" />
+
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Width="19"
+                                                Height="1"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                            <Rectangle
+                                                Canvas.Left="1"
+                                                Canvas.Top="-9"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="1"
+                                                Canvas.Top="2"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                        </Canvas>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="40"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="SplitPanel"
+                                        Style="{StaticResource FlatButton}">
+                                        <Canvas>
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="-9"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="2"
+                                                Width="19"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-1"
+                                                Canvas.Top="-9"
+                                                Width="1"
+                                                Height="10"
+                                                Fill="{DynamicResource Window.Foreground}" />
+
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Width="19"
+                                                Height="1"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                            <Rectangle
+                                                Canvas.Left="1"
+                                                Canvas.Top="-9"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                        </Canvas>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="40"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="SplitPanel"
+                                        Style="{StaticResource FlatButton}">
+                                        <Canvas>
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="-9"
+                                                Width="19"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="2"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                            <Rectangle
+                                                Canvas.Left="-1"
+                                                Width="1"
+                                                Height="10"
+                                                Fill="{DynamicResource Window.Foreground}" />
+
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Width="19"
+                                                Height="1"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                            <Rectangle
+                                                Canvas.Left="1"
+                                                Canvas.Top="2"
+                                                Width="8"
+                                                Height="8"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                        </Canvas>
+                                    </Button>
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="40"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="SplitPanel"
+                                        Style="{StaticResource FlatButton}">
+                                        <Canvas>
+                                            <Rectangle
+                                                Canvas.Left="-10"
+                                                Canvas.Top="-9"
+                                                Width="19"
+                                                Height="19"
+                                                RadiusX="1"
+                                                RadiusY="1"
+                                                Stroke="{DynamicResource Window.Foreground}"
+                                                StrokeThickness="1.5" />
+                                        </Canvas>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+
+
+
                     <Button
                         Name="themeButton"
                         Width="40"
@@ -201,7 +504,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
                     Width="200"
-                    MinWidth="150"
+                    MinWidth="100"
                     MaxWidth="300" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -215,10 +518,11 @@
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+
                         </Grid.ColumnDefinitions>
                         <Border
-                            Margin="5,0"
+                            Margin="5"
                             MouseLeftButtonUp="RefreshPortsStatus"
                             Style="{StaticResource RoundHoverBorder}">
                             <Viewbox Width="auto" Height="13">
@@ -229,25 +533,29 @@
                                     Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
                             </Viewbox>
                         </Border>
-                        <super:SearchBox
-                            Name="searchBox"
+
+                        <Border
                             Grid.Column="1"
-                            Width="auto"
-                            Height="30"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Top"
-                            Background="{DynamicResource Window.ToolsBar.Background}"
-                            BorderBrush="#326CF3"
-                            BorderThickness="0"
-                            Foreground="{DynamicResource Window.Foreground}"
-                            HideClearButtonOnMouseLeave="False"
-                            PlaceHolder="搜索"
-                            PlaceHolderForeground="{DynamicResource TextBox.PlaceHolder.Foreground}"
-                            SearchOnTextChanged="False"
-                            ShowClearButton="True"
-                            ShowSearchButton="True"
-                            TextPadding="5 0" />
+                            MouseUp="ShowContextMenu"
+                            Style="{StaticResource RoundHoverBorder}">
+                            <Border.ContextMenu>
+                                <ContextMenu HorizontalOffset="-50">
+
+                                    <MenuItem Click="OpenAllPort" Header="打开所有串口" />
+                                    <MenuItem Click="CloseAllPort" Header="关闭所有串口" />
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <Viewbox Width="auto" Height="13">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M897.427256 249.003144 126.57172 249.003144c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 249.003144 897.427256 249.003144z M897.427256 574.73174 126.57172 574.73174c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 574.73174 897.427256 574.73174z M897.427256 900.460336 126.57172 900.460336c-34.673707 0-62.73174-28.088732-62.73174-62.73174 0-34.643008 28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174C960.16002 872.371604 932.101987 900.460336 897.427256 900.460336z"
+                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Border>
+
+
+
 
                     </Grid>
                     <ListBox
@@ -256,6 +564,7 @@
                         d:ItemsSource="{d:SampleData ItemCount=5}"
                         Background="Transparent"
                         ItemsSource="{Binding SideComPorts}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                         Style="{StaticResource NormalListBox}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -305,13 +614,13 @@
                                         <Button.Style>
                                             <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
                                                 <Setter Property="Content" Value="连接" />
-
                                                 <Setter Property="Visibility" Value="Hidden" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Connected}" Value="True">
 
                                                         <Setter Property="Content" Value="断开" />
                                                         <Setter Property="Background" Value="Red" />
+                                                        <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
                                                     </DataTrigger>
 
                                                     <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
@@ -331,6 +640,44 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            FontSize="15"
+                            FontWeight="Bold"
+                            Foreground="Gold"
+                            Text="SuperCom" />
+                        <Border
+                            Grid.Column="1"
+                            Width="30"
+                            Height="30"
+                            Margin="5"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            CornerRadius="5"
+                            MouseUp="ShowSettingsPopup"
+                            Style="{StaticResource HoverBorder}">
+                            <Border.ContextMenu>
+                                <ContextMenu HorizontalOffset="-40">
+                                    <MenuItem Header="设置" IsEnabled="False" />
+                                    <MenuItem Click="ShowAbout" Header="关于" />
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <Viewbox
+                                Width="20"
+                                Height="auto"
+                                VerticalAlignment="Center">
+                                <Path Data="M940 596l-76-57.6c0.8-8 1.6-16.8 1.6-26.4s-0.8-18.4-1.6-26.4l76-57.6c20.8-16 26.4-44 12.8-68l-84.8-143.2c-9.6-16.8-28-27.2-47.2-27.2-6.4 0-12 0.8-18.4 3.2L712 228c-15.2-10.4-31.2-19.2-47.2-26.4l-13.6-92c-4-26.4-26.4-45.6-53.6-45.6H426.4c-27.2 0-49.6 19.2-53.6 44.8L360 201.6c-16 7.2-31.2 16-47.2 26.4l-90.4-35.2c-6.4-2.4-12.8-3.2-19.2-3.2-19.2 0-37.6 9.6-46.4 26.4L71.2 360c-13.6 22.4-8 52 12.8 68l76 57.6c-0.8 9.6-1.6 18.4-1.6 26.4s0 16.8 1.6 26.4l-76 57.6c-20.8 16-26.4 44-12.8 68l84.8 143.2c9.6 16.8 28 27.2 47.2 27.2 6.4 0 12-0.8 18.4-3.2L312 796c15.2 10.4 31.2 19.2 47.2 26.4l13.6 92c3.2 25.6 26.4 45.6 53.6 45.6h171.2c27.2 0 49.6-19.2 53.6-44.8l13.6-92.8c16-7.2 31.2-16 47.2-26.4l90.4 35.2c6.4 2.4 12.8 3.2 19.2 3.2 19.2 0 37.6-9.6 46.4-26.4l85.6-144.8c12.8-23.2 7.2-51.2-13.6-67.2zM704 512c0 105.6-86.4 192-192 192S320 617.6 320 512s86.4-192 192-192 192 86.4 192 192z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Border>
+                    </Grid>
                 </Grid>
             </Border>
             <GridSplitter
@@ -342,15 +689,13 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="auto" />
-
                 </Grid.RowDefinitions>
                 <ScrollViewer
                     Grid.Row="0"
                     HorizontalScrollBarVisibility="Auto"
                     PreviewMouseWheel="scrollViewer_PreviewMouseWheel"
                     VerticalScrollBarVisibility="Hidden">
-                    <ItemsControl Name="tabItemsControl" ItemsSource="{Binding PortTabItems}">
+                    <ItemsControl ItemsSource="{Binding PortTabItems}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Orientation="Horizontal" />
@@ -364,7 +709,7 @@
                                     BorderThickness="1"
                                     Cursor="Hand"
                                     PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown"
-                                    Tag="{Binding ID}">
+                                    Tag="{Binding Name}">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource TabItem.Background}" />
@@ -443,46 +788,35 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-
-                <TabControl
-                    Name="tabControl"
+                <ItemsControl
+                    Name="itemsControl"
                     Grid.Row="1"
                     Background="Transparent"
-                    ItemContainerStyle="{StaticResource FlatTabItem}"
-                    ItemsSource="{Binding PortTabItems}"
-                    SelectionChanged="tabControl_SelectionChanged"
-                    Style="{StaticResource FlatTabControl}">
-                    <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
+                    ItemsSource="{Binding PortTabItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Grid />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
 
-                    <TabControl.ContentTemplate>
+
+                    <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Name="baseGrid" Tag="{Binding Name}">
+                            <Grid
+                                Name="baseGrid"
+                                Background="{DynamicResource Window.Background}"
+                                Tag="{Binding Name}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*" MinHeight="100" />
-
-
                                     <RowDefinition Height="5" />
-                                    <RowDefinition Height="auto" MinHeight="100" />
+                                    <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBox
-                                    Grid.Row="0"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Panel.ZIndex="10"
-                                    Background="Green"
-                                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                    TextChanged="PortTextBoxTextChanged" />
 
                                 <Grid
                                     Name="rootGrid"
                                     Grid.Row="0"
-                                    Margin="5"
                                     Tag="{Binding Name}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
@@ -492,9 +826,8 @@
                                         Grid.Row="0"
                                         Padding="10"
                                         Background="{DynamicResource TabItem.Background}"
-                                        CornerRadius="5"
                                         PreviewMouseWheel="Border_PreviewMouseWheel">
-                                        <!--<TextBox
+                                        <TextBox
                                             Name="textBox"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -502,15 +835,7 @@
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            TextChanged="TextBox_TextChanged" />-->
-                                        <TextBox
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            ContextMenu="{StaticResource CopyContextMenu}"
-                                            Foreground="{DynamicResource Window.Foreground}"
-                                            IsReadOnly="True"
-                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            Text="{Binding Name}" />
+                                            TextChanged="TextBox_TextChanged" />
                                     </Border>
                                     <StackPanel
                                         Grid.Row="0"
@@ -580,6 +905,33 @@
                                         CornerRadius="5"
                                         Tag="{Binding Name}">
                                         <StackPanel Orientation="Horizontal">
+                                            <Button
+                                                Grid.Column="1"
+                                                Margin="5"
+                                                HorizontalAlignment="Right"
+                                                Click="ConnectPort"
+                                                Tag="{Binding Name}">
+                                                <Button.Style>
+                                                    <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
+                                                        <Setter Property="Content" Value="连接" />
+                                                        <Setter Property="Opacity" Value="1" />
+
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Connected}" Value="True">
+
+                                                                <Setter Property="Content" Value="断开" />
+                                                                <Setter Property="Background" Value="Red" />
+                                                                <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
+                                                            </DataTrigger>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Opacity" Value="0.7" />
+                                                            </Trigger>
+
+
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
                                             <Button
                                                 Width="28"
                                                 Height="24"
@@ -652,12 +1004,12 @@
 
 
 
-                                <!--<GridSplitter
+                                <GridSplitter
                                     Grid.Row="1"
                                     Height="4"
                                     HorizontalAlignment="Stretch"
                                     Panel.ZIndex="10"
-                                    Style="{StaticResource HoverSpliter}" />-->
+                                    Style="{StaticResource HoverSpliter}" />
 
                                 <Grid Grid.Row="2">
                                     <Grid.RowDefinitions>
@@ -790,9 +1142,8 @@
                             </Grid>
 
                         </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
-
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Grid>
         </Grid>
         <Grid

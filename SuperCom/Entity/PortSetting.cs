@@ -1,4 +1,5 @@
 ﻿using DynamicData.Annotations;
+using SuperControls.Style;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,7 +21,7 @@ namespace SuperCom.Entity
         Custom
     }
 
-    public class PortSetting : INotifyPropertyChanged
+    public class PortSetting
     {
 
         public static int DEFAULT_BAUDRATE = 115200;
@@ -28,38 +29,18 @@ namespace SuperCom.Entity
         public static StopBits DEFAULT_STOPBITS = StopBits.One;
         public static Parity DEFAULT_PARITY = Parity.None;
         public static FlowControls DEFAULT_FLOWCONTROLS = FlowControls.None;
+        public static string DEFAULT_ENCODING = "UTF8";
 
-        private int _BaudRate;
-        public int BaudRate
-        {
-            get { return _BaudRate; }
-            set { _BaudRate = value; OnPropertyChanged(); }
-        }
-        private int _DataBits;
-        public int DataBits
-        {
-            get { return _DataBits; }
-            set { _DataBits = value; OnPropertyChanged(); }
-        }
-        private StopBits _Stopbits;
-        public StopBits StopBits
-        {
-            get { return _Stopbits; }
-            set { _Stopbits = value; OnPropertyChanged(); }
-        }
+        public int BaudRate { get; set; }
+        public int DataBits { get; set; }
+        public StopBits StopBits { get; set; }
 
-        private Parity _Parity;
-        public Parity Parity
-        {
-            get { return _Parity; }
-            set { _Parity = value; OnPropertyChanged(); }
-        }
-        private FlowControls _FlowControls;
-        public FlowControls FlowControls
-        {
-            get { return _FlowControls; }
-            set { _FlowControls = value; OnPropertyChanged(); }
-        }
+        public Parity Parity { get; set; }
+        public FlowControls FlowControls { get; set; }
+        public string Encoding { get; set; }
+
+
+
 
         public static PortSetting GetDefaultSetting()
         {
@@ -69,16 +50,8 @@ namespace SuperCom.Entity
             portSetting.StopBits = DEFAULT_STOPBITS;
             portSetting.Parity = DEFAULT_PARITY;
             portSetting.FlowControls = DEFAULT_FLOWCONTROLS;
+            portSetting.Encoding = DEFAULT_ENCODING;
             return portSetting;
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

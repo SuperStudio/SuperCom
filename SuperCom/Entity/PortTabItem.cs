@@ -81,17 +81,6 @@ namespace SuperCom.Entity
         public bool AddTimeStamp { get; set; }
 
 
-        public void RefreshSettings()
-        {
-            if (SerialPort != null)
-            {
-                SerialPort.BaudRate = Setting.BaudRate;
-                SerialPort.StopBits = Setting.StopBits;
-                SerialPort.Parity = Setting.Parity;
-                SerialPort.DataBits = Setting.DataBits;
-            }
-
-        }
 
         public DateTime ConnectTime { get; set; }
 
@@ -108,23 +97,36 @@ namespace SuperCom.Entity
 
         public void SaveData(string line)
         {
-            //bool zero = line.IndexOf("\0") >= 0;
             string value = line.Replace("\0", "\\0");
             if (AddTimeStamp)
             {
-                int idx = line.IndexOf("\n");
-                if (idx >= 0)
+                // 遍历字符串
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < value.Length; i++)
                 {
-                    value = $"{value.Substring(0, idx)}【{DateHelper.Now()}】{value.Substring(idx + 1)}";
+                    char c = value[i];
+
+                    if (c == '\r' && i < value.Length - 1 && value[i + 1] == '\n')
+                    {
+                        continue;
+                    }
+                    else if (c == '\r' || c == '\n')
+                    {
+                        builder.Append(c);
+                        builder.Append($"[{DateHelper.Now()}] ");
+                    }
+                    else
+                    {
+                        builder.Append(c);
+                    }
+                    //if (c == '\r' || c == '\n')
+                    //    builder.Append($"{c.ToString().Replace("\r", "\\r").Replace("\n", "\\n")}[{DateHelper.Now()}] ");
                 }
+                value = builder.ToString().Replace("\r\n", "\n");
+                if (string.IsNullOrEmpty(TextBox.Text))
+                    value = $"[{DateHelper.Now()}] " + value;
             }
-            if (value.IndexOf('\n') < 0 && value.IndexOf("\\0\\0") >= 0) value += "\n";
-            if (TextBox != null)
-            {
-                TextBox.AppendText(value);
-            }
-
-
+            TextBox?.AppendText(value);
             // 保存到本地
             string fileName = GetSaveFileName();
             try

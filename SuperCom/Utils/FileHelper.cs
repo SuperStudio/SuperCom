@@ -45,6 +45,28 @@ namespace SuperCom.Utils
 
         }
 
+        public static void TryOpen(string path)
+        {
+            Process fileopener = null;
+            try
+            {
+                fileopener = new Process();
+                fileopener.StartInfo.FileName = "explorer";
+                fileopener.StartInfo.Arguments = "\"" + path + "\"";
+                fileopener.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageCard.Error(ex.Message);
+            }
+            finally
+            {
+                fileopener?.Close();
+            }
+        }
+
+
+
         public static bool TryOpenSelectPath(string path)
         {
             try

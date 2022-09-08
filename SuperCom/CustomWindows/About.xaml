@@ -2,10 +2,10 @@
     x:Class="SuperCom.CustomWindows.About"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:super="https://github.com/SuperStudio/SuperControls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:SuperCom.CustomWindows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
     Title="关于 SuperCom"
     Width="400"
     MinHeight="100"
@@ -44,7 +44,13 @@
                 FontSize="14"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="版本：1.0" />
+                Text="版本：1.1" />
+            <TextBox
+                Margin="10"
+                FontSize="11"
+                Foreground="{DynamicResource Window.Sub.Foreground}"
+                Style="{StaticResource ReadOnlyTextBox}"
+                Text="发行日期：2022-09-09" />
 
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <StackPanel Margin="20,0" Orientation="Horizontal">

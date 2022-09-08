@@ -373,6 +373,7 @@ namespace SuperCom
             {
                 try
                 {
+                    // 异步存储
                     Dispatcher.Invoke(() =>
                     {
                         portTabItem.SaveData(line);
@@ -455,13 +456,6 @@ namespace SuperCom
             (sender as TextBox).ScrollToEnd();
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-
-
         private void ShowAbout(object sender, RoutedEventArgs e)
         {
             new About(this).ShowDialog();
@@ -474,53 +468,6 @@ namespace SuperCom
                 return;
             button.ContextMenu.IsOpen = true;
         }
-
-        private void BaudRateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //if (e.AddedItems.Count == 0) return;
-            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            //int value = PortSetting.DEFAULT_BAUDRATE;
-            //int.TryParse(comboBox.Content.ToString(), out value);
-            //int index = tabControl.SelectedIndex;
-            //if (index < vieModel.SerialPorts?.Count)
-            //    vieModel.SerialPorts[index].BaudRate = value;
-        }
-
-        private void DataBitsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //if (e.AddedItems.Count == 0) return;
-            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            //int value = PortSetting.DEFAULT_DATABITS;
-            //int.TryParse(comboBox.Content.ToString(), out value);
-            //int index = tabControl.SelectedIndex;
-            //if (index < vieModel.SerialPorts?.Count)
-            //    vieModel.SerialPorts[index].DataBits = value;
-        }
-
-        private void StopBitsChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //if (e.AddedItems.Count == 0) return;
-            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            //StopBits value = PortSetting.DEFAULT_STOPBITS;
-            //Enum.TryParse(comboBox.Content.ToString(), out value);
-            //int index = tabControl.SelectedIndex;
-            //if (value == StopBits.None) value = PortSetting.DEFAULT_STOPBITS;
-            //if (index < vieModel.SerialPorts?.Count)
-            //    vieModel.SerialPorts[index].StopBits = value;
-        }
-
-        private void ParityChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //if (e.AddedItems.Count == 0) return;
-            //ComboBoxItem comboBox = (ComboBoxItem)e.AddedItems[0];
-            //Parity value = PortSetting.DEFAULT_PARITY;
-            //Enum.TryParse(comboBox.Content.ToString(), out value);
-            //int index = tabControl.SelectedIndex;
-            //if (index < vieModel.SerialPorts?.Count)
-            //    vieModel.SerialPorts[index].Parity = value;
-        }
-
-
         private static double MAX_FONTSIZE = 25;
         private static double MIN_FONTSIZE = 5;
 
@@ -636,7 +583,15 @@ namespace SuperCom
             if (portTabItem != null)
             {
                 string fileName = portTabItem.GetSaveFileName();
-                FileHelper.TryOpenSelectPath(fileName);
+                if (File.Exists(fileName))
+                {
+                    FileHelper.TryOpenSelectPath(fileName);
+                }
+                else
+                {
+                    MessageCard.Warning($"不存在文件：{fileName}");
+                }
+
             }
 
         }
@@ -690,7 +645,7 @@ namespace SuperCom
                     {
                         value += "\r\n";
                     }
-                    portTabItem.SaveData($"【SEND】 {value}");
+                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
                     try
                     {
                         port.Write(value);
@@ -757,13 +712,6 @@ namespace SuperCom
             return null;
         }
 
-
-
-
-        private void TextBlock_IsVisibleChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
 
         private void PortTextBoxTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -850,6 +798,7 @@ namespace SuperCom
                 }
             }
             panelSplitPopup.IsOpen = false;
+            MessageCard.Info("开发中");
         }
 
         private void SplitPanel(SplitPanelType type)
@@ -977,6 +926,56 @@ namespace SuperCom
                 TimeStampTextBox.Text = DateHelper.DateTimeToUnixTimeStamp(dt, TimeComboBox.SelectedIndex == 0).ToString();
             }
 
+        }
+
+        private void ShowAdvancedOptions(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            WrapPanel wrapPanel = button.Parent as WrapPanel;
+            Grid grid = (wrapPanel.Parent as Border).Parent as Grid;
+            Grid rootGrid = grid.Parent as Grid;
+            Grid advancedGrid = VisualHelper.FindChild(rootGrid, "advancedGrid") as Grid;
+            if (advancedGrid != null)
+                advancedGrid.Visibility = Visibility.Visible;
+        }
+
+        private void HideAdvancedGrid(object sender, RoutedEventArgs e)
+        {
+            StackPanel panel = (sender as Button).Parent as StackPanel;
+            (panel.Parent as Grid).Visibility = Visibility.Hidden;
+        }
+
+        private void SetStayOpenStatus(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+            bool isChecked = (bool)toggleButton.IsChecked;
+            Grid grid = (toggleButton.Parent as Grid).Parent as Grid;
+            Popup popup = grid.Parent as Popup;
+            if (popup != null)
+                popup.StaysOpen = isChecked;
+        }
+
+        private void OpenByDefaultApp(object sender, RoutedEventArgs e)
+        {
+            PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
+            if (portTabItem != null)
+            {
+                string fileName = portTabItem.GetSaveFileName();
+                if (File.Exists(fileName))
+                {
+                    FileHelper.TryOpen(fileName);
+                }
+                else
+                {
+                    MessageCard.Warning($"不存在文件：{fileName}");
+                }
+
+            }
+        }
+
+        private void CheckUpdate(object sender, RoutedEventArgs e)
+        {
+            MessageCard.Info("开发中");
         }
     }
 }

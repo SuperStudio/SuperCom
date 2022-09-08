@@ -668,6 +668,7 @@
                             <Border.ContextMenu>
                                 <ContextMenu HorizontalOffset="-40">
                                     <MenuItem Header="设置" IsEnabled="False" />
+                                    <MenuItem Click="CheckUpdate" Header="检查更新" />
                                     <MenuItem Click="ShowAbout" Header="关于" />
                                 </ContextMenu>
                             </Border.ContextMenu>
@@ -723,8 +724,31 @@
                                 Margin="20,0,5,0"
                                 BorderBrush="{DynamicResource Window.Title.Background}"
                                 Click="Switch_Click" />
-                            <TextBlock Text="大写" />
+                            <TextBlock
+                                Margin="0"
+                                FontSize="12"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="大写" />
+
+
                         </StackPanel>
+                        <ToggleButton
+                            Width="auto"
+                            Height="auto"
+                            Margin="5,0"
+                            Padding="2,2,4,2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Click="SetStayOpenStatus"
+                            Style="{StaticResource FlatToggleButton}">
+                            <Viewbox
+                                Width="15"
+                                Height="auto"
+                                VerticalAlignment="Center">
+                                <Path Data="M187.690667 874.709333h-0.277334a37.504 37.504 0 0 1-26.602666-11.264 37.845333 37.845333 0 0 1-3.904-49.877333l166.762666-229.76-125.013333-125.056a38.229333 38.229333 0 0 1-6.058667-46.336 140.8 140.8 0 0 1 53.504-45.674667 154.24 154.24 0 0 1 67.84-15.552 161.792 161.792 0 0 1 51.84 8.533334l6.4 0.661333c5.781333 0.405333 10.901333 0.981333 15.701334 1.749333a161.877333 161.877333 0 0 0 104.277333-47.253333 144.874667 144.874667 0 0 0 58.474667-90.346667c0-5.802667 0-11.904-0.234667-17.664a80.576 80.576 0 0 1 15.658667-74.858666A84.949333 84.949333 0 0 1 626.858667 106.666667a85.525333 85.525333 0 0 1 54.08 19.328l1.962666 1.941333c18.88 18.432 207.253333 206.933333 209.066667 208.746667A85.930667 85.930667 0 0 1 917.333333 397.888a85.973333 85.973333 0 0 1-25.6 61.205333 67.456 67.456 0 0 1-46.549333 16.874667 199.210667 199.210667 0 0 1-30.229333-3.008 226.176 226.176 0 0 0-15.701334-0.362667h-1.493333a115.605333 115.605333 0 0 0-77.930667 45.205334 210.752 210.752 0 0 0-59.456 118.976c0.917333 7.850667 2.56 21.333333 2.858667 23.125333a144.298667 144.298667 0 0 1-57.258667 165.056 38.229333 38.229333 0 0 1-20.138666 5.717333 38.058667 38.058667 0 0 1-27.093334-11.2l-123.562666-123.733333L209.92 866.986667a36.266667 36.266667 0 0 1-22.229333 7.722666z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </ToggleButton>
 
                         <Border
                             Grid.Row="1"
@@ -795,7 +819,7 @@
                 HorizontalOffset="-150"
                 Placement="Mouse"
                 PopupAnimation="Fade"
-                StaysOpen="False"
+                StaysOpen="True"
                 VerticalOffset="-120">
                 <Grid Margin="5">
                     <Border
@@ -832,6 +856,24 @@
 
 
                         </StackPanel>
+
+                        <ToggleButton
+                            Width="auto"
+                            Height="auto"
+                            Margin="5,0"
+                            Padding="2,2,4,2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Click="SetStayOpenStatus"
+                            Style="{StaticResource FlatToggleButton}">
+                            <Viewbox
+                                Width="15"
+                                Height="auto"
+                                VerticalAlignment="Center">
+                                <Path Data="M187.690667 874.709333h-0.277334a37.504 37.504 0 0 1-26.602666-11.264 37.845333 37.845333 0 0 1-3.904-49.877333l166.762666-229.76-125.013333-125.056a38.229333 38.229333 0 0 1-6.058667-46.336 140.8 140.8 0 0 1 53.504-45.674667 154.24 154.24 0 0 1 67.84-15.552 161.792 161.792 0 0 1 51.84 8.533334l6.4 0.661333c5.781333 0.405333 10.901333 0.981333 15.701334 1.749333a161.877333 161.877333 0 0 0 104.277333-47.253333 144.874667 144.874667 0 0 0 58.474667-90.346667c0-5.802667 0-11.904-0.234667-17.664a80.576 80.576 0 0 1 15.658667-74.858666A84.949333 84.949333 0 0 1 626.858667 106.666667a85.525333 85.525333 0 0 1 54.08 19.328l1.962666 1.941333c18.88 18.432 207.253333 206.933333 209.066667 208.746667A85.930667 85.930667 0 0 1 917.333333 397.888a85.973333 85.973333 0 0 1-25.6 61.205333 67.456 67.456 0 0 1-46.549333 16.874667 199.210667 199.210667 0 0 1-30.229333-3.008 226.176 226.176 0 0 0-15.701334-0.362667h-1.493333a115.605333 115.605333 0 0 0-77.930667 45.205334 210.752 210.752 0 0 0-59.456 118.976c0.917333 7.850667 2.56 21.333333 2.858667 23.125333a144.298667 144.298667 0 0 1-57.258667 165.056 38.229333 38.229333 0 0 1-20.138666 5.717333 38.058667 38.058667 0 0 1-27.093334-11.2l-123.562666-123.733333L209.92 866.986667a36.266667 36.266667 0 0 1-22.229333 7.722666z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </ToggleButton>
 
                         <Border
                             Grid.Row="1"
@@ -1042,6 +1084,7 @@
                                             BorderThickness="0"
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                                             TextChanged="TextBox_TextChanged">
                                             <TextBox.ContextMenu>
@@ -1159,7 +1202,8 @@
                                                 Margin="5,0,0,0"
                                                 super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
                                                 Click="ClearData"
-                                                Style="{StaticResource RoundNormalButton}">
+                                                Style="{StaticResource RoundNormalButton}"
+                                                ToolTip="清空窗口">
                                                 <Viewbox
                                                     Width="15"
                                                     Height="auto"
@@ -1181,7 +1225,8 @@
                                                 VerticalAlignment="Center"
                                                 Background="Transparent"
                                                 Click="SetTextBoxScroll"
-                                                Style="{StaticResource FlatToggleButton}">
+                                                Style="{StaticResource FlatToggleButton}"
+                                                ToolTip="固定/滚屏">
                                                 <Viewbox
                                                     Width="20"
                                                     Height="auto"
@@ -1196,7 +1241,8 @@
                                                 Height="27"
                                                 Margin="5,0"
                                                 Click="OpenPath"
-                                                Style="{StaticResource RoundNormalButton}">
+                                                Style="{StaticResource RoundNormalButton}"
+                                                ToolTip="打开当前日志所在文件夹">
                                                 <Viewbox
                                                     Width="20"
                                                     Height="20"
@@ -1205,6 +1251,24 @@
                                                         HorizontalAlignment="Center"
                                                         VerticalAlignment="Center"
                                                         Data="M183.232 128c0 0-52.544 0 37.184 0 80.448 0 164.288 0 250.368 0 58.368 0 58.24 128.832 140.864 128.832 50.88 0 228.992 0 228.992 0C906.56 256.832 960 310.272 960 376.128l0 398.656c0 65.856-53.44 119.232-119.296 119.232L183.232 894.016C117.44 894.08 64 840.704 64 774.784L64 247.296C64 181.376 117.44 128 183.232 128z"
+                                                        Fill="{DynamicResource Window.Foreground}" />
+                                                </Viewbox>
+                                            </Button>
+                                            <Button
+                                                Width="27"
+                                                Height="27"
+                                                Margin="5,0"
+                                                Click="OpenByDefaultApp"
+                                                Style="{StaticResource RoundNormalButton}"
+                                                ToolTip="用默认应用打开当前日志">
+                                                <Viewbox
+                                                    Width="20"
+                                                    Height="20"
+                                                    VerticalAlignment="Center">
+                                                    <Path
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"
+                                                        Data="M565.8 887.6h-345v-751h361.6v187.1c0 19.9 16.1 36 36 36h187.4v115c0 19.9 16.1 36 36 36s36-16.1 36-36v-151c0-9.6-3.8-18.7-10.6-25.5L643.9 75.1c-0.6-0.6-1.2-1.1-1.8-1.6l-0.4-0.4-1.8-1.5s-0.1-0.1-0.2-0.1l-1.8-1.2-0.6-0.3c-0.6-0.4-1.3-0.8-2-1.1-0.1 0-0.2-0.1-0.2-0.1-0.6-0.3-1.2-0.6-1.9-0.9l-0.6-0.3c-0.7-0.3-1.4-0.6-2.1-0.8-0.1 0-0.1 0-0.2-0.1-0.7-0.2-1.4-0.5-2.1-0.7-0.2-0.1-0.4-0.1-0.6-0.2-0.7-0.2-1.5-0.4-2.3-0.5-0.7-0.1-1.5-0.3-2.3-0.4-0.2 0-0.4-0.1-0.6-0.1-0.7-0.1-1.4-0.2-2.2-0.2H202.1c-29.4 0-53.3 23.9-53.3 53.3v788.4c0 29.4 23.9 53.3 53.3 53.3h363.7c19.9 0 36-16.1 36-36s-16.1-36-36-36z m88.7-599.9V187.5l100.2 100.2H654.5z M921.6 870.7l-80.8-80.8c18.3-27.4 29-60.3 29-95.7 0-95-77-172.1-172.1-172.1-95 0-172.1 77-172.1 172.1 0 95 77 172.1 172.1 172.1 33.6 0 64.9-9.6 91.4-26.3l81.5 81.5c7 7 16.2 10.5 25.5 10.5s18.4-3.5 25.5-10.5c14.1-13.9 14.1-36.7 0-50.8zM597.7 694.3c0-55.2 44.9-100.1 100.1-100.1s100.1 44.9 100.1 100.1S753 794.4 697.8 794.4s-100.1-44.9-100.1-100.1z"
                                                         Fill="{DynamicResource Window.Foreground}" />
                                                 </Viewbox>
                                             </Button>
@@ -1220,7 +1284,78 @@
                                     </Border>
                                 </Grid>
 
-
+                                <Grid
+                                    Name="advancedGrid"
+                                    Grid.Row="0"
+                                    Margin="250,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Bottom"
+                                    Panel.ZIndex="10"
+                                    Visibility="Hidden">
+                                    <Border
+                                        Margin="5"
+                                        Background="{DynamicResource Menu.Background}"
+                                        CornerRadius="5"
+                                        Effect="{StaticResource PopupDropShadowEffect}" />
+                                    <StackPanel Margin="10" Orientation="Vertical">
+                                        <StackPanel Margin="5,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                Width="60"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="编码"
+                                                TextAlignment="Right" />
+                                            <ComboBox
+                                                Width="100"
+                                                SelectedIndex="0"
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.PortEncoding, Mode=TwoWay}">
+                                                <ComboBoxItem>UTF8</ComboBoxItem>
+                                                <ComboBoxItem>ASCII</ComboBoxItem>
+                                                <ComboBoxItem>GBK</ComboBoxItem>
+                                                <ComboBoxItem>GB2312</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Margin="5,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                Width="60"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="Parity"
+                                                TextAlignment="Right" />
+                                            <ComboBox
+                                                Width="100"
+                                                SelectedIndex="0"
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.ParityString, Mode=TwoWay}">
+                                                <ComboBoxItem>None</ComboBoxItem>
+                                                <ComboBoxItem>Odd</ComboBoxItem>
+                                                <ComboBoxItem>Even</ComboBoxItem>
+                                                <ComboBoxItem>Mark</ComboBoxItem>
+                                                <ComboBoxItem>Space</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Margin="5,0" Orientation="Horizontal">
+                                            <TextBlock
+                                                Width="60"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="StopBits"
+                                                TextAlignment="Right" />
+                                            <ComboBox
+                                                Width="100"
+                                                SelectedIndex="0"
+                                                Style="{StaticResource BorderComboBox}"
+                                                Text="{Binding SerialPort.StopBitsString, Mode=TwoWay}">
+                                                <ComboBoxItem>One</ComboBoxItem>
+                                                <ComboBoxItem>Two</ComboBoxItem>
+                                                <ComboBoxItem>OnePointFive</ComboBoxItem>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <Button
+                                            Margin="0,10,0,5"
+                                            VerticalAlignment="Bottom"
+                                            Click="HideAdvancedGrid"
+                                            Content="关闭" />
+                                    </StackPanel>
+                                </Grid>
 
 
 
@@ -1264,28 +1399,11 @@
                                                 <ComboBoxItem>7</ComboBoxItem>
                                                 <ComboBoxItem>8</ComboBoxItem>
                                             </ComboBox>
-                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="StopBits" />
-                                            <ComboBox
-                                                MinWidth="70"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
-                                                Text="{Binding SerialPort.StopBits, Mode=TwoWay}">
-                                                <ComboBoxItem>One</ComboBoxItem>
-                                                <ComboBoxItem>Two</ComboBoxItem>
-                                                <ComboBoxItem>OnePointFive</ComboBoxItem>
-                                            </ComboBox>
-                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="Parity" />
-                                            <ComboBox
-                                                MinWidth="80"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
-                                                Text="{Binding SerialPort.Parity, Mode=TwoWay}">
-                                                <ComboBoxItem>None</ComboBoxItem>
-                                                <ComboBoxItem>Odd</ComboBoxItem>
-                                                <ComboBoxItem>Even</ComboBoxItem>
-                                                <ComboBoxItem>Mark</ComboBoxItem>
-                                                <ComboBoxItem>Space</ComboBoxItem>
-                                            </ComboBox>
+
+
+                                            <Button Click="ShowAdvancedOptions" Content="高级设置" />
+
+
                                             <!--<TextBlock Style="{StaticResource BaseTextBlock}" Text="Flow Controls" />
                                             <ComboBox
                                                 MinWidth="100"
@@ -1306,6 +1424,8 @@
                                     </Border>
 
 
+
+
                                     <Grid Grid.Row="2" MinHeight="100">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -1322,6 +1442,7 @@
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 CaretBrush="{DynamicResource Window.Foreground}"
+                                                ContextMenu="{StaticResource TextBoxContextMenu}"
                                                 Foreground="{DynamicResource Window.Foreground}"
                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                 Text="{Binding WriteData, Mode=TwoWay}" />

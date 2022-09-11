@@ -59,6 +59,9 @@
     <Reference Include="SuperControls.Style">
       <HintPath>..\..\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll</HintPath>
     </Reference>
+    <Reference Include="SuperUtils">
+      <HintPath>..\..\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Reactive, Version=5.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -105,10 +108,6 @@
     <Compile Include="UserControls\PortDataView.xaml.cs">
       <DependentUpon>PortDataView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\DateHelper.cs" />
-    <Compile Include="Utils\FileHelper.cs" />
-    <Compile Include="Utils\TransHelper.cs" />
-    <Compile Include="Utils\VisualHelper.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
     <Page Include="CustomStyle\Basic.xaml">
       <SubType>Designer</SubType>
@@ -179,5 +178,6 @@
   <ItemGroup>
     <Resource Include="Resources\Ico\ICON_256.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,5 +1,5 @@
 ﻿using DynamicData.Annotations;
-using SuperCom.Utils;
+using SuperUtils.Time;
 using System;
 using System.ComponentModel;
 using System.IO;

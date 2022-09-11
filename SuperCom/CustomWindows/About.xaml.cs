@@ -1,5 +1,4 @@
 ﻿using SuperControls.Style;
-using SuperCom.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using SuperUtils.IO;
 
 namespace SuperCom.CustomWindows
 {

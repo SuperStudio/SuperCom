@@ -1,7 +1,6 @@
 ﻿using SuperControls.Style;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
-using SuperCom.Utils;
 using SuperCom.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -22,6 +21,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using SuperUtils.Time;
+using SuperUtils.IO;
+using SuperUtils.Common;
+using SuperUtils.WPF.Visual;
 
 namespace SuperCom
 {
@@ -46,6 +49,14 @@ namespace SuperCom
         public MainWindow()
         {
             InitializeComponent();
+
+            // 注册 SuperUtils 异常事件
+            SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
+            {
+                MessageCard.Error(e.Message);
+            };
+
+
             FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
@@ -865,12 +876,12 @@ namespace SuperCom
 
         private void HexToStr(object sender, RoutedEventArgs e)
         {
-            StrTextBox.Text = TransHelper.HexToStr(HexTextBox.Text);
+            StrTextBox.Text = TransformHelper.HexToStr(HexTextBox.Text);
         }
 
         private void StrToHex(object sender, RoutedEventArgs e)
         {
-            string text = TransHelper.StrToHex(StrTextBox.Text);
+            string text = TransformHelper.StrToHex(StrTextBox.Text);
             if ((bool)HexToStrSwitch.IsChecked)
             {
                 HexTextBox.Text = text;
@@ -906,7 +917,7 @@ namespace SuperCom
             }
             try
             {
-                LocalTimeTextBox.Text = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0).toLocalDate();
+                LocalTimeTextBox.Text = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0).ToLocalDate();
             }
             catch (Exception ex)
             {
@@ -963,7 +974,7 @@ namespace SuperCom
                 string fileName = portTabItem.GetSaveFileName();
                 if (File.Exists(fileName))
                 {
-                    FileHelper.TryOpen(fileName);
+                    FileHelper.TryOpenByDefaultApp(fileName);
                 }
                 else
                 {

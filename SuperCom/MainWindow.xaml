@@ -1300,12 +1300,12 @@
                                             </Button>
                                             <CheckBox
                                                 Margin="10,0"
-                                                Click="AddTimeStamp"
                                                 Content="加时间戳"
                                                 FontSize="15"
-                                                IsChecked="True"
+                                                IsChecked="{Binding AddTimeStamp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource NormalCheckBox}" />
                                             <Button Click="SaveToNewFile" Content="存到新文件" />
+
                                         </StackPanel>
                                     </Border>
                                 </Grid>
@@ -1351,7 +1351,7 @@
                                                 Width="100"
                                                 SelectedIndex="0"
                                                 Style="{StaticResource BorderComboBox}"
-                                                Text="{Binding SerialPort.ParityString, Mode=TwoWay}">
+                                                Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                                 <ComboBoxItem>None</ComboBoxItem>
                                                 <ComboBoxItem>Odd</ComboBoxItem>
                                                 <ComboBoxItem>Even</ComboBoxItem>
@@ -1400,7 +1400,6 @@
                                     </Grid.RowDefinitions>
                                     <Border
                                         Grid.Row="0"
-                                        Margin="5,0"
                                         Padding="5,0"
                                         Background="{DynamicResource Window.Title.Background}"
                                         CornerRadius="5">
@@ -1427,7 +1426,14 @@
                                             </ComboBox>
 
 
-                                            <Button Click="ShowAdvancedOptions" Content="高级设置" />
+                                            <Button
+                                                Margin="5,0"
+                                                Click="ShowAdvancedOptions"
+                                                Content="高级设置" />
+                                            <Button
+                                                Margin="5,0"
+                                                Click="OpenSendPanel"
+                                                Content="发送队列" />
 
 
                                             <!--<TextBlock Style="{StaticResource BaseTextBlock}" Text="Flow Controls" />
@@ -1461,7 +1467,7 @@
                                             <ColumnDefinition Width="100" />
                                         </Grid.ColumnDefinitions>
                                         <Border
-                                            Margin="5"
+                                            Margin="0,5"
                                             Padding="10"
                                             Background="{DynamicResource Window.Side.Background}"
                                             CornerRadius="5">
@@ -1476,7 +1482,7 @@
                                                 Foreground="{DynamicResource Window.Foreground}"
                                                 PreviewKeyDown="SendTextBox_PreviewKeyDown"
                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                Text="{Binding WriteData, Mode=TwoWay}"
+                                                Text="{Binding WriteData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 TextChanged="SendTextBox_TextChanged" />
                                         </Border>
 
@@ -1590,6 +1596,7 @@
                                                     <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
                                                 </Viewbox>
                                             </ToggleButton>
+
                                             <Button
                                                 Margin="5,5,7,5"
                                                 Padding="10"

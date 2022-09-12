@@ -27,6 +27,7 @@ using SuperUtils.Common;
 using SuperUtils.WPF.Visual;
 using SuperCom.Config;
 using SuperCom.Windows;
+using SuperUtils.Framework.ORM.Mapper;
 
 namespace SuperCom
 {
@@ -36,6 +37,7 @@ namespace SuperCom
     public partial class MainWindow : BaseWindow
     {
         Window_Setting window_Setting { get; set; }
+        Window_AdvancedSend window_AdvancedSend { get; set; }
 
 
 
@@ -57,7 +59,7 @@ namespace SuperCom
         {
             InitializeComponent();
 
-            ConfigManager.InitConfig(); // 初始化配置
+
 
             // 注册 SuperUtils 异常事件
             SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
@@ -86,8 +88,25 @@ namespace SuperCom
                 MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
                 MaxMenuItem.Header = "窗口化";
             };
+            CreateSqlTables();
+            ConfigManager.InitConfig(); // 读取配置
         }
 
+
+        private void CreateSqlTables()
+        {
+            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+            foreach (var item in ComSettings.SqliteTable.Table.Keys)
+            {
+                if (!mapper.IsTableExists(item))
+                {
+                    mapper.CreateTable(item, ComSettings.SqliteTable.Table[item]);
+                }
+            }
+
+            // 读取设置列表
+            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
+        }
 
         public override void CloseWindow(object sender, RoutedEventArgs e)
         {
@@ -251,13 +270,13 @@ namespace SuperCom
             Border border = grid.Parent as Border;
             string portName = border.Tag.ToString();
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
-
             RemovePortTabItem(portName);
         }
 
 
         private void RemovePortTabItem(string portName)
         {
+            SaveComSettings();
             int idx = -1;
             for (int i = 0; idx < vieModel.PortTabItems.Count; i++)
             {
@@ -327,20 +346,7 @@ namespace SuperCom
                 MessageCard.Error($"打开 {portName} 失败！");
                 return false;
             }
-            CustomSerialPort serialPort;
-            if (portTabItem.SerialPort == null)
-            {
-                serialPort = new CustomSerialPort(portName);
-                serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
-                {
-                    HandleDataReceived(serialPort);
-                });
-                portTabItem.SerialPort = serialPort;
-            }
-            else
-            {
-                serialPort = portTabItem.SerialPort;
-            }
+
             await Task.Delay(1000);
             portTabItem.TextBox = FindTextBoxByPortName(portName);
             sideComPort.PortTabItem = portTabItem;
@@ -348,6 +354,7 @@ namespace SuperCom
             {
                 try
                 {
+                    CustomSerialPort serialPort = portTabItem.SerialPort;
                     if (!serialPort.IsOpen)
                     {
                         serialPort.Open();
@@ -453,10 +460,38 @@ namespace SuperCom
             {
                 PortTabItem portTabItem = new PortTabItem(portName, connect);
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
+
+                CustomSerialPort serialPort;
+                if (portTabItem.SerialPort == null)
+                {
+                    serialPort = new CustomSerialPort(portName);
+                    serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
+                    {
+                        HandleDataReceived(serialPort);
+                    });
+                    portTabItem.SerialPort = serialPort;
+                }
+                else
+                {
+                    serialPort = portTabItem.SerialPort;
+                }
+
+                // 从配置里读取
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                if (comSettings != null)
+                {
+                    portTabItem.WriteData = comSettings.WriteData;
+                    portTabItem.AddTimeStamp = comSettings.AddTimeStamp;
+                    portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
+                    portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
+
+                }
                 portTabItem.Selected = true;
                 SetGridVisible(portName);
                 vieModel.PortTabItems.Add(portTabItem);
             }
+
+
         }
 
         private void Grid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -637,11 +672,11 @@ namespace SuperCom
             return null;
         }
 
-        private void AddTimeStamp(object sender, RoutedEventArgs e)
-        {
-            PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-            portTabItem.AddTimeStamp = (bool)(sender as CheckBox).IsChecked;
-        }
+        //private void AddTimeStamp(object sender, RoutedEventArgs e)
+        //{
+        //    PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
+        //    portTabItem.AddTimeStamp = (bool)(sender as CheckBox).IsChecked;
+        //}
 
         private void SendCommand(object sender, RoutedEventArgs e)
         {
@@ -650,36 +685,41 @@ namespace SuperCom
             {
                 string portName = button.Tag.ToString();
                 if (string.IsNullOrEmpty(portName)) return;
-                SideComPort serialComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
-                {
-                    MessageCard.Error($"连接串口 {portName} 失败！");
-                    return;
-                }
-                SerialPort port = serialComPort.PortTabItem.SerialPort;
-                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (port != null)
-                {
-                    string value = portTabItem.WriteData;
-                    if (portTabItem.AddNewLineWhenWrite)
-                    {
-                        value += "\r\n";
-                    }
-                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
-                    try
-                    {
-                        port.Write(value);
-                        // 保存到发送历史
-                        vieModel.SendHistory.Add(value.Trim());
-                        vieModel.SaveSendHistory();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageCard.Error(ex.Message);
-                    }
+                SendCommand(portName);
+            }
+        }
 
-                    vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
+        private void SendCommand(string portName)
+        {
+            SideComPort serialComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+            {
+                MessageCard.Error($"连接串口 {portName} 失败！");
+                return;
+            }
+            SerialPort port = serialComPort.PortTabItem.SerialPort;
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (port != null)
+            {
+                string value = portTabItem.WriteData;
+                if (portTabItem.AddNewLineWhenWrite)
+                {
+                    value += "\r\n";
                 }
+                portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
+                try
+                {
+                    port.Write(value);
+                    // 保存到发送历史
+                    vieModel.SendHistory.Add(value.Trim());
+                    vieModel.SaveSendHistory();
+                }
+                catch (Exception ex)
+                {
+                    MessageCard.Error(ex.Message);
+                }
+
+                vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
             }
         }
 
@@ -851,11 +891,47 @@ namespace SuperCom
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // 保存配置
-            SetConfigValue();
+            SaveOpeningPorts();
+            SaveComSettings();
+            SaveConfigValue();
             CloseAllPort(null, null);
+
         }
 
-        private void SetConfigValue()
+
+
+        /// <summary>
+        /// 保存串口的配置文件
+        /// </summary>
+        private void SaveComSettings()
+        {
+            foreach (var item in vieModel.SideComPorts)
+            {
+
+                ComSettings comSettings = new ComSettings();
+                comSettings.PortName = item.Name;
+                comSettings.Connected = item.Connected;
+                PortTabItem portTabItem = item.PortTabItem;
+                if (portTabItem != null)
+                {
+                    comSettings.WriteData = portTabItem.WriteData;
+                    comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
+                    comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
+                    comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
+                }
+                SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+                mapper.Insert(comSettings, SuperUtils.Framework.ORM.Attributes.InsertMode.Replace);
+            }
+        }
+
+        private void SaveOpeningPorts()
+        {
+            ConfigManager.Main.OpeningPorts = JsonUtils.TrySerializeObject(vieModel.PortTabItems.Select(arg => arg.Name).ToList());
+            ConfigManager.Main.Save();
+        }
+
+
+        private void SaveConfigValue()
         {
             ConfigManager.Main.X = this.Left;
             ConfigManager.Main.Y = this.Top;
@@ -1018,6 +1094,28 @@ namespace SuperCom
         {
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
+            OpenBeforePorts();
+        }
+
+
+        private async void OpenBeforePorts()
+        {
+            if (string.IsNullOrEmpty(ConfigManager.Main.OpeningPorts)) return;
+            List<string> list = JsonUtils.TryDeserializeObject<List<string>>(ConfigManager.Main.OpeningPorts);
+            foreach (string portName in list)
+            {
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (comSettings != null && sideComPort != null && comSettings.Connected)
+                {
+                    await OpenPort(sideComPort);
+                }
+                else
+                {
+                    OpenPortTabItem(portName, false);
+                }
+
+            }
         }
 
         public void AdjustWindow()
@@ -1150,14 +1248,22 @@ namespace SuperCom
 
         private void SendTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
+
             TextBox textBox = sender as TextBox;
             Grid grid = (textBox.Parent as Border).Parent as Grid;
             string text = textBox.Text.Trim();
             List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text.ToLower()) >= 0).ToList();
             Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
-            if (list.Count <= 0 && popup != null)
+            if (string.IsNullOrEmpty(text) || list.Count <= 0)
             {
-                popup.IsOpen = false;
+                if (popup != null)
+                    popup.IsOpen = false;
+                if (e.Key == Key.Enter && grid.Tag != null)
+                {
+                    string portName = grid.Tag.ToString();
+                    SendCommand(portName);
+                }
                 return;
             }
             if (e.Key == Key.Up || e.Key == Key.Down)
@@ -1170,6 +1276,8 @@ namespace SuperCom
                     else idx++;
                     if (idx >= list.Count) idx = 0;
                     else if (idx < 0) idx = list.Count - 1;
+                    Console.WriteLine("text=" + text);
+                    Console.WriteLine(idx);
                     vieModel.SendHistorySelectedIndex = idx;
                     vieModel.SendHistorySelectedValue = list[idx];
                     // 设置当前选中状态
@@ -1184,13 +1292,20 @@ namespace SuperCom
                 if (grid.Tag != null)
                 {
                     string portName = grid.Tag.ToString();
-                    PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                    if (portTabItem != null)
+                    if (popup != null && popup.IsOpen && !string.IsNullOrEmpty(vieModel.SendHistorySelectedValue))
                     {
-                        portTabItem.WriteData = vieModel.SendHistorySelectedValue;
-                        textBox.CaretIndex = textBox.Text.Length;
-                        if (popup != null)
+
+                        PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                        if (portTabItem != null)
+                        {
+                            portTabItem.WriteData = vieModel.SendHistorySelectedValue;
+                            textBox.CaretIndex = textBox.Text.Length;
                             popup.IsOpen = false;
+                        }
+                    }
+                    else if (e.Key == Key.Enter)
+                    {
+                        SendCommand(portName);
                     }
                 }
             }
@@ -1264,5 +1379,14 @@ namespace SuperCom
             }
         }
         #endregion
+
+        private void OpenSendPanel(object sender, RoutedEventArgs e)
+        {
+            window_AdvancedSend?.Close();
+            window_AdvancedSend = new Window_AdvancedSend();
+            window_AdvancedSend.Show();
+            window_AdvancedSend.Focus();
+            window_AdvancedSend.BringIntoView();
+        }
     }
 }

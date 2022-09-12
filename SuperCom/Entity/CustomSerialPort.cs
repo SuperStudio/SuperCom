@@ -1,6 +1,8 @@
 ﻿using DynamicData.Annotations;
 using SuperControls.Style;
+using SuperUtils.Common;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
@@ -38,10 +40,45 @@ namespace SuperCom.Entity
                 this.Encoding = GetEncoding();
                 this.StopBits = GetStopBits();
                 this.Parity = GetParity();
+
+                // 保存
+                SettingJson = PortSettingToJson();
             }
             catch (Exception ex)
             {
                 MessageCard.Error(ex.Message);
+            }
+        }
+
+        public string SettingJson { get; set; }
+
+        private string PortSettingToJson()
+        {
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+            dic.Add("BaudRate", this.BaudRate);
+            dic.Add("DataBits", this.DataBits);
+            dic.Add("Encoding", this.Encoding.HeaderName);
+            dic.Add("StopBits", this.StopBitsString);
+            dic.Add("Parity", this.ParityString);
+            return JsonUtils.TrySerializeObject(dic);
+        }
+
+        public void SetPortSettingByJson(string json)
+        {
+            Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
+            if (dict != null)
+            {
+                int baudRate = PortSetting.DEFAULT_BAUDRATE;
+                int.TryParse(dict["BaudRate"].ToString(), out baudRate);
+                this.BaudRate = baudRate;
+
+                int dataBits = PortSetting.DEFAULT_DATABITS;
+                int.TryParse(dict["DataBits"].ToString(), out dataBits);
+                this.DataBits = dataBits;
+
+                this.PortEncoding = dict["Encoding"].ToString();
+                this.ParityString = dict["Parity"].ToString();
+                this.StopBitsString = dict["StopBits"].ToString();
             }
         }
 

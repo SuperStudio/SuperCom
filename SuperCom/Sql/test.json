@@ -1,0 +1,7 @@
+{
+  "BaudRate": 1500000,
+  "DataBits": 5,
+  "Encoding": "us-ascii",
+  "StopBits": "Two",
+  "Parity": "Odd"
+}

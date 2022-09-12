@@ -78,7 +78,12 @@ namespace SuperCom.Entity
         private StringBuilder Builder { get; set; }
         public TextBox TextBox { get; set; }
 
-        public bool AddTimeStamp { get; set; }
+        private bool _AddTimeStamp = true;
+        public bool AddTimeStamp
+        {
+            get { return _AddTimeStamp; }
+            set { _AddTimeStamp = value; OnPropertyChanged(); }
+        }
 
 
 
@@ -148,7 +153,7 @@ namespace SuperCom.Entity
             Connected = connected;
             Setting = new PortSetting();
             Builder = new StringBuilder();
-            AddTimeStamp = true;
+            //AddTimeStamp = true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

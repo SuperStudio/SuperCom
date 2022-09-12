@@ -2,15 +2,25 @@ using GalaSoft.MvvmLight;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperUtils.Common;
+using SuperUtils.Framework.ORM.Mapper;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
+using System.Linq;
 
 namespace SuperCom.ViewModel
 {
 
     public class VieModel_Main : ViewModelBase
     {
+
+        public HashSet<string> SendHistory { get; set; }
+        public HashSet<ComSettings> ComSettingList { get; set; }
+
+
+
+
+
         /* 已经打开的选项卡 */
         private ObservableCollection<PortTabItem> _PortTabItems;
         public ObservableCollection<PortTabItem> PortTabItems
@@ -26,8 +36,6 @@ namespace SuperCom.ViewModel
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
-
-        //public List<CustomSerialPort> SerialPorts { get; set; }
         private string _StatusText = "就绪";
         public string StatusText
         {
@@ -47,7 +55,7 @@ namespace SuperCom.ViewModel
         }
 
 
-        public HashSet<string> SendHistory { get; set; }
+
         private int _SendHistorySelectedIndex = 0;
 
         public int SendHistorySelectedIndex

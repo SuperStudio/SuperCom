@@ -1,0 +1,23 @@
+﻿<super:BaseWindow
+    x:Class="SuperCom.Windows.Window_AdvancedSend"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SuperCom.Windows"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
+    Title="发送队列"
+    Width="800"
+    Height="450"
+    Background="{DynamicResource Window.Background}"
+    Foreground="{DynamicResource Window.Foreground}"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Grid>
+        <TextBlock
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="20"
+            Text="开发中" />
+    </Grid>
+</super:BaseWindow>

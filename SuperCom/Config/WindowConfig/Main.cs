@@ -5,7 +5,7 @@ namespace SuperCom.Config.WindowConfig
 {
     public class Main : AbstractConfig
     {
-        private Main() : base("user_data.sqlite", $"WindowConfig.Main")
+        private Main() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Main")
         {
             Width = SystemParameters.WorkArea.Width * 0.8;
             Height = SystemParameters.WorkArea.Height * 0.8;
@@ -32,6 +32,7 @@ namespace SuperCom.Config.WindowConfig
 
         public bool FirstRun { get; set; }
         public string SendHistory { get; set; }
+        public string OpeningPorts { get; set; }
 
     }
 }

@@ -120,6 +120,7 @@
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Entity\ComSettings.cs" />
     <Compile Include="Entity\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -127,11 +128,13 @@
     <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Log\Logger.cs" />
-    <Compile Include="Storage\Entity\UserConfig.cs" />
     <Compile Include="UserControls\PortDataView.xaml.cs">
       <DependentUpon>PortDataView.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\VieModel_Main.cs" />
+    <Compile Include="Windows\Window_AdvancedSend.xaml.cs">
+      <DependentUpon>Window_AdvancedSend.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Window_Setting.xaml.cs">
       <DependentUpon>Window_Setting.xaml</DependentUpon>
     </Compile>
@@ -158,6 +161,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="UserControls\PortDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Window_AdvancedSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -208,8 +215,9 @@
   <ItemGroup>
     <Resource Include="Resources\Ico\ICON_256.ico" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Storage\SqlitTable\" />
+    <Content Include="Sql\com_settings.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

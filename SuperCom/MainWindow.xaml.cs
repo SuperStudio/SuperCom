@@ -1070,11 +1070,6 @@ namespace SuperCom
             }
         }
 
-        private void mainWindow_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-
-        }
-
         private void ShowSideGrid(object sender, MouseButtonEventArgs e)
         {
             SideGridColumn.Width = new GridLength(200);
@@ -1103,11 +1098,12 @@ namespace SuperCom
             window_Setting.BringIntoView();
         }
 
-
+        #region "历史记录弹窗"
         private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox textBox = sender as TextBox;
             string text = textBox.Text.Trim().ToLower();
+            if (string.IsNullOrEmpty(text)) return;
             List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text) >= 0).ToList();
             if (list.Count > 0)
             {
@@ -1158,10 +1154,15 @@ namespace SuperCom
             Grid grid = (textBox.Parent as Border).Parent as Grid;
             string text = textBox.Text.Trim();
             List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text.ToLower()) >= 0).ToList();
+            Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+            if (list.Count <= 0 && popup != null)
+            {
+                popup.IsOpen = false;
+                return;
+            }
             if (e.Key == Key.Up || e.Key == Key.Down)
             {
-                Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
-                if (popup != null && popup.IsOpen)
+                if (list.Count > 0 && popup != null && popup.IsOpen)
                 {
                     popup.Focus();
                     int idx = vieModel.SendHistorySelectedIndex;
@@ -1170,11 +1171,12 @@ namespace SuperCom
                     if (idx >= list.Count) idx = 0;
                     else if (idx < 0) idx = list.Count - 1;
                     vieModel.SendHistorySelectedIndex = idx;
+                    vieModel.SendHistorySelectedValue = list[idx];
                     // 设置当前选中状态
                     Grid grid1 = popup.Child as Grid;
                     ItemsControl itemsControl = grid1.FindName("itemsControl") as ItemsControl;
                     SetSelectedStatus(itemsControl);
-                    vieModel.SendHistorySelectedValue = list[idx];
+
                 }
             }
             else if (e.Key == Key.Enter || e.Key == Key.Tab)
@@ -1187,8 +1189,15 @@ namespace SuperCom
                     {
                         portTabItem.WriteData = vieModel.SendHistorySelectedValue;
                         textBox.CaretIndex = textBox.Text.Length;
+                        if (popup != null)
+                            popup.IsOpen = false;
                     }
                 }
+            }
+            else if (e.Key == Key.Escape)
+            {
+                if (popup != null)
+                    popup.IsOpen = false;
             }
         }
 
@@ -1211,6 +1220,10 @@ namespace SuperCom
                     border.SetResourceReference(Control.BackgroundProperty, "Background");
                     border.SetResourceReference(Control.BorderBrushProperty, "BorderBrush");
                 }
+                // 滚动当前视图
+                double offset = vieModel.SendHistorySelectedIndex * border.ActualHeight;
+                ScrollViewer scrollViewer = itemsControl.Parent as ScrollViewer;
+                scrollViewer.ScrollToVerticalOffset(offset);
             }
 
         }
@@ -1244,9 +1257,12 @@ namespace SuperCom
                     List<string> list = itemsControl.ItemsSource as List<string>;
                     list.RemoveAll(arg => arg.Equals(value));
                     itemsControl.ItemsSource = null;
+                    itemsControl.ItemsSource = list;
+                    if (list.Count == 0) popup.IsOpen = false;
                 }
 
             }
         }
+        #endregion
     }
 }

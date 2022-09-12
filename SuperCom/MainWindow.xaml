@@ -1482,32 +1482,29 @@
 
                                         <Popup
                                             x:Name="sendHistoryPopup"
-                                            Width="400"
+                                            Width="420"
                                             Height="auto"
                                             AllowsTransparency="True"
                                             HorizontalOffset="-10"
                                             Placement="Top"
                                             PlacementTarget="{Binding ElementName=sendTextBox}"
                                             PopupAnimation="Fade"
-                                            StaysOpen="True"
+                                            StaysOpen="False"
                                             Tag="{Binding Name, Mode=OneWay}"
                                             VerticalOffset="-10">
-                                            <Grid
-                                                MaxHeight="600"
-                                                Margin="5"
-                                                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                            <Grid MaxHeight="600" Margin="5">
                                                 <Border
                                                     Margin="5"
                                                     Background="{DynamicResource Menu.Background}"
                                                     Effect="{StaticResource PopupDropShadowEffect}" />
                                                 <ScrollViewer
-                                                    Width="400"
+                                                    Width="390"
                                                     Margin="0,10"
-                                                    HorizontalScrollBarVisibility="Auto"
+                                                    HorizontalScrollBarVisibility="Hidden"
                                                     VerticalScrollBarVisibility="auto">
                                                     <ItemsControl
                                                         Name="itemsControl"
-                                                        Margin="0,10"
+                                                        Margin="0,5"
                                                         Background="Transparent">
                                                         <ItemsControl.ItemsPanel>
                                                             <ItemsPanelTemplate>

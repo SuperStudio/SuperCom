@@ -1,0 +1,24 @@
+﻿<super:BaseWindow x:Class="SuperCom.Windows.Window_Setting"
+        xmlns:super="https://github.com/SuperStudio/SuperControls"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        Background="{DynamicResource Window.Background}"
+        Foreground="{DynamicResource Window.Foreground}"
+        WindowStartupLocation="CenterScreen"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SuperCom.Windows"
+        mc:Ignorable="d"
+        Title="设置" Height="450" Width="800">
+    <Grid>
+        <TabControl  Style="{StaticResource FlatTabControl}" Background="Transparent">
+            <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
+                <StackPanel Margin="10">
+                    <CheckBox Content="关闭后最小化" Style="{StaticResource NormalCheckBox}"/>
+                    <CheckBox Content="回车后发送命令" Style="{StaticResource NormalCheckBox}"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</super:BaseWindow>

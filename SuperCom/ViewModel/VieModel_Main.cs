@@ -1,5 +1,7 @@
 using GalaSoft.MvvmLight;
+using SuperCom.Config;
 using SuperCom.Entity;
+using SuperUtils.Common;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
@@ -32,6 +34,43 @@ namespace SuperCom.ViewModel
             get { return _StatusText; }
             set { _StatusText = value; RaisePropertyChanged(); }
         }
+        private double _SideGridWidth = ConfigManager.Main.SideGridWidth;
+
+        public double SideGridWidth
+        {
+            get { return _SideGridWidth; }
+            set
+            {
+                _SideGridWidth = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
+        public HashSet<string> SendHistory { get; set; }
+        private int _SendHistorySelectedIndex = 0;
+
+        public int SendHistorySelectedIndex
+        {
+            get { return _SendHistorySelectedIndex; }
+            set
+            {
+                _SendHistorySelectedIndex = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _SendHistorySelectedValue = "";
+
+        public string SendHistorySelectedValue
+        {
+            get { return _SendHistorySelectedValue; }
+            set
+            {
+                _SendHistorySelectedValue = value;
+                RaisePropertyChanged();
+            }
+        }
+
 
         public VieModel_Main()
         {
@@ -41,8 +80,18 @@ namespace SuperCom.ViewModel
         public void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
-            //SerialPorts = new List<CustomSerialPort>();
             InitPortSampleData();
+            if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory))
+            {
+                SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
+            }
+            if (SendHistory == null) SendHistory = new HashSet<string>();
+        }
+
+        public void SaveSendHistory()
+        {
+            ConfigManager.Main.SendHistory = JsonUtils.TrySerializeObject(SendHistory);
+            ConfigManager.Main.Save();
         }
 
         public void InitPortSampleData()

@@ -68,7 +68,7 @@ namespace SuperCom.Entity
             get { return _AddNewLineWhenWrite; }
             set { _AddNewLineWhenWrite = value; OnPropertyChanged(); }
         }
-        private string _WriteData = "AT^VERSION?";
+        private string _WriteData = "";
         public string WriteData
         {
             get { return _WriteData; }

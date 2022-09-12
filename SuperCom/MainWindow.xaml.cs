@@ -25,6 +25,8 @@ using SuperUtils.Time;
 using SuperUtils.IO;
 using SuperUtils.Common;
 using SuperUtils.WPF.Visual;
+using SuperCom.Config;
+using SuperCom.Windows;
 
 namespace SuperCom
 {
@@ -33,6 +35,11 @@ namespace SuperCom
     /// </summary>
     public partial class MainWindow : BaseWindow
     {
+        Window_Setting window_Setting { get; set; }
+
+
+
+
         public static List<string> OpeningWindows = new List<string>();
         public bool CloseToTaskBar;
         public static bool WindowsVisible = true;
@@ -49,6 +56,8 @@ namespace SuperCom
         public MainWindow()
         {
             InitializeComponent();
+
+            ConfigManager.InitConfig(); // 初始化配置
 
             // 注册 SuperUtils 异常事件
             SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
@@ -660,6 +669,9 @@ namespace SuperCom
                     try
                     {
                         port.Write(value);
+                        // 保存到发送历史
+                        vieModel.SendHistory.Add(value.Trim());
+                        vieModel.SaveSendHistory();
                     }
                     catch (Exception ex)
                     {
@@ -838,7 +850,20 @@ namespace SuperCom
 
         private void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            // 保存配置
+            SetConfigValue();
             CloseAllPort(null, null);
+        }
+
+        private void SetConfigValue()
+        {
+            ConfigManager.Main.X = this.Left;
+            ConfigManager.Main.Y = this.Top;
+            ConfigManager.Main.Width = this.Width;
+            ConfigManager.Main.Height = this.Height;
+            ConfigManager.Main.WindowState = (long)baseWindowState;
+            ConfigManager.Main.SideGridWidth = SideGridColumn.ActualWidth;
+            ConfigManager.Main.Save();
         }
 
         private void OpenHexTransform(object sender, RoutedEventArgs e)
@@ -987,6 +1012,241 @@ namespace SuperCom
         private void CheckUpdate(object sender, RoutedEventArgs e)
         {
             MessageCard.Info("开发中");
+        }
+
+        private void mainWindow_ContentRendered(object sender, EventArgs e)
+        {
+            AdjustWindow();
+            if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
+        }
+
+        public void AdjustWindow()
+        {
+
+            if (ConfigManager.Main.FirstRun)
+            {
+                this.Width = SystemParameters.WorkArea.Width * 0.8;
+                this.Height = SystemParameters.WorkArea.Height * 0.8;
+                this.Left = SystemParameters.WorkArea.Width * 0.1;
+                this.Top = SystemParameters.WorkArea.Height * 0.1;
+            }
+            else
+            {
+                if (ConfigManager.Main.Height == SystemParameters.WorkArea.Height && ConfigManager.Main.Width < SystemParameters.WorkArea.Width)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    this.CanResize = true;
+                }
+                else
+                {
+                    this.Left = ConfigManager.Main.X;
+                    this.Top = ConfigManager.Main.Y;
+                    this.Width = ConfigManager.Main.Width;
+                    this.Height = ConfigManager.Main.Height;
+                }
+
+
+                baseWindowState = (BaseWindowState)ConfigManager.Main.WindowState;
+                if (baseWindowState == BaseWindowState.FullScreen)
+                {
+                    this.WindowState = System.Windows.WindowState.Maximized;
+                }
+                else if (baseWindowState == BaseWindowState.None)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+                if (this.Width == SystemParameters.WorkArea.Width
+                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+
+                if (baseWindowState == BaseWindowState.Maximized || baseWindowState == BaseWindowState.FullScreen)
+                {
+                    MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
+                    MaxMenuItem.Header = "窗口化";
+                }
+
+
+            }
+        }
+
+        private void mainWindow_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void ShowSideGrid(object sender, MouseButtonEventArgs e)
+        {
+            SideGridColumn.Width = new GridLength(200);
+            SideTriggerBorder.Visibility = Visibility.Collapsed;
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (SideGridColumn.ActualWidth <= 100)
+            {
+                SideGridColumn.Width = new GridLength(0);
+                SideTriggerBorder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SideTriggerBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void OpenSetting(object sender, RoutedEventArgs e)
+        {
+            window_Setting?.Close();
+            window_Setting = new Window_Setting();
+            window_Setting.Show();
+            window_Setting.Focus();
+            window_Setting.BringIntoView();
+        }
+
+
+        private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            string text = textBox.Text.Trim().ToLower();
+            List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text) >= 0).ToList();
+            if (list.Count > 0)
+            {
+                Grid grid = (textBox.Parent as Border).Parent as Grid;
+                Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+                if (popup != null)
+                {
+                    popup.IsOpen = true;
+                    Grid g = popup.Child as Grid;
+                    ItemsControl itemsControl = g.FindName("itemsControl") as ItemsControl;
+                    if (itemsControl != null)
+                    {
+                        itemsControl.ItemsSource = list;
+                        vieModel.SendHistorySelectedIndex = 0;
+                    }
+                }
+            }
+        }
+
+        private void SetSendHistory(object sender, MouseButtonEventArgs e)
+        {
+            Border border = sender as Border;
+            Grid grid = border.Child as Grid;
+            TextBlock textBlock = grid.Children.OfType<TextBlock>().FirstOrDefault();
+            if (textBlock != null)
+            {
+                string value = textBlock.Text;
+                vieModel.SendHistorySelectedValue = value;
+                Popup popup = textBlock.Tag as Popup;
+                if (popup != null && popup.Tag != null)
+                {
+                    string portName = popup.Tag.ToString();
+                    PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                    if (portTabItem != null)
+                    {
+                        portTabItem.WriteData = value;
+                        popup.IsOpen = false;
+                        TextBox textBox = (popup.Parent as Grid).Children.OfType<Border>().FirstOrDefault().Child as TextBox;
+                        textBox.CaretIndex = textBox.Text.Length;
+                    }
+                }
+            }
+        }
+
+        private void SendTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            Grid grid = (textBox.Parent as Border).Parent as Grid;
+            string text = textBox.Text.Trim();
+            List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text.ToLower()) >= 0).ToList();
+            if (e.Key == Key.Up || e.Key == Key.Down)
+            {
+                Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+                if (popup != null && popup.IsOpen)
+                {
+                    popup.Focus();
+                    int idx = vieModel.SendHistorySelectedIndex;
+                    if (e.Key == Key.Up) idx--;
+                    else idx++;
+                    if (idx >= list.Count) idx = 0;
+                    else if (idx < 0) idx = list.Count - 1;
+                    vieModel.SendHistorySelectedIndex = idx;
+                    // 设置当前选中状态
+                    Grid grid1 = popup.Child as Grid;
+                    ItemsControl itemsControl = grid1.FindName("itemsControl") as ItemsControl;
+                    SetSelectedStatus(itemsControl);
+                    vieModel.SendHistorySelectedValue = list[idx];
+                }
+            }
+            else if (e.Key == Key.Enter || e.Key == Key.Tab)
+            {
+                if (grid.Tag != null)
+                {
+                    string portName = grid.Tag.ToString();
+                    PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                    if (portTabItem != null)
+                    {
+                        portTabItem.WriteData = vieModel.SendHistorySelectedValue;
+                        textBox.CaretIndex = textBox.Text.Length;
+                    }
+                }
+            }
+        }
+
+        private void SetSelectedStatus(ItemsControl itemsControl)
+        {
+            if (itemsControl == null || itemsControl.ItemsSource == null) return;
+            for (int i = 0; i < itemsControl.Items.Count; i++)
+            {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null) continue;
+                Border border = VisualHelper.FindElementByName<Border>(presenter, "baseBorder");
+                if (border == null) continue;
+                if (i == vieModel.SendHistorySelectedIndex)
+                {
+                    border.Background = (Brush)FindResource("ListBoxItem.Selected.Active.Background");
+                    border.BorderBrush = (Brush)FindResource("ListBoxItem.Selected.Active.BorderBrush");
+                }
+                else
+                {
+                    border.SetResourceReference(Control.BackgroundProperty, "Background");
+                    border.SetResourceReference(Control.BorderBrushProperty, "BorderBrush");
+                }
+            }
+
+        }
+
+        private void HistoryMouseEnter(object sender, MouseEventArgs e)
+        {
+            Border border = sender as Border;
+            if (border.Background == null || !border.Background.Equals((Brush)FindResource("ListBoxItem.Selected.Active.Background")))
+                border.Background = (Brush)FindResource("ListBoxItem.Hover.Background");
+        }
+
+        private void HistoryMouseLeave(object sender, MouseEventArgs e)
+        {
+            Border border = sender as Border;
+            if (border.Background == null || !border.Background.Equals((Brush)FindResource("ListBoxItem.Selected.Active.Background")))
+                border.Background = Brushes.Transparent;
+        }
+
+        private void DeleteSendHistory(object sender, RoutedEventArgs e)
+        {
+            Popup popup = (sender as Button).Tag as Popup;
+            string value = ((sender as Button).Parent as Border).Tag.ToString();
+            vieModel.SendHistory.RemoveWhere(arg => arg.Equals(value));
+            vieModel.SaveSendHistory();
+            if (popup != null && popup.IsOpen)
+            {
+                Grid grid1 = popup.Child as Grid;
+                ItemsControl itemsControl = grid1.FindName("itemsControl") as ItemsControl;
+                if (itemsControl.ItemsSource != null)
+                {
+                    List<string> list = itemsControl.ItemsSource as List<string>;
+                    list.RemoveAll(arg => arg.Equals(value));
+                    itemsControl.ItemsSource = null;
+                }
+
+            }
         }
     }
 }

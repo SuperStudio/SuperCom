@@ -13,6 +13,7 @@
     MinWidth="600"
     Background="{DynamicResource Window.Background}"
     Closing="mainWindow_Closing"
+    ContentRendered="mainWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     TitleHeight="0"
     WindowStartupLocation="CenterScreen"
@@ -67,6 +68,22 @@
                         HorizontalAlignment="Left"
                         VerticalAlignment="Center"
                         Orientation="Horizontal">
+
+                        <Border
+                            Name="SideTriggerBorder"
+                            Padding="5"
+                            CornerRadius="0"
+                            MouseUp="ShowSideGrid"
+                            Style="{StaticResource HoverBorder}">
+
+                            <Viewbox Width="auto" Height="18">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M897.427256 249.003144 126.57172 249.003144c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 249.003144 897.427256 249.003144z M897.427256 574.73174 126.57172 574.73174c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 574.73174 897.427256 574.73174z M897.427256 900.460336 126.57172 900.460336c-34.673707 0-62.73174-28.088732-62.73174-62.73174 0-34.643008 28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174C960.16002 872.371604 932.101987 900.460336 897.427256 900.460336z"
+                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Border>
 
 
                         <Image
@@ -504,12 +521,16 @@
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
-                    Width="200"
-                    MinWidth="100"
-                    MaxWidth="300" />
+                    Name="SideGridColumn"
+                    Width="{Binding SideGridWidth, FallbackValue=200, Mode=OneWay}"
+                    MaxWidth="500" />
+                <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="{DynamicResource Window.Side.Background}">
+            <Border
+                Grid.Column="0"
+                Background="{DynamicResource Window.Side.Background}"
+                SizeChanged="Border_SizeChanged">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
@@ -667,7 +688,7 @@
                             Style="{StaticResource HoverBorder}">
                             <Border.ContextMenu>
                                 <ContextMenu HorizontalOffset="-40">
-                                    <MenuItem Header="设置" IsEnabled="False" />
+                                    <MenuItem Click="OpenSetting" Header="设置" />
                                     <MenuItem Click="CheckUpdate" Header="检查更新" />
                                     <MenuItem Click="ShowAbout" Header="关于" />
                                 </ContextMenu>
@@ -683,15 +704,18 @@
                 </Grid>
             </Border>
             <GridSplitter
-                Grid.Column="0"
+                Grid.Column="1"
                 Width="4"
+                HorizontalAlignment="Left"
                 Panel.ZIndex="10"
                 Style="{StaticResource HoverSpliter}" />
 
             <Popup
                 x:Name="hexTransPopup"
+                Grid.ColumnSpan="3"
                 Width="300"
                 Height="auto"
+                Margin="0,0,700,0"
                 AllowsTransparency="True"
                 HorizontalOffset="-150"
                 Placement="Mouse"
@@ -813,8 +837,10 @@
             </Popup>
             <Popup
                 x:Name="timeTransPopup"
+                Grid.ColumnSpan="3"
                 Width="330"
                 Height="auto"
+                Margin="0,0,670,0"
                 AllowsTransparency="True"
                 HorizontalOffset="-150"
                 Placement="Mouse"
@@ -936,7 +962,7 @@
 
                 </Grid>
             </Popup>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
@@ -1426,7 +1452,10 @@
 
 
 
-                                    <Grid Grid.Row="2" MinHeight="100">
+                                    <Grid
+                                        Grid.Row="2"
+                                        MinHeight="100"
+                                        Tag="{Binding Name, Mode=OneWay}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="100" />
@@ -1437,16 +1466,113 @@
                                             Background="{DynamicResource Window.Side.Background}"
                                             CornerRadius="5">
                                             <TextBox
+                                                Name="sendTextBox"
                                                 Grid.Column="0"
-                                                AcceptsReturn="True"
+                                                AcceptsReturn="False"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 CaretBrush="{DynamicResource Window.Foreground}"
                                                 ContextMenu="{StaticResource TextBoxContextMenu}"
                                                 Foreground="{DynamicResource Window.Foreground}"
+                                                PreviewKeyDown="SendTextBox_PreviewKeyDown"
                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                Text="{Binding WriteData, Mode=TwoWay}" />
+                                                Text="{Binding WriteData, Mode=TwoWay}"
+                                                TextChanged="SendTextBox_TextChanged" />
                                         </Border>
+
+                                        <Popup
+                                            x:Name="sendHistoryPopup"
+                                            Width="400"
+                                            Height="auto"
+                                            AllowsTransparency="True"
+                                            HorizontalOffset="-10"
+                                            Placement="Top"
+                                            PlacementTarget="{Binding ElementName=sendTextBox}"
+                                            PopupAnimation="Fade"
+                                            StaysOpen="True"
+                                            Tag="{Binding Name, Mode=OneWay}"
+                                            VerticalOffset="-10">
+                                            <Grid
+                                                MaxHeight="600"
+                                                Margin="5"
+                                                ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                <Border
+                                                    Margin="5"
+                                                    Background="{DynamicResource Menu.Background}"
+                                                    Effect="{StaticResource PopupDropShadowEffect}" />
+                                                <ScrollViewer
+                                                    Width="400"
+                                                    Margin="0,10"
+                                                    HorizontalScrollBarVisibility="Auto"
+                                                    VerticalScrollBarVisibility="auto">
+                                                    <ItemsControl
+                                                        Name="itemsControl"
+                                                        Margin="0,10"
+                                                        Background="Transparent">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <StackPanel />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border
+                                                                    x:Name="baseBorder"
+                                                                    Margin="5,0"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    BorderBrush="Transparent"
+                                                                    BorderThickness="1"
+                                                                    MouseEnter="HistoryMouseEnter"
+                                                                    MouseLeave="HistoryMouseLeave"
+                                                                    MouseLeftButtonDown="SetSendHistory"
+                                                                    Style="{StaticResource HoverBorder}">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*" />
+                                                                            <ColumnDefinition Width="auto" />
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock
+                                                                            Grid.Column="0"
+                                                                            Style="{StaticResource BaseTextBlock}"
+                                                                            Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}}"
+                                                                            Text="{Binding Path=.}"
+                                                                            TextAlignment="Left"
+                                                                            TextTrimming="WordEllipsis"
+                                                                            TextWrapping="NoWrap" />
+                                                                        <Border
+                                                                            Grid.Column="1"
+                                                                            Background="Transparent"
+                                                                            BorderBrush="{StaticResource TabItem.Selected.Background}"
+                                                                            Tag="{Binding Path=.}">
+                                                                            <Button
+                                                                                Width="20"
+                                                                                Height="20"
+                                                                                Margin="5"
+                                                                                HorizontalAlignment="Right"
+                                                                                Click="DeleteSendHistory"
+                                                                                Style="{StaticResource RoundNormalButton}"
+                                                                                Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}}"
+                                                                                Visibility="Visible">
+                                                                                <Viewbox
+                                                                                    Width="10"
+                                                                                    Height="auto"
+                                                                                    VerticalAlignment="Center">
+                                                                                    <Path
+                                                                                        HorizontalAlignment="Center"
+                                                                                        VerticalAlignment="Center"
+                                                                                        Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                                                        Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                                                </Viewbox>
+                                                                            </Button>
+                                                                        </Border>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </Grid>
+                                        </Popup>
 
                                         <Grid Grid.Column="1">
                                             <ToggleButton

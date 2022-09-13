@@ -120,6 +120,7 @@
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Entity\AdvancedSend.cs" />
     <Compile Include="Entity\ComSettings.cs" />
     <Compile Include="Entity\CustomSerialPort.cs">
       <SubType>Component</SubType>
@@ -131,6 +132,7 @@
     <Compile Include="UserControls\PortDataView.xaml.cs">
       <DependentUpon>PortDataView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
     <Compile Include="Windows\Window_AdvancedSend.xaml.cs">
       <DependentUpon>Window_AdvancedSend.xaml</DependentUpon>

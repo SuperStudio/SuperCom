@@ -10,14 +10,152 @@
     Width="800"
     Height="450"
     Background="{DynamicResource Window.Background}"
+    ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+
+    <super:BaseWindow.Resources>
+        <ContextMenu x:Key="dataGridContextMenu">
+            <MenuItem Header="移到顶部" />
+            <MenuItem Header="移到底部" />
+            <MenuItem Header="删除" />
+        </ContextMenu>
+    </super:BaseWindow.Resources>
     <Grid>
-        <TextBlock
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            FontSize="20"
-            Text="开发中" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition
+                Width="auto"
+                MinWidth="150"
+                MaxWidth="500" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid Background="{DynamicResource Window.Side.Background}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Margin="5"
+                    MouseLeftButtonUp="AddNewProject"
+                    Style="{StaticResource RoundHoverBorder}"
+                    ToolTip="新增">
+                    <Viewbox Width="auto" Height="13">
+                        <Path
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Data="M925.696 384q19.456 0 37.376 7.68t30.72 20.48 20.48 30.72 7.68 37.376q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68l-287.744 0 0 287.744q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888l0-287.744-287.744 0q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68l287.744 0 0-287.744q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68q39.936 0 68.096 28.16t28.16 68.096l0 287.744 287.744 0z"
+                            Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                    </Viewbox>
+                </Border>
+            </StackPanel>
+            <ListBox
+                Grid.Row="1"
+                HorizontalContentAlignment="Stretch"
+                Background="Transparent"
+                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                ItemsSource="{Binding ProjectNames}"
+                Style="{StaticResource NormalListBox}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Background="Transparent">
+                            <Grid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="重命名" />
+                                    <MenuItem
+                                        Click="DeleteProjectInMenuItem"
+                                        Header="删除"
+                                        Tag="{Binding ProjectID}" />
+                                </ContextMenu>
+                            </Grid.ContextMenu>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                Padding="5,0,0,0"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="{Binding ProjectName}" />
+                            <Border
+                                Grid.Column="1"
+                                Background="Transparent"
+                                BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                <Button
+                                    Width="20"
+                                    Height="20"
+                                    Margin="5"
+                                    HorizontalAlignment="Right"
+                                    super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
+                                    Click="DeleteProject"
+                                    Style="{StaticResource RoundNormalButton}"
+                                    Tag="{Binding ProjectID}"
+                                    Visibility="Visible">
+                                    <Viewbox
+                                        Width="10"
+                                        Height="auto"
+                                        VerticalAlignment="Center">
+                                        <Path
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                    </Viewbox>
+                                </Button>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        <GridSplitter
+            Grid.Column="1"
+            Width="4"
+            HorizontalAlignment="Left"
+            Panel.ZIndex="10"
+            Style="{StaticResource HoverSpliter}" />
+
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <Button Margin="5" Content="添加命令" />
+                <super:Switch
+                    Height="20"
+                    Margin="5,0"
+                    Background="{DynamicResource Window.Side.Background}" />
+                <TextBlock VerticalAlignment="Center" Text="执行" />
+            </StackPanel>
+            <DataGrid
+                Name="dataGrid"
+                Grid.Row="1"
+                Margin="5,0"
+                HorizontalContentAlignment="Left"
+                CanUserResizeColumns="True"
+                Style="{DynamicResource FlatDataGrid}">
+                <DataGrid.RowStyle>
+                    <Style BasedOn="{StaticResource NormalDataGridRowStyle}" TargetType="DataGridRow">
+                        <Setter Property="ContextMenu" Value="{StaticResource dataGridContextMenu}" />
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Order}" Header="状态" />
+                    <DataGridTextColumn Binding="{Binding Order}" Header="顺序" />
+                    <DataGridTextColumn
+                        MinWidth="100"
+                        Binding="{Binding Command}"
+                        Header="命令" />
+                    <DataGridTextColumn Binding="{Binding Delay}" Header="延时" />
+                </DataGrid.Columns>
+
+
+            </DataGrid>
+        </Grid>
     </Grid>
 </super:BaseWindow>

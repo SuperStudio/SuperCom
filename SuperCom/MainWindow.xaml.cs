@@ -1095,6 +1095,7 @@ namespace SuperCom
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
+            new Window_AdvancedSend().Show();
         }
 
 

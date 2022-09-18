@@ -56,11 +56,14 @@
                 HorizontalContentAlignment="Stretch"
                 Background="Transparent"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
-                ItemsSource="{Binding ProjectNames}"
+                ItemsSource="{Binding Projects}"
                 Style="{StaticResource NormalListBox}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid Background="Transparent">
+                        <Grid
+                            Background="Transparent"
+                            MouseLeftButtonDown="OnProjectClick"
+                            Tag="{Binding ProjectID, Mode=OneWay}">
                             <Grid.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="重命名" />
@@ -119,13 +122,16 @@
             Panel.ZIndex="10"
             Style="{StaticResource HoverSpliter}" />
 
-        <Grid Grid.Column="2">
+        <Grid Grid.Column="2" Visibility="{Binding ShowCurrentSendCommand, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button Margin="5" Content="添加命令" />
+                <Button
+                    Margin="5"
+                    Click="AddNewSendCommand"
+                    Content="添加命令" />
                 <super:Switch
                     Height="20"
                     Margin="5,0"
@@ -145,6 +151,23 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="auto" Header="操作">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Height="25"
+                                    MinWidth="50"
+                                    Margin="5"
+                                    Padding="0"
+                                    Click="DeleteCommand"
+                                    Content="删除"
+                                    Cursor="Hand"
+                                    Style="{StaticResource ButtonDanger}"
+                                    Tag="{Binding CommandID, Mode=OneWay}" />
+
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding Order}" Header="状态" />
                     <DataGridTextColumn Binding="{Binding Order}" Header="顺序" />
                     <DataGridTextColumn

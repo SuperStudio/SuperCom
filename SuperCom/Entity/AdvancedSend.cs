@@ -1,4 +1,6 @@
-﻿using SuperUtils.Framework.ORM.Attributes;
+﻿using SuperCom.Config;
+using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,21 @@ namespace SuperCom.Entity
 {
     public class SendCommand
     {
+        public static int DEFAULT_DELAY = 1000;
+        public long CommandID { get; set; }
         public int Order { get; set; }
         public string Command { get; set; }
         public int Delay { get; set; }
+
+        public static long GenerateID(List<long> id_list)
+        {
+            for (long i = 0; i <= id_list.Count; i++)
+            {
+                if (id_list.Contains(i)) continue;
+                return i;
+            }
+            return 0;
+        }
     }
 
 
@@ -46,9 +60,21 @@ namespace SuperCom.Entity
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()
             {
-                {"advanced_send","create table if not exists advanced_send( Id INTEGER PRIMARY KEY autoincrement, PortName VARCHAR(50), Connected INT DEFAULT 0, AddTimeStamp INT DEFAULT 0, AddNewLineWhenWrite INT DEFAULT 0, PortSetting VARCHAR(1000), WriteData VARCHAR(5000), CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), unique(PortName) );" }
+                {"advanced_send","create table if not exists advanced_send( ProjectID INTEGER PRIMARY KEY autoincrement, ProjectName VARCHAR(200), Commands TEXT, CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) );" }
             };
 
+        }
+
+        public static void InitSqlite()
+        {
+            SqliteMapper<AdvancedSend> mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
+            foreach (var item in AdvancedSend.SqliteTable.Table.Keys)
+            {
+                if (!mapper.IsTableExists(item))
+                {
+                    mapper.CreateTable(item, AdvancedSend.SqliteTable.Table[item]);
+                }
+            }
         }
     }
 }

@@ -24,10 +24,10 @@ using System.Windows.Threading;
 using SuperUtils.Time;
 using SuperUtils.IO;
 using SuperUtils.Common;
-using SuperUtils.WPF.Visual;
 using SuperCom.Config;
 using SuperCom.Windows;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.WPF.VisualTools;
 
 namespace SuperCom
 {
@@ -95,16 +95,11 @@ namespace SuperCom
 
         private void CreateSqlTables()
         {
-            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in ComSettings.SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
-                    mapper.CreateTable(item, ComSettings.SqliteTable.Table[item]);
-                }
-            }
 
+            ComSettings.InitSqlite();
+            AdvancedSend.InitSqlite();
             // 读取设置列表
+            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
             vieModel.ComSettingList = mapper.SelectList().ToHashSet();
         }
 

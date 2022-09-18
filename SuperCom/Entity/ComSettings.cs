@@ -1,4 +1,6 @@
-﻿using SuperUtils.Framework.ORM.Attributes;
+﻿using SuperCom.Config;
+using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +56,18 @@ namespace SuperCom.Entity
                 {"com_settings","create table if not exists com_settings( Id INTEGER PRIMARY KEY autoincrement, PortName VARCHAR(50), Connected INT DEFAULT 0, AddTimeStamp INT DEFAULT 0, AddNewLineWhenWrite INT DEFAULT 0, PortSetting VARCHAR(1000), WriteData VARCHAR(5000), CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), unique(PortName) );" }
             };
 
+        }
+
+        public static void InitSqlite()
+        {
+            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+            foreach (var item in ComSettings.SqliteTable.Table.Keys)
+            {
+                if (!mapper.IsTableExists(item))
+                {
+                    mapper.CreateTable(item, ComSettings.SqliteTable.Table[item]);
+                }
+            }
         }
     }
 }

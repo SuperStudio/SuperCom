@@ -111,10 +111,19 @@ namespace SuperCom.ViewModel
 
         public void UpdateProject(AdvancedSend send)
         {
-            int update = mapper.UpdateById(send);
-            if (update <= 0)
+            int count = mapper.UpdateById(send);
+            if (count <= 0)
             {
                 System.Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
+            }
+        }
+
+        public void DeleteProject(AdvancedSend send)
+        {
+            int count = mapper.DeleteById(send.ProjectID);
+            if (count <= 0)
+            {
+                System.Console.WriteLine($"É¾³ý {send.ProjectName} Ê§°Ü");
             }
         }
 

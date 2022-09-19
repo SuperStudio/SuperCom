@@ -70,7 +70,12 @@ namespace SuperCom.Windows
                     break;
                 }
             }
-            vieModel.Projects.RemoveAt(idx);
+            if (idx >= 0 && idx < vieModel.Projects.Count)
+            {
+                vieModel.DeleteProject(vieModel.Projects[idx]);
+                vieModel.Projects.RemoveAt(idx);
+            }
+
         }
 
         private void DeleteProjectInMenuItem(object sender, RoutedEventArgs e)
@@ -95,8 +100,10 @@ namespace SuperCom.Windows
                     if (advancedSend != null)
                     {
                         vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
-                        List<SendCommand> sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-                        if (sendCommands?.Count > 0)
+                        List<SendCommand> sendCommands = new List<SendCommand>();
+                        if (!string.IsNullOrEmpty(advancedSend.Commands))
+                            sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                        if (sendCommands.Count > 0)
                         {
                             foreach (var item in sendCommands)
                             {
@@ -119,13 +126,19 @@ namespace SuperCom.Windows
             SendCommand send = new SendCommand();
             send.CommandID = SendCommand.GenerateID(vieModel.SendCommands.Select(arg => arg.CommandID).ToList());
             send.Delay = SendCommand.DEFAULT_DELAY;
-            send.Order = vieModel.SendCommands?.Count ?? 0;
+            send.Order = vieModel.SendCommands.Select(arg => arg.Order).Max() + 1;
             send.Command = "";
             AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
             if (advancedSend != null)
             {
                 if (advancedSend.CommandList == null)
                     advancedSend.CommandList = new List<SendCommand>();
+                if (!string.IsNullOrEmpty(advancedSend.Commands))
+                {
+                    advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                }
+
+
                 advancedSend.CommandList.Add(send);
                 advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                 vieModel.UpdateProject(advancedSend);
@@ -146,12 +159,51 @@ namespace SuperCom.Windows
                     AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
                     if (advancedSend != null)
                     {
-                        advancedSend.CommandList?.Remove(sendCommand);
-                        advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
-                        vieModel.UpdateProject(advancedSend);
+                        if (!string.IsNullOrEmpty(advancedSend.Commands))
+                        {
+                            advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                            advancedSend.CommandList.RemoveAll(arg => arg.CommandID == sendCommand.CommandID);
+                            advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
+                            vieModel.UpdateProject(advancedSend);
+                        }
                     }
                 }
             }
+        }
+
+        private void SaveSendCommands(object sender, RoutedEventArgs e)
+        {
+            string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
+            AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
+            if (advancedSend != null && !string.IsNullOrEmpty(commands))
+            {
+                if (!commands.Equals(advancedSend.Commands))
+                {
+                    advancedSend.Commands = commands;
+                    vieModel.UpdateProject(advancedSend);
+                    Console.WriteLine("保存项目");
+                }
+            }
+        }
+
+        private void RenameProject(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            Grid grid = contextMenu.PlacementTarget as Grid;
+            TextBox textBox = grid.Children.OfType<TextBox>().FirstOrDefault();
+            if (textBox != null)
+            {
+                textBox.Visibility = Visibility.Visible;
+                textBox.SelectAll();
+                textBox.Focus();
+            }
+        }
+
+        private void RenameTextBoxLostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            textBox.Visibility = Visibility.Hidden;
         }
     }
 }

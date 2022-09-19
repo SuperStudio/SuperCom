@@ -16,6 +16,7 @@ namespace SuperCom.Entity
         public int Order { get; set; }
         public string Command { get; set; }
         public int Delay { get; set; }
+        public bool Running { get; set; }
 
         public static long GenerateID(List<long> id_list)
         {

@@ -143,6 +143,7 @@
                 Grid.Row="1"
                 Margin="5,0"
                 HorizontalContentAlignment="Left"
+                super:DataGrid.RowHeight="40"
                 CanUserResizeColumns="True"
                 Style="{DynamicResource FlatDataGrid}">
                 <DataGrid.RowStyle>
@@ -151,30 +152,115 @@
                     </Style>
                 </DataGrid.RowStyle>
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Width="auto" Header="操作">
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="40"
+                        Header="操作">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button
-                                    Height="25"
-                                    MinWidth="50"
-                                    Margin="5"
-                                    Padding="0"
-                                    Click="DeleteCommand"
-                                    Content="删除"
-                                    Cursor="Hand"
-                                    Style="{StaticResource ButtonDanger}"
-                                    Tag="{Binding CommandID, Mode=OneWay}" />
+                                <Border
+                                    Grid.Column="1"
+                                    Background="Transparent"
+                                    BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                    <Button
+                                        Width="20"
+                                        Height="20"
+                                        HorizontalAlignment="Right"
+                                        super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
+                                        Click="DeleteCommand"
+                                        Style="{StaticResource RoundNormalButton}"
+                                        Tag="{Binding CommandID, Mode=OneWay}"
+                                        Visibility="Visible">
+                                        <Viewbox
+                                            Width="10"
+                                            Height="auto"
+                                            VerticalAlignment="Center">
+                                            <Path
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                        </Viewbox>
+                                    </Button>
+                                </Border>
+
 
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding Order}" Header="状态" />
-                    <DataGridTextColumn Binding="{Binding Order}" Header="顺序" />
-                    <DataGridTextColumn
-                        MinWidth="100"
-                        Binding="{Binding Command}"
-                        Header="命令" />
-                    <DataGridTextColumn Binding="{Binding Delay}" Header="延时" />
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="40"
+                        Header="状态">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Width="10"
+                                    Height="10"
+                                    Margin="5,0"
+                                    HorizontalAlignment="Center"
+                                    Background="Green"
+                                    CornerRadius="5" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="50"
+                        Header="顺序">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    MinWidth="40"
+                                    Background="Transparent"
+                                    ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding Order, Mode=TwoWay}"
+                                    TextAlignment="Left" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="60"
+                        Header="延时">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    MinWidth="40"
+                                    Background="Transparent"
+                                    ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding Delay, Mode=TwoWay}"
+                                    TextAlignment="Left" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="230"
+                        Header="命令">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border
+                                    Padding="5"
+                                    Background="{DynamicResource Window.Title.Background}"
+                                    CornerRadius="3">
+                                    <TextBox
+                                        MinWidth="200"
+                                        Background="Transparent"
+                                        ContextMenu="{StaticResource TextBoxContextMenu}"
+                                        Style="{StaticResource BaseTextBox}"
+                                        Text="{Binding Command, Mode=TwoWay}"
+                                        TextAlignment="Left" />
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
                 </DataGrid.Columns>
 
 

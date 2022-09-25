@@ -2,6 +2,7 @@
     x:Class="SuperCom.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:SuperCom"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -101,10 +102,10 @@
                         Orientation="Horizontal">
                         <Button
                             Width="70"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                             Click="OpenContextMenu"
-                            Content="文件"
-                            Style="{StaticResource TitleButton}"
-                            Visibility="Collapsed">
+                            Content="视图"
+                            Style="{StaticResource TitleButton}">
                             <Button.ContextMenu>
                                 <ContextMenu
                                     HorizontalOffset="-40"
@@ -1104,7 +1105,30 @@
                                         Padding="10"
                                         Background="{DynamicResource TabItem.Background}"
                                         PreviewMouseWheel="Border_PreviewMouseWheel">
-                                        <TextBox
+
+                                        <avalonEdit:TextEditor
+                                            Name="textBox"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            FontFamily="Consolas"
+                                            FontSize="10pt"
+                                            Foreground="{DynamicResource Window.Foreground}"
+                                            IsReadOnly="True"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                            SyntaxHighlighting="C#"
+                                            TextChanged="TextBox_TextChanged">
+                                            <avalonEdit:TextEditor.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
+                                                    <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+                                                    <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
+                                                    <MenuItem Click="OpenTimeTransform" Header="时间戳" />
+                                                </ContextMenu>
+                                            </avalonEdit:TextEditor.ContextMenu>
+                                        </avalonEdit:TextEditor>
+
+                                        <!--<TextBox
                                             Name="textBox"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -1121,7 +1145,7 @@
                                                     <MenuItem Click="OpenTimeTransform" Header="时间戳" />
                                                 </ContextMenu>
                                             </TextBox.ContextMenu>
-                                        </TextBox>
+                                        </TextBox>-->
 
 
                                     </Border>
@@ -1223,14 +1247,13 @@
                                                 </Button.Style>
                                             </Button>
                                             <Button
-                                                Width="28"
                                                 Height="24"
                                                 Margin="5,0,0,0"
-                                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
                                                 Click="ClearData"
-                                                Style="{StaticResource RoundNormalButton}"
+                                                Content="清屏"
+                                                Style="{StaticResource ButtonDanger}"
                                                 ToolTip="清空窗口">
-                                                <Viewbox
+                                                <!--<Viewbox
                                                     Width="15"
                                                     Height="auto"
                                                     Margin="2,5,4,4"
@@ -1240,7 +1263,7 @@
                                                         VerticalAlignment="Center"
                                                         Data="M687.6 96.4H336.4v91.2h351.1V96.4zM636.7 398v405.5h-73.9V398h73.9z m-175.5 0v405.5h-73.9V398h73.9z m332.1-119.2H230.7l27.9 648.8h506.7l28-648.8zM696.8 5.1c40.4 0 73.3 35.6 73.9 79.8v102.7h147.8c20.2 0 36.6 17.8 37 39.9v41.2c0 5.5-4 10-9 10.1h-70.1L848 941.6c-1.8 42.9-33.7 76.6-72.6 77.3H249.8c-39 0-71.3-33.4-73.7-76l-0.1-1.3-28.5-662.7H77.7c-5 0-9.1-4.4-9.2-9.8v-40.9c0-22.2 16.2-40.2 36.3-40.5h148.4V86.2c0-44.3 32.5-80.4 72.7-81.1h370.9z"
                                                         Fill="{DynamicResource Window.Foreground}" />
-                                                </Viewbox>
+                                                </Viewbox>-->
                                             </Button>
                                             <ToggleButton
                                                 Width="auto"

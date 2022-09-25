@@ -28,6 +28,7 @@ using SuperCom.Config;
 using SuperCom.Windows;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VisualTools;
+using ICSharpCode.AvalonEdit;
 
 namespace SuperCom
 {
@@ -343,7 +344,7 @@ namespace SuperCom
             }
 
             await Task.Delay(1000);
-            portTabItem.TextBox = FindTextBoxByPortName(portName);
+            portTabItem.TextEditor = FindTextBoxByPortName(portName);
             sideComPort.PortTabItem = portTabItem;
             await Task.Run(() =>
             {
@@ -500,10 +501,10 @@ namespace SuperCom
             }
         }
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void TextBox_TextChanged(object sender, EventArgs e)
         {
 
-            (sender as TextBox).ScrollToEnd();
+            (sender as TextEditor).ScrollToEnd();
         }
 
         private void ShowAbout(object sender, RoutedEventArgs e)
@@ -526,8 +527,8 @@ namespace SuperCom
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 Border border = sender as Border;
-                TextBox textBox = border.Child as TextBox;
-                double fontSize = textBox.FontSize;
+                TextEditor textEditor = border.Child as TextEditor;
+                double fontSize = textEditor.FontSize;
                 if (e.Delta > 0)
                 {
                     fontSize++;
@@ -539,7 +540,7 @@ namespace SuperCom
                 if (fontSize > MAX_FONTSIZE) fontSize = MAX_FONTSIZE;
                 if (fontSize < MIN_FONTSIZE) fontSize = MIN_FONTSIZE;
 
-                textBox.FontSize = fontSize;
+                textEditor.FontSize = fontSize;
                 e.Handled = true;
             }
 
@@ -550,27 +551,27 @@ namespace SuperCom
             ToggleButton toggleButton = sender as ToggleButton;
             bool fix = (bool)toggleButton.IsChecked;
             PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-            if (portTabItem != null && portTabItem.TextBox != null)
+            if (portTabItem != null && portTabItem.TextEditor != null)
             {
                 if (fix)
-                    portTabItem.TextBox.TextChanged -= TextBox_TextChanged;
+                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
                 else
-                    portTabItem.TextBox.TextChanged += TextBox_TextChanged;
+                    portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
             }
         }
 
-        private TextBox FindTextBox(Grid rootGrid)
+        private TextEditor FindTextBox(Grid rootGrid)
         {
             if (rootGrid == null) return null;
             Border border = rootGrid.Children.OfType<Border>().FirstOrDefault();
-            if (border != null && border.Child is TextBox textBox)
+            if (border != null && border.Child is TextEditor textEditor)
             {
-                return textBox;
+                return textEditor;
             }
             return null;
         }
 
-        private TextBox FindTextBoxByPortName(string portName)
+        private TextEditor FindTextBoxByPortName(string portName)
         {
             if (string.IsNullOrEmpty(portName)) return null;
             for (int i = 0; i < itemsControl.Items.Count; i++)
@@ -579,7 +580,7 @@ namespace SuperCom
                 if (presenter == null) continue;
                 Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "rootGrid");
                 if (grid != null && grid.Tag != null && portName.Equals(grid.Tag.ToString())
-                    && FindTextBox(grid) is TextBox textBox) return textBox;
+                    && FindTextBox(grid) is TextEditor textEditor) return textEditor;
             }
             return null;
         }
@@ -589,9 +590,9 @@ namespace SuperCom
             StackPanel stackPanel = (sender as Border).Parent as StackPanel;
             if (stackPanel != null && stackPanel.Parent is Grid grid)
             {
-                TextBox textBox = FindTextBox(grid);
-                if (textBox != null)
-                    textBox.ScrollToHome();
+                TextEditor textEditor = FindTextBox(grid);
+                if (textEditor != null)
+                    textEditor.ScrollToHome();
             }
         }
 
@@ -600,9 +601,9 @@ namespace SuperCom
             StackPanel stackPanel = (sender as Border).Parent as StackPanel;
             if (stackPanel != null && stackPanel.Parent is Grid grid)
             {
-                TextBox textBox = FindTextBox(grid);
-                if (textBox != null)
-                    textBox.ScrollToEnd();
+                TextEditor textEditor = FindTextBox(grid);
+                if (textEditor != null)
+                    textEditor.ScrollToEnd();
             }
         }
 
@@ -771,10 +772,7 @@ namespace SuperCom
         }
 
 
-        private void PortTextBoxTextChanged(object sender, TextChangedEventArgs e)
-        {
-            Console.WriteLine($"TextBox.Text = {(sender as TextBox)?.Text}");
-        }
+
 
         private void ShowSettingsPopup(object sender, MouseButtonEventArgs e)
         {
@@ -952,9 +950,9 @@ namespace SuperCom
             MenuItem menuItem = element as MenuItem;
             if (menuItem != null && menuItem.Parent is ContextMenu contextMenu)
             {
-                if (contextMenu.PlacementTarget is TextBox textBox)
+                if (contextMenu.PlacementTarget is TextEditor textEditor)
                 {
-                    return textBox.SelectedText;
+                    return textEditor.SelectedText;
                 }
             }
             return null;
@@ -1384,5 +1382,7 @@ namespace SuperCom
             window_AdvancedSend.Focus();
             window_AdvancedSend.BringIntoView();
         }
+
+
     }
 }

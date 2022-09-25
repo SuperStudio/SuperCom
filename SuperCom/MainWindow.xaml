@@ -111,9 +111,22 @@
                                     HorizontalOffset="-40"
                                     StaysOpen="True"
                                     VerticalOffset="10">
-                                    <MenuItem Header="串口日志另存为" />
-                                    <MenuItem Header="设置" />
-                                    <MenuItem Header="关闭" />
+                                    <MenuItem
+                                        Header="侧边栏"
+                                        IsCheckable="True"
+                                        IsChecked="True" />
+                                    <MenuItem
+                                        Header="文本操作栏"
+                                        IsCheckable="True"
+                                        IsChecked="True" />
+                                    <MenuItem
+                                        Header="发送选项"
+                                        IsCheckable="True"
+                                        IsChecked="True" />
+                                    <MenuItem
+                                        Header="发送栏"
+                                        IsCheckable="True"
+                                        IsChecked="True" />
                                 </ContextMenu>
                             </Button.ContextMenu>
                         </Button>
@@ -1110,7 +1123,7 @@
                                             Name="textBox"
                                             Background="Transparent"
                                             BorderThickness="0"
-                                            FontFamily="Consolas"
+                                            FontFamily="微软雅黑"
                                             FontSize="10pt"
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
@@ -1321,6 +1334,8 @@
                                                         Fill="{DynamicResource Window.Foreground}" />
                                                 </Viewbox>
                                             </Button>
+
+
                                             <CheckBox
                                                 Margin="10,0"
                                                 Content="加时间戳"
@@ -1328,6 +1343,14 @@
                                                 IsChecked="{Binding AddTimeStamp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource NormalCheckBox}" />
                                             <Button Click="SaveToNewFile" Content="存到新文件" />
+
+                                            <ComboBox
+                                                Name="highlightingComboBox"
+                                                Width="100"
+                                                ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
+                                                SelectedItem="{Binding SyntaxHighlighting, ElementName=textBox}"
+                                                SelectionChanged="HighlightingComboBox_SelectionChanged"
+                                                Style="{StaticResource BorderComboBox}" />
 
                                         </StackPanel>
                                     </Border>

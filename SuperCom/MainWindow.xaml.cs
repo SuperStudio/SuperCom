@@ -29,6 +29,7 @@ using SuperCom.Windows;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VisualTools;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Folding;
 
 namespace SuperCom
 {
@@ -1088,7 +1089,7 @@ namespace SuperCom
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
-            new Window_AdvancedSend().Show();
+            //new Window_AdvancedSend().Show();
         }
 
 
@@ -1384,5 +1385,11 @@ namespace SuperCom
         }
 
 
+        FoldingManager foldingManager;
+        object foldingStrategy;
+        private void HighlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

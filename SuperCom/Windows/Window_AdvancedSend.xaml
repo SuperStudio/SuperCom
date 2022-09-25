@@ -149,8 +149,12 @@
                 <super:Switch
                     Height="20"
                     Margin="5,0"
-                    Background="{DynamicResource Window.Side.Background}" />
-                <TextBlock VerticalAlignment="Center" Text="执行" />
+                    Background="{DynamicResource Window.Side.Background}"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Text="执行"
+                    Visibility="Collapsed" />
             </StackPanel>
             <DataGrid
                 Name="dataGrid"

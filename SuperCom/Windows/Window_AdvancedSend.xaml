@@ -243,6 +243,25 @@
                     <DataGridTemplateColumn
                         Width="auto"
                         MinWidth="50"
+                        Header="名称"
+                        SortMemberPath="Order">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    MinWidth="40"
+                                    Background="Transparent"
+                                    ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    LostFocus="SaveSendCommands"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Left" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="50"
                         Header="顺序"
                         SortMemberPath="Order">
                         <DataGridTemplateColumn.CellTemplate>

@@ -13,6 +13,7 @@ namespace SuperCom.Entity
     {
         public static int DEFAULT_DELAY = 1000;
         public long CommandID { get; set; }
+        public string Name { get; set; }
         public int Order { get; set; }
         public string Command { get; set; }
         public int Delay { get; set; }

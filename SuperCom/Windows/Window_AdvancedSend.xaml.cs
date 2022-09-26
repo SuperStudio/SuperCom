@@ -126,7 +126,10 @@ namespace SuperCom.Windows
             SendCommand send = new SendCommand();
             send.CommandID = SendCommand.GenerateID(vieModel.SendCommands.Select(arg => arg.CommandID).ToList());
             send.Delay = SendCommand.DEFAULT_DELAY;
-            send.Order = vieModel.SendCommands.Select(arg => arg.Order).Max() + 1;
+            if (vieModel.SendCommands.Count > 0)
+                send.Order = vieModel.SendCommands.Select(arg => arg.Order).Max() + 1;
+            else
+                send.Order = 1;
             send.Command = "";
             AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
             if (advancedSend != null)
@@ -143,7 +146,12 @@ namespace SuperCom.Windows
                 advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                 vieModel.UpdateProject(advancedSend);
                 vieModel.SendCommands.Add(send);
+
+
             }
+            // 通知 mainWindow 更新
+            MainWindow window = GetWindowByName("mainWindow") as MainWindow;
+            window?.RefreshSendCommands();
         }
 
         private void DeleteCommand(object sender, RoutedEventArgs e)
@@ -171,6 +179,15 @@ namespace SuperCom.Windows
             }
         }
 
+        private Window GetWindowByName(string name)
+        {
+            foreach (Window item in App.Current.Windows)
+            {
+                if (item.Name.Equals(name)) return item;
+            }
+            return null;
+        }
+
         private void SaveSendCommands(object sender, RoutedEventArgs e)
         {
             string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
@@ -182,6 +199,10 @@ namespace SuperCom.Windows
                     advancedSend.Commands = commands;
                     vieModel.UpdateProject(advancedSend);
                     Console.WriteLine("保存项目");
+                    // 通知 mainWindow 更新
+                    MainWindow window = GetWindowByName("mainWindow") as MainWindow;
+                    window?.RefreshSendCommands();
+
                 }
             }
         }

@@ -382,8 +382,16 @@ namespace SuperCom
             CustomSerialPort serialPort = portTabItem.SerialPort;
             if (serialPort != null && serialPort.IsOpen)
             {
-                serialPort.Close();
-                serialPort.Dispose();
+                try
+                {
+                    serialPort.Close();
+                    serialPort.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
             }
             SetPortConnectStatus(portName, false);
         }
@@ -414,18 +422,18 @@ namespace SuperCom
         private void SetPortConnectStatus(string portName, bool status)
         {
 
-            foreach (var item in vieModel.PortTabItems)
+            foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                if (item.Name.Equals(portName))
+                if (item != null && item.Name.Equals(portName))
                 {
                     item.Connected = status;
                     break;
                 }
             }
 
-            foreach (var item in vieModel.SideComPorts)
+            foreach (SideComPort item in vieModel.SideComPorts)
             {
-                if (item.Name.Equals(portName))
+                if (item != null && item.Name.Equals(portName))
                 {
                     item.Connected = status;
                     break;
@@ -937,10 +945,18 @@ namespace SuperCom
             ConfigManager.Main.Save();
         }
 
+
+        private const int MAX_TRANSFORM_SIZE = 100000;
+
         private void OpenHexTransform(object sender, RoutedEventArgs e)
         {
             string text = GetCurrentText(sender as FrameworkElement);
             if (string.IsNullOrEmpty(text)) return;
+            if (text.Length > MAX_TRANSFORM_SIZE)
+            {
+                MessageCard.Warning($"超过了 {MAX_TRANSFORM_SIZE}");
+                return;
+            }
             hexTransPopup.IsOpen = true;
             HexTextBox.Text = text;
             HexToStr(null, null);
@@ -966,9 +982,16 @@ namespace SuperCom
 
         }
 
+
+        private const int MAX_TIMESTAMP_LENGTH = 100;
         private void OpenTimeTransform(object sender, RoutedEventArgs e)
         {
             string text = GetCurrentText(sender as FrameworkElement);
+            if (text.Length > MAX_TIMESTAMP_LENGTH)
+            {
+                MessageCard.Warning($"超过了 {MAX_TIMESTAMP_LENGTH}");
+                return;
+            }
             if (string.IsNullOrEmpty(text)) return;
             timeTransPopup.IsOpen = true;
             TimeStampTextBox.Text = text;
@@ -1169,22 +1192,14 @@ namespace SuperCom
             }
         }
 
-        private void ShowSideGrid(object sender, MouseButtonEventArgs e)
-        {
-            SideGridColumn.Width = new GridLength(200);
-            SideTriggerBorder.Visibility = Visibility.Collapsed;
-        }
+
 
         private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (SideGridColumn.ActualWidth <= 100)
             {
                 SideGridColumn.Width = new GridLength(0);
-                SideTriggerBorder.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SideTriggerBorder.Visibility = Visibility.Collapsed;
+                sideGridMenuItem.IsChecked = false;
             }
         }
 
@@ -1397,5 +1412,46 @@ namespace SuperCom
         {
 
         }
+
+        private void HideSide(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem.IsChecked)
+            {
+                SideGridColumn.Width = new GridLength(200);
+            }
+            else
+            {
+                SideGridColumn.Width = new GridLength(0);
+                Border_SizeChanged(null, null);
+            }
+
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            if (comboBox.SelectedValue == null) return;
+            string id = comboBox.SelectedValue.ToString();
+            if (string.IsNullOrEmpty(id)) return;
+            WrapPanel wrapPanel = comboBox.Parent as WrapPanel;
+            ItemsControl itemsControl = wrapPanel.Children.OfType<ItemsControl>().LastOrDefault();
+            if (itemsControl != null)
+            {
+                AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(id)).FirstOrDefault();
+                itemsControl.ItemsSource = null;
+                if (!string.IsNullOrEmpty(advancedSend.Commands))
+                {
+
+                    itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                }
+            }
+        }
+
+        public void RefreshSendCommands()
+        {
+            vieModel.LoadSendCommands();
+        }
+
     }
 }

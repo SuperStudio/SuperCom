@@ -79,20 +79,6 @@ namespace SuperCom.ViewModel
         {
             Projects = new ObservableCollection<AdvancedSend>();
             SendCommands = new ObservableCollection<SendCommand>();
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    ProjectNames.Add(new AdvancedSend(i, $"项目 {i}"));
-            //}
-
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    SendCommand sendCommand = new SendCommand();
-            //    sendCommand.Order = i;
-            //    sendCommand.Delay = i * 1000;
-            //    sendCommand.Command = $"AT^PHYNUM={i}";
-            //    SendCommands.Add(sendCommand);
-            //}
-
             // 从数据库中读取
             if (mapper != null)
             {

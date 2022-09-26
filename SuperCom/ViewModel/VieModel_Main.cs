@@ -13,7 +13,7 @@ namespace SuperCom.ViewModel
 
     public class VieModel_Main : ViewModelBase
     {
-
+        private static SqliteMapper<AdvancedSend> mapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
 
@@ -79,6 +79,18 @@ namespace SuperCom.ViewModel
             }
         }
 
+        private ObservableCollection<AdvancedSend> _SendCommandProjects;
+        public ObservableCollection<AdvancedSend> SendCommandProjects
+        {
+            get { return _SendCommandProjects; }
+            set { _SendCommandProjects = value; RaisePropertyChanged(); }
+        }
+
+
+        static VieModel_Main()
+        {
+
+        }
 
         public VieModel_Main()
         {
@@ -94,6 +106,19 @@ namespace SuperCom.ViewModel
                 SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
             }
             if (SendHistory == null) SendHistory = new HashSet<string>();
+
+            LoadSendCommands();
+        }
+
+        public void LoadSendCommands()
+        {
+            SendCommandProjects = new ObservableCollection<AdvancedSend>();
+            if (mapper == null) mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
+            List<AdvancedSend> advancedSends = mapper.SelectList();
+            foreach (var item in advancedSends)
+            {
+                SendCommandProjects.Add(item);
+            }
         }
 
         public void SaveSendHistory()

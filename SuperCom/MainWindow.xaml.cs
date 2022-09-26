@@ -707,6 +707,7 @@ namespace SuperCom
                 try
                 {
                     port.Write(value);
+                    portTabItem.TX += value.Length;
                     // 保存到发送历史
                     vieModel.SendHistory.Add(value.Trim());
                     vieModel.SaveSendHistory();
@@ -943,6 +944,11 @@ namespace SuperCom
             hexTransPopup.IsOpen = true;
             HexTextBox.Text = text;
             HexToStr(null, null);
+        }
+        private void CopyText(object sender, RoutedEventArgs e)
+        {
+            string text = GetCurrentText(sender as FrameworkElement);
+            ClipBoard.TrySetDataObject(text);
         }
 
 

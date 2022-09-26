@@ -1134,7 +1134,7 @@
                                             <avalonEdit:TextEditor.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
-                                                    <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+                                                    <MenuItem Click="CopyText" Header="复制" />
                                                     <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
                                                     <MenuItem Click="OpenTimeTransform" Header="时间戳" />
                                                 </ContextMenu>
@@ -1351,7 +1351,22 @@
                                                 SelectedItem="{Binding SyntaxHighlighting, ElementName=textBox}"
                                                 SelectionChanged="HighlightingComboBox_SelectionChanged"
                                                 Style="{StaticResource BorderComboBox}" />
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal">
 
+                                                <TextBox
+                                                    MinWidth="100"
+                                                    Background="Transparent"
+                                                    Style="{StaticResource ReadOnlyTextBox}"
+                                                    Text="{Binding RX, Mode=OneWay, StringFormat=RX {0}}"
+                                                    TextWrapping="NoWrap" />
+
+                                                <TextBox
+                                                    MinWidth="100"
+                                                    Background="Transparent"
+                                                    Style="{StaticResource ReadOnlyTextBox}"
+                                                    Text="{Binding TX, Mode=OneWay, StringFormat=TX {0}}"
+                                                    TextWrapping="NoWrap" />
+                                            </StackPanel>
                                         </StackPanel>
                                     </Border>
                                 </Grid>
@@ -1668,7 +1683,12 @@
             Grid.Row="2"
             Height="20"
             Background="{DynamicResource Window.StatusBar.Background}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
             <TextBox
+                Grid.Column="0"
                 Height="15"
                 Margin="5,0"
                 Padding="0"
@@ -1681,6 +1701,7 @@
                 Style="{StaticResource ReadOnlyTextBox}"
                 Text="{Binding StatusText}"
                 TextWrapping="NoWrap" />
+
         </Grid>
     </Grid>
 </super:BaseWindow>

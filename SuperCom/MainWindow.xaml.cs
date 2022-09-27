@@ -60,7 +60,7 @@ namespace SuperCom
         public MainWindow()
         {
             InitializeComponent();
-
+            Init();
 
 
             // 注册 SuperUtils 异常事件
@@ -78,7 +78,9 @@ namespace SuperCom
             FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
-            Init();
+            // 读取设置列表
+            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
         }
 
 
@@ -105,9 +107,6 @@ namespace SuperCom
 
             ComSettings.InitSqlite();
             AdvancedSend.InitSqlite();
-            // 读取设置列表
-            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
         }
 
         public override void CloseWindow(object sender, RoutedEventArgs e)

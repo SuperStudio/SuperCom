@@ -1527,7 +1527,8 @@
                                                 Margin="5,0"
                                                 Click="StartSendCommands"
                                                 Style="{StaticResource RoundNormalButton}"
-                                                ToolTip="启动">
+                                                ToolTip="启动"
+                                                Visibility="Collapsed">
                                                 <Viewbox
                                                     Width="20"
                                                     Height="20"

@@ -94,7 +94,9 @@
                                 HorizontalAlignment="Stretch"
                                 Background="{DynamicResource ListBoxItem.Selected.Active.Background}"
                                 LostFocus="RenameTextBoxLostFocus"
+                                PreviewKeyUp="TextBox_PreviewKeyUp"
                                 Style="{StaticResource BaseTextBox}"
+                                Tag="{Binding ProjectID}"
                                 Text="{Binding ProjectName}"
                                 TextAlignment="Left"
                                 Visibility="Hidden" />
@@ -213,7 +215,8 @@
                         Width="auto"
                         MinWidth="40"
                         Header="状态"
-                        SortMemberPath="Running">
+                        SortMemberPath="Running"
+                        Visibility="Collapsed">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border
@@ -263,7 +266,8 @@
                         Width="auto"
                         MinWidth="50"
                         Header="顺序"
-                        SortMemberPath="Order">
+                        SortMemberPath="Order"
+                        Visibility="Collapsed">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox
@@ -282,7 +286,8 @@
                         Width="auto"
                         MinWidth="60"
                         Header="延时"
-                        SortMemberPath="Delay">
+                        SortMemberPath="Delay"
+                        Visibility="Collapsed">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox

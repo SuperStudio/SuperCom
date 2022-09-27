@@ -47,6 +47,7 @@ namespace SuperCom.Windows
             // 保存
             vieModel.AddProject("我的项目");
             vieModel.SaveProjects();
+            DataChanged();
         }
 
         private void DeleteProject(object sender, RoutedEventArgs e)
@@ -56,6 +57,7 @@ namespace SuperCom.Windows
             {
                 int.TryParse(button.Tag.ToString(), out int projectID);
                 DeleteProjectByID(projectID);
+
             }
         }
 
@@ -74,6 +76,7 @@ namespace SuperCom.Windows
             {
                 vieModel.DeleteProject(vieModel.Projects[idx]);
                 vieModel.Projects.RemoveAt(idx);
+                DataChanged();
             }
 
         }
@@ -86,6 +89,13 @@ namespace SuperCom.Windows
                 int.TryParse(menuItem.Tag.ToString(), out int projectID);
                 DeleteProjectByID(projectID);
             }
+        }
+
+        public void DataChanged()
+        {
+            // 通知 mainWindow 更新
+            MainWindow window = GetWindowByName("mainWindow") as MainWindow;
+            window?.RefreshSendCommands();
         }
 
         private void OnProjectClick(object sender, MouseButtonEventArgs e)
@@ -146,12 +156,10 @@ namespace SuperCom.Windows
                 advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                 vieModel.UpdateProject(advancedSend);
                 vieModel.SendCommands.Add(send);
-
+                DataChanged();
 
             }
-            // 通知 mainWindow 更新
-            MainWindow window = GetWindowByName("mainWindow") as MainWindow;
-            window?.RefreshSendCommands();
+
         }
 
         private void DeleteCommand(object sender, RoutedEventArgs e)
@@ -173,6 +181,7 @@ namespace SuperCom.Windows
                             advancedSend.CommandList.RemoveAll(arg => arg.CommandID == sendCommand.CommandID);
                             advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                             vieModel.UpdateProject(advancedSend);
+                            DataChanged();
                         }
                     }
                 }
@@ -199,9 +208,7 @@ namespace SuperCom.Windows
                     advancedSend.Commands = commands;
                     vieModel.UpdateProject(advancedSend);
                     Console.WriteLine("保存项目");
-                    // 通知 mainWindow 更新
-                    MainWindow window = GetWindowByName("mainWindow") as MainWindow;
-                    window?.RefreshSendCommands();
+                    DataChanged();
 
                 }
             }
@@ -218,13 +225,47 @@ namespace SuperCom.Windows
                 textBox.Visibility = Visibility.Visible;
                 textBox.SelectAll();
                 textBox.Focus();
+                DataChanged();
             }
         }
 
         private void RenameTextBoxLostFocus(object sender, RoutedEventArgs e)
         {
             TextBox textBox = sender as TextBox;
+
             textBox.Visibility = Visibility.Hidden;
+            string newName = textBox.Text;
+            if (textBox.Tag != null)
+            {
+                string projectID = textBox.Tag.ToString();
+                if (!string.IsNullOrEmpty(projectID))
+                {
+                    AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                    if (string.IsNullOrEmpty(newName))
+                    {
+                        textBox.Text = advancedSend.ProjectName;
+                        return;
+                    }
+
+                    if (advancedSend != null && !advancedSend.ProjectName.Equals(newName))
+                    {
+                        advancedSend.ProjectName = newName;
+                        vieModel.RenameProject(advancedSend);
+                        DataChanged();
+                    }
+                }
+            }
+
+
+
+        }
+
+        private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Escape)
+            {
+                RenameTextBoxLostFocus(sender, e);
+            }
         }
     }
 }

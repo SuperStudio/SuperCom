@@ -35,7 +35,7 @@ namespace SuperCom.Entity
     public class AdvancedSend
     {
         [TableId(IdType.AUTO)]
-        public int ProjectID { get; set; }
+        public long ProjectID { get; set; }
         public string ProjectName { get; set; }
         public string Commands { get; set; }
 

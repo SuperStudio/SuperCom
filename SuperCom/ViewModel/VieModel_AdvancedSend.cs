@@ -104,12 +104,25 @@ namespace SuperCom.ViewModel
             }
         }
 
+        public void RenameProject(AdvancedSend send)
+        {
+            bool result = mapper.UpdateFieldById("ProjectName", send.ProjectName, send.ProjectID);
+            if (!result)
+            {
+                System.Console.WriteLine($"¸üÐÂ {send.ProjectName} Ê§°Ü");
+            }
+        }
+
         public void DeleteProject(AdvancedSend send)
         {
             int count = mapper.DeleteById(send.ProjectID);
             if (count <= 0)
             {
                 System.Console.WriteLine($"É¾³ý {send.ProjectName} Ê§°Ü");
+            }
+            else
+            {
+                ShowCurrentSendCommand = false;
             }
         }
 

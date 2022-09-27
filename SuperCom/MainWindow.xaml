@@ -1500,22 +1500,32 @@
                                     </Border>
 
                                     <Border
+                                        Name="sendBorder"
                                         Grid.Row="1"
                                         Margin="0,5,0,0"
                                         Padding="5,0"
                                         Background="{DynamicResource Window.Title.Background}"
                                         CornerRadius="5"
-                                        Visibility="Collapsed">
-                                        <WrapPanel Orientation="Horizontal">
+                                        Tag="{Binding Name}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
                                             <Button
+                                                Grid.Column="0"
                                                 Margin="5,0"
                                                 Click="OpenSendPanel"
-                                                Content="发送队列" />
+                                                Content="编辑命令" />
 
                                             <Button
+                                                Grid.Column="1"
                                                 Width="27"
                                                 Height="27"
                                                 Margin="5,0"
+                                                Click="StartSendCommands"
                                                 Style="{StaticResource RoundNormalButton}"
                                                 ToolTip="启动">
                                                 <Viewbox
@@ -1530,6 +1540,7 @@
                                                 </Viewbox>
                                             </Button>
                                             <ComboBox
+                                                Grid.Column="2"
                                                 MinWidth="50"
                                                 DisplayMemberPath="ProjectName"
                                                 ItemsSource="{Binding Path=DataContext.SendCommandProjects, RelativeSource={RelativeSource AncestorType={x:Type super:BaseWindow}}}"
@@ -1537,23 +1548,31 @@
                                                 SelectedValuePath="ProjectID"
                                                 SelectionChanged="ComboBox_SelectionChanged"
                                                 Style="{StaticResource BorderComboBox}" />
-                                            <ItemsControl>
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal" />
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button
-                                                            Margin="5,0"
-                                                            BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                                                            Content="{Binding Name}"
-                                                            Style="{StaticResource BorderButton}" />
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </WrapPanel>
+                                            <ScrollViewer
+                                                Grid.Column="3"
+                                                HorizontalScrollBarVisibility="Auto"
+                                                PreviewMouseWheel="ScrollViewer_PreviewMouseWheel_1"
+                                                VerticalScrollBarVisibility="Disabled">
+                                                <ItemsControl Name="sendButtons" Margin="5,0">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button
+                                                                Margin="5,0"
+                                                                BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                                                Click="SendCustomCommand"
+                                                                Content="{Binding Name, TargetNullValue=发送命令}"
+                                                                Style="{StaticResource BorderButton}"
+                                                                ToolTip="{Binding Command}" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                        </Grid>
                                     </Border>
 
 

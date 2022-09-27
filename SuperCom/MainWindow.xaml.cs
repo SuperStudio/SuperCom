@@ -69,6 +69,11 @@ namespace SuperCom
                 MessageCard.Error(e.Message);
             };
 
+            SuperUtils.Handler.LogHandler.OnLog += (msg) =>
+            {
+                Console.WriteLine(msg);
+            };
+
 
             FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
             vieModel = new VieModel_Main();
@@ -704,28 +709,35 @@ namespace SuperCom
             }
             SerialPort port = serialComPort.PortTabItem.SerialPort;
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            string value = portTabItem.WriteData;
             if (port != null)
             {
-                string value = portTabItem.WriteData;
-                if (portTabItem.AddNewLineWhenWrite)
+                SendCommand(port, portTabItem, value);
+            }
+        }
+
+        public void SendCommand(SerialPort port, PortTabItem portTabItem, string value, bool saveToHistory = true)
+        {
+            if (portTabItem.AddNewLineWhenWrite)
+            {
+                value += "\r\n";
+            }
+            portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
+            try
+            {
+                port.Write(value);
+                portTabItem.TX += value.Length;
+                // 保存到发送历史
+                if (saveToHistory)
                 {
-                    value += "\r\n";
-                }
-                portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
-                try
-                {
-                    port.Write(value);
-                    portTabItem.TX += value.Length;
-                    // 保存到发送历史
                     vieModel.SendHistory.Add(value.Trim());
                     vieModel.SaveSendHistory();
                 }
-                catch (Exception ex)
-                {
-                    MessageCard.Error(ex.Message);
-                }
-
                 vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
+            }
+            catch (Exception ex)
+            {
+                MessageCard.Error(ex.Message);
             }
         }
 
@@ -1431,27 +1443,100 @@ namespace SuperCom
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = sender as ComboBox;
+
+
+            Grid grid = comboBox.Parent as Grid;
+            ScrollViewer scrollViewer = grid.Children.OfType<ScrollViewer>().LastOrDefault();
+            ItemsControl itemsControl = scrollViewer.FindName("sendButtons") as ItemsControl;
+            if (itemsControl == null)
+            {
+                return;
+            }
+            itemsControl.ItemsSource = null;
             if (comboBox.SelectedValue == null) return;
             string id = comboBox.SelectedValue.ToString();
             if (string.IsNullOrEmpty(id)) return;
-            WrapPanel wrapPanel = comboBox.Parent as WrapPanel;
-            ItemsControl itemsControl = wrapPanel.Children.OfType<ItemsControl>().LastOrDefault();
-            if (itemsControl != null)
+            AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(id)).FirstOrDefault();
+            if (!string.IsNullOrEmpty(advancedSend.Commands))
             {
-                AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(id)).FirstOrDefault();
-                itemsControl.ItemsSource = null;
-                if (!string.IsNullOrEmpty(advancedSend.Commands))
-                {
-
-                    itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-                }
+                itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
             }
         }
+
+
 
         public void RefreshSendCommands()
         {
             vieModel.LoadSendCommands();
+            SetComboboxStatus();
         }
 
+        public void SetComboboxStatus()
+        {
+            foreach (PortTabItem item in vieModel.PortTabItems)
+            {
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor != null)
+                {
+                    ComboBox comboBox = FindCombobox(textEditor);
+                    if (comboBox != null)
+                    {
+                        comboBox.SelectedIndex = 0;
+                    }
+                }
+            }
+        }
+
+        private ComboBox FindCombobox(TextEditor textEditor)
+        {
+            Grid grid = (textEditor.Parent as Border).Parent as Grid;
+            Grid rootGrid = grid.Parent as Grid;
+            Grid borderGrid = rootGrid.Children.OfType<Grid>().LastOrDefault();
+            Border border = borderGrid.Children.OfType<Border>().Last();
+            Grid grid1 = border.Child as Grid;
+            ComboBox comboBox = grid1.Children.OfType<ComboBox>().FirstOrDefault();
+            return comboBox;
+        }
+
+        private void ScrollViewer_PreviewMouseWheel_1(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = sender as ScrollViewer;
+            scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset - e.Delta);
+            e.Handled = true;
+        }
+
+        private void SendCustomCommand(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            string command = "";
+            if (button.ToolTip != null)
+            {
+                command = button.ToolTip.ToString();
+            }
+            Border border = button.FindParentOfType<Border>("sendBorder");
+            if (border != null && border.Tag != null)
+            {
+                string portName = border.Tag.ToString();
+                SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (sideComPort != null && sideComPort.PortTabItem != null && sideComPort.PortTabItem.SerialPort != null)
+                {
+                    SendCommand(sideComPort.PortTabItem.SerialPort, sideComPort.PortTabItem, command, false);
+                }
+            }
+
+        }
+
+        private void StartSendCommands(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Grid grid = button.Parent as Grid;
+            ComboBox comboBox = grid.Children.OfType<ComboBox>().FirstOrDefault();
+            if (comboBox != null && comboBox.SelectedValue != null)
+            {
+                string projectID = comboBox.SelectedValue.ToString();
+                // 开始执行队列
+                MessageCard.Warning("开发中");
+            }
+        }
     }
 }

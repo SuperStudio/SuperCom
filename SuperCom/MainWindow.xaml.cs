@@ -30,6 +30,8 @@ using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VisualTools;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Highlighting;
+using System.Xml;
 
 namespace SuperCom
 {
@@ -99,6 +101,40 @@ namespace SuperCom
             };
             CreateSqlTables();
             ConfigManager.InitConfig(); // 读取配置
+
+            // 自定义语法高亮
+            // Load our custom highlighting definition
+
+            string[] xshd_list = new string[] { "ComLog" };
+            foreach (var name in xshd_list)
+            {
+                try
+                {
+                    IHighlightingDefinition customHighlighting;
+                    string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", $"{name}.xshd");
+                    using (Stream s = File.OpenRead(xshdPath))
+                    {
+                        if (s == null)
+                            throw new InvalidOperationException("Could not find embedded resource");
+                        using (XmlReader reader = new XmlTextReader(s))
+                        {
+                            customHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.
+                                HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                        }
+                    }
+                    // and register it in the HighlightingManager
+                    HighlightingManager.Instance.RegisterHighlighting(name, new string[] { ".cool" }, customHighlighting);
+                }
+                catch (Exception ex)
+                {
+                    MessageCard.Error(ex.Message);
+                    continue;
+                }
+
+            }
+
+
+
         }
 
 
@@ -350,6 +386,18 @@ namespace SuperCom
 
             await Task.Delay(1000);
             portTabItem.TextEditor = FindTextBoxByPortName(portName);
+
+            //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
+            //using (Stream s = File.OpenRead(xshdPath))
+            //{
+            //    using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s))
+            //    {
+            //        portTabItem.TextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
+            //            (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+            //    }
+            //}
+
+
             sideComPort.PortTabItem = portTabItem;
             await Task.Run(() =>
             {
@@ -1419,10 +1467,7 @@ namespace SuperCom
 
         FoldingManager foldingManager;
         object foldingStrategy;
-        private void HighlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
 
-        }
 
         private void HideSide(object sender, RoutedEventArgs e)
         {

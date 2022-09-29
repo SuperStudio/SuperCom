@@ -1104,7 +1104,7 @@
                                             IsReadOnly="True"
                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            SyntaxHighlighting="C#"
+                                            SyntaxHighlighting="ComLog"
                                             TextChanged="TextBox_TextChanged">
                                             <avalonEdit:TextEditor.ContextMenu>
                                                 <ContextMenu>
@@ -1333,8 +1333,8 @@
                                                 VerticalAlignment="Center"
                                                 Background="{DynamicResource Window.Title.Background}"
                                                 ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
+                                                SelectedIndex="21"
                                                 SelectedItem="{Binding SyntaxHighlighting, ElementName=textBox}"
-                                                SelectionChanged="HighlightingComboBox_SelectionChanged"
                                                 Style="{StaticResource BorderComboBox}" />
                                             <StackPanel Grid.Column="1" Orientation="Horizontal">
 

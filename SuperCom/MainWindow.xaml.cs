@@ -32,6 +32,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using System.Xml;
+using ICSharpCode.AvalonEdit.Search;
 
 namespace SuperCom
 {
@@ -386,6 +387,8 @@ namespace SuperCom
 
             await Task.Delay(1000);
             portTabItem.TextEditor = FindTextBoxByPortName(portName);
+            // 搜索框
+            SearchPanel.Install(portTabItem.TextEditor);
 
             //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
             //using (Stream s = File.OpenRead(xshdPath))

@@ -123,13 +123,51 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
+
+                        <Button
+                            Grid.Column="0"
+                            Width="40"
+                            VerticalAlignment="Stretch"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Background="Green"
+                            Click="SplitPanel"
+                            Style="{StaticResource FlatButton}">
+                            <Canvas>
+                                <TextBlock
+                                    Canvas.Left="-6"
+                                    Canvas.Top="-7"
+                                    FontSize="10">
+                                    ab
+                                </TextBlock>
+
+                                <Rectangle
+                                    Canvas.Left="-9"
+                                    Canvas.Top="5"
+                                    Width="18"
+                                    Height="1"
+                                    Fill="{DynamicResource Window.Foreground}" />
+                                <Rectangle
+                                    Canvas.Left="8"
+                                    Canvas.Top="1"
+                                    Width="1"
+                                    Height="4"
+                                    Fill="{DynamicResource Window.Foreground}" />
+                                <Rectangle
+                                    Canvas.Left="-9"
+                                    Canvas.Top="1"
+                                    Width="1"
+                                    Height="4"
+                                    Fill="{DynamicResource Window.Foreground}" />
+                            </Canvas>
+                        </Button>
                         <Button
                             Grid.Column="0"
                             Width="40"
                             VerticalAlignment="Stretch"
                             super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                             Click="SplitPanel"
-                            Style="{StaticResource FlatButton}">
+                            Style="{StaticResource FlatButton}"
+                            Visibility="Collapsed">
                             <Canvas>
                                 <Rectangle
                                     Canvas.Left="-11"

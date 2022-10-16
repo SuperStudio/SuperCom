@@ -34,6 +34,7 @@
 
             <TextBox
                 Margin="40,10"
+                HorizontalAlignment="Center"
                 FontSize="20"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
@@ -41,16 +42,18 @@
             <TextBox
                 x:Name="VersionTextBlock"
                 Margin="10"
+                HorizontalAlignment="Center"
                 FontSize="14"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="版本：1.5" />
+                Text="版本：1.6" />
             <TextBox
                 Margin="10"
+                HorizontalAlignment="Center"
                 FontSize="11"
                 Foreground="{DynamicResource Window.Sub.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="发行日期：2022-09-30" />
+                Text="发行日期：2022-10-16" />
 
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <StackPanel Margin="20,0" Orientation="Horizontal">

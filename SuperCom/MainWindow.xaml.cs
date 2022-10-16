@@ -33,6 +33,7 @@ using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Search;
+using SuperControls.Style.XAML.CustomWindows;
 
 namespace SuperCom
 {
@@ -439,6 +440,7 @@ namespace SuperCom
             {
                 try
                 {
+                    portTabItem.RX = 0;
                     serialPort.Close();
                     serialPort.Dispose();
                 }
@@ -544,6 +546,7 @@ namespace SuperCom
                     portTabItem.AddTimeStamp = comSettings.AddTimeStamp;
                     portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
+                    portTabItem.Remark = portTabItem.SerialPort.Remark;
 
                 }
                 portTabItem.Selected = true;
@@ -987,6 +990,11 @@ namespace SuperCom
                 SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
                 mapper.Insert(comSettings, SuperUtils.Framework.ORM.Attributes.InsertMode.Replace);
             }
+        }
+
+        private void SaveCustomSetting()
+        {
+
         }
 
         private void SaveOpeningPorts()
@@ -1584,6 +1592,38 @@ namespace SuperCom
                 // 开始执行队列
                 MessageCard.Warning("开发中");
             }
+        }
+
+        private void Remark(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            FrameworkElement frameworkElement = contextMenu.PlacementTarget as FrameworkElement;
+            if (frameworkElement != null && frameworkElement.Tag != null)
+            {
+                string portName = frameworkElement.Tag.ToString();
+                SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem)
+                {
+                    string defaultContent = "请输入备注";
+                    if (!string.IsNullOrEmpty(portTabItem.Remark))
+                        defaultContent = portTabItem.Remark;
+                    InputWindow inputWindow = new InputWindow(this, defaultContent, true);
+                    if (inputWindow.ShowDialog() == true)
+                    {
+                        string value = inputWindow.Text;
+                        portTabItem.Remark = value;
+                        Console.WriteLine(value);
+                        portTabItem.SerialPort.SaveRemark(value);
+
+                    }
+                }
+            }
+        }
+
+        private void OpenLog(object sender, RoutedEventArgs e)
+        {
+            MessageCard.Info("开发中");
         }
     }
 }

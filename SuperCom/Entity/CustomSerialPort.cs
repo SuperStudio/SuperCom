@@ -30,6 +30,13 @@ namespace SuperCom.Entity
             RefreshSetting();
         }
 
+        public string Remark = "";
+
+        public void SaveRemark(string remark)
+        {
+            this.Remark = remark;
+            RefreshSetting();
+        }
 
         public void RefreshSetting()
         {
@@ -60,6 +67,7 @@ namespace SuperCom.Entity
             dic.Add("Encoding", this.Encoding.HeaderName);
             dic.Add("StopBits", this.StopBitsString);
             dic.Add("Parity", this.ParityString);
+            dic.Add("Remark", this.Remark);
             return JsonUtils.TrySerializeObject(dic);
         }
 
@@ -79,8 +87,12 @@ namespace SuperCom.Entity
                 this.PortEncoding = dict["Encoding"].ToString();
                 this.ParityString = dict["Parity"].ToString();
                 this.StopBitsString = dict["StopBits"].ToString();
+                if (dict.ContainsKey("Remark"))
+                    this.Remark = dict["Remark"].ToString();
             }
         }
+
+
 
         public Encoding GetEncoding()
         {

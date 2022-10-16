@@ -98,7 +98,14 @@ namespace SuperCom.Entity
             set { _TX = value; OnPropertyChanged(); }
         }
 
+        // 备注
 
+        private string _Remark = "";
+        public string Remark
+        {
+            get { return _Remark; }
+            set { _Remark = value; OnPropertyChanged(); }
+        }
 
         public DateTime ConnectTime { get; set; }
 

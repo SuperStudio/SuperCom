@@ -8,7 +8,7 @@
 	<!-- 时间戳 -->
 	<!-- [2022-09-29 23:28:19.967] -->
 	<RuleSet >
-		<Rule foreground="#FAFAFA">\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\]</Rule>
+		<Rule foreground="#858585">\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\]</Rule>
 		<Span foreground="#FF4040" multiline="true">
 			<Begin>(\[E\])|E:</Begin>
 			<End>^(?=\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\])</End>

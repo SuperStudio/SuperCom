@@ -100,7 +100,7 @@ namespace SuperCom.ViewModel
         public void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
-            InitPortSampleData();
+            InitPortData();
             if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory))
             {
                 SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
@@ -127,7 +127,7 @@ namespace SuperCom.ViewModel
             ConfigManager.Main.Save();
         }
 
-        public void InitPortSampleData()
+        public void InitPortData()
         {
             string[] ports = SerialPort.GetPortNames();
             SideComPorts = new ObservableCollection<SideComPort>();
@@ -135,6 +135,7 @@ namespace SuperCom.ViewModel
             {
                 SideComPorts.Add(new SideComPort(port, false));
             }
+
         }
     }
 }

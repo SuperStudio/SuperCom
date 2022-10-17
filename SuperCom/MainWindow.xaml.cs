@@ -85,6 +85,16 @@ namespace SuperCom
             // 读取设置列表
             SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
             vieModel.ComSettingList = mapper.SelectList().ToHashSet();
+
+            // 设置配置
+            foreach (var item in vieModel.SideComPorts)
+            {
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name)).FirstOrDefault();
+                if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
+                {
+                    item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                }
+            }
         }
 
 
@@ -103,10 +113,11 @@ namespace SuperCom
             };
             CreateSqlTables();
             ConfigManager.InitConfig(); // 读取配置
+            ReadXshdList();// 自定义语法高亮
+        }
 
-            // 自定义语法高亮
-            // Load our custom highlighting definition
-
+        private void ReadXshdList()
+        {
             string[] xshd_list = new string[] { "ComLog" };
             foreach (var name in xshd_list)
             {
@@ -134,9 +145,6 @@ namespace SuperCom
                 }
 
             }
-
-
-
         }
 
 
@@ -335,13 +343,20 @@ namespace SuperCom
         private void RefreshPortsStatus(object sender, MouseButtonEventArgs e)
         {
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
-            vieModel.InitPortSampleData();
+            vieModel.InitPortData();
             for (int i = 0; i < vieModel.SideComPorts.Count; i++)
             {
-                SideComPort sideComPort = sideComPorts.Where(arg => arg.Name.Equals(vieModel.SideComPorts[i].Name)).FirstOrDefault();
+                string portName = vieModel.SideComPorts[i].Name;
+                SideComPort sideComPort = sideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+
                 if (sideComPort != null)
                 {
                     vieModel.SideComPorts[i] = sideComPort;
+                    ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                    if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
+                    {
+                        vieModel.SideComPorts[i].Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                    }
                 }
             }
         }
@@ -441,6 +456,7 @@ namespace SuperCom
                 try
                 {
                     portTabItem.RX = 0;
+                    portTabItem.TX = 0;
                     serialPort.Close();
                     serialPort.Dispose();
                 }
@@ -547,7 +563,6 @@ namespace SuperCom
                     portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
-
                 }
                 portTabItem.Selected = true;
                 SetGridVisible(portName);
@@ -707,7 +722,7 @@ namespace SuperCom
                 }
                 else
                 {
-                    MessageCard.Warning($"不存在文件：{fileName}");
+                    MessageCard.Warning($"当前无日志");
                 }
 
             }
@@ -973,20 +988,20 @@ namespace SuperCom
         /// </summary>
         private void SaveComSettings()
         {
-            foreach (var item in vieModel.SideComPorts)
+            foreach (var portTabItem in vieModel.PortTabItems)
             {
 
-                ComSettings comSettings = new ComSettings();
-                comSettings.PortName = item.Name;
-                comSettings.Connected = item.Connected;
-                PortTabItem portTabItem = item.PortTabItem;
-                if (portTabItem != null)
-                {
-                    comSettings.WriteData = portTabItem.WriteData;
-                    comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
-                    comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
-                    comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
-                }
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portTabItem.Name)).FirstOrDefault();
+                if (comSettings == null) comSettings = new ComSettings();
+                comSettings.PortName = portTabItem.Name;
+                comSettings.Connected = portTabItem.Connected;
+                // PortTabItem portTabItem = item.PortTabItem;
+
+                comSettings.WriteData = portTabItem.WriteData;
+                comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
+                comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
+                comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
+
                 SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
                 mapper.Insert(comSettings, SuperUtils.Framework.ORM.Attributes.InsertMode.Replace);
             }
@@ -1172,7 +1187,7 @@ namespace SuperCom
                 }
                 else
                 {
-                    MessageCard.Warning($"不存在文件：{fileName}");
+                    MessageCard.Warning($"当前无日志");
                 }
 
             }
@@ -1615,8 +1630,13 @@ namespace SuperCom
                         portTabItem.Remark = value;
                         Console.WriteLine(value);
                         portTabItem.SerialPort.SaveRemark(value);
+                        sideComPort.Remark = value;
 
                     }
+                }
+                else if (sideComPort.PortTabItem == null)
+                {
+                    MessageCard.Info("打开串口后才能备注");
                 }
             }
         }

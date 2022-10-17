@@ -35,21 +35,25 @@ namespace SuperCom.Entity
         public void SaveRemark(string remark)
         {
             this.Remark = remark;
-            RefreshSetting();
+            SettingJson = PortSettingToJson(); // 保存
+        }
+
+
+        public void SaveProperties()
+        {
+            this.BaudRate = Setting.BaudRate;
+            this.DataBits = Setting.DataBits;
+            this.Encoding = GetEncoding();
+            this.StopBits = GetStopBits();
+            this.Parity = GetParity();
         }
 
         public void RefreshSetting()
         {
             try
             {
-                this.BaudRate = Setting.BaudRate;
-                this.DataBits = Setting.DataBits;
-                this.Encoding = GetEncoding();
-                this.StopBits = GetStopBits();
-                this.Parity = GetParity();
-
-                // 保存
-                SettingJson = PortSettingToJson();
+                SaveProperties();
+                SettingJson = PortSettingToJson(); // 保存
             }
             catch (Exception ex)
             {
@@ -90,6 +94,17 @@ namespace SuperCom.Entity
                 if (dict.ContainsKey("Remark"))
                     this.Remark = dict["Remark"].ToString();
             }
+        }
+
+        public static string GetRemark(string json)
+        {
+            Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
+            if (dict != null)
+            {
+                if (dict.ContainsKey("Remark"))
+                    return dict["Remark"].ToString();
+            }
+            return "";
         }
 
 

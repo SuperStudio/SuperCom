@@ -29,6 +29,12 @@ namespace SuperCom.Entity
             get { return _PortTabItem; }
             set { _PortTabItem = value; OnPropertyChanged(); }
         }
+        private string _Remark;
+        public string Remark
+        {
+            get { return _Remark; }
+            set { _Remark = value; OnPropertyChanged(); }
+        }
 
         public SideComPort(string name, bool connected)
         {

@@ -94,7 +94,10 @@
                                     HorizontalOffset="-40"
                                     StaysOpen="True"
                                     VerticalOffset="10">
-                                    <MenuItem Click="OpenLog" Header="打开日志" IsCheckable="False" />
+                                    <MenuItem
+                                        Click="OpenLog"
+                                        Header="打开日志"
+                                        IsCheckable="False" />
 
                                 </ContextMenu>
                             </Button.ContextMenu>
@@ -648,7 +651,7 @@
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="{Binding PortTabItem.Remark, UpdateSourceTrigger=PropertyChanged}"
+                                        Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
                                         TextTrimming="WordEllipsis"
                                         TextWrapping="WrapWithOverflow" />
                                     <Button

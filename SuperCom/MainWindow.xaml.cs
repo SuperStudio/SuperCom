@@ -1193,10 +1193,7 @@ namespace SuperCom
             }
         }
 
-        private void CheckUpdate(object sender, RoutedEventArgs e)
-        {
-            MessageCard.Info("开发中");
-        }
+
 
         private void mainWindow_ContentRendered(object sender, EventArgs e)
         {

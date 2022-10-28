@@ -4,7 +4,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{7782F9E2-0821-4C05-8DA5-04367CD670FD}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>SuperCom</RootNamespace>
@@ -18,8 +18,8 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -28,8 +28,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -119,7 +119,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\OpenWindow.cs" />
     <Compile Include="Config\ConfigManager.cs" />
+    <Compile Include="Config\UrlManager.cs" />
     <Compile Include="Config\WindowConfig\Main.cs" />
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
@@ -133,9 +135,6 @@
     <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Log\Logger.cs" />
-    <Compile Include="UserControls\PortDataView.xaml.cs">
-      <DependentUpon>PortDataView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
     <Compile Include="Windows\Window_AdvancedSend.xaml.cs">
@@ -170,10 +169,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UserControls\PortDataView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Windows\Window_AdvancedSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

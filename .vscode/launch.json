@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Full .Net Debug",
+            "type": "clr",
+            "request": "launch",
+            "program": "${workspaceRoot}/SuperCom/bin/Debug/SuperCom.exe",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "preLaunchTask": "build"
+        }
+    ]
+}

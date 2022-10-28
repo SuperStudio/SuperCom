@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "process",
+      "command": "D:\\soft\\MSBuildTools\\MSBuild\\Current\\Bin\\amd64\\MSBuild.exe",
+      // "command": "C:\\\\Program Files (x86)\\\\Microsoft Visual Studio\\\\2017\\\\Professional\\\\MSBuild\\\\15.0\\\\Bin\\\\MSBuild.exe",
+      "args": ["${workspaceRoot}/SuperCom/SuperCom.csproj"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "clean",
+      "command": "rmdir",
+      "type": "shell",
+      "args": ["/s", "/q", "${workspaceRoot}\\SuperCom\\bin\\Debug"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "rebuild",
+      "dependsOn": ["clean", "build"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "rebuild and run",
+      "command": "${workspaceRoot}/SuperCom/bin/Debug/SuperCom.exe",
+      "dependsOn": ["rebuild"],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    }
+  ]
+}

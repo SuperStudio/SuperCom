@@ -21,7 +21,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -30,7 +30,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -70,10 +70,10 @@
       <HintPath>References\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
     <Reference Include="SuperControls.Style">
-      <HintPath>..\..\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll</HintPath>
+      <HintPath>References\SuperControls.Style.dll</HintPath>
     </Reference>
     <Reference Include="SuperUtils">
-      <HintPath>..\..\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll</HintPath>
+      <HintPath>References\SuperUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />

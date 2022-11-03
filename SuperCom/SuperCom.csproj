@@ -69,8 +69,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="SuperControls.Style">
-      <HintPath>References\SuperControls.Style.dll</HintPath>
+    <Reference Include="SuperControls.Style, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll</HintPath>
     </Reference>
     <Reference Include="SuperUtils">
       <HintPath>References\SuperUtils.dll</HintPath>
@@ -232,7 +233,6 @@
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
     <Content Include="References\MihaZupan.HttpToSocks5Proxy.dll" />
     <Content Include="References\Newtonsoft.Json.dll" />
-    <Content Include="References\SuperControls.Style.dll" />
     <Content Include="References\SuperUtils.dll" />
     <Content Include="Sql\advanced_send.sql" />
     <Content Include="Sql\com_settings.sql" />

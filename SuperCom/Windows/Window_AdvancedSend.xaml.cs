@@ -4,6 +4,7 @@ using SuperControls.Style;
 using SuperUtils.Common;
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace SuperCom.Windows
 {
@@ -96,6 +98,7 @@ namespace SuperCom.Windows
             // 通知 mainWindow 更新
             MainWindow window = GetWindowByName("mainWindow") as MainWindow;
             window?.RefreshSendCommands();
+            CurrentSendCommands = vieModel.SendCommands.ToList();
         }
 
         private void OnProjectClick(object sender, MouseButtonEventArgs e)
@@ -265,6 +268,71 @@ namespace SuperCom.Windows
             if (e.Key == Key.Enter || e.Key == Key.Escape)
             {
                 RenameTextBoxLostFocus(sender, e);
+            }
+        }
+
+
+        private List<SendCommand> CurrentSendCommands { get; set; }
+
+        private void StartCommands(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in vieModel.SendCommands)
+            {
+                item.Status = RunningStatus.Waiting;
+            }
+            CurrentSendCommands = vieModel.SendCommands.ToList();
+            string portName = comboBox.Text;
+            vieModel.RunningCommands = true;
+            Task.Run(async () =>
+            {
+                int idx = 0;
+                while (vieModel.RunningCommands)
+                {
+                    if (idx >= CurrentSendCommands.Count)
+                    {
+                        idx = 0;
+                        CurrentSendCommands = vieModel.SendCommands.ToList();
+                        await Task.Delay(500);
+                        continue;
+                    }
+                    SendCommand command = CurrentSendCommands[idx];
+                    if (idx < vieModel.SendCommands.Count)
+                        vieModel.SendCommands[idx].Status = RunningStatus.Running;
+                    Console.WriteLine($"暂停 {command.Delay} ms");
+                    await Task.Delay(command.Delay);
+                    await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+                    {
+                        SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                        if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+                        {
+                            MessageCard.Error($"连接串口 {portName} 失败！");
+                            vieModel.RunningCommands = false;
+                            return;
+                        }
+                        SerialPort port = serialComPort.PortTabItem.SerialPort;
+                        PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                        string value = command.Command;
+                        if (port != null)
+                        {
+                            vieModel.Main.SendCommand(port, portTabItem, value);
+                        }
+                        if (idx < vieModel.SendCommands.Count)
+                            vieModel.SendCommands[idx].Status = RunningStatus.Success;
+                        idx++;
+                        if (idx >= CurrentSendCommands.Count) idx = 0;
+                    });
+
+
+                }
+            });
+        }
+
+        private void StopCommands(object sender, RoutedEventArgs e)
+        {
+            vieModel.RunningCommands = false;
+            foreach (var item in vieModel.SendCommands)
+            {
+                item.Status = RunningStatus.Waiting;
             }
         }
     }

@@ -767,7 +767,7 @@ namespace SuperCom
             }
         }
 
-        private void SendCommand(string portName)
+        public void SendCommand(string portName)
         {
             SideComPort serialComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)

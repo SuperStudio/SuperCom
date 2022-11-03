@@ -4,10 +4,12 @@ using SuperCom.Entity;
 using SuperCom.Log;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.WPF.VisualTools;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Linq;
+using System.Windows;
 
 namespace SuperCom.ViewModel
 {
@@ -63,6 +65,25 @@ namespace SuperCom.ViewModel
             }
         }
 
+        private bool _RunningCommands;
+        public bool RunningCommands
+        {
+            get { return _RunningCommands; }
+            set
+            {
+                _RunningCommands = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private ObservableCollection<SideComPort> _SideComPorts;
+        public ObservableCollection<SideComPort> SideComPorts
+        {
+            get { return _SideComPorts; }
+            set { _SideComPorts = value; RaisePropertyChanged(); }
+        }
+
+        public MainWindow Main { get; set; }
 
         public VieModel_AdvancedSend()
         {
@@ -87,6 +108,24 @@ namespace SuperCom.ViewModel
                 {
                     Projects.Add(item);
                 }
+            }
+            foreach (Window window in App.Current.Windows)
+            {
+                if (window.Name.Equals("mainWindow"))
+                {
+                    Main = (MainWindow)window;
+                    break;
+                }
+            }
+            LoadSideComports();
+        }
+
+        private void LoadSideComports()
+        {
+            SideComPorts = new ObservableCollection<SideComPort>();
+            foreach (var item in Main?.vieModel.SideComPorts)
+            {
+                SideComPorts.Add(item);
             }
         }
 

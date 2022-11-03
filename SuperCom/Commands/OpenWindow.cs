@@ -24,8 +24,11 @@ namespace SuperCom.Commands
                 upgrader.Language = "zh-CN";
                 upgrader.Header = new CrawlerHeader(null).Default;
                 upgrader.Logger = null;//todo
-                SuperControls.Style.Upgrade.Dialog_Upgrade dialog_Upgrade =
-                        new SuperControls.Style.Upgrade.Dialog_Upgrade(parent, upgrader);
+                upgrader.BeforeUpdateDelay = 5;
+                upgrader.AfterUpdateDelay = 1;
+                upgrader.UpDateFileDir = "TEMP";
+                upgrader.AppName = "SuperCom.exe";
+                Dialog_Upgrade dialog_Upgrade = new Dialog_Upgrade(parent, upgrader);
                 dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 dialog_Upgrade.ShowDialog();
             });

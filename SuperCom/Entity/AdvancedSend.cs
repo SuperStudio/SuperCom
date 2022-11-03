@@ -6,18 +6,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicData.Annotations;
+using ICSharpCode.AvalonEdit;
+using SuperUtils.Time;
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Windows.Controls;
+using System.Windows.Threading;
+
 
 namespace SuperCom.Entity
 {
-    public class SendCommand
+
+    public enum RunningStatus
     {
-        public static int DEFAULT_DELAY = 1000;
+        Waiting,
+        Running,
+        Success,
+        Failed
+    }
+    public class SendCommand : INotifyPropertyChanged
+    {
+        public static int DEFAULT_DELAY = 200;
         public long CommandID { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }
         public string Command { get; set; }
         public int Delay { get; set; }
         public bool Running { get; set; }
+        private RunningStatus _Status = RunningStatus.Waiting;
+        public RunningStatus Status
+        {
+            get { return _Status; }
+            set { _Status = value; OnPropertyChanged(); }
+        }
 
         public static long GenerateID(List<long> id_list)
         {
@@ -27,6 +52,14 @@ namespace SuperCom.Entity
                 return i;
             }
             return 0;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

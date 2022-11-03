@@ -17,6 +17,8 @@
     mc:Ignorable="d">
 
     <super:BaseWindow.Resources>
+
+        <converter:OppositeBooleanConverter x:Key="OppositeBooleanConverter" />
         <ContextMenu x:Key="dataGridContextMenu">
             <MenuItem Header="移到顶部" />
             <MenuItem Header="移到底部" />
@@ -39,7 +41,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal">
+            <StackPanel IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}" Orientation="Horizontal">
                 <Border
                     Margin="5"
                     MouseLeftButtonUp="AddNewProject"
@@ -56,8 +58,10 @@
             </StackPanel>
             <ListBox
                 Grid.Row="1"
+                VerticalAlignment="Top"
                 HorizontalContentAlignment="Stretch"
                 Background="Transparent"
+                IsEnabled="{Binding DataContext.RunningCommands, Converter={StaticResource OppositeBooleanConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
                 ItemsSource="{Binding Projects}"
                 Style="{StaticResource NormalListBox}">
@@ -145,18 +149,113 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <Button
+                    Height="30"
                     Margin="5"
                     Click="AddNewSendCommand"
                     Content="添加命令" />
-                <super:Switch
-                    Height="20"
-                    Margin="5,0"
-                    Background="{DynamicResource Window.Side.Background}"
-                    Visibility="Collapsed" />
-                <TextBlock
+
+                <Border
+                    Margin="10"
+                    Padding="4,2"
                     VerticalAlignment="Center"
-                    Text="执行"
-                    Visibility="Collapsed" />
+                    Background="{DynamicResource Window.Title.Background}"
+                    CornerRadius="3">
+                    <StackPanel Orientation="Horizontal">
+                        <Button
+                            Width="25"
+                            Height="25"
+                            Margin="0"
+                            Padding="0"
+                            VerticalAlignment="Stretch"
+                            super:CommonExt.CornerRadius="5"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Click="StartCommands"
+                            IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
+                            Style="{StaticResource FlatButton}">
+                            <Viewbox
+                                Width="12"
+                                Height="auto"
+                                VerticalAlignment="Center">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
+                                    Effect="{StaticResource PopupDropShadowEffect}">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                    <Setter Property="Fill" Value="Gray" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                    <Setter Property="Fill" Value="#99E699" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Viewbox>
+                        </Button>
+
+                        <Button
+                            Width="25"
+                            Height="25"
+                            Margin="0"
+                            Padding="0"
+                            VerticalAlignment="Stretch"
+                            super:CommonExt.CornerRadius="5"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Click="StopCommands"
+                            IsEnabled="{Binding RunningCommands}"
+                            Style="{StaticResource FlatButton}">
+
+                            <Viewbox
+                                Width="12"
+                                Height="auto"
+                                Margin="6,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M128 128m53.333333 0l661.333334 0q53.333333 0 53.333333 53.333333l0 661.333334q0 53.333333-53.333333 53.333333l-661.333334 0q-53.333333 0-53.333333-53.333333l0-661.333334q0-53.333333 53.333333-53.333333Z"
+                                    Effect="{StaticResource PopupDropShadowEffect}">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                    <Setter Property="Fill" Value="Gray" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                    <Setter Property="Fill" Value="#C85860" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Viewbox>
+                        </Button>
+
+                        <TextBlock
+                            Margin="10,0,5,0"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="选择串口" />
+
+
+                        <ComboBox
+                            Name="comboBox"
+                            MinWidth="150"
+                            Margin="10,0"
+                            DisplayMemberPath="Name"
+                            IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
+                            ItemsSource="{Binding SideComPorts}"
+                            SelectedIndex="0"
+                            Style="{StaticResource BorderComboBox}" />
+
+                    </StackPanel>
+                </Border>
+
+
             </StackPanel>
             <DataGrid
                 Name="dataGrid"
@@ -215,8 +314,7 @@
                         Width="auto"
                         MinWidth="40"
                         Header="状态"
-                        SortMemberPath="Running"
-                        Visibility="Collapsed">
+                        SortMemberPath="Status">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border
@@ -229,10 +327,13 @@
                                         <Style TargetType="Border">
 
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Running, Mode=OneWay}" Value="True">
-                                                    <Setter Property="Background" Value="Red" />
+                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Waiting">
+                                                    <Setter Property="Background" Value="Gray" />
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Running, Mode=OneWay}" Value="False">
+                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Running">
+                                                    <Setter Property="Background" Value="Yellow" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Success">
                                                     <Setter Property="Background" Value="Green" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -286,8 +387,7 @@
                         Width="auto"
                         MinWidth="60"
                         Header="延时"
-                        SortMemberPath="Delay"
-                        Visibility="Collapsed">
+                        SortMemberPath="Delay">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBox
@@ -301,6 +401,11 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+
+
+
+
+
                     <DataGridTemplateColumn
                         x:Name="col"
                         Width="*"

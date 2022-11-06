@@ -1,4 +1,5 @@
 ﻿using DynamicData.Annotations;
+using SuperCom.Config;
 using SuperControls.Style;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,30 @@ namespace SuperCom.Entity
 
     public class PortSetting
     {
+        public static List<int> DEFAULT_BAUDRATES = new List<int>()
+        {
+            9600,19200,115200,1500000
+        };
+
+        public static List<int> DEFAULT_DATABITS_LIST = new List<int>()
+        {
+            5,6,7,8
+        };
+
+        public static List<string> DEFAULT_ENCODINGS = new List<string>()
+        {
+            "UTF8","US-ASCII","GB2312","ISO-8859-1"
+        };
+
+        public static List<string> DEFAULT_PARITYS = new List<string>()
+        {
+            "None","Odd","Even","Mark","Space"
+        };
+
+        public static List<string> DEFAULT_STOPBIT_LIST = new List<string>()
+        {
+            "One","Two","OnePointFive"
+        };
 
         public static int DEFAULT_BAUDRATE = 115200;
         public static int DEFAULT_DATABITS = 8;
@@ -40,6 +65,22 @@ namespace SuperCom.Entity
         public string Encoding { get; set; }
 
 
+
+        public static List<string> GetAllBaudRates()
+        {
+            List<string> list = new List<string>();
+            if (ConfigManager.Main.UseDefaultBaudRate)
+            {
+                foreach (var item in PortSetting.DEFAULT_BAUDRATES)
+                {
+                    list.Add(item.ToString());
+                }
+                ConfigManager.Main.UseDefaultBaudRate = false;
+                ConfigManager.Main.Save();
+            }
+
+            return list;
+        }
 
 
         public static PortSetting GetDefaultSetting()

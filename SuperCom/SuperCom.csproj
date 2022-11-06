@@ -124,6 +124,7 @@
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\UrlManager.cs" />
     <Compile Include="Config\WindowConfig\Main.cs" />
+    <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
     </Compile>
@@ -136,6 +137,7 @@
     <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Log\Logger.cs" />
+    <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
     <Compile Include="Windows\Window_AdvancedSend.xaml.cs">

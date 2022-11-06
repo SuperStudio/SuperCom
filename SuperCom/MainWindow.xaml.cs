@@ -784,7 +784,7 @@ namespace SuperCom
             }
         }
 
-        public void SendCommand(SerialPort port, PortTabItem portTabItem, string value, bool saveToHistory = true)
+        public bool SendCommand(SerialPort port, PortTabItem portTabItem, string value, bool saveToHistory = true)
         {
             if (portTabItem.AddNewLineWhenWrite)
             {
@@ -802,10 +802,12 @@ namespace SuperCom
                     vieModel.SaveSendHistory();
                 }
                 vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
+                return true;
             }
             catch (Exception ex)
             {
                 MessageCard.Error(ex.Message);
+                return false;
             }
         }
 
@@ -977,6 +979,7 @@ namespace SuperCom
             SaveOpeningPorts();
             SaveComSettings();
             SaveConfigValue();
+            vieModel.SaveBaudRate();
             CloseAllPort(null, null);
 
         }
@@ -1000,6 +1003,7 @@ namespace SuperCom
                 comSettings.WriteData = portTabItem.WriteData;
                 comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
                 comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
+                portTabItem.SerialPort.RefreshSetting();
                 comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
 
                 SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
@@ -1642,5 +1646,56 @@ namespace SuperCom
         {
             MessageCard.Info("开发中");
         }
+
+        private void BuadRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count <= 0) return;
+
+            // 记录原来的下标
+            int index = 0;
+            ComboBoxItem origin = e.OriginalSource as ComboBoxItem;
+            if (origin != null)
+            {
+                string value = origin.Content.ToString();
+                for (int i = 0; i < vieModel.BaudRates.Count; i++)
+                {
+                    if (vieModel.BaudRates[i].Equals(value))
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            string text = e.AddedItems[0].ToString();
+            if ("新增".Equals(text))
+            {
+                InputWindow inputWindow = new InputWindow(this, "");
+                bool success = false;
+                if ((bool)inputWindow.ShowDialog())
+                {
+                    string value = inputWindow.Text;
+                    if (!string.IsNullOrEmpty(value) && int.TryParse(value, out int baudrate) &&
+                        !vieModel.BaudRates.Contains(baudrate.ToString()))
+                    {
+
+                        vieModel.BaudRates.RemoveAt(vieModel.BaudRates.Count - 1);
+                        vieModel.BaudRates.Add(baudrate.ToString());
+                        vieModel.BaudRates.Add("新增");
+                        success = true;
+                        (sender as ComboBox).SelectedIndex = vieModel.BaudRates.Count - 2;
+                        // 保存当前项目
+                        vieModel.SaveBaudRate();
+                    }
+                }
+                if (!success)
+                {
+                    (sender as ComboBox).SelectedIndex = index;
+
+                }
+            }
+            vieModel.SaveBaudRate((sender as ComboBox).Tag.ToString(), text);
+        }
+
+
     }
 }

@@ -41,8 +41,8 @@ namespace SuperCom.Entity
 
         public void SaveProperties()
         {
-            this.BaudRate = Setting.BaudRate;
-            this.DataBits = Setting.DataBits;
+            //this.BaudRate = Setting.BaudRate;
+            //this.DataBits = Setting.DataBits;
             this.Encoding = GetEncoding();
             this.StopBits = GetStopBits();
             this.Parity = GetParity();
@@ -63,7 +63,7 @@ namespace SuperCom.Entity
 
         public string SettingJson { get; set; }
 
-        private string PortSettingToJson()
+        public string PortSettingToJson()
         {
             Dictionary<string, object> dic = new Dictionary<string, object>();
             dic.Add("BaudRate", this.BaudRate);
@@ -113,8 +113,9 @@ namespace SuperCom.Entity
         {
             try
             {
-                if (PortEncoding.Equals("UTF8")) return System.Text.Encoding.UTF8;
-                return System.Text.Encoding.GetEncoding(PortEncoding);
+                if (PortEncoding.ToUpper().Equals("UTF8")) return System.Text.Encoding.UTF8;
+                Encoding encoding = System.Text.Encoding.GetEncoding(PortEncoding);
+                return encoding;
             }
             catch (Exception ex)
             {

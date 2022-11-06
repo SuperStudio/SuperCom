@@ -314,7 +314,12 @@ namespace SuperCom.Windows
                         string value = command.Command;
                         if (port != null)
                         {
-                            vieModel.Main.SendCommand(port, portTabItem, value);
+                            bool success = vieModel.Main.SendCommand(port, portTabItem, value);
+                            if (!success)
+                            {
+                                vieModel.RunningCommands = false;
+                                return;
+                            }
                         }
                         if (idx < vieModel.SendCommands.Count)
                             vieModel.SendCommands[idx].Status = RunningStatus.Success;

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:cmd="clr-namespace:SuperCom.Commands"
+    xmlns:converter="clr-namespace:SuperCom.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
     xmlns:local="clr-namespace:SuperCom"
@@ -35,6 +36,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <converter:ComboBoxSelectedIndexConverter x:Key="ComboBoxSelectedIndexConverter" />
+
     </super:BaseWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -1414,7 +1418,7 @@
                                 <Grid
                                     Name="advancedGrid"
                                     Grid.Row="0"
-                                    Margin="250,0,0,0"
+                                    Margin="380,0,0,0"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Bottom"
                                     Panel.ZIndex="10"
@@ -1430,16 +1434,23 @@
                                                 Width="60"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="编码"
-                                                TextAlignment="Right" />
+                                                TextAlignment="Center" />
                                             <ComboBox
-                                                Width="100"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
+                                                Width="150"
+                                                ItemsSource="{Binding DataContext.Encodings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                 Text="{Binding SerialPort.PortEncoding, Mode=TwoWay}">
-                                                <ComboBoxItem>UTF8</ComboBoxItem>
-                                                <ComboBoxItem>ASCII</ComboBoxItem>
-                                                <ComboBoxItem>GBK</ComboBoxItem>
-                                                <ComboBoxItem>GB2312</ComboBoxItem>
+                                                <ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                        <Setter Property="SelectedIndex">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                    <Binding Path="SerialPort.PortEncoding" />
+                                                                    <Binding Path="DataContext.Encodings" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ComboBox.Style>
                                             </ComboBox>
                                         </StackPanel>
                                         <StackPanel Margin="5,0" Orientation="Horizontal">
@@ -1447,17 +1458,23 @@
                                                 Width="60"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="Parity"
-                                                TextAlignment="Right" />
+                                                TextAlignment="Center" />
                                             <ComboBox
-                                                Width="100"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
+                                                Width="150"
+                                                ItemsSource="{Binding DataContext.Paritys, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                 Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                                <ComboBoxItem>None</ComboBoxItem>
-                                                <ComboBoxItem>Odd</ComboBoxItem>
-                                                <ComboBoxItem>Even</ComboBoxItem>
-                                                <ComboBoxItem>Mark</ComboBoxItem>
-                                                <ComboBoxItem>Space</ComboBoxItem>
+                                                <ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                        <Setter Property="SelectedIndex">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                    <Binding Path="SerialPort.ParityString" />
+                                                                    <Binding Path="DataContext.Paritys" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ComboBox.Style>
                                             </ComboBox>
                                         </StackPanel>
                                         <StackPanel Margin="5,0" Orientation="Horizontal">
@@ -1465,15 +1482,23 @@
                                                 Width="60"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="StopBits"
-                                                TextAlignment="Right" />
+                                                TextAlignment="Center" />
                                             <ComboBox
-                                                Width="100"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
+                                                Width="150"
+                                                ItemsSource="{Binding DataContext.StopBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                 Text="{Binding SerialPort.StopBitsString, Mode=TwoWay}">
-                                                <ComboBoxItem>One</ComboBoxItem>
-                                                <ComboBoxItem>Two</ComboBoxItem>
-                                                <ComboBoxItem>OnePointFive</ComboBoxItem>
+                                                <ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                        <Setter Property="SelectedIndex">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                    <Binding Path="SerialPort.StopBitsString" />
+                                                                    <Binding Path="DataContext.StopBits" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ComboBox.Style>
                                             </ComboBox>
                                         </StackPanel>
                                         <Button
@@ -1508,49 +1533,46 @@
                                         <WrapPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="BaudRate" />
                                             <ComboBox
-                                                MinWidth="100"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
-                                                Text="{Binding SerialPort.BaudRate, Mode=TwoWay}">
-                                                <ComboBoxItem>115200</ComboBoxItem>
-                                                <ComboBoxItem>1500000</ComboBoxItem>
+                                                MinWidth="150"
+                                                ItemsSource="{Binding DataContext.BaudRates, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                SelectionChanged="BuadRate_SelectionChanged"
+                                                Tag="{Binding Name}"
+                                                Text="{Binding SerialPort.BaudRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                                <ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                        <Setter Property="SelectedIndex">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                    <Binding Path="SerialPort.BaudRate" />
+                                                                    <Binding Path="DataContext.BaudRates" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ComboBox.Style>
                                             </ComboBox>
                                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="DataBits" />
                                             <ComboBox
-                                                MinWidth="50"
-                                                SelectedIndex="3"
-                                                Style="{StaticResource BorderComboBox}"
+                                                MinWidth="150"
+                                                ItemsSource="{Binding DataContext.DataBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                 Text="{Binding SerialPort.DataBits, Mode=TwoWay}">
-                                                <ComboBoxItem>5</ComboBoxItem>
-                                                <ComboBoxItem>6</ComboBoxItem>
-                                                <ComboBoxItem>7</ComboBoxItem>
-                                                <ComboBoxItem>8</ComboBoxItem>
+                                                <ComboBox.Style>
+                                                    <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                        <Setter Property="SelectedIndex">
+                                                            <Setter.Value>
+                                                                <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                    <Binding Path="SerialPort.DataBits" />
+                                                                    <Binding Path="DataContext.DataBits" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ComboBox.Style>
                                             </ComboBox>
-
-
                                             <Button
                                                 Margin="5,0"
                                                 Click="ShowAdvancedOptions"
                                                 Content="高级设置" />
-
-
-
-                                            <!--<TextBlock Style="{StaticResource BaseTextBlock}" Text="Flow Controls" />
-                                            <ComboBox
-                                                MinWidth="100"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                BorderBrush="{DynamicResource Window.Side.Hover.Background}"
-                                                Foreground="{DynamicResource Window.Foreground}"
-                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
-                                                SelectedIndex="0"
-                                                Style="{StaticResource BorderComboBox}"
-                                                Tag="{DynamicResource Window.Side.Hover.Background}"
-                                                ToolTip="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text}">
-                                                <ComboBoxItem>None</ComboBoxItem>
-                                                <ComboBoxItem>Hardware</ComboBoxItem>
-                                                <ComboBoxItem>Software</ComboBoxItem>
-                                                <ComboBoxItem>Custom</ComboBoxItem>
-                                            </ComboBox>-->
                                         </WrapPanel>
                                     </Border>
 

@@ -13,11 +13,49 @@ namespace SuperCom.ViewModel
 
     public class VieModel_Main : ViewModelBase
     {
+
+
+
+
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
+        private static SqliteMapper<ComSettings> comMapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
 
 
+        private ObservableCollection<string> _BaudRates;
+        public ObservableCollection<string> BaudRates
+        {
+            get { return _BaudRates; }
+            set { _BaudRates = value; RaisePropertyChanged(); }
+        }
+
+
+
+        private ObservableCollection<string> _DataBits;
+        public ObservableCollection<string> DataBits
+        {
+            get { return _DataBits; }
+            set { _DataBits = value; RaisePropertyChanged(); }
+        }
+        private ObservableCollection<string> _Encodings;
+        public ObservableCollection<string> Encodings
+        {
+            get { return _Encodings; }
+            set { _Encodings = value; RaisePropertyChanged(); }
+        }
+        private ObservableCollection<string> _Paritys;
+        public ObservableCollection<string> Paritys
+        {
+            get { return _Paritys; }
+            set { _Paritys = value; RaisePropertyChanged(); }
+        }
+        private ObservableCollection<string> _StopBits;
+        public ObservableCollection<string> StopBits
+        {
+            get { return _StopBits; }
+            set { _StopBits = value; RaisePropertyChanged(); }
+        }
 
 
 
@@ -108,6 +146,67 @@ namespace SuperCom.ViewModel
             if (SendHistory == null) SendHistory = new HashSet<string>();
 
             LoadSendCommands();
+            LoadBaudRates();
+            LoadDataBits();
+            LoadEncodings();
+            LoadParitys();
+            LoadStopBits();
+            comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+        }
+
+        public void LoadStopBits()
+        {
+            StopBits = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_STOPBIT_LIST)
+            {
+                StopBits.Add(item.ToString());
+            }
+        }
+        public void LoadParitys()
+        {
+            Paritys = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_PARITYS)
+            {
+                Paritys.Add(item.ToString());
+            }
+        }
+        public void LoadEncodings()
+        {
+            Encodings = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_ENCODINGS)
+            {
+                Encodings.Add(item.ToString());
+            }
+        }
+        public void LoadDataBits()
+        {
+            DataBits = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_DATABITS_LIST)
+            {
+                DataBits.Add(item.ToString());
+            }
+        }
+        public void LoadBaudRates()
+        {
+            BaudRates = new ObservableCollection<string>();
+            List<string> baudrates = PortSetting.GetAllBaudRates();
+            foreach (var item in baudrates)
+            {
+                BaudRates.Add(item);
+            }
+            string value = ConfigManager.Main.CustomBaudRates;
+            if (!string.IsNullOrEmpty(value))
+            {
+                List<string> list = JsonUtils.TryDeserializeObject<List<string>>(value);
+                if (list?.Count > 0)
+                {
+                    foreach (var item in list)
+                        BaudRates.Add(item);
+                }
+            }
+            ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(BaudRates);
+            ConfigManager.Main.Save();
+            BaudRates.Add("新增");
         }
 
         public void LoadSendCommands()
@@ -119,6 +218,7 @@ namespace SuperCom.ViewModel
             {
                 SendCommandProjects.Add(item);
             }
+
         }
 
         public void SaveSendHistory()
@@ -136,6 +236,35 @@ namespace SuperCom.ViewModel
                 SideComPorts.Add(new SideComPort(port, false));
             }
 
+        }
+
+        public void SaveBaudRate()
+        {
+            List<string> baudrates = new List<string>();
+            for (int i = 0; i < BaudRates.Count; i++)
+            {
+                if (!"新增".Equals(BaudRates[i]))
+                {
+                    baudrates.Add(BaudRates[i]);
+                }
+            }
+            ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(baudrates);
+            ConfigManager.Main.Save();
+        }
+
+        public void SaveBaudRate(string portName, string baudRate)
+        {
+            List<ComSettings> list = ComSettingList.ToList();
+            for (int i = 0; i < list.Count; i++)
+            {
+                ComSettings comSettings = list[i];
+                if (!comSettings.PortName.Equals(portName)) continue;
+                PortTabItem portTabItem = PortTabItems.Where(arg => arg.Name.Equals(comSettings.PortName)).FirstOrDefault();
+                int.TryParse(baudRate, out int value);
+                portTabItem.SerialPort.BaudRate = value;
+                comSettings.PortSetting = portTabItem.SerialPort.PortSettingToJson();
+                comMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
+            }
         }
     }
 }

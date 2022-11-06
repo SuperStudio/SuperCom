@@ -60,6 +60,7 @@
                 Grid.Row="1"
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Stretch"
+                d:ItemsSource="{d:SampleData ItemCount=5}"
                 Background="Transparent"
                 IsEnabled="{Binding DataContext.RunningCommands, Converter={StaticResource OppositeBooleanConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"

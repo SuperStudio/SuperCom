@@ -12,6 +12,7 @@ namespace SuperCom.Config.WindowConfig
             SideGridWidth = 200;
             FirstRun = true;
             SendHistory = "";
+            UseDefaultBaudRate = true;
         }
 
         private static Main _instance = null;
@@ -33,6 +34,9 @@ namespace SuperCom.Config.WindowConfig
         public bool FirstRun { get; set; }
         public string SendHistory { get; set; }
         public string OpeningPorts { get; set; }
+
+        public string CustomBaudRates { get; set; }
+        public bool UseDefaultBaudRate { get; set; }
 
     }
 }

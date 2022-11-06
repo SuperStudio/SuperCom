@@ -302,31 +302,31 @@ namespace SuperCom.Windows
                     Console.WriteLine($"暂停 {command.Delay} ms");
                     await Task.Delay(command.Delay);
                     await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-                    {
-                        SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                        if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
-                        {
-                            MessageCard.Error($"连接串口 {portName} 失败！");
-                            vieModel.RunningCommands = false;
-                            return;
-                        }
-                        SerialPort port = serialComPort.PortTabItem.SerialPort;
-                        PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                        string value = command.Command;
-                        if (port != null)
-                        {
-                            bool success = vieModel.Main.SendCommand(port, portTabItem, value);
-                            if (!success)
-                            {
-                                vieModel.RunningCommands = false;
-                                return;
-                            }
-                        }
-                        if (idx < vieModel.SendCommands.Count)
-                            vieModel.SendCommands[idx].Status = RunningStatus.Success;
-                        idx++;
-                        if (idx >= CurrentSendCommands.Count) idx = 0;
-                    });
+                  {
+                      SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                      if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+                      {
+                          MessageCard.Error($"连接串口 {portName} 失败！");
+                          vieModel.RunningCommands = false;
+                          return;
+                      }
+                      SerialPort port = serialComPort.PortTabItem.SerialPort;
+                      PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                      string value = command.Command;
+                      if (port != null)
+                      {
+                          bool success = vieModel.Main.SendCommand(port, portTabItem, value);
+                          if (!success)
+                          {
+                              vieModel.RunningCommands = false;
+                              return;
+                          }
+                      }
+                      if (idx < vieModel.SendCommands.Count)
+                          vieModel.SendCommands[idx].Status = RunningStatus.Success;
+                      idx++;
+                      if (idx >= CurrentSendCommands.Count) idx = 0;
+                  });
 
 
                 }

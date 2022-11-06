@@ -1580,6 +1580,8 @@ namespace SuperCom
             e.Handled = true;
         }
 
+
+        // todo 多命令同时发送
         private async void SendToFindResultTask(PortTabItem item, string recvResult, int timeOut, string command)
         {
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(item.Name)).FirstOrDefault();
@@ -1590,17 +1592,24 @@ namespace SuperCom
             portTabItem.ResultChecks.Enqueue(resultCheck);
             int time = 0;
             bool find = false;
-            while (time <= timeOut)
+            while (!find && time <= timeOut)
             {
                 ResultCheck check = portTabItem.ResultChecks.Where(arg => arg.Command.Equals(command)).FirstOrDefault();
                 if (check != null)
                 {
-                    if (check.Buffer.ToString().IndexOf(recvResult) >= 0)
+                    string[] buffers = check.Buffer.ToString().Split(Environment.NewLine.ToCharArray());
+                    foreach (string line in buffers)
                     {
-                        find = true;
-                        portTabItem.ResultChecks.Dequeue();
-                        break;
+                        if (line.IndexOf(recvResult) >= 0 && line.IndexOf($"SEND >>>>>>>>>> {command}") < 0)
+                        {
+                            find = true;
+
+                            break;
+                        }
                     }
+                    if (find) break;
+
+
                     await Task.Delay(100);
                     time += 100;
                     Console.WriteLine("查找中...");
@@ -1619,7 +1628,7 @@ namespace SuperCom
             {
                 MessageCard.Info($"查找超时！");
             }
-
+            portTabItem.ResultChecks.Dequeue();
         }
 
 

@@ -124,6 +124,8 @@ namespace SuperCom.ViewModel
             set { _SendCommandProjects = value; RaisePropertyChanged(); }
         }
 
+        public AdvancedSend CurrentAdvancedSend { get; set; }
+
 
         static VieModel_Main()
         {

@@ -1645,6 +1645,7 @@
                                                                 Click="SendCustomCommand"
                                                                 Content="{Binding Name, TargetNullValue=发送命令}"
                                                                 Style="{StaticResource BorderButton}"
+                                                                Tag="{Binding CommandID}"
                                                                 ToolTip="{Binding Command}" />
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>

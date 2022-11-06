@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -339,6 +340,22 @@ namespace SuperCom.Windows
             {
                 item.Status = RunningStatus.Waiting;
             }
+        }
+
+        private void ShowEditPopup(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Grid grid = button.Parent as Grid;
+            Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+            if (popup != null)
+            {
+                popup.IsOpen = true;
+            }
+        }
+
+        private void BaseWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            vieModel.RunningCommands = false;
         }
     }
 }

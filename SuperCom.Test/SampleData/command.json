@@ -1,0 +1,26 @@
+﻿[
+  {
+    "CommandID": 0,
+    "Name": null,
+    "Order": 1,
+    "Command": "和哈哈",
+    "Delay": 200,
+    "Running": false,
+    "Status": 0,
+    "RecvResult": "123",
+    "RecvTimeOut": 7000,
+    "IsResultCheck": true
+  },
+  {
+    "CommandID": 1,
+    "Name": null,
+    "Order": 2,
+    "Command": "123",
+    "Delay": 200,
+    "Running": false,
+    "Status": 2,
+    "RecvResult": "345",
+    "RecvTimeOut": 5000,
+    "IsResultCheck": true
+  }
+]

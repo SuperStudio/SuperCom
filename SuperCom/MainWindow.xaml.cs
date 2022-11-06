@@ -471,7 +471,15 @@ namespace SuperCom
 
         private void HandleDataReceived(CustomSerialPort serialPort)
         {
-            string line = serialPort.ReadExisting();
+            string line = "";
+            try
+            {
+                line = serialPort.ReadExisting();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             string portName = serialPort.PortName;
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (portTabItem != null)
@@ -750,12 +758,6 @@ namespace SuperCom
             return null;
         }
 
-        //private void AddTimeStamp(object sender, RoutedEventArgs e)
-        //{
-        //    PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-        //    portTabItem.AddTimeStamp = (bool)(sender as CheckBox).IsChecked;
-        //}
-
         private void SendCommand(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -786,6 +788,7 @@ namespace SuperCom
 
         public bool SendCommand(SerialPort port, PortTabItem portTabItem, string value, bool saveToHistory = true)
         {
+            if (portTabItem == null) return false;
             if (portTabItem.AddNewLineWhenWrite)
             {
                 value += "\r\n";
@@ -1528,6 +1531,7 @@ namespace SuperCom
             string id = comboBox.SelectedValue.ToString();
             if (string.IsNullOrEmpty(id)) return;
             AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(id)).FirstOrDefault();
+            vieModel.CurrentAdvancedSend = advancedSend;
             if (!string.IsNullOrEmpty(advancedSend.Commands))
             {
                 itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
@@ -1576,14 +1580,58 @@ namespace SuperCom
             e.Handled = true;
         }
 
+        private async void SendToFindResultTask(PortTabItem item, string recvResult, int timeOut, string command)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(item.Name)).FirstOrDefault();
+            if (portTabItem.ResultChecks == null) portTabItem.ResultChecks = new Queue<ResultCheck>();
+            ResultCheck resultCheck = new ResultCheck();
+            resultCheck.Command = command;
+            resultCheck.Buffer = new StringBuilder();
+            portTabItem.ResultChecks.Enqueue(resultCheck);
+            int time = 0;
+            bool find = false;
+            while (time <= timeOut)
+            {
+                ResultCheck check = portTabItem.ResultChecks.Where(arg => arg.Command.Equals(command)).FirstOrDefault();
+                if (check != null)
+                {
+                    if (check.Buffer.ToString().IndexOf(recvResult) >= 0)
+                    {
+                        find = true;
+                        portTabItem.ResultChecks.Dequeue();
+                        break;
+                    }
+                    await Task.Delay(100);
+                    time += 100;
+                    Console.WriteLine("查找中...");
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (find)
+            {
+                MessageCard.Info($"找到：\n{resultCheck.Buffer}");
+            }
+            else
+            {
+                MessageCard.Info($"查找超时！");
+            }
+
+        }
+
+
         private void SendCustomCommand(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
             string command = "";
+            int commandID = -1;
             if (button.ToolTip != null)
-            {
                 command = button.ToolTip.ToString();
-            }
+            if (button.Tag != null)
+                int.TryParse(button.Tag.ToString(), out commandID);
             Border border = button.FindParentOfType<Border>("sendBorder");
             if (border != null && border.Tag != null)
             {
@@ -1591,6 +1639,20 @@ namespace SuperCom
                 SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 if (sideComPort != null && sideComPort.PortTabItem != null && sideComPort.PortTabItem.SerialPort != null)
                 {
+
+                    AdvancedSend send = vieModel.CurrentAdvancedSend;
+                    if (send != null && !string.IsNullOrEmpty(send.Commands))
+                    {
+                        send.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(send.Commands);
+                        SendCommand sendCommand = send.CommandList.Where(arg => arg.CommandID == commandID).FirstOrDefault();
+                        if (sendCommand.IsResultCheck)
+                        {
+                            // 过滤找到需要的字符串
+                            string recvResult = sendCommand.RecvResult;
+                            int timeOut = sendCommand.RecvTimeOut;
+                            SendToFindResultTask(sideComPort.PortTabItem, recvResult, timeOut, command);
+                        }
+                    }
                     SendCommand(sideComPort.PortTabItem.SerialPort, sideComPort.PortTabItem, command, false);
                 }
             }

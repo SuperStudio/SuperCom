@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCom", "SuperCom\SuperCom.csproj", "{7782F9E2-0821-4C05-8DA5-04367CD670FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperCom.Test", "SuperCom.Test\SuperCom.Test.csproj", "{CACED0B0-4DD5-49EB-8387-293D040E5F08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7782F9E2-0821-4C05-8DA5-04367CD670FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CACED0B0-4DD5-49EB-8387-293D040E5F08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CACED0B0-4DD5-49EB-8387-293D040E5F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CACED0B0-4DD5-49EB-8387-293D040E5F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CACED0B0-4DD5-49EB-8387-293D040E5F08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

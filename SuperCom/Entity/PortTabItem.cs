@@ -2,10 +2,12 @@
 using ICSharpCode.AvalonEdit;
 using SuperUtils.Time;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
@@ -109,6 +111,7 @@ namespace SuperCom.Entity
 
         public DateTime ConnectTime { get; set; }
 
+        public Queue<ResultCheck> ResultChecks { get; set; }
 
         public void ClearData()
         {
@@ -118,6 +121,27 @@ namespace SuperCom.Entity
         public string GetSaveFileName()
         {
             return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
+        }
+
+        public void FilterLine(string value)
+        {
+            // 查找结果
+            TextEditor?.AppendText(value);
+            // 回调
+            if (ResultChecks?.Count > 0)
+            {
+                HashSet<string> set = new HashSet<string>();
+                foreach (ResultCheck item in ResultChecks)
+                {
+                    // 同一类型的命令仅添加一次 buffer
+                    if (!set.Contains(item.Command))
+                    {
+                        item.Buffer.Append(value);
+                        set.Add(item.Command);
+                    }
+                }
+            }
+
         }
 
         public void SaveData(string line)
@@ -131,7 +155,6 @@ namespace SuperCom.Entity
                 for (int i = 0; i < value.Length; i++)
                 {
                     char c = value[i];
-
                     if (c == '\r' && i < value.Length - 1 && value[i + 1] == '\n')
                     {
                         continue;
@@ -145,15 +168,12 @@ namespace SuperCom.Entity
                     {
                         builder.Append(c);
                     }
-                    //if (c == '\r' || c == '\n')
-                    //    builder.Append($"{c.ToString().Replace("\r", "\\r").Replace("\n", "\\n")}[{DateHelper.Now()}] ");
                 }
                 value = builder.ToString().Replace("\r\n", "\n");
                 if (string.IsNullOrEmpty(TextEditor.Text))
                     value = $"[{DateHelper.Now()}] " + value;
             }
-            //value += "纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf纷纷开始的弗兰克精灵盛典杰弗里斯sdjkljklfjksldjflksdf4564sdf\r\n";
-            TextEditor?.AppendText(value);
+            FilterLine(value);
             // 保存到本地
             string fileName = GetSaveFileName();
             try
@@ -186,4 +206,11 @@ namespace SuperCom.Entity
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
+    public class ResultCheck
+    {
+        public string Command { get; set; }
+        public StringBuilder Buffer { get; set; }
+    }
+
 }

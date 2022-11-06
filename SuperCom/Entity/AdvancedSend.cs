@@ -31,6 +31,7 @@ namespace SuperCom.Entity
     public class SendCommand : INotifyPropertyChanged
     {
         public static int DEFAULT_DELAY = 200;
+        public static int DEFAULT_TIMEOUT = 5000;
         public long CommandID { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }
@@ -42,6 +43,24 @@ namespace SuperCom.Entity
         {
             get { return _Status; }
             set { _Status = value; OnPropertyChanged(); }
+        }
+        private string _RecvResult = "";
+        public string RecvResult
+        {
+            get { return _RecvResult; }
+            set { _RecvResult = value; OnPropertyChanged(); }
+        }
+        private int _RecvTimeOut = DEFAULT_TIMEOUT;
+        public int RecvTimeOut
+        {
+            get { return _RecvTimeOut; }
+            set { _RecvTimeOut = value; OnPropertyChanged(); }
+        }
+        private bool _IsResultCheck = false;
+        public bool IsResultCheck
+        {
+            get { return _IsResultCheck; }
+            set { _IsResultCheck = value; OnPropertyChanged(); }
         }
 
         public static long GenerateID(List<long> id_list)
@@ -112,4 +131,7 @@ namespace SuperCom.Entity
             }
         }
     }
+
+
+
 }

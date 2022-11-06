@@ -11,6 +11,7 @@
     Width="800"
     Height="450"
     Background="{DynamicResource Window.Background}"
+    Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     WindowStartupLocation="CenterScreen"
@@ -263,7 +264,6 @@
                 Grid.Row="1"
                 Margin="5,0"
                 HorizontalContentAlignment="Left"
-                super:DataGrid.RowHeight="40"
                 CanUserResizeColumns="True"
                 CanUserSortColumns="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
@@ -364,6 +364,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
+
                     <DataGridTemplateColumn
                         Width="auto"
                         MinWidth="50"
@@ -415,6 +416,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border
+                                    Margin="5"
                                     Padding="5"
                                     Background="{DynamicResource Window.Title.Background}"
                                     CornerRadius="3">
@@ -435,6 +437,114 @@
                     </DataGridTemplateColumn>
 
 
+                    <DataGridTemplateColumn Width="120" Header="返回字符检测">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid IsEnabled="{Binding DataContext.RunningCommands, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource OppositeBooleanConverter}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Name="btn"
+                                        Grid.Column="1"
+                                        Margin="5,0"
+                                        BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                        Click="ShowEditPopup"
+                                        Content="编辑"
+                                        FontSize="10"
+                                        Style="{StaticResource BorderButton}" />
+                                    <CheckBox
+                                        VerticalAlignment="Center"
+                                        super:CheckBoxExt.HookWidth="10"
+                                        super:CheckBoxExt.MarkHeight="15"
+                                        super:CheckBoxExt.MarkWidth="15"
+                                        Click="SaveSendCommands"
+                                        Content="启用"
+                                        FontSize="10"
+                                        IsChecked="{Binding IsResultCheck, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Style="{StaticResource NormalCheckBox}" />
+
+                                    <Popup
+                                        Width="350"
+                                        Height="200"
+                                        AllowsTransparency="True"
+                                        HorizontalOffset="-5"
+                                        Placement="Bottom"
+                                        PlacementTarget="{Binding ElementName=btn}"
+                                        PopupAnimation="Fade"
+                                        StaysOpen="False"
+                                        VerticalOffset="-5">
+                                        <Grid>
+                                            <Border
+                                                Margin="5"
+                                                Background="{DynamicResource Menu.Background}"
+                                                CornerRadius="5"
+                                                Effect="{StaticResource PopupDropShadowEffect}" />
+                                            <Grid Margin="10">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
+                                                </Grid.RowDefinitions>
+                                                <Border
+                                                    Grid.Row="0"
+                                                    Margin="5"
+                                                    Padding="5"
+                                                    Background="{DynamicResource Window.Title.Background}"
+                                                    CornerRadius="3">
+                                                    <TextBox
+                                                        HorizontalAlignment="Stretch"
+                                                        ContextMenu="{StaticResource TextBoxContextMenu}"
+                                                        LostFocus="SaveSendCommands"
+                                                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                        Style="{StaticResource MultiLineTextBox}"
+                                                        Text="{Binding RecvResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        TextAlignment="Left"
+                                                        TextWrapping="NoWrap" />
+                                                </Border>
+
+                                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                                    <TextBlock Style="{StaticResource BaseTextBlock}" Text="超时(ms)" />
+                                                    <Border
+                                                        Grid.Row="2"
+                                                        Margin="5"
+                                                        Padding="5"
+                                                        VerticalAlignment="Center"
+                                                        Background="{DynamicResource Window.Title.Background}"
+                                                        CornerRadius="2">
+                                                        <TextBox
+                                                            MinWidth="40"
+                                                            Background="Transparent"
+                                                            ContextMenu="{StaticResource TextBoxContextMenu}"
+                                                            FontSize="12"
+                                                            LostFocus="SaveSendCommands"
+                                                            Style="{StaticResource MultiLineTextBox}"
+                                                            Text="{Binding RecvTimeOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                            TextAlignment="Left" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <Border
+                                                    Grid.Row="2"
+                                                    Margin="5"
+                                                    Background="{DynamicResource Window.Title.Background}"
+                                                    BorderBrush="{DynamicResource Control.Disabled.Background}"
+                                                    BorderThickness="5,0,0,0">
+                                                    <TextBlock
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource Window.Sub.Foreground}"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="发送命令后会检测上述字符串是否返回（回车分割）"
+                                                        TextAlignment="Left" />
+                                                </Border>
+                                            </Grid>
+                                        </Grid>
+                                    </Popup>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
 
 

@@ -111,5 +111,18 @@ namespace SuperCom.Windows
             }
         }
 
+        private void SaveSettings(object sender, RoutedEventArgs e)
+        {
+            ConfigManager.CommonSettings.FixedOnSearch = vieModel.FixedOnSearch;
+            ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
+            ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
+            ConfigManager.CommonSettings.Save();
+            MessageCard.Success("保存成功");
+        }
+
+        private void RestoreSettings(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

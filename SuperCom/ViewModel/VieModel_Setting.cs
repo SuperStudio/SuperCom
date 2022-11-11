@@ -23,6 +23,26 @@ namespace SuperCom.ViewModel
             get { return _BaudRates; }
             set { _BaudRates = value; RaisePropertyChanged(); }
         }
+        private bool _FixedOnSearch = ConfigManager.CommonSettings.FixedOnSearch;
+        public bool FixedOnSearch
+        {
+            get { return _FixedOnSearch; }
+            set { _FixedOnSearch = value; RaisePropertyChanged(); }
+        }
+        private bool _FixedOnSendCommand = ConfigManager.CommonSettings.FixedOnSendCommand;
+        public bool FixedOnSendCommand
+        {
+            get { return _FixedOnSendCommand; }
+            set { _FixedOnSendCommand = value; RaisePropertyChanged(); }
+        }
+        private bool _ScrollOnSearchClosed = ConfigManager.CommonSettings.ScrollOnSearchClosed;
+        public bool ScrollOnSearchClosed
+        {
+            get { return _ScrollOnSearchClosed; }
+            set { _ScrollOnSearchClosed = value; RaisePropertyChanged(); }
+        }
+
+
 
 
 

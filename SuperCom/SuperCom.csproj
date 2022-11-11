@@ -123,6 +123,7 @@
     <Compile Include="Commands\OpenWindow.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\UrlManager.cs" />
+    <Compile Include="Config\CommonSettings.cs" />
     <Compile Include="Config\WindowConfig\Main.cs" />
     <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
     <Compile Include="CustomWindows\About.xaml.cs">

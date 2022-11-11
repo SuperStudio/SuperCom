@@ -9,11 +9,13 @@ namespace SuperCom.Config
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
 
         public static Main Main { get; set; }
+        public static CommonSettings CommonSettings { get; set; }
 
 
         static ConfigManager()
         {
             Main = Main.CreateInstance();
+            CommonSettings = CommonSettings.CreateInstance();
         }
 
         public static void InitConfig()

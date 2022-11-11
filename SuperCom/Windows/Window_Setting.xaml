@@ -15,14 +15,36 @@
     mc:Ignorable="d">
     <Grid>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
         <TabControl
             Margin="10"
             Background="Transparent"
             FontSize="15"
-            SelectedIndex="1"
+            SelectedIndex="0"
             Style="{StaticResource FlatTabControl}">
             <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
                 <StackPanel Orientation="Vertical">
+                    <CheckBox
+                        Margin="10,10,5,5"
+                        HorizontalAlignment="Left"
+                        Content="搜索时停止滚屏"
+                        IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+                    <CheckBox
+                        Margin="10,5"
+                        HorizontalAlignment="Left"
+                        Content="不搜索时开启滚屏"
+                        IsChecked="{Binding ScrollOnSearchClosed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+                    <CheckBox
+                        Margin="10,5"
+                        HorizontalAlignment="Left"
+                        Content="发送命令后停止滚屏"
+                        IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
                     <CheckBox
                         Margin="10"
                         Content="关闭后最小化"
@@ -113,6 +135,26 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
+
+        <Grid Grid.Row="1">
+            <Button
+                Width="100"
+                Height="30"
+                Margin="690,0,0,10"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Click="SaveSettings"
+                Content="保存"
+                Style="{StaticResource ButtonPrimary}" />
+            <Button
+                Width="100"
+                Height="30"
+                Margin="10"
+                HorizontalAlignment="Left"
+                Click="RestoreSettings"
+                Content="恢复默认"
+                Style="{StaticResource ButtonDanger}" />
+        </Grid>
 
     </Grid>
 </super:BaseWindow>

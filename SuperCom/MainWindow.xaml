@@ -1173,27 +1173,6 @@
                                                 </ContextMenu>
                                             </avalonEdit:TextEditor.ContextMenu>
                                         </avalonEdit:TextEditor>
-
-                                        <!--<TextBox
-                                            Name="textBox"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Foreground="{DynamicResource Window.Foreground}"
-                                            IsReadOnly="True"
-                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                            TextChanged="TextBox_TextChanged">
-                                            <TextBox.ContextMenu>
-                                                <ContextMenu>
-                                                    <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
-
-                                                    <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
-                                                    <MenuItem Click="OpenTimeTransform" Header="时间戳" />
-                                                </ContextMenu>
-                                            </TextBox.ContextMenu>
-                                        </TextBox>-->
-
-
                                     </Border>
 
 

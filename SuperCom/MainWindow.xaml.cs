@@ -389,6 +389,15 @@ namespace SuperCom
             button.IsEnabled = true;
         }
 
+
+        private ToggleButton GetPinToggleButton(TextEditor TextEditor)
+        {
+            Grid grid = (TextEditor.Parent as Border).Parent as Grid as Grid;
+            Border border = grid.Children.OfType<Border>().LastOrDefault();
+            ToggleButton toggleButton = (border.Child as StackPanel).Children.OfType<ToggleButton>().FirstOrDefault();
+            return toggleButton;
+        }
+
         private async Task<bool> OpenPort(SideComPort sideComPort)
         {
             if (sideComPort == null) return false;
@@ -404,7 +413,32 @@ namespace SuperCom
             await Task.Delay(1000);
             portTabItem.TextEditor = FindTextBoxByPortName(portName);
             // 搜索框
-            SearchPanel.Install(portTabItem.TextEditor);
+            SearchPanel searchPanel = SearchPanel.Install(portTabItem.TextEditor);
+            ToggleButton toggleButton = GetPinToggleButton(portTabItem.TextEditor);
+
+
+            searchPanel.OnSearching += (e) =>
+            {
+                if (ConfigManager.CommonSettings.FixedOnSearch)
+                {
+                    // 将文本固定
+                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
+                    toggleButton.IsEnabled = false;
+                    toggleButton.IsChecked = true;
+                }
+            };
+            searchPanel.OnClosed += () =>
+            {
+                if (ConfigManager.CommonSettings.ScrollOnSearchClosed)
+                {
+                    toggleButton.IsChecked = false;
+                    portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
+                }
+                toggleButton.IsEnabled = true;
+            };
+
+
+
 
             //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
             //using (Stream s = File.OpenRead(xshdPath))
@@ -766,8 +800,29 @@ namespace SuperCom
                 string portName = button.Tag.ToString();
                 if (string.IsNullOrEmpty(portName)) return;
                 SendCommand(portName);
+                if (ConfigManager.CommonSettings.FixedOnSendCommand)
+                {
+                    Grid grid = ((button.Parent as Grid).Parent as Grid).Parent as Grid;
+                    Grid baseGrid = grid.Parent as Grid;
+                    (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                    toggleButton.IsChecked = true;
+                    textEditor.TextChanged -= TextBox_TextChanged;
+                }
             }
         }
+
+
+        private (ToggleButton, TextEditor) FindToggleButtonByBaseGrid(Grid baseGrid)
+        {
+            Grid rooGrid = baseGrid.Children.OfType<Grid>().FirstOrDefault();
+            Border firstBorder = rooGrid.Children.OfType<Border>().FirstOrDefault();
+            Border lastBorder = rooGrid.Children.OfType<Border>().LastOrDefault();
+            ToggleButton toggleButton = (lastBorder.Child as StackPanel).Children.OfType<ToggleButton>().FirstOrDefault();
+            return (toggleButton, firstBorder.Child as TextEditor);
+        }
+
+
+
 
         public void SendCommand(string portName)
         {
@@ -1663,6 +1718,14 @@ namespace SuperCom
                         }
                     }
                     SendCommand(sideComPort.PortTabItem.SerialPort, sideComPort.PortTabItem, command, false);
+                    // 设置固定滚屏
+                    if (ConfigManager.CommonSettings.FixedOnSendCommand)
+                    {
+                        Grid baseGrid = (border.Parent as Grid).Parent as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        toggleButton.IsChecked = true;
+                        textEditor.TextChanged -= TextBox_TextChanged;
+                    }
                 }
             }
 

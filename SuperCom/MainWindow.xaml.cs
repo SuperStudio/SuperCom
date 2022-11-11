@@ -757,7 +757,7 @@ namespace SuperCom
             PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
             if (portTabItem != null)
             {
-                string fileName = portTabItem.GetSaveFileName();
+                string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName))
                 {
                     FileHelper.TryOpenSelectPath(fileName);
@@ -1242,7 +1242,7 @@ namespace SuperCom
             PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
             if (portTabItem != null)
             {
-                string fileName = portTabItem.GetSaveFileName();
+                string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName))
                 {
                     FileHelper.TryOpenByDefaultApp(fileName);

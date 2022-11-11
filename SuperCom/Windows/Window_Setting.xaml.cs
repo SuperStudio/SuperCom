@@ -1,8 +1,12 @@
 ﻿using SuperCom.Config;
+using SuperCom.Config.WindowConfig;
+using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
+using SuperControls.Style.Windows;
 using SuperControls.Style.XAML.CustomWindows;
 using SuperUtils.Common;
+using SuperUtils.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -116,13 +120,53 @@ namespace SuperCom.Windows
             ConfigManager.CommonSettings.FixedOnSearch = vieModel.FixedOnSearch;
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
+            ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
             ConfigManager.CommonSettings.Save();
             MessageCard.Success("保存成功");
         }
 
         private void RestoreSettings(object sender, RoutedEventArgs e)
         {
+            if (IsPortRunning())
+            {
+                MessageCard.Error("请关闭所有串口后再试");
+                return;
+            }
 
+            if (new MsgBox(this, "将删除所有自定义串口设置，是否继续？").ShowDialog() == false)
+            {
+                return;
+            }
+
+            vieModel.BaudRates = new System.Collections.ObjectModel.ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_BAUDRATES)
+            {
+                vieModel.BaudRates.Add(item.ToString());
+            }
+            ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
+            ConfigManager.Main.Save();
+            Main.vieModel.LoadBaudRates();
+
+            vieModel.LogNameFormat = CommonSettings.DEFAULT_LOGNAMEFORMAT;
+            vieModel.FixedOnSearch = true;
+            vieModel.FixedOnSendCommand = false;
+            vieModel.ScrollOnSearchClosed = true;
+            MessageCard.Success("已恢复默认值");
+        }
+
+
+        private void searchBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            List<char> list = System.IO.Path.GetInvalidFileNameChars().ToList();
+            foreach (var item in e.Text.ToCharArray())
+            {
+                if (list.Contains(item))
+                {
+                    MessageCard.Error("非法文件名：\\ / : * ? \" < > | ");
+                    e.Handled = true;
+                    break;
+                }
+            }
         }
     }
 }

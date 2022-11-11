@@ -41,6 +41,12 @@ namespace SuperCom.ViewModel
             get { return _ScrollOnSearchClosed; }
             set { _ScrollOnSearchClosed = value; RaisePropertyChanged(); }
         }
+        private string _LogNameFormat = ConfigManager.CommonSettings.LogNameFormat;
+        public string LogNameFormat
+        {
+            get { return _LogNameFormat; }
+            set { _LogNameFormat = value; RaisePropertyChanged(); }
+        }
 
 
 

@@ -28,7 +28,7 @@
             <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
                 <StackPanel Orientation="Vertical">
                     <CheckBox
-                        Margin="10,10,5,5"
+                        Margin="10,20,5,5"
                         HorizontalAlignment="Left"
                         Content="搜索时停止滚屏"
                         IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -133,6 +133,67 @@
 
 
                 </StackPanel>
+            </TabItem>
+
+            <TabItem Header="日志" Style="{StaticResource FlatTabItem}">
+
+                <StackPanel Margin="5,15" Orientation="Vertical">
+                    <TextBlock
+                        Margin="5"
+                        HorizontalAlignment="Left"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="格式化文件名" />
+
+                    <super:SearchBox
+                        Name="searchBox"
+                        Width="auto"
+                        Height="40"
+                        Margin="5,10"
+                        Padding="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource Window.Side.Background}"
+                        BorderThickness="0"
+                        Foreground="{DynamicResource Window.Foreground}"
+                        HideClearButtonOnMouseLeave="False"
+                        PlaceHolderForeground="{DynamicResource TextBox.PlaceHolder.Foreground}"
+                        PreviewTextInput="searchBox_PreviewTextInput"
+                        ShowClearButton="True"
+                        ShowSearchButton="False"
+                        Text="{Binding LogNameFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextPadding="5 0" />
+
+                    <Border
+                        Margin="5"
+                        Background="{DynamicResource Window.Title.Background}"
+                        BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                        BorderThickness="4,0,0,0"
+                        CornerRadius="5">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock
+                                Margin="10"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="%C 串口名" />
+                            <TextBlock
+                                Margin="10"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="%R 备注名" />
+                            <TextBlock
+                                Margin="10"
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒" />
+                        </StackPanel>
+
+                    </Border>
+
+
+                </StackPanel>
+
+
             </TabItem>
         </TabControl>
 

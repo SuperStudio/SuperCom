@@ -1,5 +1,8 @@
 ﻿using DynamicData.Annotations;
 using ICSharpCode.AvalonEdit;
+using SuperCom.Config;
+using SuperCom.Config.WindowConfig;
+using SuperUtils.IO;
 using SuperUtils.Time;
 using System;
 using System.Collections.Generic;
@@ -25,7 +28,11 @@ namespace SuperCom.Entity
         public bool Connected
         {
             get { return _Connected; }
-            set { _Connected = value; OnPropertyChanged(); }
+            set
+            {
+                _Connected = value;
+                OnPropertyChanged();
+            }
         }
 
 
@@ -109,7 +116,16 @@ namespace SuperCom.Entity
             set { _Remark = value; OnPropertyChanged(); }
         }
 
-        public DateTime ConnectTime { get; set; }
+        private DateTime _ConnectTime;
+        public DateTime ConnectTime
+        {
+            get { return _ConnectTime; }
+            set
+            {
+                _ConnectTime = value;
+                SaveFileName = GetSaveFileName();
+            }
+        }
 
         public Queue<ResultCheck> ResultChecks { get; set; }
 
@@ -118,9 +134,70 @@ namespace SuperCom.Entity
             Builder.Clear();
         }
 
+
+        public string SaveFileName { get; set; }
+
+
+        private string GetFileNameByFormat(string format)
+        {
+            //  "%C","%R","%Y","%M","%D","%H","%M","%S","%F"
+            string result = format;
+            foreach (string item in CommonSettings.SUPPORT_FORMAT)
+            {
+                switch (item)
+                {
+                    case "%C":
+                        result = result.Replace(item, Name);
+                        break;
+                    case "%R":
+                        if (!string.IsNullOrEmpty(Remark))
+                            result = result.Replace(item, Remark);
+                        else
+                            result = result.Replace("[%R]", "");
+                        break;
+                    case "%Y":
+                        result = result.Replace(item, ConnectTime.Year.ToString());
+                        break;
+                    case "%M":
+                        result = result.Replace(item, ConnectTime.Month.ToString());
+                        break;
+                    case "%D":
+                        result = result.Replace(item, ConnectTime.Day.ToString());
+                        break;
+                    case "%h":
+                        result = result.Replace(item, ConnectTime.Hour.ToString());
+                        break;
+                    case "%m":
+                        result = result.Replace(item, ConnectTime.Minute.ToString());
+                        break;
+                    case "%s":
+                        result = result.Replace(item, ConnectTime.Second.ToString());
+                        break;
+                    case "%f":
+                        result = result.Replace(item, ConnectTime.Millisecond.ToString());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            // 删除特殊字符
+            result = FileHelper.ToProperFileName(result);
+            return result;
+        }
+
+
         public string GetSaveFileName()
         {
-            return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
+            string format = ConfigManager.CommonSettings.LogNameFormat;
+            string name = GetFileNameByFormat(format);
+            if (string.IsNullOrEmpty(name))
+            {
+                name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
+            }
+
+            return Path.Combine(GlobalVariable.LogDir, name + ".log");
+            // 格式化
+            //return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
         }
 
         public void FilterLine(string value)
@@ -175,10 +252,9 @@ namespace SuperCom.Entity
             }
             FilterLine(value);
             // 保存到本地
-            string fileName = GetSaveFileName();
             try
             {
-                File.AppendAllText(fileName, value, Encoding.UTF8);
+                File.AppendAllText(SaveFileName, value, Encoding.UTF8);
             }
             catch (Exception ex)
             {
@@ -195,7 +271,7 @@ namespace SuperCom.Entity
             Connected = connected;
             Setting = new PortSetting();
             Builder = new StringBuilder();
-            //AddTimeStamp = true;
+            SaveFileName = GetSaveFileName();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

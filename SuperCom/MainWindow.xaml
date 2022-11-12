@@ -556,6 +556,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
 
                         </Grid.ColumnDefinitions>
                         <Border
@@ -582,11 +583,37 @@
                                     <MenuItem Click="CloseAllPort" Header="关闭所有串口" />
                                 </ContextMenu>
                             </Border.ContextMenu>
-                            <Viewbox Width="auto" Height="13">
+                            <Viewbox Width="auto" Height="16">
                                 <Path
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Data="M897.427256 249.003144 126.57172 249.003144c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 249.003144 897.427256 249.003144z M897.427256 574.73174 126.57172 574.73174c-34.673707 0-62.73174-28.088732-62.73174-62.73174s28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174S932.101987 574.73174 897.427256 574.73174z M897.427256 900.460336 126.57172 900.460336c-34.673707 0-62.73174-28.088732-62.73174-62.73174 0-34.643008 28.058033-62.73174 62.73174-62.73174l770.855536 0c34.673707 0 62.73174 28.088732 62.73174 62.73174C960.16002 872.371604 932.101987 900.460336 897.427256 900.460336z"
+                                    Data="M464 144H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16z m-52 268H212V212h200v200z m452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16z m-52 268H612V212h200v200zM464 544H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16z m-52 268H212V612h200v200z m452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16z m-52 268H612V612h200v200z"
+                                    Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            </Viewbox>
+                        </Border>
+                        <Border
+                            Grid.Column="2"
+                            MouseUp="ShowContextMenu"
+                            Style="{StaticResource RoundHoverBorder}"
+                            ToolTip="排序">
+                            <Border.ContextMenu>
+                                <ContextMenu HorizontalOffset="-50">
+
+                                    <MenuItem
+                                        Click="SortSidePorts"
+                                        Header="按添加顺序"
+                                        Tag="AddTime" />
+                                    <MenuItem
+                                        Click="SortSidePorts"
+                                        Header="按串口名"
+                                        Tag="PortName" />
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <Viewbox Width="auto" Height="15">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M768 362.666667a21.333333 21.333333 0 0 1 21.333333 21.333333v387.648l61.418667-61.397333a21.333333 21.333333 0 0 1 30.165333 0l30.165334 30.165333a21.333333 21.333333 0 0 1 0 30.165333l-116.053334 116.053334a53.333333 53.333333 0 0 1-90.922666-34.218667L704 848.917333V384a21.333333 21.333333 0 0 1 21.333333-21.333333h42.666667zM554.666667 789.333333a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334v-42.666666a21.333333 21.333333 0 0 1 21.333333-21.333334h426.666667z m0-320a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334v-42.666666a21.333333 21.333333 0 0 1 21.333333-21.333334h426.666667zM896 149.333333a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334V170.666667a21.333333 21.333333 0 0 1 21.333333-21.333334h768z"
                                     Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
                             </Viewbox>
                         </Border>
@@ -1551,7 +1578,7 @@
                                             <Button
                                                 Margin="5,0"
                                                 Click="ShowAdvancedOptions"
-                                                Content="高级设置" />
+                                                Content="更多串口设置" />
                                         </WrapPanel>
                                     </Border>
 

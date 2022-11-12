@@ -102,35 +102,37 @@ namespace SuperCom.Windows
             CurrentSendCommands = vieModel.SendCommands.ToList();
         }
 
-        private void OnProjectClick(object sender, MouseButtonEventArgs e)
-        {
-            Grid grid = sender as Grid;
-            if (grid != null && grid.Tag != null)
-            {
-                string projectID = grid.Tag.ToString();
-                if (!string.IsNullOrEmpty(projectID))
-                {
-                    AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
-                    if (advancedSend != null)
-                    {
-                        vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
-                        List<SendCommand> sendCommands = new List<SendCommand>();
-                        if (!string.IsNullOrEmpty(advancedSend.Commands))
-                            sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-                        if (sendCommands.Count > 0)
-                        {
-                            foreach (var item in sendCommands)
-                            {
-                                vieModel.SendCommands.Add(item);
-                            }
 
-                        }
-                        vieModel.CurrentProjectID = advancedSend.ProjectID;
-                        vieModel.ShowCurrentSendCommand = true;
-                        dataGrid.ItemsSource = null;
-                        dataGrid.ItemsSource = vieModel.SendCommands;
+
+        public void ShowProjectById(string projectID)
+        {
+            if (!string.IsNullOrEmpty(projectID))
+            {
+                AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                ShowProjectBySend(advancedSend);
+            }
+        }
+
+        public void ShowProjectBySend(AdvancedSend advancedSend)
+        {
+            if (advancedSend != null)
+            {
+                vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
+                List<SendCommand> sendCommands = new List<SendCommand>();
+                if (!string.IsNullOrEmpty(advancedSend.Commands))
+                    sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                if (sendCommands.Count > 0)
+                {
+                    foreach (var item in sendCommands)
+                    {
+                        vieModel.SendCommands.Add(item);
                     }
+
                 }
+                vieModel.CurrentProjectID = advancedSend.ProjectID;
+                vieModel.ShowCurrentSendCommand = true;
+                dataGrid.ItemsSource = null;
+                dataGrid.ItemsSource = vieModel.SendCommands;
             }
         }
 
@@ -356,6 +358,14 @@ namespace SuperCom.Windows
         private void BaseWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             vieModel.RunningCommands = false;
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count == 0)
+                return;
+            AdvancedSend advancedSend = e.AddedItems[0] as AdvancedSend;
+            ShowProjectBySend(advancedSend);
         }
     }
 }

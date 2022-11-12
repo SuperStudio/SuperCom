@@ -47,6 +47,18 @@ namespace SuperCom.ViewModel
             get { return _LogNameFormat; }
             set { _LogNameFormat = value; RaisePropertyChanged(); }
         }
+        private int _TabSelectedIndex = ConfigManager.CommonSettings.TabSelectedIndex;
+        public int TabSelectedIndex
+        {
+            get { return _TabSelectedIndex; }
+            set
+            {
+                _TabSelectedIndex = value;
+                RaisePropertyChanged();
+                ConfigManager.CommonSettings.TabSelectedIndex = value;
+                ConfigManager.CommonSettings.Save();
+            }
+        }
 
 
 

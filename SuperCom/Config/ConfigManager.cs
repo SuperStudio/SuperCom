@@ -10,12 +10,14 @@ namespace SuperCom.Config
 
         public static Main Main { get; set; }
         public static CommonSettings CommonSettings { get; set; }
+        public static AdvancedSendSettings AdvancedSendSettings { get; set; }
 
 
         static ConfigManager()
         {
             Main = Main.CreateInstance();
             CommonSettings = CommonSettings.CreateInstance();
+            AdvancedSendSettings = AdvancedSendSettings.CreateInstance();
         }
 
         public static void InitConfig()

@@ -1,4 +1,5 @@
 using GalaSoft.MvvmLight;
+using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperUtils.Common;
@@ -229,11 +230,25 @@ namespace SuperCom.ViewModel
             ConfigManager.Main.Save();
         }
 
-        public void InitPortData()
+        public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime)
         {
             string[] ports = SerialPort.GetPortNames();
+            List<string> portNames = new List<string>();
+            switch (sortType)
+            {
+                case ComPortSortType.AddTime:
+                    portNames = ports.ToList();
+                    break;
+                case ComPortSortType.PortName:
+                    portNames = ports.OrderBy(name => name, new ComPortComparer()).ToList();
+                    break;
+                default:
+                    break;
+
+
+            }
             SideComPorts = new ObservableCollection<SideComPort>();
-            foreach (string port in ports)
+            foreach (string port in portNames)
             {
                 SideComPorts.Add(new SideComPort(port, false));
             }

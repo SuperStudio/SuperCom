@@ -1,4 +1,5 @@
 using GalaSoft.MvvmLight;
+using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Log;
@@ -82,6 +83,30 @@ namespace SuperCom.ViewModel
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
+        private int _SideIndex = ConfigManager.AdvancedSendSettings.SideIndex;
+        public int SideIndex
+        {
+            get { return _SideIndex; }
+            set
+            {
+                _SideIndex = value;
+                RaisePropertyChanged();
+                ConfigManager.AdvancedSendSettings.SideIndex = value;
+                ConfigManager.AdvancedSendSettings.Save();
+            }
+        }
+        private int _ComPortSelectedIndex = ConfigManager.AdvancedSendSettings.ComPortSelectedIndex;
+        public int ComPortSelectedIndex
+        {
+            get { return _ComPortSelectedIndex; }
+            set
+            {
+                _ComPortSelectedIndex = value;
+                RaisePropertyChanged();
+                ConfigManager.AdvancedSendSettings.ComPortSelectedIndex = value;
+                ConfigManager.AdvancedSendSettings.Save();
+            }
+        }
 
         public MainWindow Main { get; set; }
 
@@ -120,10 +145,13 @@ namespace SuperCom.ViewModel
             LoadSideComports();
         }
 
+
+
+
         private void LoadSideComports()
         {
             SideComPorts = new ObservableCollection<SideComPort>();
-            foreach (var item in Main?.vieModel.SideComPorts)
+            foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer()))
             {
                 SideComPorts.Add(item);
             }

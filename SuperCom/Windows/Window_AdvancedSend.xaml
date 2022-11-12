@@ -66,13 +66,12 @@
                 IsEnabled="{Binding DataContext.RunningCommands, Converter={StaticResource OppositeBooleanConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
                 ItemsSource="{Binding Projects}"
+                SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectionChanged="ListBox_SelectionChanged"
                 Style="{StaticResource NormalListBox}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid
-                            Background="Transparent"
-                            MouseLeftButtonDown="OnProjectClick"
-                            Tag="{Binding ProjectID, Mode=OneWay}">
+                        <Grid Background="Transparent" Tag="{Binding ProjectID, Mode=OneWay}">
                             <Grid.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Click="RenameProject" Header="重命名" />
@@ -251,7 +250,7 @@
                             DisplayMemberPath="Name"
                             IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
                             ItemsSource="{Binding SideComPorts}"
-                            SelectedIndex="0"
+                            SelectedIndex="{Binding ComPortSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Style="{StaticResource BorderComboBox}" />
 
                     </StackPanel>

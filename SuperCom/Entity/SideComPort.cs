@@ -9,6 +9,12 @@ using System.Threading.Tasks;
 
 namespace SuperCom.Entity
 {
+
+    public enum ComPortSortType
+    {
+        AddTime,
+        PortName
+    }
     public class SideComPort : INotifyPropertyChanged
     {
         private string _Name;

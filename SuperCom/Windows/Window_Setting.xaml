@@ -23,7 +23,7 @@
             Margin="10"
             Background="Transparent"
             FontSize="15"
-            SelectedIndex="0"
+            SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Style="{StaticResource FlatTabControl}">
             <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
                 <StackPanel Orientation="Vertical">

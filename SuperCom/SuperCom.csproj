@@ -121,6 +121,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Commands\OpenWindow.cs" />
+    <Compile Include="Comparers\ComPortComparer.cs" />
+    <Compile Include="Config\AdvancedSendSettings.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\UrlManager.cs" />
     <Compile Include="Config\CommonSettings.cs" />

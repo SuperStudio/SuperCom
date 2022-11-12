@@ -344,6 +344,11 @@ namespace SuperCom
         {
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
             vieModel.InitPortData();
+            RetainSidePortValue(sideComPorts);
+        }
+
+        private void RetainSidePortValue(List<SideComPort> sideComPorts)
+        {
             for (int i = 0; i < vieModel.SideComPorts.Count; i++)
             {
                 string portName = vieModel.SideComPorts[i].Name;
@@ -1829,7 +1834,17 @@ namespace SuperCom
             }
             vieModel.SaveBaudRate((sender as ComboBox).Tag.ToString(), text);
         }
-
-
+        private void SortSidePorts(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null && menuItem.Tag != null)
+            {
+                List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
+                string value = menuItem.Tag.ToString();
+                Enum.TryParse(value, out ComPortSortType sortType);
+                vieModel.InitPortData(sortType);
+                RetainSidePortValue(sideComPorts);
+            }
+        }
     }
 }

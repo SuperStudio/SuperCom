@@ -19,6 +19,9 @@ namespace SuperCom
         protected override void OnStartup(StartupEventArgs e)
         {
             // UI线程未捕获异常处理事件
+#if DEBUG
+
+#else
             this.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
 
             // Task线程内未捕获异常处理事件
@@ -26,6 +29,8 @@ namespace SuperCom
 
             // 非UI线程未捕获异常处理事件
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            
+#endif
             base.OnStartup(e);
         }
 

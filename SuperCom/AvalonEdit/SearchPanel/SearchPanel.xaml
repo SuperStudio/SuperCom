@@ -31,18 +31,18 @@
                                 Name="PART_searchTextBox"
                                 Grid.Column="0"
                                 Width="300"
-                                Height="30"
+                                Height="auto"
                                 Margin="3"
                                 Padding="4,0,95,0"
                                 AcceptsReturn="False"
-                                TextWrapping="NoWrap"
                                 Background="{DynamicResource Window.Background}"
                                 BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                 BorderThickness="1"
                                 ContextMenu="{DynamicResource TextBoxContextMenu}"
                                 Focusable="True"
                                 Style="{StaticResource BaseTextBox}"
-                                TextAlignment="Left">
+                                TextAlignment="Left"
+                                TextWrapping="NoWrap">
                                 <TextBox.Text>
                                     <Binding
                                         Path="SearchPattern"
@@ -60,7 +60,7 @@
                                 Orientation="Horizontal">
                                 <ToggleButton
                                     Width="28"
-                                    Margin="1,6"
+                                    Margin="1,8"
                                     Padding="4"
                                     Background="Transparent"
                                     Content="Aa"
@@ -69,7 +69,7 @@
                                     ToolTip="大小写" />
                                 <ToggleButton
                                     Width="28"
-                                    Margin="1,6"
+                                    Margin="1,8"
                                     Padding="4"
                                     Background="Transparent"
                                     IsChecked="{Binding WholeWords, RelativeSource={RelativeSource TemplatedParent}}"
@@ -105,7 +105,7 @@
                                 </ToggleButton>
                                 <ToggleButton
                                     Width="28"
-                                    Margin="1,6,6,6"
+                                    Margin="1,8,6,8"
                                     Padding="4"
                                     Background="Transparent"
                                     Content=".*"

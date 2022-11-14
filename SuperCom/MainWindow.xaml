@@ -1184,7 +1184,7 @@
                                             Background="Transparent"
                                             BorderThickness="0"
                                             FontFamily="微软雅黑"
-                                            FontSize="10pt"
+                                            FontSize="{Binding SerialPort.TextFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             Foreground="{DynamicResource Window.Foreground}"
                                             IsReadOnly="True"
                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
@@ -1390,6 +1390,11 @@
                                                 Margin="5,0"
                                                 Click="SaveToNewFile"
                                                 Content="存到新文件" />
+
+                                            <TextBlock
+                                                HorizontalAlignment="Left"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="正则高亮模式：" />
 
                                             <ComboBox
                                                 Name="highlightingComboBox"

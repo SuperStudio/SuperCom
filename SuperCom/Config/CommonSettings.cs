@@ -32,7 +32,8 @@ namespace SuperCom.Config.WindowConfig
         public bool ScrollOnSearchClosed { get; set; }
         public bool FixedOnSendCommand { get; set; }
         public string LogNameFormat { get; set; }
-        public int TabSelectedIndex { get; set; }
+        public long TabSelectedIndex { get; set; }
+        public long HighLightSideIndex { get; set; }
 
     }
 }

@@ -6,6 +6,7 @@ using SuperCom.Log;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VisualTools;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
@@ -18,6 +19,7 @@ namespace SuperCom.ViewModel
     public class VieModel_AdvancedSend : ViewModelBase
     {
 
+        public Action<bool> OnRunCommand { get; set; }
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
 
         private ObservableCollection<AdvancedSend> _Projects;
@@ -74,6 +76,7 @@ namespace SuperCom.ViewModel
             {
                 _RunningCommands = value;
                 RaisePropertyChanged();
+                OnRunCommand?.Invoke(value);
             }
         }
 
@@ -83,7 +86,7 @@ namespace SuperCom.ViewModel
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
-        private int _SideIndex = ConfigManager.AdvancedSendSettings.SideIndex;
+        private int _SideIndex = (int)ConfigManager.AdvancedSendSettings.SideIndex;
         public int SideIndex
         {
             get { return _SideIndex; }
@@ -95,7 +98,7 @@ namespace SuperCom.ViewModel
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
-        private int _ComPortSelectedIndex = ConfigManager.AdvancedSendSettings.ComPortSelectedIndex;
+        private int _ComPortSelectedIndex = (int)ConfigManager.AdvancedSendSettings.ComPortSelectedIndex;
         public int ComPortSelectedIndex
         {
             get { return _ComPortSelectedIndex; }
@@ -155,11 +158,6 @@ namespace SuperCom.ViewModel
             {
                 SideComPorts.Add(item);
             }
-        }
-
-        public void SaveProjects()
-        {
-
         }
 
         public void UpdateProject(AdvancedSend send)

@@ -153,6 +153,7 @@ namespace SuperCom
 
             ComSettings.InitSqlite();
             AdvancedSend.InitSqlite();
+            HighLightRule.InitSqlite();
         }
 
         public override void CloseWindow(object sender, RoutedEventArgs e)
@@ -1268,6 +1269,10 @@ namespace SuperCom
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
             //new Window_AdvancedSend().Show();
+            Window_Setting setting = new Window_Setting();
+            setting.Owner = this;
+            setting.ShowDialog();
+
         }
 
 

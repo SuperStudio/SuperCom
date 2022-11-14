@@ -27,6 +27,7 @@ namespace SuperCom.Windows
     public partial class Window_AdvancedSend : BaseWindow
     {
         public VieModel_AdvancedSend vieModel { get; set; }
+        public MainWindow Main { get; set; }
 
         public Window_AdvancedSend()
         {
@@ -34,6 +35,29 @@ namespace SuperCom.Windows
             vieModel = new VieModel_AdvancedSend();
             this.DataContext = vieModel;
             dataGrid.ItemsSource = vieModel.SendCommands;
+
+            foreach (Window window in App.Current.Windows)
+            {
+                if (window.Name.Equals("mainWindow"))
+                {
+                    Main = (MainWindow)window;
+                    break;
+                }
+            }
+
+            vieModel.OnRunCommand += (running) =>
+            {
+                if (running)
+                {
+                    this.Owner = Main;
+                    this.Opacity = 0.7;
+                }
+                else
+                {
+                    this.Owner = null;
+                    this.Opacity = 1;
+                }
+            };
         }
 
 
@@ -49,7 +73,6 @@ namespace SuperCom.Windows
         {
             // 保存
             vieModel.AddProject("我的项目");
-            vieModel.SaveProjects();
             DataChanged();
         }
 

@@ -1,6 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<!-- syntaxdefinition for Json by alek kowalczyk -->
-<!-- update by zuijin in 2019.12.20 -->
 <SyntaxDefinition name="ComLog" extensions=".json" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
 
 
@@ -9,71 +7,20 @@
 	<!-- [2022-09-29 23:28:19.967] -->
 	<RuleSet >
 		<Rule foreground="#858585">\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\]</Rule>
-		<Span foreground="#FF4040" multiline="true">
-			<Begin>(\[E\])|E:</Begin>
-			<End>^(?=\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\])</End>
-		</Span>
-		<Span foreground="#FFEC8B" multiline="true">
-			<Begin>\[W\]|W:</Begin>
-			<End>^(?=\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\])</End>
-		</Span>
-		<Span foreground="#BFEFFF" multiline="true">
-			<Begin>\[D\]|D:</Begin>
-			<End>^(?=\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\])</End>
-		</Span>
+		<Rule foreground="#FF4040">(\bE: .+)|(\[E\]:.+)</Rule>
+		<Rule foreground="#FFEC8B">(\bW: .+)|(\[W\]:.+)</Rule>
+		<Rule foreground="#BFEFFF">(\bD: .+)|(\[D\]:.+)</Rule>
 
-		<Span foreground="#32CD32" begin="\{" end="\}"/>
+		<!-- json -->
+		<Rule foreground="#32CD32">\{.+\}</Rule>
 
+		<!-- 发送字符 -->
 		<Keywords foreground="#63B8FF" fontWeight="bold">
 			<Word>SEND >>>>>>>>>></Word>
 		</Keywords>
+		<!--<Keywords fontStyle="italic"  foreground="#63B8FF" fontWeight="bold">
+			<Word>SEND >>>>>>>>>></Word>
+		</Keywords>-->
 	</RuleSet>
-
-	<!--<RuleSet >
-		<Span foreground="Green" begin="\{" end="\}"/>
-	</RuleSet>-->
-
-	<!--<Color name="Bool" foreground="Blue" exampleText="true | false" />
-	<Color name="Number" foreground="Red" exampleText="3.14" />
-	<Color name="String" foreground="Green" exampleText="" />
-	<Color name="Null" foreground="Olive" exampleText="" />
-	<Color name="FieldName" foreground="DarkMagenta" />
-
-	<RuleSet name="String">
-		<Span begin="\\" end="."/>
-	</RuleSet>
-
-	<RuleSet name="Object">
-		<Span color="FieldName" ruleSet="String">
-			<Begin>"</Begin>
-			<End>"</End>
-		</Span>
-		<Span color="FieldName" ruleSet="String">
-			<Begin>'</Begin>
-			<End>'</End>
-		</Span>
-	</RuleSet>
-
-	<RuleSet name="Expression">
-		<Keywords color="Bool" >
-			<Word>true</Word>
-			<Word>false</Word>
-		</Keywords>
-		<Keywords color="Null" >
-			<Word>null</Word>
-		</Keywords>
-		<Span color="String" ruleSet="String">
-			<Begin>"</Begin>
-			<End>"</End>
-		</Span>
-		<Span color="String" ruleSet="String">
-			<Begin>'</Begin>
-			<End>'</End>
-		</Span>
-	</RuleSet>
-
-	<RuleSet>
-		<Import ruleSet="Expression"/>
-	</RuleSet>-->
 
 </SyntaxDefinition>

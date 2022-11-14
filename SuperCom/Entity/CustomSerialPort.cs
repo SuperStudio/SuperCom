@@ -24,6 +24,8 @@ namespace SuperCom.Entity
         {
         }
 
+        public static double DEFAULT_FONTSIZE = 15;
+
         public CustomSerialPort(string portName)
         {
             this.PortName = portName;
@@ -72,6 +74,7 @@ namespace SuperCom.Entity
             dic.Add("StopBits", this.StopBitsString);
             dic.Add("Parity", this.ParityString);
             dic.Add("Remark", this.Remark);
+            dic.Add("TextFontSize", this.TextFontSize);
             return JsonUtils.TrySerializeObject(dic);
         }
 
@@ -87,6 +90,14 @@ namespace SuperCom.Entity
                 int dataBits = PortSetting.DEFAULT_DATABITS;
                 int.TryParse(dict["DataBits"].ToString(), out dataBits);
                 this.DataBits = dataBits;
+
+                if (dict.ContainsKey("TextFontSize"))
+                {
+                    double fontSize = CustomSerialPort.DEFAULT_FONTSIZE;
+                    double.TryParse(dict["TextFontSize"].ToString(), out fontSize);
+                    this.TextFontSize = fontSize;
+                }
+
 
                 this.PortEncoding = dict["Encoding"].ToString();
                 this.ParityString = dict["Parity"].ToString();
@@ -152,6 +163,12 @@ namespace SuperCom.Entity
         {
             get { return _ParityString; }
             set { _ParityString = value; OnPropertyChanged(); }
+        }
+        private double _TextFontSize = DEFAULT_FONTSIZE;
+        public double TextFontSize
+        {
+            get { return _TextFontSize; }
+            set { _TextFontSize = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -127,6 +127,8 @@
     <Compile Include="Config\UrlManager.cs" />
     <Compile Include="Config\CommonSettings.cs" />
     <Compile Include="Config\WindowConfig\Main.cs" />
+    <Compile Include="Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Converters\RuleTypeEnumConverter.cs" />
     <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
     <Compile Include="CustomWindows\About.xaml.cs">
       <DependentUpon>About.xaml</DependentUpon>
@@ -136,6 +138,7 @@
     <Compile Include="Entity\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Entity\HighLightRule.cs" />
     <Compile Include="Entity\PortSetting.cs" />
     <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />

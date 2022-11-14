@@ -2,17 +2,26 @@
     x:Class="SuperCom.Windows.Window_Setting"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:SuperCom.Windows"
+    xmlns:localConverter="clr-namespace:SuperCom.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Title="设置"
-    Width="800"
-    Height="450"
+    Width="1000"
+    Height="600"
     Background="{DynamicResource Window.Background}"
     Foreground="{DynamicResource Window.Foreground}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+
+    <super:BaseWindow.Resources>
+        <localConverter:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+        <converter:BiggerWidthConverter x:Key="BiggerWidthConverter" />
+        <localConverter:RuleTypeEnumConverter x:Key="RuleTypeEnumConverter" />
+    </super:BaseWindow.Resources>
     <Grid>
 
         <Grid.RowDefinitions>
@@ -195,15 +204,386 @@
 
 
             </TabItem>
+            <TabItem Header="语法高亮" Style="{StaticResource FlatTabItem}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Button
+                        Margin="5"
+                        HorizontalAlignment="Left"
+                        BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                        Click="NewRule"
+                        Content="新增语法高亮"
+                        Style="{StaticResource BorderButton}" />
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
+                                Width="auto"
+                                MinWidth="150"
+                                MaxWidth="500" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Background="{DynamicResource Window.Side.Background}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <ListBox
+                                Grid.Row="1"
+                                VerticalAlignment="Top"
+                                HorizontalContentAlignment="Stretch"
+                                d:ItemsSource="{d:SampleData ItemCount=5}"
+                                Background="Transparent"
+                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                ItemsSource="{Binding HighLightRules}"
+                                SelectedIndex="{Binding Path=HighLightSideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectionChanged="RuleListBox_SelectionChanged"
+                                Style="{StaticResource NormalListBox}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Background="Transparent" Tag="{Binding RuleID, Mode=OneWay}">
+                                            <Grid.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Click="RenameRule" Header="重命名" />
+                                                    <MenuItem
+                                                        Click="DeleteRule"
+                                                        Header="删除"
+                                                        Tag="{Binding RuleID}" />
+                                                </ContextMenu>
+                                            </Grid.ContextMenu>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Padding="5,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                Background="Transparent"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="{Binding RuleName}" />
+                                            <TextBox
+                                                Grid.Column="0"
+                                                Margin="4,0,0,0"
+                                                Padding="5,0,0,0"
+                                                HorizontalAlignment="Stretch"
+                                                Background="{DynamicResource ListBoxItem.Selected.Active.Background}"
+                                                LostFocus="RenameTextBoxLostFocus"
+                                                PreviewKeyUp="TextBox_PreviewKeyUp"
+                                                Style="{StaticResource BaseTextBox}"
+                                                Tag="{Binding RuleID}"
+                                                Text="{Binding RuleName}"
+                                                TextAlignment="Left"
+                                                Visibility="Hidden" />
+                                            <Border
+                                                Grid.Column="1"
+                                                Background="Transparent"
+                                                BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                                <Button
+                                                    Width="20"
+                                                    Height="20"
+                                                    Margin="5"
+                                                    HorizontalAlignment="Right"
+                                                    super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
+                                                    Click="DeleteRule"
+                                                    Style="{StaticResource RoundNormalButton}"
+                                                    Tag="{Binding RuleID}"
+                                                    Visibility="Visible">
+                                                    <Viewbox
+                                                        Width="10"
+                                                        Height="auto"
+                                                        VerticalAlignment="Center">
+                                                        <Path
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                    </Viewbox>
+                                                </Button>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                        <GridSplitter
+                            Grid.Column="1"
+                            Width="4"
+                            HorizontalAlignment="Left"
+                            Panel.ZIndex="10"
+                            Style="{StaticResource HoverSpliter}" />
+
+                        <Grid
+                            Grid.Column="2"
+                            Background="{DynamicResource Window.Detail.Background}"
+                            Visibility="{Binding ShowCurrentRule, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Button
+                                    Height="30"
+                                    Margin="5"
+                                    Click="AddNewRuleItem"
+                                    Content="添加规则" />
+
+                            </StackPanel>
+
+
+                            <Popup
+                                x:Name="colorPickerPopup"
+                                Width="auto"
+                                Height="auto"
+                                AllowsTransparency="True"
+                                Placement="Mouse"
+                                PopupAnimation="Fade"
+                                StaysOpen="True">
+                                <Grid Margin="5">
+                                    <Border
+                                        Margin="5"
+                                        Background="{DynamicResource Menu.Background}"
+                                        CornerRadius="5"
+                                        Effect="{StaticResource PopupDropShadowEffect}" />
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="auto" />
+                                        </Grid.RowDefinitions>
+                                        <super:ColorPicker
+                                            Name="colorPicker"
+                                            Grid.Row="0"
+                                            HorizontalAlignment="Left" />
+                                        <StackPanel
+                                            Grid.Row="1"
+                                            Margin="5"
+                                            HorizontalAlignment="Center"
+                                            Orientation="Horizontal">
+                                            <Button
+                                                Margin="5"
+                                                Click="CancelColorPicker"
+                                                Content="取消"
+                                                Style="{StaticResource ButtonDanger}" />
+                                            <Button
+                                                Margin="5"
+                                                Click="ConfirmColorPicker"
+                                                Content="确认"
+                                                Style="{StaticResource ButtonPrimary}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                </Grid>
+                            </Popup>
+
+
+
+                            <DataGrid
+                                Name="dataGrid"
+                                Grid.Row="1"
+                                Margin="5,0"
+                                HorizontalContentAlignment="Left"
+                                CanUserResizeColumns="True"
+                                CanUserSortColumns="True"
+                                ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                Style="{DynamicResource FlatDataGrid}">
+                                <DataGrid.RowStyle>
+                                    <Style BasedOn="{StaticResource NormalDataGridRowStyle}" TargetType="DataGridRow">
+                                        <Setter Property="ContextMenu" Value="{x:Null}" />
+                                        <!--<Setter Property="ContextMenu" Value="{StaticResource dataGridContextMenu}" />-->
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="auto" MinWidth="40">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border
+                                                    Grid.Column="1"
+                                                    Background="Transparent"
+                                                    BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                                    <Button
+                                                        Width="20"
+                                                        Height="20"
+                                                        HorizontalAlignment="Right"
+                                                        super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
+                                                        Click="DeleteRuleSet"
+                                                        Style="{StaticResource RoundNormalButton}"
+                                                        Tag="{Binding RuleSetID, Mode=OneWay}"
+                                                        Visibility="Visible">
+                                                        <Viewbox
+                                                            Width="10"
+                                                            Height="auto"
+                                                            VerticalAlignment="Center">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                </Border>
+
+
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn
+                                        Width="auto"
+                                        MinWidth="80"
+                                        Header="类型"
+                                        SortMemberPath="Status">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox
+                                                    MinWidth="150"
+                                                    SelectedIndex="{Binding RuleType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource RuleTypeEnumConverter}}"
+                                                    SelectionChanged="ComboBox_SelectionChanged"
+                                                    Style="{StaticResource BorderComboBox}">
+                                                    <ComboBoxItem Content="正则表达式" />
+                                                    <ComboBoxItem Content="关键词" />
+                                                </ComboBox>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn
+                                        Width="auto"
+                                        MinWidth="60"
+                                        Header="字体样式">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="2"
+                                                        Background="{Binding Foreground, FallbackValue=#FFFFFF, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
+                                                        CornerRadius="3"
+                                                        Cursor="Hand"
+                                                        MouseLeftButtonUp="ShowColorPicker"
+                                                        Tag="{Binding RuleSetID, Mode=OneWay}"
+                                                        ToolTip="前景色" />
+                                                    <ToggleButton
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="2"
+                                                        Padding="0"
+                                                        Background="Transparent"
+                                                        Click="SaveRuleSet"
+                                                        Content="B"
+                                                        FontSize="15"
+                                                        IsChecked="{Binding Bold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        Style="{StaticResource FlatToggleButton}"
+                                                        ToolTip="加粗" />
+                                                    <ToggleButton
+                                                        Height="25"
+                                                        Margin="2"
+                                                        Padding="6,0,10,0"
+                                                        Background="Transparent"
+                                                        Click="SaveRuleSet"
+                                                        Content="I"
+                                                        FontFamily="宋体"
+                                                        FontSize="15"
+                                                        FontStyle="Oblique"
+                                                        FontWeight="Bold"
+                                                        IsChecked="{Binding Italic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        Style="{StaticResource FlatToggleButton}"
+                                                        ToolTip="斜体" />
+                                                </StackPanel>
+
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn
+                                        x:Name="col"
+                                        Width="*"
+                                        MinWidth="50"
+                                        Header="表达式"
+                                        SortMemberPath="Order">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border
+                                                    Margin="5"
+                                                    Padding="5"
+                                                    Background="{DynamicResource Window.Title.Background}"
+                                                    CornerRadius="3">
+                                                    <TextBox
+                                                        Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
+                                                        Padding="15,0,0,0"
+                                                        AcceptsReturn="False"
+                                                        Background="Transparent"
+                                                        ContextMenu="{StaticResource TextBoxContextMenu}"
+                                                        LostFocus="SaveRuleSet"
+                                                        Style="{StaticResource BaseTextBox}"
+                                                        Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        TextAlignment="Left"
+                                                        TextWrapping="NoWrap" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+
+                                </DataGrid.Columns>
+
+
+                            </DataGrid>
+                            <Grid Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Margin="10"
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="预览效果" />
+                                <Border
+                                    Grid.Row="1"
+                                    Height="100"
+                                    Padding="10"
+                                    Background="{DynamicResource TabItem.Background}">
+
+                                    <avalonEdit:TextEditor
+                                        Name="previewTextEditor"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontFamily="微软雅黑"
+                                        Foreground="{DynamicResource Window.Sub.Foreground}"
+                                        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                        SyntaxHighlighting="ComLog"
+                                        Text="文本内容">
+                                        <avalonEdit:TextEditor.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
+                                                <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+                                            </ContextMenu>
+                                        </avalonEdit:TextEditor.ContextMenu>
+                                    </avalonEdit:TextEditor>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+
+                </Grid>
+            </TabItem>
         </TabControl>
 
         <Grid Grid.Row="1">
             <Button
                 Width="100"
                 Height="30"
-                Margin="690,0,0,10"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
+                Margin="10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
                 Click="SaveSettings"
                 Content="保存"
                 Style="{StaticResource ButtonPrimary}" />

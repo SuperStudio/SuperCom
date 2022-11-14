@@ -20,8 +20,8 @@ namespace SuperCom.Config.WindowConfig
 
             return _instance;
         }
-        public int SideIndex { get; set; }
-        public int ComPortSelectedIndex { get; set; }
+        public long SideIndex { get; set; }
+        public long ComPortSelectedIndex { get; set; }
 
 
     }

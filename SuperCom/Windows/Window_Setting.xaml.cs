@@ -20,6 +20,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom.Windows
 {
@@ -41,6 +42,7 @@ namespace SuperCom.Windows
         {
             vieModel = new VieModel_Setting();
             DataContext = vieModel;
+            dataGrid.ItemsSource = vieModel.RuleSets;
             foreach (Window item in App.Current.Windows)
             {
                 if (item.Name.Equals("mainWindow"))
@@ -167,6 +169,149 @@ namespace SuperCom.Windows
                     break;
                 }
             }
+        }
+
+        private void NewRule(object sender, RoutedEventArgs e)
+        {
+            vieModel.NewRule();
+        }
+
+        public void ShowRuleSetByRule(HighLightRule rule)
+        {
+            if (rule != null)
+            {
+                vieModel.RuleSets = new System.Collections.ObjectModel.ObservableCollection<RuleSet>();
+                List<RuleSet> ruleSets = new List<RuleSet>();
+                if (!string.IsNullOrEmpty(rule.RuleSetString))
+                    ruleSets = JsonUtils.TryDeserializeObject<List<RuleSet>>(rule.RuleSetString);
+                if (ruleSets.Count > 0)
+                {
+                    foreach (var item in ruleSets)
+                    {
+                        vieModel.RuleSets.Add(item);
+                    }
+
+                }
+                vieModel.CurrentRuleID = rule.RuleID;
+                vieModel.ShowCurrentRule = true;
+                dataGrid.ItemsSource = null;
+                dataGrid.ItemsSource = vieModel.RuleSets;
+            }
+        }
+
+        private void RuleListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count == 0)
+                return;
+            HighLightRule rule = e.AddedItems[0] as HighLightRule;
+            ShowRuleSetByRule(rule);
+        }
+
+        private void RenameRule(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteRule(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button != null && button.Tag != null)
+            {
+                long.TryParse(button.Tag.ToString(), out long id);
+                if (!vieModel.DeleteRule(id))
+                    MessageCard.Error("删除失败");
+            }
+        }
+
+        private void RenameTextBoxLostFocus(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void AddNewRuleItem(object sender, RoutedEventArgs e)
+        {
+            vieModel.NewRuleSet();
+
+
+        }
+
+        private void DeleteRuleSet(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button != null && button.Tag != null)
+            {
+                string ruleSetID = button.Tag.ToString();
+                RuleSet ruleSet = vieModel.RuleSets.Where(arg => arg.RuleSetID.ToString().Equals(ruleSetID)).FirstOrDefault();
+                if (ruleSet != null)
+                {
+                    vieModel.RuleSets.Remove(ruleSet);
+                    HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
+                    if (rule != null)
+                    {
+                        if (!string.IsNullOrEmpty(rule.RuleSetString))
+                        {
+                            rule.RuleSetList = JsonUtils.TryDeserializeObject<List<RuleSet>>(rule.RuleSetString);
+                            rule.RuleSetList.RemoveAll(arg => arg.RuleSetID.ToString().Equals(ruleSetID));
+                            rule.RuleSetString = JsonUtils.TrySerializeObject(rule.RuleSetList);
+                            vieModel.UpdateRule(rule);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SaveRuleSet(object sender, RoutedEventArgs e)
+        {
+            string ruleSets = JsonUtils.TrySerializeObject(vieModel.RuleSets.ToList());
+            HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
+            if (rule != null && !string.IsNullOrEmpty(ruleSets))
+            {
+                if (!ruleSets.Equals(rule.RuleSetString))
+                {
+                    rule.RuleSetString = ruleSets;
+                    vieModel.UpdateRule(rule);
+                }
+            }
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count == 0) return;
+            SaveRuleSet(null, null);
+        }
+
+
+        private long CurrentRuleSetID;
+        private Border CurrentBorder;
+
+        private void ShowColorPicker(object sender, MouseButtonEventArgs e)
+        {
+            Border border = sender as Border;
+            long.TryParse(border.Tag.ToString(), out CurrentRuleSetID);
+            CurrentBorder = border;
+            SolidColorBrush solidColorBrush = border.Background as SolidColorBrush;
+            Color color = solidColorBrush.Color;
+            colorPickerPopup.IsOpen = true;
+            colorPicker.SetCurrentColor(color);
+        }
+
+        private void CancelColorPicker(object sender, RoutedEventArgs e)
+        {
+            colorPickerPopup.IsOpen = false;
+        }
+
+        private void ConfirmColorPicker(object sender, RoutedEventArgs e)
+        {
+            colorPickerPopup.IsOpen = false;
+            Color color = colorPicker.SelectedColor;
+            vieModel.SetRuleSetColor(color, CurrentRuleSetID);
+            SaveRuleSet(null, null);
+            CurrentBorder.Background = new SolidColorBrush(color);
         }
     }
 }

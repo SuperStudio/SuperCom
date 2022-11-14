@@ -8,6 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Title="发送队列"
+    WindowStyle="None"
+    AllowsTransparency="True"
     Width="800"
     Height="450"
     Background="{DynamicResource Window.Background}"

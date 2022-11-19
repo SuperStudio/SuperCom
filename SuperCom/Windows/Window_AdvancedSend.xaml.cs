@@ -123,6 +123,7 @@ namespace SuperCom.Windows
             MainWindow window = GetWindowByName("mainWindow") as MainWindow;
             window?.RefreshSendCommands();
             CurrentSendCommands = vieModel.SendCommands.ToList();
+            window?.SetComboboxStatus();
         }
 
 
@@ -264,22 +265,28 @@ namespace SuperCom.Windows
 
             textBox.Visibility = Visibility.Hidden;
             string newName = textBox.Text;
+
+
+
             if (textBox.Tag != null)
             {
                 string projectID = textBox.Tag.ToString();
                 if (!string.IsNullOrEmpty(projectID))
                 {
                     AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                    string oldName = advancedSend.ProjectName;
                     if (string.IsNullOrEmpty(newName))
                     {
-                        textBox.Text = advancedSend.ProjectName;
+                        textBox.Text = oldName;
                         return;
                     }
 
-                    if (advancedSend != null && !advancedSend.ProjectName.Equals(newName))
+                    if (advancedSend != null && !oldName.Equals(newName))
                     {
                         advancedSend.ProjectName = newName;
                         vieModel.RenameProject(advancedSend);
+                        TextBlock textBlock = (textBox.Parent as Grid).Children.OfType<TextBlock>().FirstOrDefault();
+                        textBlock.Text = newName;
                         DataChanged();
                     }
                 }

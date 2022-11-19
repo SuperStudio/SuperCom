@@ -117,6 +117,28 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private int _CommandsSelectIndex = (int)ConfigManager.Main.CommandsSelectIndex;
+
+        public int CommandsSelectIndex
+        {
+            get { return _CommandsSelectIndex; }
+            set
+            {
+                _CommandsSelectIndex = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _AutoTextWrap = ConfigManager.Main.AutoTextWrap;
+
+        public bool AutoTextWrap
+        {
+            get { return _AutoTextWrap; }
+            set
+            {
+                _AutoTextWrap = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private ObservableCollection<AdvancedSend> _SendCommandProjects;
         public ObservableCollection<AdvancedSend> SendCommandProjects
@@ -149,6 +171,7 @@ namespace SuperCom.ViewModel
             if (SendHistory == null) SendHistory = new HashSet<string>();
 
             LoadSendCommands();
+
             LoadBaudRates();
             LoadDataBits();
             LoadEncodings();

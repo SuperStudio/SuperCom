@@ -8,15 +8,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Title="发送队列"
-    WindowStyle="None"
-    AllowsTransparency="True"
     Width="800"
     Height="450"
+    AllowsTransparency="True"
     Background="{DynamicResource Window.Background}"
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
     mc:Ignorable="d">
 
     <super:BaseWindow.Resources>
@@ -104,7 +104,7 @@
                                 PreviewKeyUp="TextBox_PreviewKeyUp"
                                 Style="{StaticResource BaseTextBox}"
                                 Tag="{Binding ProjectID}"
-                                Text="{Binding ProjectName}"
+                                Text="{Binding ProjectName, Mode=OneWay}"
                                 TextAlignment="Left"
                                 Visibility="Hidden" />
                             <Border

@@ -19,9 +19,9 @@ namespace SuperCom
         protected override void OnStartup(StartupEventArgs e)
         {
             // UI线程未捕获异常处理事件
-#if DEBUG
+            //#if DEBUG
 
-#else
+            //#else
             this.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
 
             // Task线程内未捕获异常处理事件
@@ -29,8 +29,8 @@ namespace SuperCom
 
             // 非UI线程未捕获异常处理事件
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            
-#endif
+
+            //#endif
             base.OnStartup(e);
         }
 
@@ -39,7 +39,8 @@ namespace SuperCom
             try
             {
                 StringBuilder builder = new StringBuilder();
-                builder.Append("[DispatcherUnhandledException] SuperCom 出现了一些问题，将退出");
+                builder.Append("[DispatcherUnhandledException] SuperCom 出现了一些问题，将退出\n");
+                builder.Append(e.Exception.ToString());
                 MessageBox.Show(builder.ToString(), "SuperCom 异常");
             }
             catch (Exception ex)
@@ -61,7 +62,8 @@ namespace SuperCom
                 StringBuilder builder = new StringBuilder();
                 if (e.IsTerminating)
                 {
-                    builder.Append("[CurrentDomain_UnhandledException] SuperCom 出现了一些问题，将退出");
+                    builder.Append("[CurrentDomain_UnhandledException] SuperCom 出现了一些问题，将退出\n");
+                    builder.Append(e.ExceptionObject.ToString());
                     MessageBox.Show(builder.ToString(), "SuperCom 异常");
                 }
             }

@@ -64,37 +64,8 @@ namespace SuperCom
         public MainWindow()
         {
             InitializeComponent();
+            LoadText();
             Init();
-
-
-            // 注册 SuperUtils 异常事件
-            SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
-            {
-                MessageCard.Error(e.Message);
-            };
-
-            SuperUtils.Handler.LogHandler.OnLog += (msg) =>
-            {
-                Console.WriteLine(msg);
-            };
-
-
-            FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
-            vieModel = new VieModel_Main();
-            this.DataContext = vieModel;
-            // 读取设置列表
-            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
-
-            // 设置配置
-            foreach (var item in vieModel.SideComPorts)
-            {
-                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name)).FirstOrDefault();
-                if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
-                {
-                    item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
-                }
-            }
         }
 
 
@@ -114,6 +85,29 @@ namespace SuperCom
             CreateSqlTables();
             ConfigManager.InitConfig(); // 读取配置
             ReadXshdList();// 自定义语法高亮
+
+            // 注册 SuperUtils 异常事件
+            SuperUtils.Handler.ExceptionHandler.OnError += (e) => { MessageCard.Error(e.Message); };
+            SuperUtils.Handler.LogHandler.OnLog += (msg) => { Console.WriteLine(msg); };
+
+            FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
+            vieModel = new VieModel_Main();
+            this.DataContext = vieModel;
+            // 读取设置列表
+            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
+
+            // 设置配置
+            foreach (var item in vieModel.SideComPorts)
+            {
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name)).FirstOrDefault();
+                if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
+                {
+                    item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                }
+            }
+
+            textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
         }
 
         private void ReadXshdList()
@@ -156,7 +150,7 @@ namespace SuperCom
             HighLightRule.InitSqlite();
         }
 
-        public override void CloseWindow(object sender, RoutedEventArgs e)
+        public async override void CloseWindow(object sender, RoutedEventArgs e)
         {
             if (CloseToTaskBar && this.IsVisible == true)
             {
@@ -164,6 +158,7 @@ namespace SuperCom
             }
             else
             {
+                this.Visibility = Visibility.Hidden;
                 FadeOut();
                 base.CloseWindow(sender, e);
             }
@@ -458,6 +453,8 @@ namespace SuperCom
 
 
             sideComPort.PortTabItem = portTabItem;
+            sideComPort.PortTabItem.RX = 0;
+            sideComPort.PortTabItem.TX = 0;
             await Task.Run(() =>
             {
                 try
@@ -495,8 +492,6 @@ namespace SuperCom
             {
                 try
                 {
-                    portTabItem.RX = 0;
-                    portTabItem.TX = 0;
                     serialPort.Close();
                     serialPort.Dispose();
                 }
@@ -615,6 +610,15 @@ namespace SuperCom
                 portTabItem.Selected = true;
                 SetGridVisible(portName);
                 vieModel.PortTabItems.Add(portTabItem);
+                Task.Run(async () =>
+                {
+                    await Task.Delay(50);
+                    Dispatcher.Invoke(() =>
+                    {
+                        SetComboboxStatus();
+                    });
+                });
+
             }
 
 
@@ -1044,7 +1048,14 @@ namespace SuperCom
             SaveComSettings();
             SaveConfigValue();
             vieModel.SaveBaudRate();
-            CloseAllPort(null, null);
+            try
+            {
+                CloseAllPort(null, null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
         }
 
@@ -1095,6 +1106,7 @@ namespace SuperCom
             ConfigManager.Main.Height = this.Height;
             ConfigManager.Main.WindowState = (long)baseWindowState;
             ConfigManager.Main.SideGridWidth = SideGridColumn.ActualWidth;
+            ConfigManager.Main.AutoTextWrap = vieModel.AutoTextWrap;
             ConfigManager.Main.Save();
         }
 
@@ -1268,11 +1280,22 @@ namespace SuperCom
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
+
+
+
             //new Window_AdvancedSend().Show();
             Window_Setting setting = new Window_Setting();
             setting.Owner = this;
             setting.ShowDialog();
 
+        }
+
+
+        public string longText = "";
+
+        public void LoadText()
+        {
+            //longText = FileHelper.TryReadFile(@"C:\Users\chao\Desktop\long.txt");
         }
 
 
@@ -1600,6 +1623,9 @@ namespace SuperCom
             if (!string.IsNullOrEmpty(advancedSend.Commands))
             {
                 itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                vieModel.CommandsSelectIndex = comboBox.SelectedIndex;
+                ConfigManager.Main.CommandsSelectIndex = comboBox.SelectedIndex;
+                ConfigManager.Main.Save();
             }
         }
 
@@ -1615,13 +1641,16 @@ namespace SuperCom
         {
             foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                TextEditor textEditor = item.TextEditor;
+                TextEditor textEditor = FindTextBoxByPortName(item.Name);
                 if (textEditor != null)
                 {
                     ComboBox comboBox = FindCombobox(textEditor);
                     if (comboBox != null)
                     {
-                        comboBox.SelectedIndex = 0;
+                        if (vieModel.CommandsSelectIndex < comboBox.Items.Count)
+                            comboBox.SelectedIndex = vieModel.CommandsSelectIndex;
+                        else
+                            comboBox.SelectedIndex = 0;
                     }
                 }
             }
@@ -1850,6 +1879,24 @@ namespace SuperCom
                 vieModel.InitPortData(sortType);
                 RetainSidePortValue(sideComPorts);
             }
+        }
+
+        private void SetTextWrap(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            bool wrap = false;
+            if (menuItem.IsChecked)
+                wrap = true;
+
+            foreach (PortTabItem item in vieModel.PortTabItems)
+            {
+                TextEditor textEditor = FindTextBoxByPortName(item.Name);
+                if (textEditor != null)
+                    textEditor.WordWrap = wrap;
+
+            }
+
+            vieModel.AutoTextWrap = wrap;
         }
     }
 }

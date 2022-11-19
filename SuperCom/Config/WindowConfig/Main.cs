@@ -37,6 +37,8 @@ namespace SuperCom.Config.WindowConfig
 
         public string CustomBaudRates { get; set; }
         public bool UseDefaultBaudRate { get; set; }
+        public long CommandsSelectIndex { get; set; }
+        public bool AutoTextWrap { get; set; }
 
     }
 }

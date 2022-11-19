@@ -111,6 +111,27 @@
                             Width="70"
                             super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                             Click="OpenContextMenu"
+                            Content="编辑"
+                            Style="{StaticResource TitleButton}">
+                            <Button.ContextMenu>
+                                <ContextMenu
+                                    HorizontalOffset="-40"
+                                    StaysOpen="True"
+                                    VerticalOffset="10">
+                                    <MenuItem
+                                        Name="textWrapMenuItem"
+                                        Click="SetTextWrap"
+                                        Header="自动换行"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        <Button
+                            Width="70"
+                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                            Click="OpenContextMenu"
                             Content="视图"
                             Style="{StaticResource TitleButton}">
                             <Button.ContextMenu>
@@ -1190,11 +1211,12 @@
                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                                             SyntaxHighlighting="ComLog"
-                                            TextChanged="TextBox_TextChanged">
+                                            TextChanged="TextBox_TextChanged"
+                                            WordWrap="{Binding DataContext.AutoTextWrap, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
                                             <avalonEdit:TextEditor.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
-                                                    <MenuItem Click="CopyText" Header="复制" />
+                                                    <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
                                                     <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
                                                     <MenuItem Click="OpenTimeTransform" Header="时间戳" />
                                                 </ContextMenu>
@@ -1243,7 +1265,7 @@
                                             CornerRadius="0 0 5 5"
                                             MouseLeftButtonUp="GotoBottom"
                                             Style="{StaticResource BgHoverBorder}"
-                                            ToolTip="去到顶部">
+                                            ToolTip="去到底部">
 
                                             <Viewbox
                                                 Width="15"
@@ -1633,7 +1655,7 @@
                                                 MinWidth="50"
                                                 DisplayMemberPath="ProjectName"
                                                 ItemsSource="{Binding Path=DataContext.SendCommandProjects, RelativeSource={RelativeSource AncestorType={x:Type super:BaseWindow}}}"
-                                                SelectedIndex="0"
+                                                SelectedIndex="{Binding CommandsSelectIndex, Mode=OneWay}"
                                                 SelectedValuePath="ProjectID"
                                                 SelectionChanged="ComboBox_SelectionChanged"
                                                 Style="{StaticResource BorderComboBox}" />

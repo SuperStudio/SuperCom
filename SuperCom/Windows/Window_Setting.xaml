@@ -556,7 +556,7 @@
                                         Background="Transparent"
                                         BorderThickness="0"
                                         FontFamily="微软雅黑"
-                                        Foreground="{DynamicResource Window.Sub.Foreground}"
+                                        Foreground="{DynamicResource Window.Foreground}"
                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                         SyntaxHighlighting="ComLog"

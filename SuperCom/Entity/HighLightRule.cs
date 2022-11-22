@@ -16,6 +16,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using SuperUtils.IO;
+using SuperUtils.Common;
 
 namespace SuperCom.Entity
 {
@@ -27,7 +29,13 @@ namespace SuperCom.Entity
         public string RuleName { get; set; }
         public string FileName { get; set; }
 
+
+
         public string RuleSetString { get; set; }
+
+        public string PreviewText { get; set; }
+
+        public string Extra { get; set; }
 
 
         [TableField(exist: false)]
@@ -40,6 +48,76 @@ namespace SuperCom.Entity
         {
 
         }
+
+        public void SetFileName()
+        {
+            FileName = $"{RuleID}_{RuleName.ToProperFileName()}.xshd";
+        }
+
+        public string GetFullFileName()
+        {
+            SetFileName();
+            return Path.Combine(GetDirName(), FileName);
+        }
+
+
+        public static string GetDirName()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "AvalonEdit", "Higlighting");
+        }
+
+        public void WriteToXshd()
+        {
+            string outputFileName = GetFullFileName();
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+            builder.AppendLine($"<SyntaxDefinition name=\"{RuleName}\" xmlns=\"http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008\">");
+            builder.AppendLine("    <RuleSet >");
+
+            if (!string.IsNullOrEmpty(RuleSetString))
+            {
+                RuleSetList = JsonUtils.TryDeserializeObject<List<RuleSet>>(RuleSetString);
+                if (RuleSetList != null && RuleSetList.Count > 0)
+                {
+                    foreach (RuleSet rule in RuleSetList)
+                    {
+                        string ruleString = GetRuleString(rule);
+                        if (!string.IsNullOrEmpty(ruleString))
+                            builder.AppendLine(ruleString);
+                    }
+                }
+            }
+            builder.AppendLine("    </RuleSet>");
+            builder.AppendLine("</SyntaxDefinition>");
+
+
+            FileHelper.TryWriteToFile(outputFileName, builder.ToString());
+        }
+
+        private string GetRuleString(RuleSet rule)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (rule == null || string.IsNullOrEmpty(rule.RuleValue)) return null;
+
+            string fontWeight = rule.Bold ? " fontWeight=\"bold\"" : "";
+            string fontStyle = rule.Italic ? " fontStyle=\"italic\"" : "";
+
+
+            if (rule.RuleType == RuleType.KeyWord)
+            {
+                builder.AppendLine($"       <Keywords{fontWeight}{fontStyle} foreground=\"{rule.Foreground}\">");
+                builder.AppendLine($"           <Word>{rule.RuleValue}</Word>");
+                builder.AppendLine("        </Keywords>");
+            }
+            else if (rule.RuleType == RuleType.Regex)
+            {
+                builder.Append($"       <Rule{fontWeight}{fontStyle} foreground=\"{rule.Foreground}\">{rule.RuleValue}</Rule>");
+            }
+            return builder.ToString();
+        }
+
+
         public HighLightRule(int RuleID, string RuleName, string FileName)
         {
             this.RuleID = RuleID;
@@ -53,7 +131,7 @@ namespace SuperCom.Entity
             {
                 {
                     "highlight_rule",
-                    "create table if not exists highlight_rule( RuleID INTEGER PRIMARY KEY autoincrement, RuleName VARCHAR(200), FileName TEXT, RuleSetString TEXT, CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) );" }
+                    "create table if not exists highlight_rule( RuleID INTEGER PRIMARY KEY autoincrement, RuleName VARCHAR(200), FileName TEXT, RuleSetString TEXT,PreviewText TEXT,Extra TEXT, CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) );" }
             };
 
         }

@@ -1414,18 +1414,19 @@
                                                 Content="存到新文件" />
 
                                             <TextBlock
+                                                Margin="10,0,5,0"
                                                 HorizontalAlignment="Left"
                                                 Style="{StaticResource BaseTextBlock}"
-                                                Text="正则高亮模式：" />
+                                                Text="语法高亮" />
 
                                             <ComboBox
                                                 Name="highlightingComboBox"
-                                                Width="100"
+                                                Width="150"
                                                 Margin="5,0"
                                                 VerticalAlignment="Center"
                                                 Background="{DynamicResource Window.Title.Background}"
-                                                ItemsSource="{Binding Source={x:Static avalonEdit:HighlightingManager.Instance}, Path=HighlightingDefinitions}"
-                                                SelectedIndex="21"
+                                                ItemsSource="{Binding DataContext.HighlightingDefinitions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                SelectedIndex="{Binding SerialPort.HighLightIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 SelectedItem="{Binding SyntaxHighlighting, ElementName=textBox}"
                                                 Style="{StaticResource BorderComboBox}" />
                                             <StackPanel Grid.Column="1" Orientation="Horizontal">

@@ -84,8 +84,6 @@ namespace SuperCom
             };
             CreateSqlTables();
             ConfigManager.InitConfig(); // 读取配置
-            ReadXshdList();// 自定义语法高亮
-
             // 注册 SuperUtils 异常事件
             SuperUtils.Handler.ExceptionHandler.OnError += (e) => { MessageCard.Error(e.Message); };
             SuperUtils.Handler.LogHandler.OnLog += (msg) => { Console.WriteLine(msg); };
@@ -106,19 +104,20 @@ namespace SuperCom
                     item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
                 }
             }
-
             textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
+            ReadXshdList();// 自定义语法高亮
         }
 
-        private void ReadXshdList()
+        public void ReadXshdList()
         {
-            string[] xshd_list = new string[] { "ComLog" };
-            foreach (var name in xshd_list)
+            HighlightingManager.Instance.Clear();
+            string[] xshd_list = FileHelper.TryGetAllFiles(HighLightRule.GetDirName(), "*.xshd");
+            // todo 按照 filename 排序
+            foreach (var xshdPath in xshd_list)
             {
                 try
                 {
                     IHighlightingDefinition customHighlighting;
-                    string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", $"{name}.xshd");
                     using (Stream s = File.OpenRead(xshdPath))
                     {
                         if (s == null)
@@ -130,7 +129,7 @@ namespace SuperCom
                         }
                     }
                     // and register it in the HighlightingManager
-                    HighlightingManager.Instance.RegisterHighlighting(name, new string[] { ".cool" }, customHighlighting);
+                    HighlightingManager.Instance.RegisterHighlighting(customHighlighting.Name, null, customHighlighting);
                 }
                 catch (Exception ex)
                 {
@@ -139,6 +138,22 @@ namespace SuperCom
                 }
 
             }
+
+            vieModel.LoadHighlightingDefinitions();
+
+            // 重新触发绑定
+            //if (vieModel.SideComPorts?.Count > 0)
+            //{
+            //    foreach (SideComPort item in vieModel.SideComPorts)
+            //    {
+            //        if (item.PortTabItem == null || item.PortTabItem.TextEditor == null) continue;
+            //        Grid grid = (item.PortTabItem.TextEditor.Parent as Border).Parent as Grid;
+            //        StackPanel stackPanel = grid.Children.OfType<Border>().LastOrDefault().Child as StackPanel;
+            //        ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+            //        if (comboBox != null)
+            //            comboBox.ItemsSource = stackPanel.Children;
+            //    }
+            //}
         }
 
 
@@ -437,20 +452,6 @@ namespace SuperCom
                 }
                 toggleButton.IsEnabled = true;
             };
-
-
-
-
-            //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
-            //using (Stream s = File.OpenRead(xshdPath))
-            //{
-            //    using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s))
-            //    {
-            //        portTabItem.TextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
-            //            (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
-            //    }
-            //}
-
 
             sideComPort.PortTabItem = portTabItem;
             sideComPort.PortTabItem.RX = 0;
@@ -1284,9 +1285,9 @@ namespace SuperCom
 
 
             //new Window_AdvancedSend().Show();
-            Window_Setting setting = new Window_Setting();
-            setting.Owner = this;
-            setting.ShowDialog();
+            //Window_Setting setting = new Window_Setting();
+            //setting.Owner = this;
+            //setting.ShowDialog();
 
         }
 

@@ -75,6 +75,7 @@ namespace SuperCom.Entity
             dic.Add("Parity", this.ParityString);
             dic.Add("Remark", this.Remark);
             dic.Add("TextFontSize", this.TextFontSize);
+            dic.Add("HighLightIndex", this.HighLightIndex);
             return JsonUtils.TrySerializeObject(dic);
         }
 
@@ -96,6 +97,11 @@ namespace SuperCom.Entity
                     double fontSize = CustomSerialPort.DEFAULT_FONTSIZE;
                     double.TryParse(dict["TextFontSize"].ToString(), out fontSize);
                     this.TextFontSize = fontSize;
+                }
+                if (dict.ContainsKey("HighLightIndex"))
+                {
+                    long.TryParse(dict["HighLightIndex"].ToString(), out long index);
+                    this.HighLightIndex = index;
                 }
 
 
@@ -169,6 +175,12 @@ namespace SuperCom.Entity
         {
             get { return _TextFontSize; }
             set { _TextFontSize = value; OnPropertyChanged(); }
+        }
+        private long _HighLightIndex = 0;
+        public long HighLightIndex
+        {
+            get { return _HighLightIndex; }
+            set { _HighLightIndex = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

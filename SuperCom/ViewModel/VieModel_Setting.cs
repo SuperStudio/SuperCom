@@ -4,6 +4,7 @@ using SuperCom.Entity;
 using SuperCom.Log;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.IO;
 using SuperUtils.WPF.VisualTools;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -120,10 +121,10 @@ namespace SuperCom.ViewModel
             }
         }
 
-        public void NewRule()
+        public void NewRule(string ruleName = "自定义规则")
         {
             HighLightRule rule = new HighLightRule();
-            rule.RuleName = "自定义规则";
+            rule.RuleName = ruleName;
             rule.FileName = "";
             ruleMapper.InsertAndGetID(rule);
             HighLightRules.Add(rule);
@@ -147,7 +148,16 @@ namespace SuperCom.ViewModel
                 }
             }
             if (idx >= 0 && idx < HighLightRules.Count)
+            {
+                FileHelper.TryMoveToRecycleBin(HighLightRules[idx].GetFullFileName());
                 HighLightRules.RemoveAt(idx);
+            }
+            if (HighLightRules.Count == 0)
+                ShowCurrentRule = false;
+            else
+                HighLightSideIndex = 0;
+
+
 
             return true;
         }
@@ -205,6 +215,29 @@ namespace SuperCom.ViewModel
             if (count <= 0)
             {
                 System.Console.WriteLine($"插入 {rule.RuleName} 失败");
+            }
+
+        }
+
+        public void SaveAllRule()
+        {
+            if (HighLightRules.Count > 0)
+            {
+                foreach (var item in HighLightRules)
+                {
+                    item.SetFileName();
+                    item.WriteToXshd(); // 写入到 xshd 文件中
+                    ruleMapper.UpdateById(item);
+                }
+            }
+        }
+
+        public void RenameRule(HighLightRule rule)
+        {
+            bool result = ruleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
+            if (!result)
+            {
+                System.Console.WriteLine($"更新 {rule.RuleName} 失败");
             }
 
         }

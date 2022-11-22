@@ -1,4 +1,5 @@
-﻿using SuperCom.Config;
+﻿using ICSharpCode.AvalonEdit;
+using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
@@ -9,6 +10,7 @@ using SuperUtils.Common;
 using SuperUtils.IO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -124,7 +126,29 @@ namespace SuperCom.Windows
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
             ConfigManager.CommonSettings.Save();
+            vieModel.SaveAllRule();
             MessageCard.Success("保存成功");
+            ApplyRule();
+            Main?.ReadXshdList();
+        }
+
+        private void ApplyRule()
+        {
+            //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
+            HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
+            if (rule == null) return;
+            string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "AvalonEdit", "Higlighting", rule.FileName);
+            if (!File.Exists(xshdPath)) return;
+
+            using (Stream s = File.OpenRead(xshdPath))
+            {
+                using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s))
+                {
+                    previewTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
+                        (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                }
+            }
         }
 
         private void RestoreSettings(object sender, RoutedEventArgs e)
@@ -173,6 +197,8 @@ namespace SuperCom.Windows
 
         private void NewRule(object sender, RoutedEventArgs e)
         {
+
+
             vieModel.NewRule();
         }
 
@@ -205,10 +231,24 @@ namespace SuperCom.Windows
                 return;
             HighLightRule rule = e.AddedItems[0] as HighLightRule;
             ShowRuleSetByRule(rule);
+            vieModel.CurrentRuleID = rule.RuleID;
+            previewTextEditor.Text = rule.PreviewText;
+            ApplyRule();
         }
 
         private void RenameRule(object sender, RoutedEventArgs e)
         {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            Grid grid = contextMenu.PlacementTarget as Grid;
+            TextBox textBox = grid.Children.OfType<TextBox>().FirstOrDefault();
+            if (textBox != null)
+            {
+                textBox.Visibility = Visibility.Visible;
+                textBox.SelectAll();
+                textBox.Focus();
+            }
+
 
         }
 
@@ -220,17 +260,57 @@ namespace SuperCom.Windows
                 long.TryParse(button.Tag.ToString(), out long id);
                 if (!vieModel.DeleteRule(id))
                     MessageCard.Error("删除失败");
+                else
+                {
+                    Main?.ReadXshdList();
+                }
+
             }
         }
 
         private void RenameTextBoxLostFocus(object sender, RoutedEventArgs e)
         {
+            TextBox textBox = sender as TextBox;
 
+            textBox.Visibility = Visibility.Hidden;
+            string newName = textBox.Text;
+            if (textBox.Tag != null)
+            {
+                string ruleID = textBox.Tag.ToString();
+                if (!string.IsNullOrEmpty(ruleID))
+                {
+                    HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID.ToString().Equals(ruleID)).FirstOrDefault();
+                    string oldName = rule.RuleName;
+                    if (string.IsNullOrEmpty(newName))
+                    {
+                        textBox.Text = oldName;
+                        return;
+                    }
+
+                    if (rule != null && !oldName.Equals(newName))
+                    {
+                        string oldFileName = rule.GetFullFileName();
+                        rule.RuleName = newName;
+                        vieModel.RenameRule(rule);
+                        TextBlock textBlock = (textBox.Parent as Grid).Children.OfType<TextBlock>().FirstOrDefault();
+                        textBlock.Text = newName;
+
+                        // 重命名文件
+                        string newFileName = rule.GetFullFileName();
+                        if (File.Exists(oldFileName) && !File.Exists(newFileName))
+                            FileHelper.TryMoveFile(oldFileName, newFileName);
+                        Main?.ReadXshdList();
+                    }
+                }
+            }
         }
 
         private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-
+            if (e.Key == Key.Enter || e.Key == Key.Escape)
+            {
+                RenameTextBoxLostFocus(sender, e);
+            }
         }
 
         private void AddNewRuleItem(object sender, RoutedEventArgs e)
@@ -312,6 +392,15 @@ namespace SuperCom.Windows
             vieModel.SetRuleSetColor(color, CurrentRuleSetID);
             SaveRuleSet(null, null);
             CurrentBorder.Background = new SolidColorBrush(color);
+        }
+
+        private void previewTextEditor_TextChanged(object sender, EventArgs e)
+        {
+            HighLightRule highLightRule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
+            if (highLightRule != null)
+            {
+                highLightRule.PreviewText = (sender as TextEditor).Text;
+            }
         }
     }
 }

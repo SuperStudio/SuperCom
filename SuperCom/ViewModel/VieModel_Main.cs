@@ -1,4 +1,5 @@
 using GalaSoft.MvvmLight;
+using ICSharpCode.AvalonEdit.Highlighting;
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
@@ -147,6 +148,15 @@ namespace SuperCom.ViewModel
             set { _SendCommandProjects = value; RaisePropertyChanged(); }
         }
 
+
+
+        private ObservableCollection<IHighlightingDefinition> _HighlightingDefinitions;
+        public ObservableCollection<IHighlightingDefinition> HighlightingDefinitions
+        {
+            get { return _HighlightingDefinitions; }
+            set { _HighlightingDefinitions = value; RaisePropertyChanged(); }
+        }
+
         public AdvancedSend CurrentAdvancedSend { get; set; }
 
 
@@ -243,6 +253,16 @@ namespace SuperCom.ViewModel
             foreach (var item in advancedSends)
             {
                 SendCommandProjects.Add(item);
+            }
+
+        }
+
+        public void LoadHighlightingDefinitions()
+        {
+            HighlightingDefinitions = new ObservableCollection<IHighlightingDefinition>();
+            foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
+            {
+                HighlightingDefinitions.Add(item);
             }
 
         }

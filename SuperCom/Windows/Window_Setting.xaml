@@ -277,7 +277,7 @@
                                                 PreviewKeyUp="TextBox_PreviewKeyUp"
                                                 Style="{StaticResource BaseTextBox}"
                                                 Tag="{Binding RuleID}"
-                                                Text="{Binding RuleName}"
+                                                Text="{Binding RuleName, Mode=OneWay}"
                                                 TextAlignment="Left"
                                                 Visibility="Hidden" />
                                             <Border
@@ -547,7 +547,7 @@
                                     Text="预览效果" />
                                 <Border
                                     Grid.Row="1"
-                                    Height="100"
+                                    Height="150"
                                     Padding="10"
                                     Background="{DynamicResource TabItem.Background}">
 
@@ -560,7 +560,7 @@
                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                         SyntaxHighlighting="ComLog"
-                                        Text="文本内容">
+                                        TextChanged="previewTextEditor_TextChanged">
                                         <avalonEdit:TextEditor.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
@@ -581,9 +581,9 @@
             <Button
                 Width="100"
                 Height="30"
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Center"
+                Margin="890,0,0,10"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
                 Click="SaveSettings"
                 Content="保存"
                 Style="{StaticResource ButtonPrimary}" />

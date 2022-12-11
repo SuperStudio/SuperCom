@@ -55,6 +55,37 @@ namespace SuperCom.Windows
             }
         }
 
+
+        private void BaseWindow_ContentRendered(object sender, EventArgs e)
+        {
+            // 设置语言
+            int langIdx = 0;
+            if (!string.IsNullOrEmpty(ConfigManager.Settings.CurrentLanguage))
+            {
+                for (int i = 0; i < langComboBox.Items.Count; i++)
+                {
+                    ComboBoxItem item = langComboBox.Items[i] as ComboBoxItem;
+                    if (item.Tag.ToString().Equals(ConfigManager.Settings.CurrentLanguage))
+                    {
+                        langIdx = i;
+                        break;
+                    }
+                }
+            }
+            langComboBox.SelectedIndex = langIdx;
+            langComboBox.SelectionChanged += (s, ev) =>
+            {
+                if (ev.AddedItems?.Count > 0)
+                {
+                    ComboBoxItem comboBoxItem = ev.AddedItems[0] as ComboBoxItem;
+                    string lang = comboBoxItem.Tag.ToString();
+                    SuperControls.Style.LangManager.SetLang(lang);
+                    SuperCom.Lang.LangManager.SetLang(lang);
+                    vieModel.CurrentLanguage = lang;
+                }
+            };
+        }
+
         private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
         {
             InputWindow inputWindow = new InputWindow(this);
@@ -126,6 +157,11 @@ namespace SuperCom.Windows
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
             ConfigManager.CommonSettings.Save();
+
+
+            ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
+            ConfigManager.Settings.Save();
+
             vieModel.SaveAllRule();
             MessageCard.Success("保存成功");
             ApplyRule();
@@ -402,5 +438,6 @@ namespace SuperCom.Windows
                 highLightRule.PreviewText = (sender as TextEditor).Text;
             }
         }
+
     }
 }

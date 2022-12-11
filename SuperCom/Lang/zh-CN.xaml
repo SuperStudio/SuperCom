@@ -1,0 +1,15 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="About_Content">SuperCom 是一款串口调试工具，用于 Window 串口的调试</sys:String>
+
+
+    <sys:String x:Key="FixOnSearching">搜索时停止滚屏</sys:String>
+    <sys:String x:Key="ScrollOnNotSearching">不搜索时开启滚屏</sys:String>
+    <sys:String x:Key="FixAfterSendCommand">发送命令后停止滚屏</sys:String>
+
+
+
+
+</ResourceDictionary>

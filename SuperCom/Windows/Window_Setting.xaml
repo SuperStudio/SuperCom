@@ -13,6 +13,7 @@
     Width="1000"
     Height="600"
     Background="{DynamicResource Window.Background}"
+    ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -39,26 +40,42 @@
                     <CheckBox
                         Margin="10,20,5,5"
                         HorizontalAlignment="Left"
-                        Content="搜索时停止滚屏"
+                        Content="{DynamicResource FixOnSearching}"
                         IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />
                     <CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
-                        Content="不搜索时开启滚屏"
+                        Content="{DynamicResource ScrollOnNotSearching}"
                         IsChecked="{Binding ScrollOnSearchClosed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />
                     <CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
-                        Content="发送命令后停止滚屏"
+                        Content="{DynamicResource FixAfterSendCommand}"
                         IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />
                     <CheckBox
                         Margin="10"
-                        Content="关闭后最小化"
+                        Content="{DynamicResource CloseToBar}"
                         Style="{StaticResource NormalCheckBox}"
                         Visibility="Collapsed" />
+
+                    <StackPanel Margin="15,5" Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource Language}" />
+                        <ComboBox
+                            Name="langComboBox"
+                            Grid.Column="1"
+                            Height="30"
+                            MinWidth="200"
+                            Margin="5"
+                            HorizontalAlignment="Stretch"
+                            Style="{StaticResource BorderComboBox}">
+                            <ComboBoxItem Content="中文" Tag="zh-CN" />
+                            <ComboBoxItem Content="English" Tag="en-US" />
+                            <ComboBoxItem Content="日本語" Tag="ja-JP" />
+                        </ComboBox>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
             <TabItem Header="串口设置" Style="{StaticResource FlatTabItem}">

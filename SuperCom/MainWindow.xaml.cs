@@ -34,6 +34,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using System.Xml;
 using ICSharpCode.AvalonEdit.Search;
 using SuperControls.Style.XAML.CustomWindows;
+using SuperControls.Style.Plugin;
 
 namespace SuperCom
 {
@@ -91,6 +92,9 @@ namespace SuperCom
             FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
+
+            SetLang();// 设置语言
+
             // 读取设置列表
             SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
             vieModel.ComSettingList = mapper.SelectList().ToHashSet();
@@ -106,6 +110,17 @@ namespace SuperCom
             }
             textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
             ReadXshdList();// 自定义语法高亮
+        }
+
+        private void SetLang()
+        {
+            // 设置语言
+            if (!string.IsNullOrEmpty(ConfigManager.Settings.CurrentLanguage)
+                && SuperControls.Style.LangManager.SupportLanguages.Contains(ConfigManager.Settings.CurrentLanguage))
+            {
+                SuperControls.Style.LangManager.SetLang(ConfigManager.Settings.CurrentLanguage);
+                SuperCom.Lang.LangManager.SetLang(ConfigManager.Settings.CurrentLanguage);
+            }
         }
 
         public void ReadXshdList()
@@ -426,7 +441,7 @@ namespace SuperCom
                 return false;
             }
 
-            await Task.Delay(1000);
+            await Task.Delay(100);
             portTabItem.TextEditor = FindTextBoxByPortName(portName);
             // 搜索框
             SearchPanel searchPanel = SearchPanel.Install(portTabItem.TextEditor);
@@ -1281,7 +1296,7 @@ namespace SuperCom
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
-
+            InitThemeSelector();
 
 
             //new Window_AdvancedSend().Show();
@@ -1290,6 +1305,39 @@ namespace SuperCom
             //setting.ShowDialog();
 
         }
+
+        public void InitThemeSelector()
+        {
+            themeSelector.AddTransParentColor("TabItem.Background");
+            themeSelector.AddTransParentColor("Window.Title.Background");
+            themeSelector.AddTransParentColor("ListBoxItem.Background");
+            themeSelector.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
+            themeSelector.onThemeChanged += (ThemeIdx, ThemeID) =>
+            {
+                ConfigManager.Settings.ThemeIdx = ThemeIdx;
+                ConfigManager.Settings.ThemeID = ThemeID;
+                ConfigManager.Settings.Save();
+            };
+            themeSelector.onBackGroundImageChanged += (image) =>
+            {
+                BgImage.Source = image;
+            };
+            themeSelector.onSetBgColorTransparent += () =>
+           {
+               if (itemsControl == null || itemsControl.ItemsSource == null) return;
+               TitleBorder.Background = Brushes.Transparent;
+           };
+
+            themeSelector.onReSetBgColorBinding += () =>
+            {
+                if (itemsControl == null || itemsControl.ItemsSource == null) return;
+                TitleBorder.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
+            };
+
+            themeSelector.InitThemes();
+        }
+
+
 
 
         public string longText = "";
@@ -1898,6 +1946,33 @@ namespace SuperCom
             }
 
             vieModel.AutoTextWrap = wrap;
+        }
+
+        private void ShowPluginWindow(object sender, RoutedEventArgs e)
+        {
+            Window_Plugin window_Plugin = new Window_Plugin();
+
+            PluginConfig config = new PluginConfig();
+            config.PluginBaseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+            config.RemoteUrl = UrlManager.PluginUrl;
+            // 读取本地配置
+            window_Plugin.OnEnabledChange += (enabled) =>
+            {
+                return true;
+            };
+
+            window_Plugin.OnDelete += (data) =>
+            {
+                return true;
+            };
+
+            window_Plugin.OnBeginDownload += (data) =>
+            {
+                return true;
+            };
+
+            window_Plugin.SetConfig(config);
+            window_Plugin.Show();
         }
     }
 }

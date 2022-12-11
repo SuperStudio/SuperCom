@@ -1,0 +1,13 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="About_Content">Supercom is a serial debugging tool for debugging for Window serial port</sys:String>
+
+    <sys:String x:Key="FixOnSearching">Stop the screen when searching</sys:String>
+    <sys:String x:Key="ScrollOnNotSearching">Open the screen when not searching</sys:String>
+    <sys:String x:Key="FixAfterSendCommand">Stop the screen after sending the command</sys:String>
+
+
+
+</ResourceDictionary>

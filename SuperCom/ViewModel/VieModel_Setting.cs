@@ -64,6 +64,18 @@ namespace SuperCom.ViewModel
             }
         }
 
+        private string _CurrentLanguage = ConfigManager.Settings.CurrentLanguage;
+        public string CurrentLanguage
+        {
+            get { return _CurrentLanguage; }
+
+            set
+            {
+                _CurrentLanguage = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public void SaveValue()
         {
             ConfigManager.CommonSettings.TabSelectedIndex = TabSelectedIndex;

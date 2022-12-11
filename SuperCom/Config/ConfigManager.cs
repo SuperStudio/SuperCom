@@ -10,6 +10,7 @@ namespace SuperCom.Config
 
         public static Main Main { get; set; }
         public static CommonSettings CommonSettings { get; set; }
+        public static Settings Settings { get; set; }
         public static AdvancedSendSettings AdvancedSendSettings { get; set; }
 
 
@@ -18,6 +19,7 @@ namespace SuperCom.Config
             Main = Main.CreateInstance();
             CommonSettings = CommonSettings.CreateInstance();
             AdvancedSendSettings = AdvancedSendSettings.CreateInstance();
+            Settings = Settings.CreateInstance();
         }
 
         public static void InitConfig()

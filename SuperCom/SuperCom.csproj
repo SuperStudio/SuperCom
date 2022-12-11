@@ -123,6 +123,7 @@
     <Compile Include="Commands\OpenWindow.cs" />
     <Compile Include="Comparers\ComPortComparer.cs" />
     <Compile Include="Config\AdvancedSendSettings.cs" />
+    <Compile Include="Config\Settings.cs" />
     <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="Config\UrlManager.cs" />
     <Compile Include="Config\CommonSettings.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Entity\PortSetting.cs" />
     <Compile Include="Entity\SplitPanelType.cs" />
     <Compile Include="GlobalVariable.cs" />
+    <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
@@ -163,6 +165,18 @@
     <Page Include="CustomWindows\About.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Lang\en-US.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Lang\ja-JP.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Lang\zh-CN.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

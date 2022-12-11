@@ -1,7 +1,22 @@
-﻿using SuperControls.Style;
+﻿using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Folding;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Search;
+using SuperCom.Commands;
+using SuperCom.Config;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
+using SuperCom.Windows;
+using SuperControls.Style;
+using SuperControls.Style.Plugin;
+using SuperControls.Style.Windows;
+using SuperControls.Style.XAML.CustomWindows;
+using SuperUtils.Common;
+using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.IO;
+using SuperUtils.Time;
+using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,29 +27,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using SuperUtils.Time;
-using SuperUtils.IO;
-using SuperUtils.Common;
-using SuperCom.Config;
-using SuperCom.Windows;
-using SuperUtils.Framework.ORM.Mapper;
-using SuperUtils.WPF.VisualTools;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Highlighting;
 using System.Xml;
-using ICSharpCode.AvalonEdit.Search;
-using SuperControls.Style.XAML.CustomWindows;
-using SuperControls.Style.Plugin;
 
 namespace SuperCom
 {
@@ -1297,8 +1294,7 @@ namespace SuperCom
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
             InitThemeSelector();
-
-
+            CheckUpgrade();
             //new Window_AdvancedSend().Show();
             //Window_Setting setting = new Window_Setting();
             //setting.Owner = this;
@@ -1973,6 +1969,30 @@ namespace SuperCom
 
             window_Plugin.SetConfig(config);
             window_Plugin.Show();
+        }
+
+        private async void CheckUpgrade()
+        {
+            // 启动后检查更新
+            try
+            {
+                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await OpenWindow.Upgrader.GetUpgardeInfo();
+                string remote = result.LatestVersion;
+                if (!string.IsNullOrEmpty(remote))
+                {
+                    string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    local = local.Substring(0, local.Length - ".0.0".Length);
+                    if (local.CompareTo(remote) < 0)
+                    {
+                        new MsgBox(this, "存在新版本！").ShowDialog();
+                        OpenWindow.Upgrade.Execute(this);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

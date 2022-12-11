@@ -13,25 +13,31 @@ namespace SuperCom.Commands
 
         static OpenWindow()
         {
+            Upgrader = new SuperUpgrader();
+            Upgrader.InfoUrl = UrlManager.UpdateUrl;
+            Upgrader.FileListUrl = UrlManager.UpdateFileListUrl;
+            Upgrader.FilePathUrl = UrlManager.UpdateFilePathUrl;
+            Upgrader.ReleaseUrl = UrlManager.ReleaseUrl;
+            Upgrader.UpgradeSource = UrlManager.UpgradeSource;
+            Upgrader.Language = "zh-CN";
+            Upgrader.Header = new CrawlerHeader(null).Default;
+            Upgrader.Logger = null;//todo
+            Upgrader.BeforeUpdateDelay = 5;
+            Upgrader.AfterUpdateDelay = 1;
+            Upgrader.UpDateFileDir = "TEMP";
+            Upgrader.AppName = "SuperCom.exe";
+
             Upgrade = new RelayCommand<Window>(parent =>
             {
-                SuperUpgrader upgrader = new SuperUpgrader();
-                upgrader.InfoUrl = UrlManager.UpdateUrl;
-                upgrader.FileListUrl = UrlManager.UpdateFileListUrl;
-                upgrader.FilePathUrl = UrlManager.UpdateFilePathUrl;
-                upgrader.ReleaseUrl = UrlManager.ReleaseUrl;
-                upgrader.UpgradeSource = UrlManager.UpgradeSource;
-                upgrader.Language = "zh-CN";
-                upgrader.Header = new CrawlerHeader(null).Default;
-                upgrader.Logger = null;//todo
-                upgrader.BeforeUpdateDelay = 5;
-                upgrader.AfterUpdateDelay = 1;
-                upgrader.UpDateFileDir = "TEMP";
-                upgrader.AppName = "SuperCom.exe";
-                Dialog_Upgrade dialog_Upgrade = new Dialog_Upgrade(parent, upgrader);
+
+                Dialog_Upgrade dialog_Upgrade = new Dialog_Upgrade(parent, Upgrader);
                 dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 dialog_Upgrade.ShowDialog();
             });
         }
+
+        public static SuperUpgrader Upgrader { get; set; }
+
+
     }
 }

@@ -46,14 +46,14 @@
                 FontSize="14"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="版本：2.0" />
+                Text="版本：2.1" />
             <TextBox
                 Margin="10"
                 HorizontalAlignment="Center"
                 FontSize="11"
                 Foreground="{DynamicResource Window.Sub.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="发行日期：2022-11-23" />
+                Text="发行日期：2022-12-12" />
 
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                 <StackPanel Margin="20,0" Orientation="Horizontal">

@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using SuperCom.Config;
 using SuperControls.Style.Upgrade;
+using SuperUtils.NetWork;
 using SuperUtils.NetWork.Crawler;
 using System.Windows;
 
@@ -20,7 +21,7 @@ namespace SuperCom.Commands
             Upgrader.ReleaseUrl = UrlManager.ReleaseUrl;
             Upgrader.UpgradeSource = UrlManager.UpgradeSource;
             Upgrader.Language = "zh-CN";
-            Upgrader.Header = new CrawlerHeader(null).Default;
+            Upgrader.Header = new CrawlerHeader(SuperWebProxy.SystemWebProxy).Default;
             Upgrader.Logger = null;//todo
             Upgrader.BeforeUpdateDelay = 5;
             Upgrader.AfterUpdateDelay = 1;

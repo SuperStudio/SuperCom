@@ -9,7 +9,9 @@ namespace SuperCom.Config.WindowConfig
 
         private AdvancedSendSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.AdvancedSendSettings")
         {
-
+            Width = SystemParameters.WorkArea.Width * 0.7;
+            Height = SystemParameters.WorkArea.Height * 0.7;
+            FirstRun = true;
         }
 
         private static AdvancedSendSettings _instance = null;
@@ -22,6 +24,13 @@ namespace SuperCom.Config.WindowConfig
         }
         public long SideIndex { get; set; }
         public long ComPortSelectedIndex { get; set; }
+
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public long WindowState { get; set; }
+        public bool FirstRun { get; set; }
 
 
     }

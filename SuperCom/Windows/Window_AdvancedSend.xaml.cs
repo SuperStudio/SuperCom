@@ -1,4 +1,5 @@
-﻿using SuperCom.Entity;
+﻿using SuperCom.Config;
+using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperUtils.Common;
@@ -122,7 +123,7 @@ namespace SuperCom.Windows
             // 通知 mainWindow 更新
             MainWindow window = GetWindowByName("mainWindow") as MainWindow;
             window?.RefreshSendCommands();
-            CurrentSendCommands = vieModel.SendCommands.ToList();
+            CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
             window?.SetComboboxStatus();
         }
 
@@ -147,7 +148,7 @@ namespace SuperCom.Windows
                     sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
                 if (sendCommands.Count > 0)
                 {
-                    foreach (var item in sendCommands)
+                    foreach (var item in sendCommands.OrderBy(arg => arg.Order))
                     {
                         vieModel.SendCommands.Add(item);
                     }
@@ -227,6 +228,8 @@ namespace SuperCom.Windows
             return null;
         }
 
+
+        //private bool textChanged = false;
         private void SaveSendCommands(object sender, RoutedEventArgs e)
         {
             string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
@@ -313,7 +316,7 @@ namespace SuperCom.Windows
             {
                 item.Status = RunningStatus.Waiting;
             }
-            CurrentSendCommands = vieModel.SendCommands.ToList();
+            CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
             string portName = comboBox.Text;
             vieModel.RunningCommands = true;
             Task.Run(async () =>
@@ -324,7 +327,7 @@ namespace SuperCom.Windows
                     if (idx >= CurrentSendCommands.Count)
                     {
                         idx = 0;
-                        CurrentSendCommands = vieModel.SendCommands.ToList();
+                        CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
                         await Task.Delay(500);
                         continue;
                     }
@@ -357,7 +360,11 @@ namespace SuperCom.Windows
                       if (idx < vieModel.SendCommands.Count)
                           vieModel.SendCommands[idx].Status = RunningStatus.Success;
                       idx++;
-                      if (idx >= CurrentSendCommands.Count) idx = 0;
+                      if (idx >= CurrentSendCommands.Count)
+                      {
+                          idx = 0;
+                          CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
+                      }
                   });
 
 
@@ -388,6 +395,7 @@ namespace SuperCom.Windows
         private void BaseWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             vieModel.RunningCommands = false;
+            SaveConfigValue();
         }
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -396,6 +404,80 @@ namespace SuperCom.Windows
                 return;
             AdvancedSend advancedSend = e.AddedItems[0] as AdvancedSend;
             ShowProjectBySend(advancedSend);
+        }
+
+
+        public void AdjustWindow()
+        {
+
+            if (ConfigManager.AdvancedSendSettings.FirstRun)
+            {
+                this.Width = SystemParameters.WorkArea.Width * 0.7;
+                this.Height = SystemParameters.WorkArea.Height * 0.7;
+                this.Left = SystemParameters.WorkArea.Width * 0.1;
+                this.Top = SystemParameters.WorkArea.Height * 0.1;
+                ConfigManager.AdvancedSendSettings.FirstRun = false;
+            }
+            else
+            {
+                if (ConfigManager.AdvancedSendSettings.Height == SystemParameters.WorkArea.Height && ConfigManager.AdvancedSendSettings.Width < SystemParameters.WorkArea.Width)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    this.CanResize = true;
+                }
+                else
+                {
+                    this.Left = ConfigManager.AdvancedSendSettings.X;
+                    this.Top = ConfigManager.AdvancedSendSettings.Y;
+                    this.Width = ConfigManager.AdvancedSendSettings.Width;
+                    this.Height = ConfigManager.AdvancedSendSettings.Height;
+                }
+
+
+                baseWindowState = (BaseWindowState)ConfigManager.AdvancedSendSettings.WindowState;
+                if (baseWindowState == BaseWindowState.FullScreen)
+                {
+                    this.WindowState = System.Windows.WindowState.Maximized;
+                }
+                else if (baseWindowState == BaseWindowState.None)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+                if (this.Width == SystemParameters.WorkArea.Width
+                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+            }
+        }
+
+        private void SaveConfigValue()
+        {
+            ConfigManager.AdvancedSendSettings.X = this.Left;
+            ConfigManager.AdvancedSendSettings.Y = this.Top;
+            ConfigManager.AdvancedSendSettings.Width = this.Width;
+            ConfigManager.AdvancedSendSettings.Height = this.Height;
+            ConfigManager.AdvancedSendSettings.WindowState = (long)baseWindowState;
+            ConfigManager.AdvancedSendSettings.Save();
+        }
+
+        private void BaseWindow_Closed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BaseWindow_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void CommandTextChanged(object sender, TextChangedEventArgs e)
+        {
+            //textChanged = true;
+        }
+
+        private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            AdjustWindow();
         }
     }
 }

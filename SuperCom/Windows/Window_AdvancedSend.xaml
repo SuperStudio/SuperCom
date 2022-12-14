@@ -15,6 +15,7 @@
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Loaded="BaseWindow_Loaded"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     mc:Ignorable="d">
@@ -349,6 +350,26 @@
                     <DataGridTemplateColumn
                         Width="auto"
                         MinWidth="50"
+                        Header="顺序"
+                        SortMemberPath="Order">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox
+                                    MinWidth="40"
+                                    Background="Transparent"
+                                    ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    LostFocus="SaveSendCommands"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Left"
+                                    TextChanged="CommandTextChanged" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn
+                        Width="auto"
+                        MinWidth="50"
                         Header="名称"
                         SortMemberPath="Order">
                         <DataGridTemplateColumn.CellTemplate>
@@ -360,31 +381,14 @@
                                     LostFocus="SaveSendCommands"
                                     Style="{StaticResource BaseTextBox}"
                                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left" />
+                                    TextAlignment="Left"
+                                    TextChanged="CommandTextChanged" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
 
-                    <DataGridTemplateColumn
-                        Width="auto"
-                        MinWidth="50"
-                        Header="顺序"
-                        SortMemberPath="Order"
-                        Visibility="Collapsed">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBox
-                                    MinWidth="40"
-                                    Background="Transparent"
-                                    ContextMenu="{StaticResource TextBoxContextMenu}"
-                                    LostFocus="SaveSendCommands"
-                                    Style="{StaticResource BaseTextBox}"
-                                    Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left" />
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+
 
                     <DataGridTemplateColumn
                         Width="auto"
@@ -400,7 +404,8 @@
                                     LostFocus="SaveSendCommands"
                                     Style="{StaticResource BaseTextBox}"
                                     Text="{Binding Delay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left" />
+                                    TextAlignment="Left"
+                                    TextChanged="CommandTextChanged" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -431,6 +436,7 @@
                                         Style="{StaticResource BaseTextBox}"
                                         Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         TextAlignment="Left"
+                                        TextChanged="CommandTextChanged"
                                         TextWrapping="NoWrap" />
                                 </Border>
                             </DataTemplate>
@@ -503,6 +509,7 @@
                                                         Style="{StaticResource MultiLineTextBox}"
                                                         Text="{Binding RecvResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         TextAlignment="Left"
+                                                        TextChanged="CommandTextChanged"
                                                         TextWrapping="NoWrap" />
                                                 </Border>
 
@@ -523,7 +530,8 @@
                                                             LostFocus="SaveSendCommands"
                                                             Style="{StaticResource MultiLineTextBox}"
                                                             Text="{Binding RecvTimeOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                            TextAlignment="Left" />
+                                                            TextAlignment="Left"
+                                                            TextChanged="CommandTextChanged" />
                                                     </Border>
                                                 </StackPanel>
                                                 <Border

@@ -34,7 +34,13 @@ namespace SuperCom.Entity
         public static int DEFAULT_TIMEOUT = 5000;
         public long CommandID { get; set; }
         public string Name { get; set; }
-        public int Order { get; set; }
+
+        private int _Order;
+        public int Order
+        {
+            get { return _Order; }
+            set { _Order = value; OnPropertyChanged(); }
+        }
         public string Command { get; set; }
         public int Delay { get; set; }
         public bool Running { get; set; }

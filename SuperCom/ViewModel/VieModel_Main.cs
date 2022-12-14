@@ -257,6 +257,15 @@ namespace SuperCom.ViewModel
 
         }
 
+        public void UpdateProject(AdvancedSend send)
+        {
+            int count = mapper.UpdateById(send);
+            if (count <= 0)
+            {
+                System.Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
+            }
+        }
+
         public void LoadHighlightingDefinitions()
         {
             HighlightingDefinitions = new ObservableCollection<IHighlightingDefinition>();
@@ -321,6 +330,7 @@ namespace SuperCom.ViewModel
                 if (!comSettings.PortName.Equals(portName)) continue;
                 PortTabItem portTabItem = PortTabItems.Where(arg => arg.Name.Equals(comSettings.PortName)).FirstOrDefault();
                 int.TryParse(baudRate, out int value);
+                if (value <= 0) return;
                 portTabItem.SerialPort.BaudRate = value;
                 comSettings.PortSetting = portTabItem.SerialPort.PortSettingToJson();
                 comMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);

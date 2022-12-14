@@ -106,7 +106,7 @@ namespace SuperCom
                 }
             }
             textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
-            ReadXshdList();// 自定义语法高亮
+
         }
 
         private void SetLang()
@@ -122,6 +122,19 @@ namespace SuperCom
 
         public void ReadXshdList()
         {
+            // 记录先前选定的
+            Dictionary<string, long> selectDict = new Dictionary<string, long>();
+            if (vieModel.PortTabItems?.Count > 0)
+            {
+                foreach (PortTabItem item in vieModel.PortTabItems)
+                {
+                    if (item.SerialPort == null) continue;
+                    selectDict.Add(item.Name, item.SerialPort.HighLightIndex);
+
+                }
+            }
+
+
             HighlightingManager.Instance.Clear();
             string[] xshd_list = FileHelper.TryGetAllFiles(HighLightRule.GetDirName(), "*.xshd");
             // todo 按照 filename 排序
@@ -153,19 +166,18 @@ namespace SuperCom
 
             vieModel.LoadHighlightingDefinitions();
 
-            // 重新触发绑定
-            //if (vieModel.SideComPorts?.Count > 0)
-            //{
-            //    foreach (SideComPort item in vieModel.SideComPorts)
-            //    {
-            //        if (item.PortTabItem == null || item.PortTabItem.TextEditor == null) continue;
-            //        Grid grid = (item.PortTabItem.TextEditor.Parent as Border).Parent as Grid;
-            //        StackPanel stackPanel = grid.Children.OfType<Border>().LastOrDefault().Child as StackPanel;
-            //        ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
-            //        if (comboBox != null)
-            //            comboBox.ItemsSource = stackPanel.Children;
-            //    }
-            //}
+            // 恢复选中项
+            if (vieModel.PortTabItems?.Count > 0)
+            {
+                foreach (PortTabItem item in vieModel.PortTabItems)
+                {
+                    if (item.SerialPort == null || !selectDict.ContainsKey(item.Name)) continue;
+                    long idx = selectDict[item.Name];
+                    if (idx >= vieModel.HighlightingDefinitions.Count)
+                        idx = 0;
+                    item.SerialPort.HighLightIndex = idx;
+                }
+            }
         }
 
 
@@ -286,13 +298,16 @@ namespace SuperCom
             if (border == null) return;
             string portName = border.Tag.ToString();
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
+            SetProtTabSelected(portName);
+        }
 
+        public void SetProtTabSelected(string portName)
+        {
             for (int i = 0; i < vieModel.PortTabItems.Count; i++)
             {
                 if (vieModel.PortTabItems[i].Name.Equals(portName))
                 {
                     vieModel.PortTabItems[i].Selected = true;
-                    //tabControl.SelectedIndex = i;
                     SetGridVisible(portName);
                 }
                 else
@@ -300,8 +315,10 @@ namespace SuperCom
                     vieModel.PortTabItems[i].Selected = false;
                 }
             }
-
         }
+
+
+
 
 
 
@@ -333,6 +350,7 @@ namespace SuperCom
             e.Handled = true;
         }
 
+
         private void CloseTabItem(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
@@ -341,6 +359,10 @@ namespace SuperCom
             string portName = border.Tag.ToString();
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
             RemovePortTabItem(portName);
+
+            // 默认选中 0
+            if (vieModel.PortTabItems.Count > 0)
+                SetProtTabSelected(vieModel.PortTabItems[0].Name);
         }
 
 
@@ -621,11 +643,10 @@ namespace SuperCom
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
                 }
                 portTabItem.Selected = true;
-                SetGridVisible(portName);
                 vieModel.PortTabItems.Add(portTabItem);
                 Task.Run(async () =>
                 {
-                    await Task.Delay(50);
+                    await Task.Delay(500);
                     Dispatcher.Invoke(() =>
                     {
                         SetComboboxStatus();
@@ -1288,13 +1309,15 @@ namespace SuperCom
 
 
 
-        private void mainWindow_ContentRendered(object sender, EventArgs e)
+        private async void mainWindow_ContentRendered(object sender, EventArgs e)
         {
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
             InitThemeSelector();
             CheckUpgrade();
+            ReadXshdList();// 自定义语法高亮
+            await BackupData(); // 备份文件
             //new Window_AdvancedSend().Show();
             //Window_Setting setting = new Window_Setting();
             //setting.Owner = this;
@@ -1646,7 +1669,6 @@ namespace SuperCom
             }
 
         }
-
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = sender as ComboBox;
@@ -1667,7 +1689,7 @@ namespace SuperCom
             vieModel.CurrentAdvancedSend = advancedSend;
             if (!string.IsNullOrEmpty(advancedSend.Commands))
             {
-                itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands).OrderBy(arg => arg.Order);
                 vieModel.CommandsSelectIndex = comboBox.SelectedIndex;
                 ConfigManager.Main.CommandsSelectIndex = comboBox.SelectedIndex;
                 ConfigManager.Main.Save();
@@ -1850,6 +1872,16 @@ namespace SuperCom
                         Console.WriteLine(value);
                         portTabItem.SerialPort.SaveRemark(value);
                         sideComPort.Remark = value;
+                        ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                        if (comSettings != null)
+                        {
+                            Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                            if (dict != null && dict.ContainsKey("Remark"))
+                            {
+                                dict["Remark"] = value;
+                                comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                            }
+                        }
 
                     }
                 }
@@ -1869,24 +1901,24 @@ namespace SuperCom
         {
             if (e.AddedItems == null || e.AddedItems.Count <= 0) return;
 
-            // 记录原来的下标
-            int index = 0;
-            ComboBoxItem origin = e.OriginalSource as ComboBoxItem;
-            if (origin != null)
-            {
-                string value = origin.Content.ToString();
-                for (int i = 0; i < vieModel.BaudRates.Count; i++)
-                {
-                    if (vieModel.BaudRates[i].Equals(value))
-                    {
-                        index = i;
-                        break;
-                    }
-                }
-            }
+
             string text = e.AddedItems[0].ToString();
             if ("新增".Equals(text))
             {
+                // 记录原来的下标
+                int index = 0;
+                string origin = e.RemovedItems[0].ToString();
+                if (!string.IsNullOrEmpty(origin))
+                {
+                    for (int i = 0; i < vieModel.BaudRates.Count; i++)
+                    {
+                        if (vieModel.BaudRates[i].Equals(origin))
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
                 InputWindow inputWindow = new InputWindow(this, "");
                 bool success = false;
                 if ((bool)inputWindow.ShowDialog())
@@ -1903,7 +1935,9 @@ namespace SuperCom
                         (sender as ComboBox).SelectedIndex = vieModel.BaudRates.Count - 2;
                         // 保存当前项目
                         vieModel.SaveBaudRate();
+                        vieModel.SaveBaudRate((sender as ComboBox).Tag.ToString(), text);
                     }
+
                 }
                 if (!success)
                 {
@@ -1911,7 +1945,7 @@ namespace SuperCom
 
                 }
             }
-            vieModel.SaveBaudRate((sender as ComboBox).Tag.ToString(), text);
+
         }
         private void SortSidePorts(object sender, RoutedEventArgs e)
         {
@@ -1993,6 +2027,98 @@ namespace SuperCom
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private void ClearHexSpace(object sender, RoutedEventArgs e)
+        {
+            string text = HexTextBox.Text;
+            text = text.Trim().Replace(" ", "");
+            HexTextBox.Text = text;
+        }
+
+
+        private async Task<bool> BackupData()
+        {
+            if (ConfigManager.Settings.AutoBackup)
+            {
+                int period = Config.WindowConfig.Settings.BackUpPeriods[(int)ConfigManager.Settings.AutoBackupPeriodIndex];
+                bool backup = false;
+                string BackupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backup");
+                string[] arr = DirHelper.TryGetDirList(BackupPath);
+                if (arr != null && arr.Length > 0)
+                {
+                    string dirname = arr[arr.Length - 1];
+                    if (Directory.Exists(dirname))
+                    {
+                        string dirName = Path.GetFileName(dirname);
+                        DateTime before = DateTime.Now.AddDays(1);
+                        DateTime now = DateTime.Now;
+                        DateTime.TryParse(dirName, out before);
+                        if (now.CompareTo(before) < 0 || (now - before).TotalDays > period)
+                        {
+                            backup = true;
+                        }
+                    }
+                }
+                else
+                {
+                    backup = true;
+                }
+
+                if (backup)
+                {
+                    string dir = Path.Combine(BackupPath, DateHelper.NowDate());
+                    bool created = DirHelper.TryCreateDirectory(dir);
+                    if (!created) return false;
+                    string target_file = Path.Combine(dir, ConfigManager.SQLITE_DATA_PATH);
+                    string origin_file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigManager.SQLITE_DATA_PATH);
+                    FileHelper.TryCopyFile(origin_file, target_file);
+                }
+            }
+
+            await Task.Delay(1);
+            return false;
+        }
+
+        private void Button_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.PlacementTarget = button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void EditSendCommand(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+        private void DeleteSendCommand(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            Button button = (menuItem.Parent as ContextMenu).PlacementTarget as Button;
+            if (button != null && button.Tag != null && vieModel.CurrentAdvancedSend != null)
+            {
+                string commandID = button.Tag.ToString();
+                List<SendCommand> sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(vieModel.CurrentAdvancedSend.Commands).OrderBy(arg => arg.Order).ToList();
+                SendCommand sendCommand = sendCommands.Where(arg => arg.CommandID.ToString().Equals(commandID)).FirstOrDefault();
+                if (sendCommand != null)
+                {
+                    sendCommands.Remove(sendCommand);
+                    AdvancedSend advancedSend = vieModel.CurrentAdvancedSend;
+                    if (!string.IsNullOrEmpty(advancedSend.Commands))
+                    {
+                        advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                        advancedSend.CommandList.RemoveAll(arg => arg.CommandID == sendCommand.CommandID);
+                        advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
+                        vieModel.UpdateProject(advancedSend);
+                        RefreshSendCommands();
+                        SetComboboxStatus();
+                    }
+
+                }
+            }
+
         }
     }
 }

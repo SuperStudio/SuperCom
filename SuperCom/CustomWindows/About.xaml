@@ -7,21 +7,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Title="关于 SuperCom"
-    Width="400"
-    MinHeight="100"
-    MaxHeight="400"
+    Width="600"
+    Height="300"
+    MinHeight="0"
     Background="{DynamicResource Window.InnerDialog.Background}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
-        <StackPanel Margin="20" Orientation="Vertical">
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Image
-                    Height="80"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Source="/Resources/Ico/Icon_128.png" />
-            </StackPanel>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="5*" />
+
+
+        </Grid.ColumnDefinitions>
+
+        <StackPanel
+            Grid.Column="0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Orientation="Vertical">
+            <Image
+                Height="80"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Source="/Resources/Ico/Icon_128.png" />
+
 
             <TextBlock
                 Margin="10"
@@ -39,24 +51,38 @@
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
                 Text="超级串口工具" />
+        </StackPanel>
+
+        <Rectangle
+            Grid.Column="1"
+            Width="1"
+            Margin="0,40"
+            Fill="{DynamicResource Window.Sub.Foreground}" />
+        <StackPanel
+            Grid.Column="2"
+            Margin="20"
+            VerticalAlignment="Center"
+            Orientation="Vertical">
+
+
             <TextBox
                 x:Name="VersionTextBlock"
-                Margin="10"
-                HorizontalAlignment="Center"
+                Margin="0,10"
+                HorizontalAlignment="Left"
                 FontSize="14"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="版本：2.2" />
+                Text="版本：2.3" />
             <TextBox
-                Margin="10"
-                HorizontalAlignment="Center"
+                Margin="0,10"
+                HorizontalAlignment="Left"
                 FontSize="11"
                 Foreground="{DynamicResource Window.Sub.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="发行日期：2022-12-13" />
+                Text="发行日期：2022-12-15" />
 
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <StackPanel Margin="20,0" Orientation="Horizontal">
+            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                <StackPanel Margin="0" Orientation="Horizontal">
                     <Image Width="25" Source="/Resources/Ico/github.png" />
                     <TextBlock
                         Margin="5,10"
@@ -87,8 +113,8 @@
 
             </StackPanel>
             <TextBlock
-                Margin="20"
-                HorizontalAlignment="Center"
+                Margin="0,20"
+                HorizontalAlignment="Left"
                 FontSize="15"
                 FontWeight="Bold"
                 Foreground="{DynamicResource Window.Foreground}"

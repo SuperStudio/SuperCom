@@ -830,19 +830,29 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock
                                     Grid.Row="0"
+                                    VerticalAlignment="Center"
                                     FontWeight="Bold"
                                     Text="HEX" />
                                 <super:Switch
                                     Name="HexToStrSwitch"
                                     Height="16"
                                     Margin="20,0,5,0"
+                                    VerticalAlignment="Center"
                                     BorderBrush="{DynamicResource Window.Title.Background}"
                                     Click="Switch_Click" />
                                 <TextBlock
-                                    Margin="0"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center"
                                     FontSize="12"
                                     Style="{StaticResource BaseTextBlock}"
                                     Text="大写" />
+                                <Button
+                                    Margin="5,2"
+                                    Padding="4"
+                                    VerticalAlignment="Center"
+                                    Click="ClearHexSpace"
+                                    Content="清除空格"
+                                    FontSize="10" />
 
 
                             </StackPanel>
@@ -1052,11 +1062,15 @@
 
                     </Grid>
                 </Popup>
+
+
                 <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+
+                    <!--  选项 tabitem 栏  -->
                     <ScrollViewer
                         Grid.Row="0"
                         HorizontalScrollBarVisibility="Auto"
@@ -1075,7 +1089,7 @@
                                         MinWidth="150"
                                         BorderThickness="1"
                                         Cursor="Hand"
-                                        PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown"
+                                        PreviewMouseLeftButtonUp="Border_PreviewMouseLeftButtonDown"
                                         Tag="{Binding Name}">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -1185,7 +1199,10 @@
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Name="baseGrid" Tag="{Binding Name}">
+                                <Grid
+                                    Name="baseGrid"
+                                    Tag="{Binding Name}"
+                                    Visibility="{Binding Selected, Converter={StaticResource bool2VisibilityConverter}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" MinHeight="100" />
                                         <RowDefinition Height="5" />
@@ -1303,9 +1320,13 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Button
                                                     Grid.Column="1"
-                                                    Margin="5"
+                                                    MinWidth="70"
+                                                    MinHeight="30"
+                                                    Margin="5,0"
                                                     HorizontalAlignment="Right"
+                                                    VerticalAlignment="Center"
                                                     Click="ConnectPort"
+                                                    FontWeight="Bold"
                                                     Tag="{Binding Name}">
                                                     <Button.Style>
                                                         <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
@@ -1329,9 +1350,9 @@
                                                     </Button.Style>
                                                 </Button>
                                                 <Button
-                                                    Height="25"
-                                                    Margin="5,2,5,0"
-                                                    Padding="10,2"
+                                                    MinWidth="70"
+                                                    MinHeight="30"
+                                                    Margin="5,0"
                                                     VerticalAlignment="Center"
                                                     super:CommonExt.CornerRadius="5"
                                                     Click="ClearData"
@@ -1649,6 +1670,7 @@
                                                     Style="{StaticResource RoundNormalButton}"
                                                     ToolTip="启动"
                                                     Visibility="Collapsed">
+
                                                     <Viewbox
                                                         Width="20"
                                                         Height="20"
@@ -1687,9 +1709,23 @@
                                                                     BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                                                     Click="SendCustomCommand"
                                                                     Content="{Binding Name, TargetNullValue=发送命令}"
+                                                                    PreviewMouseRightButtonUp="Button_PreviewMouseRightButtonUp"
                                                                     Style="{StaticResource BorderButton}"
                                                                     Tag="{Binding CommandID}"
-                                                                    ToolTip="{Binding Command}" />
+                                                                    ToolTip="{Binding Command}">
+                                                                    <Button.ContextMenu>
+                                                                        <ContextMenu>
+                                                                            <MenuItem
+                                                                                Click="EditSendCommand"
+                                                                                Header="编辑"
+                                                                                Visibility="Collapsed" />
+                                                                            <MenuItem
+                                                                                super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
+                                                                                Click="DeleteSendCommand"
+                                                                                Header="删除" />
+                                                                        </ContextMenu>
+                                                                    </Button.ContextMenu>
+                                                                </Button>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>

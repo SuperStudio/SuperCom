@@ -86,6 +86,64 @@ namespace SuperCom.Windows
             };
         }
 
+
+        public void AdjustWindow()
+        {
+
+            if (ConfigManager.Settings.FirstRun)
+            {
+                this.Width = SystemParameters.WorkArea.Width * 0.7;
+                this.Height = SystemParameters.WorkArea.Height * 0.7;
+                this.Left = SystemParameters.WorkArea.Width * 0.1;
+                this.Top = SystemParameters.WorkArea.Height * 0.1;
+                ConfigManager.Settings.FirstRun = false;
+            }
+            else
+            {
+                if (ConfigManager.Settings.Height == SystemParameters.WorkArea.Height && ConfigManager.Settings.Width < SystemParameters.WorkArea.Width)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                    this.CanResize = true;
+                }
+                else
+                {
+                    this.Left = ConfigManager.Settings.X;
+                    this.Top = ConfigManager.Settings.Y;
+                    this.Width = ConfigManager.Settings.Width;
+                    this.Height = ConfigManager.Settings.Height;
+                }
+
+
+                baseWindowState = (BaseWindowState)ConfigManager.Settings.WindowState;
+                if (baseWindowState == BaseWindowState.FullScreen)
+                {
+                    this.WindowState = System.Windows.WindowState.Maximized;
+                }
+                else if (baseWindowState == BaseWindowState.None)
+                {
+                    baseWindowState = 0;
+                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+                if (this.Width == SystemParameters.WorkArea.Width
+                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+            }
+        }
+
+        private void SaveConfigValue()
+        {
+            ConfigManager.Settings.X = this.Left;
+            ConfigManager.Settings.Y = this.Top;
+            ConfigManager.Settings.Width = this.Width;
+            ConfigManager.Settings.Height = this.Height;
+            ConfigManager.Settings.WindowState = (long)baseWindowState;
+            ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
+            ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
+            ConfigManager.Settings.Save();
+        }
+
+
+
         private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
         {
             InputWindow inputWindow = new InputWindow(this);
@@ -233,8 +291,6 @@ namespace SuperCom.Windows
 
         private void NewRule(object sender, RoutedEventArgs e)
         {
-
-
             vieModel.NewRule();
         }
 
@@ -352,8 +408,6 @@ namespace SuperCom.Windows
         private void AddNewRuleItem(object sender, RoutedEventArgs e)
         {
             vieModel.NewRuleSet();
-
-
         }
 
         private void DeleteRuleSet(object sender, RoutedEventArgs e)
@@ -439,5 +493,14 @@ namespace SuperCom.Windows
             }
         }
 
+        private void BaseWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            SaveConfigValue();
+        }
+
+        private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            AdjustWindow();
+        }
     }
 }

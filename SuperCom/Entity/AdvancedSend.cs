@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DynamicData.Annotations;
 using ICSharpCode.AvalonEdit;
 using SuperUtils.Time;
 using System;
@@ -16,7 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Threading;
-
+using SuperUtils.WPF.VieModel;
 
 namespace SuperCom.Entity
 {
@@ -28,7 +27,7 @@ namespace SuperCom.Entity
         Success,
         Failed
     }
-    public class SendCommand : INotifyPropertyChanged
+    public class SendCommand : ViewModelBase
     {
         public static int DEFAULT_DELAY = 200;
         public static int DEFAULT_TIMEOUT = 5000;
@@ -39,7 +38,7 @@ namespace SuperCom.Entity
         public int Order
         {
             get { return _Order; }
-            set { _Order = value; OnPropertyChanged(); }
+            set { _Order = value; RaisePropertyChanged(); }
         }
         public string Command { get; set; }
         public int Delay { get; set; }
@@ -48,25 +47,25 @@ namespace SuperCom.Entity
         public RunningStatus Status
         {
             get { return _Status; }
-            set { _Status = value; OnPropertyChanged(); }
+            set { _Status = value; RaisePropertyChanged(); }
         }
         private string _RecvResult = "";
         public string RecvResult
         {
             get { return _RecvResult; }
-            set { _RecvResult = value; OnPropertyChanged(); }
+            set { _RecvResult = value; RaisePropertyChanged(); }
         }
         private int _RecvTimeOut = DEFAULT_TIMEOUT;
         public int RecvTimeOut
         {
             get { return _RecvTimeOut; }
-            set { _RecvTimeOut = value; OnPropertyChanged(); }
+            set { _RecvTimeOut = value; RaisePropertyChanged(); }
         }
         private bool _IsResultCheck = false;
         public bool IsResultCheck
         {
             get { return _IsResultCheck; }
-            set { _IsResultCheck = value; OnPropertyChanged(); }
+            set { _IsResultCheck = value; RaisePropertyChanged(); }
         }
 
         public static long GenerateID(List<long> id_list)
@@ -77,14 +76,6 @@ namespace SuperCom.Entity
                 return i;
             }
             return 0;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

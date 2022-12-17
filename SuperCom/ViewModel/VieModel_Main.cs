@@ -1,10 +1,10 @@
-using GalaSoft.MvvmLight;
 using ICSharpCode.AvalonEdit.Highlighting;
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.WPF.VieModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;

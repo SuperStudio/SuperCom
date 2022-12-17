@@ -1,8 +1,9 @@
-﻿using GalaSoft.MvvmLight.Command;
+﻿
 using SuperCom.Config;
 using SuperControls.Style.Upgrade;
 using SuperUtils.NetWork;
 using SuperUtils.NetWork.Crawler;
+using SuperUtils.WPF.VieModel;
 using System.Windows;
 
 namespace SuperCom.Commands

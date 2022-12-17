@@ -83,7 +83,10 @@ namespace SuperCom
             CreateSqlTables();
             ConfigManager.InitConfig(); // 读取配置
             // 注册 SuperUtils 异常事件
-            SuperUtils.Handler.ExceptionHandler.OnError += (e) => { MessageCard.Error(e.Message); };
+            SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
+            {
+                // MessageCard.Error(e.Message); 
+            };
             SuperUtils.Handler.LogHandler.OnLog += (msg) => { Console.WriteLine(msg); };
 
             FadeInterval = TimeSpan.FromMilliseconds(150);//淡入淡出时间

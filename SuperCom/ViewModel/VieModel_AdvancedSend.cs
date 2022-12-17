@@ -1,10 +1,11 @@
-using GalaSoft.MvvmLight;
+
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Log;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.WPF.VieModel;
 using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;

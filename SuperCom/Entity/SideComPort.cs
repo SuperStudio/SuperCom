@@ -1,4 +1,5 @@
-﻿using DynamicData.Annotations;
+﻿
+using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,31 +16,31 @@ namespace SuperCom.Entity
         AddTime,
         PortName
     }
-    public class SideComPort : INotifyPropertyChanged
+    public class SideComPort : ViewModelBase
     {
         private string _Name;
         public string Name
         {
             get { return _Name; }
-            set { _Name = value; OnPropertyChanged(); }
+            set { _Name = value; RaisePropertyChanged(); }
         }
         private bool _Connected;
         public bool Connected
         {
             get { return _Connected; }
-            set { _Connected = value; OnPropertyChanged(); }
+            set { _Connected = value; RaisePropertyChanged(); }
         }
         private PortTabItem _PortTabItem;
         public PortTabItem PortTabItem
         {
             get { return _PortTabItem; }
-            set { _PortTabItem = value; OnPropertyChanged(); }
+            set { _PortTabItem = value; RaisePropertyChanged(); }
         }
         private string _Remark;
         public string Remark
         {
             get { return _Remark; }
-            set { _Remark = value; OnPropertyChanged(); }
+            set { _Remark = value; RaisePropertyChanged(); }
         }
 
         public SideComPort(string name, bool connected)
@@ -48,12 +49,5 @@ namespace SuperCom.Entity
             Connected = connected;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

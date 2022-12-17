@@ -1,4 +1,4 @@
-﻿using DynamicData.Annotations;
+﻿
 using SuperControls.Style;
 using SuperUtils.Common;
 using System;
@@ -12,6 +12,12 @@ namespace SuperCom.Entity
 {
     public class CustomSerialPort : SerialPort, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void RaisePropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
 
         public PortSetting _Setting = PortSetting.GetDefaultSetting();
         public PortSetting Setting
@@ -156,40 +162,31 @@ namespace SuperCom.Entity
         public string PortEncoding
         {
             get { return _PortEncoding; }
-            set { _PortEncoding = value; OnPropertyChanged(); }
+            set { _PortEncoding = value; RaisePropertyChanged(); }
         }
         private string _StopBitsString = "One";
         public string StopBitsString
         {
             get { return _StopBitsString; }
-            set { _StopBitsString = value; OnPropertyChanged(); }
+            set { _StopBitsString = value; RaisePropertyChanged(); }
         }
         private string _ParityString = "One";
         public string ParityString
         {
             get { return _ParityString; }
-            set { _ParityString = value; OnPropertyChanged(); }
+            set { _ParityString = value; RaisePropertyChanged(); }
         }
         private double _TextFontSize = DEFAULT_FONTSIZE;
         public double TextFontSize
         {
             get { return _TextFontSize; }
-            set { _TextFontSize = value; OnPropertyChanged(); }
+            set { _TextFontSize = value; RaisePropertyChanged(); }
         }
         private long _HighLightIndex = 0;
         public long HighLightIndex
         {
             get { return _HighLightIndex; }
-            set { _HighLightIndex = value; OnPropertyChanged(); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            RefreshSetting();
+            set { _HighLightIndex = value; RaisePropertyChanged(); }
         }
 
 

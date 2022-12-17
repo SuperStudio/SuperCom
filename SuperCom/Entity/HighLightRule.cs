@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DynamicData.Annotations;
 using ICSharpCode.AvalonEdit;
 using SuperUtils.Time;
 using System;
@@ -18,6 +17,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using SuperUtils.IO;
 using SuperUtils.Common;
+using SuperUtils.WPF.VieModel;
 
 namespace SuperCom.Entity
 {
@@ -155,7 +155,7 @@ namespace SuperCom.Entity
             KeyWord
         }
 
-        public class RuleSet : INotifyPropertyChanged
+        public class RuleSet
         {
             public long RuleSetID { get; set; }
             public RuleType RuleType { get; set; }
@@ -173,14 +173,6 @@ namespace SuperCom.Entity
                     return i;
                 }
                 return 0;
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            [NotifyPropertyChangedInvocator]
-            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }

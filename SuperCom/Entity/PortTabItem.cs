@@ -1,9 +1,10 @@
-﻿using DynamicData.Annotations;
+﻿
 using ICSharpCode.AvalonEdit;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperUtils.IO;
 using SuperUtils.Time;
+using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,13 +17,13 @@ using System.Windows.Threading;
 
 namespace SuperCom.Entity
 {
-    public class PortTabItem : INotifyPropertyChanged
+    public class PortTabItem : ViewModelBase
     {
         private string _Name;
         public string Name
         {
             get { return _Name; }
-            set { _Name = value; OnPropertyChanged(); }
+            set { _Name = value; RaisePropertyChanged(); }
         }
         public bool _Connected;
         public bool Connected
@@ -31,7 +32,7 @@ namespace SuperCom.Entity
             set
             {
                 _Connected = value;
-                OnPropertyChanged();
+                RaisePropertyChanged();
             }
         }
 
@@ -40,7 +41,7 @@ namespace SuperCom.Entity
         public bool Selected
         {
             get { return _Selected; }
-            set { _Selected = value; OnPropertyChanged(); }
+            set { _Selected = value; RaisePropertyChanged(); }
         }
 
 
@@ -48,7 +49,7 @@ namespace SuperCom.Entity
         public string Data
         {
             get { return _Data; }
-            set { _Data = value; OnPropertyChanged(); }
+            set { _Data = value; RaisePropertyChanged(); }
         }
         private PortSetting _Setting;
         public PortSetting Setting
@@ -57,32 +58,32 @@ namespace SuperCom.Entity
             set
             {
                 _Setting = value;
-                OnPropertyChanged();
+                RaisePropertyChanged();
             }
         }
         private CustomSerialPort _SerialPort;
         public CustomSerialPort SerialPort
         {
             get { return _SerialPort; }
-            set { _SerialPort = value; OnPropertyChanged(); }
+            set { _SerialPort = value; RaisePropertyChanged(); }
         }
         private bool _ScrollToEnd;
         public bool ScrollToEnd
         {
             get { return _ScrollToEnd; }
-            set { _ScrollToEnd = value; OnPropertyChanged(); }
+            set { _ScrollToEnd = value; RaisePropertyChanged(); }
         }
         private bool _AddNewLineWhenWrite = true;
         public bool AddNewLineWhenWrite
         {
             get { return _AddNewLineWhenWrite; }
-            set { _AddNewLineWhenWrite = value; OnPropertyChanged(); }
+            set { _AddNewLineWhenWrite = value; RaisePropertyChanged(); }
         }
         private string _WriteData = "";
         public string WriteData
         {
             get { return _WriteData; }
-            set { _WriteData = value; OnPropertyChanged(); }
+            set { _WriteData = value; RaisePropertyChanged(); }
         }
 
         private StringBuilder Builder { get; set; }
@@ -92,19 +93,19 @@ namespace SuperCom.Entity
         public bool AddTimeStamp
         {
             get { return _AddTimeStamp; }
-            set { _AddTimeStamp = value; OnPropertyChanged(); }
+            set { _AddTimeStamp = value; RaisePropertyChanged(); }
         }
         private long _RX = 0L;
         public long RX
         {
             get { return _RX; }
-            set { _RX = value; OnPropertyChanged(); }
+            set { _RX = value; RaisePropertyChanged(); }
         }
         private long _TX = 0L;
         public long TX
         {
             get { return _TX; }
-            set { _TX = value; OnPropertyChanged(); }
+            set { _TX = value; RaisePropertyChanged(); }
         }
 
         // 备注
@@ -113,7 +114,7 @@ namespace SuperCom.Entity
         public string Remark
         {
             get { return _Remark; }
-            set { _Remark = value; OnPropertyChanged(); }
+            set { _Remark = value; RaisePropertyChanged(); }
         }
 
         private DateTime _ConnectTime;
@@ -272,14 +273,6 @@ namespace SuperCom.Entity
             Setting = new PortSetting();
             Builder = new StringBuilder();
             SaveFileName = GetSaveFileName();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

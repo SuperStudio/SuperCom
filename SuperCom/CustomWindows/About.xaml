@@ -72,7 +72,7 @@
                 FontSize="14"
                 Foreground="{DynamicResource Window.Foreground}"
                 Style="{StaticResource ReadOnlyTextBox}"
-                Text="版本：2.3" />
+                Text="版本：x.x" />
             <TextBox
                 Margin="0,10"
                 HorizontalAlignment="Left"
@@ -83,13 +83,19 @@
 
             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                 <StackPanel Margin="0" Orientation="Horizontal">
-                    <Image Width="25" Source="/Resources/Ico/github.png" />
+                    <Image
+                        x:Name="githubImage"
+                        Width="25"
+                        Source="/Resources/Ico/github.png" />
                     <TextBlock
                         Margin="5,10"
                         FontSize="20"
                         Foreground="{DynamicResource Window.Foreground}"
-                        TextAlignment="Center"><Hyperlink Click="OpenUrl" NavigateUri="https://github.com/SuperStudio/SuperCom">
-                            <Run Text="Github" />
+                        TextAlignment="Center"><Hyperlink
+                            x:Name="hyperLink"
+                            Click="OpenUrl"
+                            NavigateUri="https://github.com/SuperStudio/SuperCom">
+                            <Run x:Name="runText" Text="Github" />
                         </Hyperlink></TextBlock>
 
 
@@ -113,7 +119,8 @@
 
             </StackPanel>
             <TextBlock
-                Margin="0,20"
+                x:Name="authorText"
+                Margin="0,10"
                 HorizontalAlignment="Left"
                 FontSize="15"
                 FontWeight="Bold"

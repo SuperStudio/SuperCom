@@ -12,11 +12,11 @@
     Title="设置"
     Width="1000"
     Height="600"
-    Loaded="BaseWindow_Loaded"
     Background="{DynamicResource Window.Background}"
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Loaded="BaseWindow_Loaded"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

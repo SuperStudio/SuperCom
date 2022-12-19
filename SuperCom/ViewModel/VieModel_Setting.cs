@@ -76,6 +76,28 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private bool _HighlightingSelectedRow = ConfigManager.Settings.HighlightingSelectedRow;
+        public bool HighlightingSelectedRow
+        {
+            get { return _HighlightingSelectedRow; }
+
+            set
+            {
+                _HighlightingSelectedRow = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _ShowLineNumbers = ConfigManager.Settings.ShowLineNumbers;
+        public bool ShowLineNumbers
+        {
+            get { return _ShowLineNumbers; }
+
+            set
+            {
+                _ShowLineNumbers = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public void SaveValue()
         {

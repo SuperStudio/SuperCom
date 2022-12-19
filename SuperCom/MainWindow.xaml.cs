@@ -464,7 +464,15 @@ namespace SuperCom
             }
 
             await Task.Delay(100);
-            portTabItem.TextEditor = FindTextBoxByPortName(portName);
+            TextEditor textEditor = FindTextBoxByPortName(portName);
+            // 编辑器设置
+
+            TextEditorOptions textEditorOptions = new TextEditorOptions();
+            textEditorOptions.HighlightCurrentLine = ConfigManager.Settings.HighlightingSelectedRow;
+            textEditor.Options = textEditorOptions;
+            textEditor.ShowLineNumbers = ConfigManager.Settings.ShowLineNumbers;
+
+            portTabItem.TextEditor = textEditor;
             // 搜索框
             SearchPanel searchPanel = SearchPanel.Install(portTabItem.TextEditor);
             ToggleButton toggleButton = GetPinToggleButton(portTabItem.TextEditor);

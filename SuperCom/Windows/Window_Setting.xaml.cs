@@ -218,6 +218,8 @@ namespace SuperCom.Windows
 
 
             ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
+            ConfigManager.Settings.HighlightingSelectedRow = vieModel.HighlightingSelectedRow;
+            ConfigManager.Settings.ShowLineNumbers = vieModel.ShowLineNumbers;
             ConfigManager.Settings.Save();
 
             vieModel.SaveAllRule();

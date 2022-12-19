@@ -629,6 +629,23 @@
 
                 </Grid>
             </TabItem>
+
+            <TabItem Header="文本选项" Style="{StaticResource FlatTabItem}">
+                <StackPanel Orientation="Vertical">
+                    <CheckBox
+                        Margin="10,20,5,5"
+                        HorizontalAlignment="Left"
+                        Content="高亮选中行"
+                        IsChecked="{Binding HighlightingSelectedRow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+                    <CheckBox
+                        Margin="10,5"
+                        HorizontalAlignment="Left"
+                        Content="显示行号"
+                        IsChecked="{Binding ShowLineNumbers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+                </StackPanel>
+            </TabItem>
         </TabControl>
 
         <Grid Grid.Row="1">

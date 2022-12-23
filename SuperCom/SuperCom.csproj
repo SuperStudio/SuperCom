@@ -247,6 +247,7 @@
     <Content Include="References\MihaZupan.HttpToSocks5Proxy.dll" />
     <Content Include="References\Newtonsoft.Json.dll" />
     <Content Include="References\SuperUtils.dll" />
+    <Resource Include="Resources\Pictures\donate.png" />
     <Content Include="Sql\advanced_send.sql" />
     <Content Include="Sql\com_settings.sql" />
   </ItemGroup>

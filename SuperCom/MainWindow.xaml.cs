@@ -1335,6 +1335,7 @@ namespace SuperCom
             InitThemeSelector();
             CheckUpgrade();
             ReadXshdList();// 自定义语法高亮
+            LoadDonateConfig();
             await BackupData(); // 备份文件
             //new Window_AdvancedSend().Show();
             //Window_Setting setting = new Window_Setting();
@@ -1342,6 +1343,28 @@ namespace SuperCom
             //setting.ShowDialog();
             //OpenShortCut(null, null);
 
+        }
+
+        private void LoadDonateConfig()
+        {
+            vieModel.ShowDonate = true;
+            string json_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_config.json");
+            if (File.Exists(json_path))
+            {
+                string v = FileHelper.TryReadFile(json_path);
+                if (!string.IsNullOrEmpty(v))
+                {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(v);
+                    if (dict != null && dict.ContainsKey("ShowDonate"))
+                    {
+                        string showDonate = dict["ShowDonate"].ToString();
+                        if (!string.IsNullOrEmpty(showDonate))
+                        {
+                            vieModel.ShowDonate = showDonate.ToLower().Equals("false") ? false : true;
+                        }
+                    }
+                }
+            }
         }
 
         public void InitThemeSelector()
@@ -2323,6 +2346,23 @@ namespace SuperCom
         public void OnShortCutChanged()
         {
             vieModel.LoadShortCut();
+        }
+
+        private void OpenFeedBack(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.FeedbackUrl);
+        }
+
+        private void OpenHelp(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.HelpUrl);
+        }
+
+        private void OpenDonate(object sender, RoutedEventArgs e)
+        {
+            Window_Donate window_Donate = new Window_Donate();
+            window_Donate.SetUrl(UrlManager.GetDonateJsonUrl());
+            window_Donate.ShowDialog();
         }
     }
 }

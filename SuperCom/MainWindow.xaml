@@ -777,6 +777,15 @@
                                 Style="{StaticResource HoverBorder}">
                                 <Border.ContextMenu>
                                     <ContextMenu HorizontalOffset="-40">
+                                        <MenuItem Header="其它">
+                                            <MenuItem Click="OpenFeedBack" Header="反馈" />
+                                            <MenuItem Click="OpenHelp" Header="帮助" />
+                                            <MenuItem
+                                                Click="OpenDonate"
+                                                Header="为我充电"
+                                                Icon="/Resources/Pictures/donate.png"
+                                                Visibility="{Binding ShowDonate, Converter={StaticResource bool2VisibilityConverter}}" />
+                                        </MenuItem>
                                         <MenuItem Click="OpenSetting" Header="设置" />
                                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />

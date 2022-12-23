@@ -158,6 +158,12 @@ namespace SuperCom.ViewModel
             get { return _HighlightingDefinitions; }
             set { _HighlightingDefinitions = value; RaisePropertyChanged(); }
         }
+        private bool _ShowDonate;
+        public bool ShowDonate
+        {
+            get { return _ShowDonate; }
+            set { _ShowDonate = value; RaisePropertyChanged(); }
+        }
 
         public AdvancedSend CurrentAdvancedSend { get; set; }
 

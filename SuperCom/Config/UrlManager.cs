@@ -17,6 +17,14 @@ namespace SuperCom.Config
         public static string UpdateFileListUrl = "https://superstudio.github.io/SuperCom-Upgrade/list.json";
         public static string UpdateFilePathUrl = "https://superstudio.github.io/SuperCom-Upgrade/File/";
         public static string PluginUrl = "https://superstudio.github.io/SuperPlugins/";
+        public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";
+        public static string HelpUrl = "https://github.com/SuperStudio/SuperCom/wiki";
+        private static string DonateJsonUrl = "https://superstudio.github.io/SuperSudio-Donate/config.json";
+
+        public static string GetDonateJsonUrl()
+        {
+            return DonateJsonUrl;
+        }
 
         static UrlManager()
         {

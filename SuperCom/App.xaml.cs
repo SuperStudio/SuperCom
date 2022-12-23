@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuperControls.Style.Windows;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -38,10 +39,9 @@ namespace SuperCom
         {
             try
             {
-                StringBuilder builder = new StringBuilder();
-                builder.Append("[DispatcherUnhandledException] SuperCom 出现了一些问题，将退出\n");
-                builder.Append(e.Exception.ToString());
-                MessageBox.Show(builder.ToString(), "SuperCom 异常");
+                Window_ErrorMsg window_ErrorMsg = new Window_ErrorMsg();
+                window_ErrorMsg.SetError(e.Exception.ToString());
+                window_ErrorMsg.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -62,9 +62,9 @@ namespace SuperCom
                 StringBuilder builder = new StringBuilder();
                 if (e.IsTerminating)
                 {
-                    builder.Append("[CurrentDomain_UnhandledException] SuperCom 出现了一些问题，将退出\n");
-                    builder.Append(e.ExceptionObject.ToString());
-                    MessageBox.Show(builder.ToString(), "SuperCom 异常");
+                    Window_ErrorMsg window_ErrorMsg = new Window_ErrorMsg();
+                    window_ErrorMsg.SetError(e.ExceptionObject.ToString());
+                    window_ErrorMsg.ShowDialog();
                 }
             }
             catch (Exception ex)

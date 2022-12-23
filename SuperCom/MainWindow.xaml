@@ -778,6 +778,7 @@
                                 <Border.ContextMenu>
                                     <ContextMenu HorizontalOffset="-40">
                                         <MenuItem Click="OpenSetting" Header="设置" />
+                                        <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />
                                         <MenuItem Command="cmd:OpenWindow.Upgrade" Header="检查更新" />
                                         <MenuItem Click="ShowAbout" Header="关于" />
@@ -799,6 +800,161 @@
                     HorizontalAlignment="Left"
                     Panel.ZIndex="10"
                     Style="{StaticResource HoverSpliter}" />
+
+                <Popup
+                    x:Name="editSendCommandPopup"
+                    Width="300"
+                    Height="400"
+                    Margin="0,0,700,0"
+                    AllowsTransparency="True"
+                    HorizontalOffset="-150"
+                    Placement="Mouse"
+                    PopupAnimation="Fade"
+                    StaysOpen="True"
+                    VerticalOffset="-80">
+                    <Grid Margin="5">
+                        <Border
+                            Margin="5"
+                            Background="{DynamicResource Menu.Background}"
+                            CornerRadius="5"
+                            Effect="{StaticResource PopupDropShadowEffect}" />
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Margin="5,20,5,5"
+                                FontWeight="Bold"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="编辑命令" />
+
+                            <DockPanel
+                                Grid.Row="1"
+                                Margin="10"
+                                LastChildFill="True">
+                                <DockPanel DockPanel.Dock="Top" LastChildFill="True">
+                                    <TextBlock
+                                        MinWidth="50"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="顺序" />
+                                    <Border
+                                        Margin="5"
+                                        Padding="5"
+                                        Background="{DynamicResource Window.Title.Background}"
+                                        CornerRadius="3">
+                                        <TextBox
+                                            Name="editTextBoxOrder"
+                                            Padding="2,0,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            AcceptsReturn="False"
+                                            Background="Transparent"
+                                            ContextMenu="{StaticResource TextBoxContextMenu}"
+                                            Style="{StaticResource BaseTextBox}"
+                                            TextAlignment="Left"
+                                            TextWrapping="NoWrap" />
+                                    </Border>
+                                </DockPanel>
+                                <DockPanel
+                                    VerticalAlignment="Top"
+                                    DockPanel.Dock="Top"
+                                    LastChildFill="True">
+                                    <TextBlock
+                                        MinWidth="50"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="名称" />
+                                    <Border
+                                        Margin="5"
+                                        Padding="5"
+                                        Background="{DynamicResource Window.Title.Background}"
+                                        CornerRadius="3">
+                                        <TextBox
+                                            Name="editTextBoxName"
+                                            Padding="2,0,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            AcceptsReturn="False"
+                                            Background="Transparent"
+                                            ContextMenu="{StaticResource TextBoxContextMenu}"
+                                            Style="{StaticResource BaseTextBox}"
+                                            TextAlignment="Left"
+                                            TextWrapping="NoWrap" />
+                                    </Border>
+                                </DockPanel>
+                                <DockPanel
+                                    VerticalAlignment="Top"
+                                    DockPanel.Dock="Top"
+                                    LastChildFill="True">
+                                    <TextBlock
+                                        MinWidth="50"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="延时" />
+                                    <Border
+                                        Margin="5"
+                                        Padding="5"
+                                        Background="{DynamicResource Window.Title.Background}"
+                                        CornerRadius="3">
+                                        <TextBox
+                                            Name="editTextBoxDelay"
+                                            Padding="2,0,0,0"
+                                            HorizontalAlignment="Stretch"
+                                            AcceptsReturn="False"
+                                            Background="Transparent"
+                                            ContextMenu="{StaticResource TextBoxContextMenu}"
+                                            Style="{StaticResource BaseTextBox}"
+                                            TextAlignment="Left"
+                                            TextWrapping="NoWrap" />
+                                    </Border>
+                                </DockPanel>
+
+
+                                <TextBlock
+                                    MinWidth="50"
+                                    HorizontalAlignment="Left"
+                                    DockPanel.Dock="Top"
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="命令" />
+                                <Border
+                                    Margin="5"
+                                    Padding="5"
+                                    Background="{DynamicResource Window.Title.Background}"
+                                    CornerRadius="3">
+                                    <TextBox
+                                        Name="editTextBoxCommand"
+                                        Padding="2,0,0,0"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalContentAlignment="Top"
+                                        AcceptsReturn="False"
+                                        Background="Transparent"
+                                        ContextMenu="{StaticResource TextBoxContextMenu}"
+                                        Style="{StaticResource BaseTextBox}"
+                                        Text=""
+                                        TextAlignment="Left"
+                                        TextWrapping="Wrap" />
+                                </Border>
+
+                            </DockPanel>
+
+                            <StackPanel
+                                Grid.Row="2"
+                                Margin="5"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Button
+                                    Margin="5"
+                                    Click="EditCommandConfirm"
+                                    Content="确认"
+                                    Style="{StaticResource ButtonPrimary}" />
+                                <Button
+                                    Margin="5"
+                                    Click="EditCommandCancel"
+                                    Content="取消"
+                                    Style="{StaticResource ButtonDanger}" />
+                            </StackPanel>
+                        </Grid>
+
+                    </Grid>
+                </Popup>
 
                 <Popup
                     x:Name="hexTransPopup"
@@ -1076,7 +1232,7 @@
                         HorizontalScrollBarVisibility="Auto"
                         PreviewMouseWheel="scrollViewer_PreviewMouseWheel"
                         VerticalScrollBarVisibility="Hidden">
-                        <ItemsControl ItemsSource="{Binding PortTabItems}">
+                        <ItemsControl Name="tabItemsControl" ItemsSource="{Binding PortTabItems}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal" />
@@ -1201,6 +1357,7 @@
                             <DataTemplate>
                                 <Grid
                                     Name="baseGrid"
+                                    PreviewKeyDown="baseGrid_PreviewKeyDown"
                                     Tag="{Binding Name}"
                                     Visibility="{Binding Selected, Converter={StaticResource bool2VisibilityConverter}}">
                                     <Grid.RowDefinitions>
@@ -1715,10 +1872,7 @@
                                                                     ToolTip="{Binding Command}">
                                                                     <Button.ContextMenu>
                                                                         <ContextMenu>
-                                                                            <MenuItem
-                                                                                Click="EditSendCommand"
-                                                                                Header="编辑"
-                                                                                Visibility="Collapsed" />
+                                                                            <MenuItem Click="EditSendCommand" Header="编辑" />
                                                                             <MenuItem
                                                                                 super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
                                                                                 Click="DeleteSendCommand"
@@ -1730,6 +1884,8 @@
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
                                                 </ScrollViewer>
+
+
                                             </Grid>
                                         </Border>
 

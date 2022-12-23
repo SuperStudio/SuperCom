@@ -1,0 +1,197 @@
+﻿<super:BaseWindow
+    x:Class="SuperCom.Window_ShortCut"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
+    Title="快捷键"
+    Width="800"
+    Height="450"
+    Background="{DynamicResource Window.Background}"
+    Closing="BaseWindow_Closing"
+    ContentRendered="BaseWindow_ContentRendered"
+    Foreground="{DynamicResource Window.Foreground}"
+    Loaded="BaseWindow_Loaded"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+
+        <Popup
+            x:Name="inputKeyPopup"
+            Width="500"
+            Height="auto"
+            Margin="0,0,700,0"
+            AllowsTransparency="True"
+            Closed="inputKeyPopup_Closed"
+            HorizontalOffset="-150"
+            Placement="Mouse"
+            PopupAnimation="Fade"
+            StaysOpen="False"
+            VerticalOffset="-140">
+            <Grid Margin="5">
+                <Border
+                    Margin="5"
+                    Background="{DynamicResource Menu.Background}"
+                    CornerRadius="5"
+                    Effect="{StaticResource PopupDropShadowEffect}" />
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
+                        Margin="5,20,5,5"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="请输入快捷键，回车确认" />
+
+                    <Border
+                        Grid.Row="1"
+                        Padding="5"
+                        BorderBrush="{DynamicResource Window.Sub.Foreground}"
+                        BorderThickness="2,0,0,0"
+                        Style="{StaticResource InfoBorder}">
+                        <TextBlock
+                            Margin="0"
+                            HorizontalAlignment="Left"
+                            FontSize="10"
+                            FontWeight="Bold"
+                            Foreground="{DynamicResource Window.Sub.Foreground}"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="快捷键必须包含 Ctrl, Alt, Shift，或者使用单个 F1~F12"
+                            TextAlignment="Left" />
+                    </Border>
+
+                    <TextBox
+                        Name="keyInputTextBox"
+                        Grid.Row="2"
+                        Margin="20"
+                        Padding="10"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource ListBoxItem.Background}"
+                        BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                        BorderThickness="1"
+                        PreviewKeyDown="TextBox_PreviewKeyDown"
+                        PreviewKeyUp="TextBox_PreviewKeyUp"
+                        Style="{StaticResource ReadOnlyWrapTextBox}"
+                        Text="" />
+
+                    <TextBlock x:Name="hiddenTextBlock" Visibility="Collapsed" />
+
+                    <TextBlock
+                        Name="warningTextBlock"
+                        Grid.Row="3"
+                        Margin="10"
+                        Foreground="{DynamicResource Common.HighLight.Deep.Background}"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="不支持的快捷键"
+                        Visibility="Hidden" />
+
+
+                </Grid>
+
+            </Grid>
+        </Popup>
+
+
+        <super:SearchBox
+            Name="searchBox"
+            Background="{DynamicResource Window.Side.Background}"
+            BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+            BorderThickness="1"
+            SearchOnTextChanged="True"
+            Style="{StaticResource SearchBoxStyle}"
+            TextChanged="SearchBox_TextChanged" />
+        <DataGrid
+            x:Name="dataGrid"
+            Grid.Row="1"
+            Margin="0,5"
+            HorizontalContentAlignment="Left"
+            CanUserResizeColumns="True"
+            CanUserSortColumns="True"
+            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+            Style="{DynamicResource FlatDataGrid}">
+            <DataGrid.RowStyle>
+                <Style BasedOn="{StaticResource NormalDataGridRowStyle}" TargetType="DataGridRow">
+                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                    <EventSetter Event="MouseDoubleClick" Handler="Row_DoubleClick" />
+                    <!--<Setter Property="ContextMenu" Value="{StaticResource dataGridContextMenu}" />-->
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn
+                    Width="4*"
+                    MinWidth="50"
+                    Header="操作"
+                    SortMemberPath="KeyName">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                MinWidth="40"
+                                Background="Transparent"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="{Binding KeyName}"
+                                TextAlignment="Left" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn
+                    Width="6*"
+                    MinWidth="50"
+                    Header="快捷键"
+                    SortMemberPath="Keys">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ItemsControl AlternationCount="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}" ItemsSource="{Binding KeyStringList}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                Name="separator"
+                                                Margin="0"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="+" />
+                                            <Border Style="{StaticResource InfoBorder}">
+                                                <TextBlock
+                                                    Margin="4,2"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding .}" />
+                                            </Border>
+
+
+
+                                        </StackPanel>
+
+                                        <DataTemplate.Triggers>
+                                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                                <Setter TargetName="separator" Property="Visibility" Value="Collapsed" />
+                                            </Trigger>
+                                        </DataTemplate.Triggers>
+
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+
+        </DataGrid>
+    </Grid>
+</super:BaseWindow>

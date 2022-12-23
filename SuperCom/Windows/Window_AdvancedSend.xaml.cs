@@ -20,7 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace SuperCom.Windows
+namespace SuperCom
 {
     /// <summary>
     /// Interaction logic for Window_AdvancedSend.xaml

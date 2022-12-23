@@ -1,11 +1,10 @@
 ﻿<super:BaseWindow
-    x:Class="SuperCom.Windows.Window_Setting"
+    x:Class="SuperCom.Window_Setting"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:SuperCom.Windows"
     xmlns:localConverter="clr-namespace:SuperCom.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
@@ -109,6 +108,12 @@
                                     <ComboBoxItem Content="15" />
                                     <ComboBoxItem Content="30" />
                                 </ComboBox>
+                                <Button
+                                    Click="OpenBackUpFolder"
+                                    Margin="10,0"
+                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                    Content="打开文件夹"
+                                    Style="{StaticResource BorderButton}" />
                             </StackPanel>
                         </StackPanel>
                     </Border>

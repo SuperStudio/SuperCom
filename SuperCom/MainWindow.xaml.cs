@@ -7,7 +7,6 @@ using SuperCom.Config;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
-using SuperCom.Windows;
 using SuperControls.Style;
 using SuperControls.Style.Plugin;
 using SuperControls.Style.Windows;
@@ -43,7 +42,7 @@ namespace SuperCom
         Window_Setting window_Setting { get; set; }
         Window_AdvancedSend window_AdvancedSend { get; set; }
 
-
+        private static double DEFAULT_SEND_PANEL_HEIGHT = 186;
 
 
         public static List<string> OpeningWindows = new List<string>();
@@ -55,8 +54,6 @@ namespace SuperCom
 
 
         public VieModel_Main vieModel { get; set; }
-
-
 
 
         public MainWindow()
@@ -190,6 +187,7 @@ namespace SuperCom
             ComSettings.InitSqlite();
             AdvancedSend.InitSqlite();
             HighLightRule.InitSqlite();
+            ShortCutBinding.InitSqlite();
         }
 
         public async override void CloseWindow(object sender, RoutedEventArgs e)
@@ -373,19 +371,27 @@ namespace SuperCom
         {
             SaveComSettings();
             int idx = -1;
-            for (int i = 0; idx < vieModel.PortTabItems.Count; i++)
+            try
             {
-                if (vieModel.PortTabItems[i].Name.Equals(portName))
+                for (int i = 0; idx < vieModel.PortTabItems.Count; i++)
                 {
-                    idx = i;
-                    break;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+                if (idx >= 0 && idx < vieModel.PortTabItems.Count)
+                {
+                    ClosePort(portName);
+                    vieModel.PortTabItems.RemoveAt(idx);
                 }
             }
-            if (idx >= 0)
+            catch (Exception ex)
             {
-                ClosePort(portName);
-                vieModel.PortTabItems.RemoveAt(idx);
+                Console.WriteLine(ex.Message);
             }
+
         }
 
         private void RefreshPortsStatus(object sender, MouseButtonEventArgs e)
@@ -433,6 +439,7 @@ namespace SuperCom
             {
                 // 连接
                 await OpenPort(sideComPort);
+
             }
             else
             {
@@ -663,7 +670,7 @@ namespace SuperCom
                         SetComboboxStatus();
                     });
                 });
-
+                SetProtTabSelected(portName);
             }
 
 
@@ -1333,6 +1340,7 @@ namespace SuperCom
             //Window_Setting setting = new Window_Setting();
             //setting.Owner = this;
             //setting.ShowDialog();
+            //OpenShortCut(null, null);
 
         }
 
@@ -2084,6 +2092,9 @@ namespace SuperCom
                     string target_file = Path.Combine(dir, ConfigManager.SQLITE_DATA_PATH);
                     string origin_file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigManager.SQLITE_DATA_PATH);
                     FileHelper.TryCopyFile(origin_file, target_file);
+                    // 复制语法高亮
+                    string highLightDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit");
+                    DirHelper.TryCopy(highLightDir, Path.Combine(dir, "AvalonEdit"));
                 }
             }
 
@@ -2098,8 +2109,41 @@ namespace SuperCom
             button.ContextMenu.IsOpen = true;
         }
 
+
+        private SendCommand CurrentEditCommand;
+
         private void EditSendCommand(object sender, RoutedEventArgs e)
         {
+            editTextBoxOrder.Text = "";
+            editTextBoxName.Text = "";
+            editTextBoxDelay.Text = "";
+            editTextBoxCommand.Text = "";
+
+
+            MenuItem menuItem = sender as MenuItem;
+            Button button = (menuItem.Parent as ContextMenu).PlacementTarget as Button;
+            if (button != null && button.Tag != null && vieModel.CurrentAdvancedSend != null)
+            {
+                string commandID = button.Tag.ToString();
+                List<SendCommand> sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(vieModel.CurrentAdvancedSend.Commands).OrderBy(arg => arg.Order).ToList();
+                SendCommand sendCommand = sendCommands.Where(arg => arg.CommandID.ToString().Equals(commandID)).FirstOrDefault();
+                if (sendCommand != null)
+                {
+                    CurrentEditCommand = sendCommand;
+                    editTextBoxOrder.Text = sendCommand.Order.ToString();
+                    editTextBoxName.Text = sendCommand.Name;
+                    editTextBoxDelay.Text = sendCommand.Delay.ToString();
+                    editTextBoxCommand.Text = sendCommand.Command;
+
+                    editSendCommandPopup.IsOpen = true;
+                }
+            }
+
+
+
+
+
+
 
         }
 
@@ -2130,6 +2174,155 @@ namespace SuperCom
                 }
             }
 
+        }
+
+        private void EditCommandConfirm(object sender, RoutedEventArgs e)
+        {
+            editSendCommandPopup.IsOpen = false;
+            AdvancedSend advancedSend = vieModel.CurrentAdvancedSend;
+            if (!string.IsNullOrEmpty(advancedSend.Commands) && CurrentEditCommand != null)
+            {
+                advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+
+                for (int i = 0; i < advancedSend.CommandList.Count; i++)
+                {
+                    if (advancedSend.CommandList[i].CommandID.Equals(CurrentEditCommand.CommandID))
+                    {
+                        advancedSend.CommandList[i].Name = editTextBoxName.Text;
+                        advancedSend.CommandList[i].Command = editTextBoxOrder.Text;
+                        int.TryParse(editTextBoxDelay.Text, out int delay);
+                        int.TryParse(editTextBoxOrder.Text, out int order);
+                        advancedSend.CommandList[i].Delay = delay;
+                        advancedSend.CommandList[i].Order = order;
+                        break;
+                    }
+                }
+
+                advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
+                vieModel.UpdateProject(advancedSend);
+                RefreshSendCommands();
+                SetComboboxStatus();
+            }
+        }
+
+        private void EditCommandCancel(object sender, RoutedEventArgs e)
+        {
+            editSendCommandPopup.IsOpen = false;
+        }
+
+
+
+        private Window_ShortCut window_ShortCut;
+        private void OpenShortCut(object sender, RoutedEventArgs e)
+        {
+            if (window_ShortCut != null) window_ShortCut.Close();
+            window_ShortCut = null;
+            window_ShortCut = new Window_ShortCut();
+            window_ShortCut.ShowDialog();
+            window_ShortCut.BringIntoView();
+            window_ShortCut.Activate();
+        }
+
+        private Grid GetBaseGridByPortName(string portName)
+        {
+            for (int i = 0; i < itemsControl.Items.Count; i++)
+            {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null) continue;
+                Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "baseGrid");
+                if (grid == null || grid.Tag == null) continue;
+                string name = grid.Tag.ToString();
+                if (portName.Equals(name))
+                {
+                    return grid;
+                }
+            }
+            return null;
+        }
+
+        private async void baseGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            string portName = "";
+            if (vieModel.PortTabItems?.Count > 0)
+            {
+                foreach (var portTabItem in vieModel.PortTabItems)
+                {
+                    if (portTabItem.Selected)
+                    {
+                        portName = portTabItem.Name;
+                        break;
+                    }
+                }
+            }
+
+            Console.WriteLine($"key = {e.Key}");
+
+            // 快捷键检测
+            foreach (var item in vieModel.ShortCutBindings)
+            {
+                Console.WriteLine($"KeyList = {string.Join(",", item.KeyList)}");
+                if (KeyBoardHelper.IsAllKeyDown(item.KeyList))
+                {
+                    if (item.KeyID == 1)
+                    {
+                        SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                        if (sideComPort == null)
+                        {
+                            MessageCard.Error($"打开 {portName} 失败！");
+                            return;
+                        }
+
+                        if (sideComPort.Connected)
+                        {
+                            ClosePort(portName);
+                        }
+                        else
+                        {
+                            // 连接
+                            await OpenPort(sideComPort);
+                        }
+                    }
+                    else if (item.KeyID == 2)
+                    {
+                        // 收起展开发送栏
+                        Grid baseGrid = sender as Grid;
+                        if (baseGrid != null)
+                        {
+                            double height = baseGrid.RowDefinitions[2].ActualHeight;
+                            if (height <= 10)
+                                baseGrid.RowDefinitions[2].Height = new GridLength(DEFAULT_SEND_PANEL_HEIGHT, GridUnitType.Pixel);
+                            else
+                                baseGrid.RowDefinitions[2].Height = new GridLength(0, GridUnitType.Pixel);
+                        }
+                    }
+                    else if (item.KeyID == 3)
+                    {
+                        // 全屏
+                        this.MaxWindow(null, null);
+                    }
+                    else if (item.KeyID == 4)
+                    {
+                        // 固定滚屏
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (!toggleButton.IsEnabled) return;
+                        toggleButton.IsChecked = !toggleButton.IsChecked;
+                        if ((bool)toggleButton.IsChecked)
+                            textEditor.TextChanged -= TextBox_TextChanged;
+                        else
+                            textEditor.TextChanged += TextBox_TextChanged;
+                    }
+                    break;
+                }
+
+
+            }
+
+        }
+
+        public void OnShortCutChanged()
+        {
+            vieModel.LoadShortCut();
         }
     }
 }

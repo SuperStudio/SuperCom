@@ -21,8 +21,10 @@ namespace SuperCom.ViewModel
 
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
         private static SqliteMapper<ComSettings> comMapper { get; set; }
+        private static SqliteMapper<ShortCutBinding> shortCutMapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
+        public List<ShortCutBinding> ShortCutBindings { get; set; }
 
 
         private ObservableCollection<string> _BaudRates;
@@ -187,7 +189,10 @@ namespace SuperCom.ViewModel
             LoadEncodings();
             LoadParitys();
             LoadStopBits();
+            LoadShortCut();
             comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+
+
         }
 
         public void LoadStopBits()
@@ -335,6 +340,20 @@ namespace SuperCom.ViewModel
                 comSettings.PortSetting = portTabItem.SerialPort.PortSettingToJson();
                 comMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
             }
+        }
+
+        public void LoadShortCut()
+        {
+            if (shortCutMapper == null)
+                shortCutMapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
+            ShortCutBindings = new List<ShortCutBinding>();
+            List<ShortCutBinding> shortCutBindings = shortCutMapper.SelectList();
+            foreach (var item in shortCutBindings)
+            {
+                item.RefreshKeyList();
+                ShortCutBindings.Add(item);
+            }
+
         }
     }
 }

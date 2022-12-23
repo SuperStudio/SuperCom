@@ -24,7 +24,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static SuperCom.Entity.HighLightRule;
 
-namespace SuperCom.Windows
+namespace SuperCom
 {
     /// <summary>
     /// Interaction logic for Window_Setting.xaml
@@ -503,6 +503,12 @@ namespace SuperCom.Windows
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
             AdjustWindow();
+        }
+
+        private void OpenBackUpFolder(object sender, RoutedEventArgs e)
+        {
+            string BackupPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backup");
+            FileHelper.TryOpenPath(BackupPath);
         }
     }
 }

@@ -4,6 +4,7 @@ using SuperControls.Style.Upgrade;
 using SuperUtils.NetWork;
 using SuperUtils.NetWork.Crawler;
 using SuperUtils.WPF.VieModel;
+using SuperUtils.WPF.VisualTools;
 using System.Windows;
 
 namespace SuperCom.Commands
@@ -12,9 +13,9 @@ namespace SuperCom.Commands
     {
         public static RelayCommand<Window> Upgrade { get; set; }
 
-
         static OpenWindow()
         {
+
             Upgrader = new SuperUpgrader();
             Upgrader.InfoUrl = UrlManager.UpdateUrl;
             Upgrader.FileListUrl = UrlManager.UpdateFileListUrl;

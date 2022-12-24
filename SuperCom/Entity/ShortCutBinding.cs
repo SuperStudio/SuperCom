@@ -49,6 +49,8 @@ namespace SuperCom.Entity
             new ShortCutBinding(2,"收起/展开发送栏",new List<Key>(){ Key.LeftCtrl,Key.T }),
             new ShortCutBinding(3,"全屏",new List<Key>(){ Key.LeftAlt,Key.Q }),
             new ShortCutBinding(4,"固定/滚屏",new List<Key>(){ Key.LeftAlt,Key.W }),
+            new ShortCutBinding(5,"HEX转换",new List<Key>(){ Key.LeftAlt,Key.E }),
+            new ShortCutBinding(6,"时间戳转换",new List<Key>(){ Key.LeftAlt,Key.D }),
         };
 
 

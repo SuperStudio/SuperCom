@@ -1111,7 +1111,7 @@
                     HorizontalOffset="-150"
                     Placement="Mouse"
                     PopupAnimation="Fade"
-                    StaysOpen="True"
+                    StaysOpen="False"
                     VerticalOffset="-120">
                     <Grid Margin="5">
                         <Border

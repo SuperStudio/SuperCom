@@ -96,6 +96,14 @@
                         Style="{StaticResource BaseTextBlock}"
                         Text="不支持的快捷键"
                         Visibility="Hidden" />
+                    <TextBlock
+                        Name="sameTextBlock"
+                        Grid.Row="3"
+                        Margin="10"
+                        Foreground="{DynamicResource Common.HighLight.Deep.Background}"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text=""
+                        Visibility="Hidden" />
 
 
                 </Grid>

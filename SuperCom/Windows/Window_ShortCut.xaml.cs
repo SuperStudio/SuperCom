@@ -175,15 +175,16 @@ namespace SuperCom
         {
             // 按键输入框
             keyInputTextBox.Text = "";
-
+            sameTextBlock.Visibility = Visibility.Collapsed;
+            warningTextBlock.Visibility = Visibility.Collapsed;
             DataGridRow row = (DataGridRow)sender;
             if (row != null)
             {
-                int idx = row.AlternationIndex;
+                int idx = row.GetIndex();
                 if (idx >= 0 && idx < dataGrid.Items.Count)
                 {
-                    ShortCutBinding v = dataGrid.Items[idx] as ShortCutBinding;
-                    List<int> keyCodeList = v.KeyCodeList;
+                    ShortCutBinding shortcut = dataGrid.Items[idx] as ShortCutBinding;
+                    List<int> keyCodeList = shortcut.KeyCodeList;
                     // 提取 funcKey
                     List<Key> allKey = new List<Key>();
                     foreach (int keyCode in keyCodeList)
@@ -203,7 +204,7 @@ namespace SuperCom
 
                     }
 
-                    CurrentShortCutBinding = v;
+                    CurrentShortCutBinding = shortcut;
                 }
             }
             e.Handled = true;
@@ -268,6 +269,16 @@ namespace SuperCom
 
             keyInputTextBox.Text = string.Join("+", keys).RemoveKeyDiff();
             hiddenTextBlock.Text = string.Join(",", allkey.Select(arg => (int)arg));
+            ShortCutBinding shortCutBinding = ShortCutBindingList.Where(arg => arg.Keys.ToLower().Equals(hiddenTextBlock.Text.ToLower())).FirstOrDefault();
+            if (shortCutBinding != null)
+            {
+                sameTextBlock.Text = $"存在冲突的快捷键：{shortCutBinding.KeyName}";
+                sameTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                sameTextBlock.Visibility = Visibility.Collapsed;
+            }
 
             Console.WriteLine($"keys = {string.Join(",", keys)}");
             Console.WriteLine($"normals = {string.Join(",", normals)}");

@@ -1168,6 +1168,11 @@ namespace SuperCom
         private void OpenHexTransform(object sender, RoutedEventArgs e)
         {
             string text = GetCurrentText(sender as FrameworkElement);
+            OpenHex(text);
+        }
+
+        private void OpenHex(string text)
+        {
             if (string.IsNullOrEmpty(text)) return;
             if (text.Length > MAX_TRANSFORM_SIZE)
             {
@@ -1178,6 +1183,9 @@ namespace SuperCom
             HexTextBox.Text = text;
             HexToStr(null, null);
         }
+
+
+
         private void CopyText(object sender, RoutedEventArgs e)
         {
             string text = GetCurrentText(sender as FrameworkElement);
@@ -1204,6 +1212,11 @@ namespace SuperCom
         private void OpenTimeTransform(object sender, RoutedEventArgs e)
         {
             string text = GetCurrentText(sender as FrameworkElement);
+            OpenTime(text);
+        }
+
+        private void OpenTime(string text)
+        {
             if (text.Length > MAX_TIMESTAMP_LENGTH)
             {
                 MessageCard.Warning($"超过了 {MAX_TIMESTAMP_LENGTH}");
@@ -2334,6 +2347,22 @@ namespace SuperCom
                             textEditor.TextChanged -= TextBox_TextChanged;
                         else
                             textEditor.TextChanged += TextBox_TextChanged;
+                    }
+                    else if (item.KeyID == 5)
+                    {
+                        // hex 转换
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                            OpenHex(textEditor.SelectedText);
+                    }
+                    else if (item.KeyID == 6)
+                    {
+                        // 时间戳
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                            OpenTime(textEditor.SelectedText);
                     }
                     break;
                 }

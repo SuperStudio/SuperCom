@@ -122,7 +122,7 @@
                                 Margin="10,0"
                                 Foreground="{DynamicResource Window.Sub.Foreground}"
                                 Style="{StaticResource BaseTextBlock}"
-                                Text="无结果" />
+                                Text="-" />
 
                             <Grid Grid.Column="2" Visibility="Collapsed">
                                 <Button

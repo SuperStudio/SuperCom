@@ -500,6 +500,7 @@ namespace SuperCom
                 if (ConfigManager.CommonSettings.ScrollOnSearchClosed)
                 {
                     toggleButton.IsChecked = false;
+                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
                     portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
                 }
                 toggleButton.IsEnabled = true;
@@ -742,7 +743,10 @@ namespace SuperCom
                 if (fix)
                     portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
                 else
+                {
+                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
                     portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
+                }
             }
         }
 
@@ -1271,7 +1275,8 @@ namespace SuperCom
             }
             try
             {
-                LocalTimeTextBox.Text = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0).ToLocalDate();
+                DateTime dateTime = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0);
+                LocalTimeTextBox.Text = dateTime.ToLocalDate();
             }
             catch (Exception ex)
             {
@@ -2346,7 +2351,10 @@ namespace SuperCom
                         if ((bool)toggleButton.IsChecked)
                             textEditor.TextChanged -= TextBox_TextChanged;
                         else
+                        {
+                            textEditor.TextChanged -= TextBox_TextChanged;
                             textEditor.TextChanged += TextBox_TextChanged;
+                        }
                     }
                     else if (item.KeyID == 5)
                     {

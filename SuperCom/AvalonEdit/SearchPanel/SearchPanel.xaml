@@ -200,9 +200,9 @@
                                 Style="{StaticResource FlatButton}">
                                 <Canvas>
                                     <Polygon
-                                        Fill="White"
+                                        Fill="{DynamicResource Window.Foreground}"
                                         Points="-3,0 3,0, 0,-5"
-                                        Stroke="White" />
+                                        Stroke="{DynamicResource Window.Foreground}" />
                                     <Rectangle
                                         Canvas.Left="-1.5"
                                         Width="3"
@@ -225,9 +225,9 @@
                                 <Canvas>
                                     <Polygon
                                         Canvas.Top="1"
-                                        Fill="White"
+                                        Fill="{DynamicResource Window.Foreground}"
                                         Points="-3,0 3,0, 0,5"
-                                        Stroke="White" />
+                                        Stroke="{DynamicResource Window.Foreground}" />
                                     <Rectangle
                                         Canvas.Left="-1.5"
                                         Canvas.Top="-5"

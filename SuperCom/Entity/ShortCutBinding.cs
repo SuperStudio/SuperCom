@@ -51,6 +51,8 @@ namespace SuperCom.Entity
             new ShortCutBinding(4,"固定/滚屏",new List<Key>(){ Key.LeftAlt,Key.W }),
             new ShortCutBinding(5,"HEX转换",new List<Key>(){ Key.LeftAlt,Key.E }),
             new ShortCutBinding(6,"时间戳转换",new List<Key>(){ Key.LeftAlt,Key.D }),
+            new ShortCutBinding(7,"格式化为JSON",new List<Key>(){ Key.F2 }),
+            new ShortCutBinding(8,"合并为一行",new List<Key>(){ Key.F3 }),
         };
 
 

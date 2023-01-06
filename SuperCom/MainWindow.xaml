@@ -1409,6 +1409,12 @@
                                                     <ContextMenu>
                                                         <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
                                                         <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+                                                        <MenuItem Header="格式化">
+                                                            <MenuItem Click="FormatJson" Header="JSON(F2)" />
+                                                        </MenuItem>
+                                                        <MenuItem Header="编辑">
+                                                            <MenuItem Click="JoinLine" Header="合并为一行(F3)" />
+                                                        </MenuItem>
                                                         <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
                                                         <MenuItem Click="OpenTimeTransform" Header="时间戳" />
                                                     </ContextMenu>

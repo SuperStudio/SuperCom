@@ -122,6 +122,7 @@
     <Compile Include="Entity\CustomSerialPort.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Entity\FormatType.cs" />
     <Compile Include="Entity\HighLightRule.cs" />
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />
@@ -212,6 +213,12 @@
     </EmbeddedResource>
     <None Include="AvalonEdit\Higlighting\ComLog.xshd">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Higlighting\JSON\JsonLight.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="AvalonEdit\Higlighting\JSON\JsonDeep.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

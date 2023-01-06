@@ -1208,7 +1208,6 @@ namespace SuperCom
                 }
             }
             return null;
-
         }
 
 
@@ -2299,31 +2298,41 @@ namespace SuperCom
             Console.WriteLine($"key = {e.Key}");
 
             // 快捷键检测
+            ShortCutBinding shortCutBinding = null;
+            int max = 0;
             foreach (var item in vieModel.ShortCutBindings)
             {
-                Console.WriteLine($"KeyList = {string.Join(",", item.KeyList)}");
-                if (KeyBoardHelper.IsAllKeyDown(item.KeyList))
+                // 贪婪匹配：最多的按键按下
+                if (KeyBoardHelper.IsAllKeyDown(item.KeyList) && item.KeyList.Count > max)
                 {
-                    if (item.KeyID == 1)
-                    {
-                        SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                        if (sideComPort == null)
-                        {
-                            MessageCard.Error($"打开 {portName} 失败！");
-                            return;
-                        }
+                    shortCutBinding = item;
+                    max = item.KeyList.Count;
+                }
+            }
+            if (shortCutBinding == null) return;
 
-                        if (sideComPort.Connected)
-                        {
-                            ClosePort(portName);
-                        }
-                        else
-                        {
-                            // 连接
-                            await OpenPort(sideComPort);
-                        }
+            switch (shortCutBinding.KeyID)
+            {
+                case 1:
+                    SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                    if (sideComPort == null)
+                    {
+                        MessageCard.Error($"打开 {portName} 失败！");
+                        return;
                     }
-                    else if (item.KeyID == 2)
+
+                    if (sideComPort.Connected)
+                    {
+                        ClosePort(portName);
+                    }
+                    else
+                    {
+                        // 连接
+                        await OpenPort(sideComPort);
+                    }
+
+                    break;
+                case 2:
                     {
                         // 收起展开发送栏
                         Grid baseGrid = sender as Grid;
@@ -2335,13 +2344,15 @@ namespace SuperCom
                             else
                                 baseGrid.RowDefinitions[2].Height = new GridLength(0, GridUnitType.Pixel);
                         }
+
                     }
-                    else if (item.KeyID == 3)
-                    {
-                        // 全屏
-                        this.MaxWindow(null, null);
-                    }
-                    else if (item.KeyID == 4)
+                    break;
+                case 3:
+                    // 全屏
+                    this.MaxWindow(null, null);
+
+                    break;
+                case 4:
                     {
                         // 固定滚屏
                         Grid baseGrid = sender as Grid;
@@ -2356,15 +2367,19 @@ namespace SuperCom
                             textEditor.TextChanged += TextBox_TextChanged;
                         }
                     }
-                    else if (item.KeyID == 5)
+                    break;
+                case 5:
                     {
+
                         // hex 转换
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
                         if (textEditor != null)
                             OpenHex(textEditor.SelectedText);
                     }
-                    else if (item.KeyID == 6)
+                    break;
+                case 6:
+
                     {
                         // 时间戳
                         Grid baseGrid = sender as Grid;
@@ -2373,11 +2388,39 @@ namespace SuperCom
                             OpenTime(textEditor.SelectedText);
                     }
                     break;
-                }
+                case 7:
+                    {
+                        // 格式化为 JSON
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                        {
+                            string origin = textEditor.SelectedText;
+                            string format = FormatString(FormatType.JSON, origin);
+                            textEditor.SelectedText = format;
+                        }
+                    }
+                    break;
+                case 8:
+                    {
+                        // 合并为一行
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                        {
+                            string origin = textEditor.SelectedText;
+                            string format = FormatString(FormatType.JOINLINE, origin);
+                            textEditor.SelectedText = format;
+                        }
+                    }
 
+                    break;
+                default:
+
+
+                    break;
 
             }
-
         }
 
         public void OnShortCutChanged()
@@ -2400,6 +2443,72 @@ namespace SuperCom
             Window_Donate window_Donate = new Window_Donate();
             window_Donate.SetUrl(UrlManager.GetDonateJsonUrl());
             window_Donate.ShowDialog();
+        }
+
+        private TextEditor GetTextEditorFromMenuItem(MenuItem menuItem, int depth = 0)
+        {
+            if (depth == 0)
+            {
+                if (menuItem != null && menuItem.Parent is ContextMenu contextMenu)
+                {
+                    if (contextMenu.PlacementTarget is TextEditor textEditor)
+                    {
+                        return textEditor;
+                    }
+                }
+            }
+            else if (depth == 1)
+            {
+                if (menuItem != null && (menuItem.Parent as MenuItem).Parent is ContextMenu contextMenu)
+                {
+                    if (contextMenu.PlacementTarget is TextEditor textEditor)
+                    {
+                        return textEditor;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void FormatJson(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = GetTextEditorFromMenuItem((MenuItem)sender, 1);
+            if (textEditor == null) return;
+            string origin = textEditor.SelectedText;
+            string format = FormatString(FormatType.JSON, origin);
+            textEditor.SelectedText = format;
+        }
+
+        private string FormatString(FormatType formatType, string origin)
+        {
+            if (string.IsNullOrEmpty(origin)) return "";
+            switch (formatType)
+            {
+                case FormatType.JSON:
+                    Dictionary<string, object> dictionary = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(origin);
+                    if (dictionary != null)
+                    {
+                        string json_text = JsonUtils.TrySerializeObject(dictionary, Newtonsoft.Json.Formatting.Indented);
+                        if (!string.IsNullOrEmpty(json_text))
+                            return $"{Environment.NewLine}{json_text}";
+                    }
+                    break;
+                case FormatType.JOINLINE:
+                    return origin.Replace("\n", "").Replace("\r", "");
+
+                default:
+                    break;
+            }
+            return origin;
+        }
+
+        private void JoinLine(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = GetTextEditorFromMenuItem((MenuItem)sender, 1);
+            if (textEditor == null) return;
+            string origin = textEditor.SelectedText;
+            string format = FormatString(FormatType.JOINLINE, origin);
+            textEditor.SelectedText = format;
         }
     }
 }

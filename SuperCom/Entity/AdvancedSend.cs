@@ -22,13 +22,31 @@ namespace SuperCom.Entity
 
     public enum RunningStatus
     {
-        Waiting,
+        WaitingToRun,
         Running,
+        AlreadySend,
+        WaitingDelay,
         Success,
         Failed
     }
+
+
+
+
+
+
     public class SendCommand : ViewModelBase
     {
+
+        private static Dictionary<RunningStatus, string> RunningStatusToString = new Dictionary<RunningStatus, string>() {
+            { RunningStatus.WaitingToRun,"就绪" },
+            { RunningStatus.WaitingDelay,"等待中" },
+            { RunningStatus.Running,"运行中" },
+            { RunningStatus.AlreadySend,"已发送" },
+            { RunningStatus.Success,"成功" },
+            { RunningStatus.Failed,"失败" },
+        };
+
         public static int DEFAULT_DELAY = 200;
         public static int DEFAULT_TIMEOUT = 5000;
         public long CommandID { get; set; }
@@ -43,11 +61,21 @@ namespace SuperCom.Entity
         public string Command { get; set; }
         public int Delay { get; set; }
         public bool Running { get; set; }
-        private RunningStatus _Status = RunningStatus.Waiting;
+        private RunningStatus _Status = RunningStatus.WaitingToRun;
         public RunningStatus Status
         {
             get { return _Status; }
-            set { _Status = value; RaisePropertyChanged(); }
+            set
+            {
+                _Status = value; RaisePropertyChanged();
+                StatusText = RunningStatusToString[value];
+            }
+        }
+        private string _StatusText = "就绪";
+        public string StatusText
+        {
+            get { return _StatusText; }
+            set { _StatusText = value; RaisePropertyChanged(); }
         }
         private string _RecvResult = "";
         public string RecvResult

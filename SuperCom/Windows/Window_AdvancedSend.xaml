@@ -2,6 +2,7 @@
     x:Class="SuperCom.Window_AdvancedSend"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -39,6 +40,90 @@
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+
+        <Grid
+            Grid.Column="2"
+            Width="500"
+            Height="400"
+            Margin="10,50"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Panel.ZIndex="10"
+            Opacity="{Binding ElementName=logSlider, Path=Value}"
+            Visibility="{Binding ElementName=showLogCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}">
+
+            <Border Effect="{StaticResource PopupDropShadowEffect}" Style="{StaticResource InfoBorder}" />
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <WrapPanel Margin="10,10,10,0" Orientation="Horizontal">
+                    <Button
+                        Click="HideLogGrid"
+                        Content="隐藏"
+                        Style="{StaticResource ButtonPrimary}" />
+                    <Button
+                        Click="ClearLogGrid"
+                        Content="清空"
+                        Style="{StaticResource ButtonDanger}" />
+                    <CheckBox
+                        x:Name="logAutoWrap"
+                        VerticalAlignment="Center"
+                        super:CheckBoxExt.HookWidth="10"
+                        super:CheckBoxExt.MarkHeight="16"
+                        super:CheckBoxExt.MarkWidth="16"
+                        Content="自动换行"
+                        FontSize="14"
+                        IsChecked="{Binding LogAutoWrap, Mode=TwoWay}"
+                        Style="{StaticResource NormalCheckBox}" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        FontSize="14"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="透明度" />
+                    <super:Slider
+                        Name="logSlider"
+                        Width="100"
+                        VerticalAlignment="Center"
+                        Integer="False"
+                        LargeChange="0.2"
+                        Maximum="1"
+                        Minimum="0.5"
+                        SmallChange="0.1"
+                        Value="{Binding LogOpacity, Mode=TwoWay}" />
+                </WrapPanel>
+
+                <Border
+                    Grid.Row="1"
+                    Margin="10,5,10,10"
+                    Background="{DynamicResource Window.Side.Background}"
+                    Style="{StaticResource InfoBorder}">
+                    <avalonEdit:TextEditor
+                        Name="logTextBox"
+                        Padding="5"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Top"
+                        Background="Transparent"
+                        ContextMenu="{StaticResource CopyContextMenu}"
+                        Foreground="{DynamicResource Window.Foreground}"
+                        HorizontalScrollBarVisibility="Auto"
+                        IsReadOnly="True"
+                        SyntaxHighlighting="ComLog"
+                        WordWrap="{Binding Path=IsChecked, ElementName=logAutoWrap}" />
+                </Border>
+
+
+            </Grid>
+            <Grid />
+
+        </Grid>
+
+
         <Grid Background="{DynamicResource Window.Side.Background}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -148,121 +233,164 @@
         <Grid Grid.Column="2" Visibility="{Binding ShowCurrentSendCommand, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
+
+            <Border
+                Grid.Row="0"
+                Margin="10"
+                Padding="4,2"
+                VerticalAlignment="Center"
+                Background="{DynamicResource Window.Title.Background}"
+                CornerRadius="3">
+                <StackPanel Orientation="Horizontal">
+                    <Button
+                        Width="25"
+                        Height="25"
+                        Margin="0"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        super:CommonExt.CornerRadius="5"
+                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                        Click="StartCommands"
+                        IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
+                        Style="{StaticResource FlatButton}">
+                        <Viewbox
+                            Width="12"
+                            Height="auto"
+                            VerticalAlignment="Center">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
+                                Effect="{StaticResource PopupDropShadowEffect}">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                <Setter Property="Fill" Value="Gray" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                <Setter Property="Fill" Value="#99E699" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Viewbox>
+                    </Button>
+
+                    <Button
+                        Width="25"
+                        Height="25"
+                        Margin="0"
+                        Padding="0"
+                        VerticalAlignment="Stretch"
+                        super:CommonExt.CornerRadius="5"
+                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                        Click="StopCommands"
+                        IsEnabled="{Binding RunningCommands}"
+                        Style="{StaticResource FlatButton}">
+
+                        <Viewbox
+                            Width="12"
+                            Height="auto"
+                            Margin="6,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M128 128m53.333333 0l661.333334 0q53.333333 0 53.333333 53.333333l0 661.333334q0 53.333333-53.333333 53.333333l-661.333334 0q-53.333333 0-53.333333-53.333333l0-661.333334q0-53.333333 53.333333-53.333333Z"
+                                Effect="{StaticResource PopupDropShadowEffect}">
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                <Setter Property="Fill" Value="Gray" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                <Setter Property="Fill" Value="#C85860" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Viewbox>
+                    </Button>
+                    <CheckBox
+                        Name="showLogCheckBox"
+                        Margin="4,0"
+                        super:CheckBoxExt.HookWidth="10"
+                        super:CheckBoxExt.MarkHeight="16"
+                        super:CheckBoxExt.MarkWidth="16"
+                        Content="显示日志"
+                        FontSize="12"
+                        IsChecked="{Binding ShowLogGrid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+
+
+                    <ItemsControl Margin="5,0" ItemsSource="{Binding SideComPortSelected}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox
+                                    VerticalContentAlignment="Center"
+                                    super:CheckBoxExt.HookWidth="10"
+                                    super:CheckBoxExt.MarkHeight="16"
+                                    super:CheckBoxExt.MarkWidth="16"
+                                    Checked="CheckBox_Checked"
+                                    Content="{Binding Key.Name}"
+                                    FontSize="12"
+                                    IsChecked="{Binding Value, Mode=OneWay}"
+                                    Style="{StaticResource NormalCheckBox}"
+                                    Unchecked="CheckBox_Unchecked" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+
+
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button
                     Height="30"
-                    Margin="5"
+                    Margin="10,5"
                     Click="AddNewSendCommand"
                     Content="添加命令" />
 
-                <Border
-                    Margin="10"
-                    Padding="4,2"
-                    VerticalAlignment="Center"
-                    Background="{DynamicResource Window.Title.Background}"
-                    CornerRadius="3">
-                    <StackPanel Orientation="Horizontal">
-                        <Button
-                            Width="25"
-                            Height="25"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            super:CommonExt.CornerRadius="5"
-                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                            Click="StartCommands"
-                            IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
-                            Style="{StaticResource FlatButton}">
-                            <Viewbox
-                                Width="12"
-                                Height="auto"
-                                VerticalAlignment="Center">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
-                                    Effect="{StaticResource PopupDropShadowEffect}">
-                                    <Path.Style>
-                                        <Style TargetType="Path">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
-                                                    <Setter Property="Fill" Value="Gray" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
-                                                    <Setter Property="Fill" Value="#99E699" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Path.Style>
-                                </Path>
-                            </Viewbox>
-                        </Button>
 
-                        <Button
-                            Width="25"
-                            Height="25"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            super:CommonExt.CornerRadius="5"
-                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                            Click="StopCommands"
-                            IsEnabled="{Binding RunningCommands}"
-                            Style="{StaticResource FlatButton}">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding RunningCommands, Converter={StaticResource bool2VisibilityConverter}}">
+                    <TextBlock
+                        Margin="5,0"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="透明度" />
 
-                            <Viewbox
-                                Width="12"
-                                Height="auto"
-                                Margin="6,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M128 128m53.333333 0l661.333334 0q53.333333 0 53.333333 53.333333l0 661.333334q0 53.333333-53.333333 53.333333l-661.333334 0q-53.333333 0-53.333333-53.333333l0-661.333334q0-53.333333 53.333333-53.333333Z"
-                                    Effect="{StaticResource PopupDropShadowEffect}">
-                                    <Path.Style>
-                                        <Style TargetType="Path">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
-                                                    <Setter Property="Fill" Value="Gray" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
-                                                    <Setter Property="Fill" Value="#C85860" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Path.Style>
-                                </Path>
-                            </Viewbox>
-                        </Button>
+                    <super:Slider
+                        Width="150"
+                        Margin="5,0"
+                        Integer="False"
+                        LargeChange="0.2"
+                        Maximum="1"
+                        Minimum="0.5"
+                        SmallChange="0.1"
+                        ValueChanged="Slider_ValueChanged"
+                        Value="{Binding WindowOpacity, Mode=OneWay}" />
 
-                        <TextBlock
-                            Margin="10,0,5,0"
-                            Style="{StaticResource BaseTextBlock}"
-                            Text="选择串口" />
-
-
-                        <ComboBox
-                            Name="comboBox"
-                            MinWidth="150"
-                            Margin="10,0"
-                            DisplayMemberPath="Name"
-                            IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
-                            ItemsSource="{Binding SideComPorts}"
-                            SelectedIndex="{Binding ComPortSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource BorderComboBox}" />
-
-                    </StackPanel>
-                </Border>
-
-
+                </StackPanel>
             </StackPanel>
+
+
             <DataGrid
                 Name="dataGrid"
-                Grid.Row="1"
+                Grid.Row="2"
                 Margin="5,0"
                 HorizontalContentAlignment="Left"
                 CanUserResizeColumns="True"
@@ -319,29 +447,46 @@
                         SortMemberPath="Status">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border
-                                    Width="10"
-                                    Height="10"
-                                    Margin="5,0"
-                                    HorizontalAlignment="Center"
-                                    CornerRadius="5">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Grid.Column="0"
+                                        Width="10"
+                                        Height="10"
+                                        Margin="5,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="5">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
 
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Waiting">
-                                                    <Setter Property="Background" Value="Gray" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Running">
-                                                    <Setter Property="Background" Value="Yellow" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="Success">
-                                                    <Setter Property="Background" Value="Green" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                </Border>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="WaitingToRun">
+                                                        <Setter Property="Background" Value="Gray" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="WaitingDelay">
+                                                        <Setter Property="Background" Value="Yellow" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status, Mode=OneWay}" Value="AlreadySend">
+                                                        <Setter Property="Background" Value="Green" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        MinWidth="50"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="{Binding StatusText, Mode=OneWay}"
+                                        TextAlignment="Left" />
+                                </Grid>
+
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
@@ -353,14 +498,12 @@
                         SortMemberPath="Order">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox
-                                    MinWidth="40"
+                                <super:SearchBox
+                                    MinWidth="70"
+                                    MaxWidth="100"
                                     Background="Transparent"
-                                    ContextMenu="{StaticResource TextBoxContextMenu}"
                                     LostFocus="SaveSendCommands"
-                                    Style="{StaticResource BaseTextBox}"
                                     Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left"
                                     TextChanged="CommandTextChanged" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -373,14 +516,13 @@
                         SortMemberPath="Order">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox
-                                    MinWidth="40"
+                                <super:SearchBox
+                                    MinWidth="100"
+                                    MaxWidth="150"
                                     Background="Transparent"
-                                    ContextMenu="{StaticResource TextBoxContextMenu}"
                                     LostFocus="SaveSendCommands"
-                                    Style="{StaticResource BaseTextBox}"
+                                    PlaceHolder="请输入"
                                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left"
                                     TextChanged="CommandTextChanged" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -392,18 +534,16 @@
                     <DataGridTemplateColumn
                         Width="auto"
                         MinWidth="60"
-                        Header="延时"
+                        Header="延时(ms)"
                         SortMemberPath="Delay">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox
-                                    MinWidth="40"
+                                <super:SearchBox
+                                    MinWidth="90"
+                                    MaxWidth="150"
                                     Background="Transparent"
-                                    ContextMenu="{StaticResource TextBoxContextMenu}"
                                     LostFocus="SaveSendCommands"
-                                    Style="{StaticResource BaseTextBox}"
                                     Text="{Binding Delay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left"
                                     TextChanged="CommandTextChanged" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -421,22 +561,29 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border
-                                    Margin="5"
-                                    Padding="5"
-                                    Background="{DynamicResource Window.Title.Background}"
-                                    CornerRadius="3">
-                                    <TextBox
-                                        Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
-                                        Padding="15,0,0,0"
-                                        AcceptsReturn="False"
-                                        Background="Transparent"
-                                        ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-200}"
+                                    Margin="0"
+                                    Padding="0,0,25,0"
+                                    Background="Transparent">
+                                    <super:SearchBox
+                                        Margin="0,5"
                                         LostFocus="SaveSendCommands"
-                                        Style="{StaticResource BaseTextBox}"
+                                        PlaceHolder="请输入"
+                                        Style="{StaticResource SearchTextBoxStyle}"
                                         Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        TextAlignment="Left"
-                                        TextChanged="CommandTextChanged"
-                                        TextWrapping="NoWrap" />
+                                        TextChanged="CommandTextChanged" />
+                                    <!--<TextBox
+                                    Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
+                                    Padding="15,0,0,0"
+                                    AcceptsReturn="False"
+                                    Background="Transparent"
+                                    ContextMenu="{StaticResource TextBoxContextMenu}"
+                                    LostFocus="SaveSendCommands"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Left"
+                                    TextChanged="CommandTextChanged"
+                                    TextWrapping="NoWrap" />-->
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

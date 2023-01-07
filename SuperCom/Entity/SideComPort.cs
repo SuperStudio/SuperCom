@@ -49,5 +49,16 @@ namespace SuperCom.Entity
             Connected = connected;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is SideComPort)) return false;
+            return this.Name.Equals((obj as SideComPort).Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
+        }
+
     }
 }

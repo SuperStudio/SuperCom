@@ -3,6 +3,7 @@ using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperUtils.Common;
+using SuperUtils.Time;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -51,7 +52,7 @@ namespace SuperCom
                 if (running)
                 {
                     this.Owner = Main;
-                    this.Opacity = 0.7;
+                    this.Opacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
                 }
                 else
                 {
@@ -66,6 +67,20 @@ namespace SuperCom
 
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
+
+            if (Main != null && Main.vieModel != null && Main?.vieModel.HighlightingDefinitions?.Count > 0)
+            {
+                foreach (var item in Main?.vieModel.HighlightingDefinitions)
+                {
+                    if (item.Name.Equals("ComLog"))
+                    {
+                        logTextBox.SyntaxHighlighting = item;
+                        break;
+                    }
+                }
+
+            }
+
 
 
         }
@@ -312,63 +327,117 @@ namespace SuperCom
 
         private void StartCommands(object sender, RoutedEventArgs e)
         {
+            if (vieModel.SideComPortSelected?.Count == 0) return;
             foreach (var item in vieModel.SendCommands)
             {
-                item.Status = RunningStatus.Waiting;
+                item.Status = RunningStatus.WaitingToRun;
             }
             CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
-            string portName = comboBox.Text;
+            List<string> portNames = new List<string>();
+            foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
+            {
+                if (vieModel.SideComPortSelected[key])
+                    portNames.Add(key.Name);
+            }
+            if (portNames.Count == 0)
+            {
+                LogToTextBox("未选择任何串口");
+                return;
+            }
+
             vieModel.RunningCommands = true;
             Task.Run(async () =>
             {
                 int idx = 0;
                 while (vieModel.RunningCommands)
                 {
+
+                    SendCommand command = CurrentSendCommands[idx];
+                    if (idx < vieModel.SendCommands.Count)
+                        vieModel.SendCommands[idx].Status = RunningStatus.Running;
+
+                    foreach (var portName in portNames)
+                    {
+                        bool success = await AsyncSendCommand(idx, portName, command);
+                        if (!success) continue;
+                    }
+
+                    vieModel.SendCommands[idx].Status = RunningStatus.WaitingDelay;
+                    LogToTextBox($"等待 {command.Delay} ms");
+                    int delay = 10;
+                    for (int i = 1; i <= command.Delay; i += delay)
+                    {
+                        if (!vieModel.RunningCommands)
+                            break;
+                        await Task.Delay(delay);
+                        vieModel.SendCommands[idx].StatusText = $"{command.Delay - i} ms";
+                    }
+                    vieModel.SendCommands[idx].StatusText = $"0 ms";
+                    vieModel.SendCommands[idx].Status = RunningStatus.WaitingToRun;
+                    idx++;
                     if (idx >= CurrentSendCommands.Count)
                     {
                         idx = 0;
                         CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
-                        await Task.Delay(500);
-                        continue;
+                        // 更新选择的串口
+                        portNames.Clear();
+                        foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
+                        {
+                            if (vieModel.SideComPortSelected[key])
+                                portNames.Add(key.Name);
+                        }
+                        if (portNames.Count == 0)
+                        {
+                            LogToTextBox("未选择任何串口");
+                            vieModel.RunningCommands = false;
+                            return;
+                        }
                     }
-                    SendCommand command = CurrentSendCommands[idx];
-                    if (idx < vieModel.SendCommands.Count)
-                        vieModel.SendCommands[idx].Status = RunningStatus.Running;
-                    Console.WriteLine($"暂停 {command.Delay} ms");
-                    await Task.Delay(command.Delay);
-                    await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-                  {
-                      SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                      if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
-                      {
-                          MessageCard.Error($"连接串口 {portName} 失败！");
-                          vieModel.RunningCommands = false;
-                          return;
-                      }
-                      SerialPort port = serialComPort.PortTabItem.SerialPort;
-                      PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                      string value = command.Command;
-                      if (port != null)
-                      {
-                          bool success = vieModel.Main.SendCommand(port, portTabItem, value);
-                          if (!success)
-                          {
-                              vieModel.RunningCommands = false;
-                              return;
-                          }
-                      }
-                      if (idx < vieModel.SendCommands.Count)
-                          vieModel.SendCommands[idx].Status = RunningStatus.Success;
-                      idx++;
-                      if (idx >= CurrentSendCommands.Count)
-                      {
-                          idx = 0;
-                          CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
-                      }
-                  });
-
-
                 }
+            });
+        }
+
+        public async Task<bool> AsyncSendCommand(int idx, string portName, SendCommand command)
+        {
+            bool success = false;
+            await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+            {
+                SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+                {
+                    LogToTextBox($"[E] 连接串口 {portName} 失败！");
+                    success = false;
+                    return;
+                }
+                SerialPort port = serialComPort.PortTabItem.SerialPort;
+                PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                string value = command.Command;
+                if (port != null)
+                {
+                    success = vieModel.Main.SendCommand(port, portTabItem, value);
+                    if (!success)
+                    {
+                        LogToTextBox($"[E] 向串口 {portName} 发送命令失败  {value} ");
+                        success = false;
+                        return;
+                    }
+                }
+                if (idx < vieModel.SendCommands.Count)
+                    vieModel.SendCommands[idx].Status = RunningStatus.AlreadySend;
+                LogToTextBox($"[I] 向串口 {portName} 发送命令成功  {value} ");
+                success = true;
+            });
+            return success;
+        }
+
+
+        public void LogToTextBox(string text)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                logTextBox.AppendText($"[{DateHelper.Now()}] {text}{Environment.NewLine}");
+                // 保存到文件？
+                logTextBox.ScrollToEnd();
             });
         }
 
@@ -377,7 +446,7 @@ namespace SuperCom
             vieModel.RunningCommands = false;
             foreach (var item in vieModel.SendCommands)
             {
-                item.Status = RunningStatus.Waiting;
+                item.Status = RunningStatus.WaitingToRun;
             }
         }
 
@@ -478,6 +547,64 @@ namespace SuperCom
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
             AdjustWindow();
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            this.Opacity = (double)e.NewValue;
+            ConfigManager.AdvancedSendSettings.WindowOpacity = this.Opacity;
+            ConfigManager.AdvancedSendSettings.Save();
+        }
+
+
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (vieModel.SideComPortSelected?.Count == 0) return;
+            CheckBox checkBox = sender as CheckBox;
+            string portName = checkBox.Content.ToString();
+            SetCheckedStatus(portName, true);
+        }
+
+        private void SetCheckedStatus(string portName, bool status)
+        {
+            if (!string.IsNullOrEmpty(portName))
+            {
+                foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
+                {
+                    if (key.Name.Equals(portName))
+                    {
+                        vieModel.SideComPortSelected[key] = status;
+                        break;
+                    }
+                }
+            }
+            // 保存状态
+            Dictionary<string, bool> dict = new Dictionary<string, bool>();
+            foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
+            {
+                dict.Add(key.Name, vieModel.SideComPortSelected[key]);
+            }
+            ConfigManager.AdvancedSendSettings.SelectedPortNamesJson = JsonUtils.TrySerializeObject(dict);
+            ConfigManager.AdvancedSendSettings.Save();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (vieModel.SideComPortSelected?.Count == 0) return;
+            CheckBox checkBox = sender as CheckBox;
+            string portName = checkBox.Content.ToString();
+            SetCheckedStatus(portName, false);
+        }
+
+        private void HideLogGrid(object sender, RoutedEventArgs e)
+        {
+            showLogCheckBox.IsChecked = false;
+        }
+
+        private void ClearLogGrid(object sender, RoutedEventArgs e)
+        {
+            logTextBox.Clear();
         }
     }
 }

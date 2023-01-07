@@ -1644,11 +1644,18 @@ namespace SuperCom
 
         private void OpenSendPanel(object sender, RoutedEventArgs e)
         {
-            window_AdvancedSend?.Close();
-            window_AdvancedSend = new Window_AdvancedSend();
-            window_AdvancedSend.Show();
-            window_AdvancedSend.Focus();
-            window_AdvancedSend.BringIntoView();
+            //if (window_AdvancedSend == null || window_AdvancedSend.IsClosed)
+            //{
+            Window_AdvancedSend window = new Window_AdvancedSend();
+            window.Show();
+            window.Focus();
+            window.BringIntoView();
+            //}
+            //else
+            //{
+            //    window_AdvancedSend.Focus();
+            //    window_AdvancedSend.BringIntoView();
+            //}
         }
 
 
@@ -1673,11 +1680,8 @@ namespace SuperCom
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = sender as ComboBox;
-
-
-            Grid grid = comboBox.Parent as Grid;
-            ScrollViewer scrollViewer = grid.Children.OfType<ScrollViewer>().LastOrDefault();
-            ItemsControl itemsControl = scrollViewer.FindName("sendButtons") as ItemsControl;
+            Grid grid = (comboBox.Parent as StackPanel).Parent as Grid;
+            ItemsControl itemsControl = grid.Children.OfType<ItemsControl>().LastOrDefault();
             if (itemsControl == null)
             {
                 return;
@@ -1731,8 +1735,11 @@ namespace SuperCom
             Grid borderGrid = rootGrid.Children.OfType<Grid>().LastOrDefault();
             Border border = borderGrid.Children.OfType<Border>().Last();
             Grid grid1 = border.Child as Grid;
-            ComboBox comboBox = grid1.Children.OfType<ComboBox>().FirstOrDefault();
-            return comboBox;
+            StackPanel stackPanel = grid1.Children.OfType<StackPanel>().FirstOrDefault();
+            if (stackPanel != null)
+                return stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+
+            return null;
         }
 
         private void ScrollViewer_PreviewMouseWheel_1(object sender, MouseWheelEventArgs e)

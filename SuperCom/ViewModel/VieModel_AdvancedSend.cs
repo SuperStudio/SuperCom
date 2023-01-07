@@ -80,6 +80,18 @@ namespace SuperCom.ViewModel
                 OnRunCommand?.Invoke(value);
             }
         }
+        private double _WindowOpacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
+        public double WindowOpacity
+        {
+            get { return _WindowOpacity; }
+            set
+            {
+                _WindowOpacity = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public Dictionary<SideComPort, bool> SideComPortSelected { get; set; }
 
         private ObservableCollection<SideComPort> _SideComPorts;
         public ObservableCollection<SideComPort> SideComPorts
@@ -108,6 +120,42 @@ namespace SuperCom.ViewModel
                 _ComPortSelectedIndex = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.ComPortSelectedIndex = value;
+                ConfigManager.AdvancedSendSettings.Save();
+            }
+        }
+        private bool _ShowLogGrid = ConfigManager.AdvancedSendSettings.ShowLogGrid;
+        public bool ShowLogGrid
+        {
+            get { return _ShowLogGrid; }
+            set
+            {
+                _ShowLogGrid = value;
+                RaisePropertyChanged();
+                ConfigManager.AdvancedSendSettings.ShowLogGrid = value;
+                ConfigManager.AdvancedSendSettings.Save();
+            }
+        }
+        private bool _LogAutoWrap = ConfigManager.AdvancedSendSettings.LogAutoWrap;
+        public bool LogAutoWrap
+        {
+            get { return _LogAutoWrap; }
+            set
+            {
+                _LogAutoWrap = value;
+                RaisePropertyChanged();
+                ConfigManager.AdvancedSendSettings.LogAutoWrap = value;
+                ConfigManager.AdvancedSendSettings.Save();
+            }
+        }
+        private double _LogOpacity = ConfigManager.AdvancedSendSettings.LogOpacity;
+        public double LogOpacity
+        {
+            get { return _LogOpacity; }
+            set
+            {
+                _LogOpacity = value;
+                RaisePropertyChanged();
+                ConfigManager.AdvancedSendSettings.LogOpacity = value;
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
@@ -155,9 +203,16 @@ namespace SuperCom.ViewModel
         private void LoadSideComports()
         {
             SideComPorts = new ObservableCollection<SideComPort>();
+            SideComPortSelected = new Dictionary<SideComPort, bool>();
+            Dictionary<string, bool> dict = JsonUtils.TryDeserializeObject<Dictionary<string, bool>>(ConfigManager.AdvancedSendSettings.SelectedPortNamesJson);
             foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer()))
             {
                 SideComPorts.Add(item);
+                bool isChecked = false;
+                // …Ë÷√—°÷–
+                if (dict != null && dict.ContainsKey(item.Name))
+                    isChecked = dict[item.Name];
+                SideComPortSelected.Add(item, isChecked);
             }
         }
 

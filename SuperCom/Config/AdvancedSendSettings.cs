@@ -12,6 +12,7 @@ namespace SuperCom.Config.WindowConfig
             Width = SystemParameters.WorkArea.Width * 0.7;
             Height = SystemParameters.WorkArea.Height * 0.7;
             FirstRun = true;
+            LogOpacity = 0.8;
         }
 
         private static AdvancedSendSettings _instance = null;
@@ -31,6 +32,11 @@ namespace SuperCom.Config.WindowConfig
         public double Height { get; set; }
         public long WindowState { get; set; }
         public bool FirstRun { get; set; }
+        public double WindowOpacity { get; set; }
+        public bool ShowLogGrid { get; set; }
+        public string SelectedPortNamesJson { get; set; }
+        public bool LogAutoWrap { get; set; }
+        public double LogOpacity { get; set; }
 
 
     }

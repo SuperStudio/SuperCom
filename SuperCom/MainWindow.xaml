@@ -1823,82 +1823,85 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="auto" />
-                                                    <ColumnDefinition Width="auto" />
-                                                    <ColumnDefinition Width="auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Button
+
+                                                <StackPanel
                                                     Grid.Column="0"
-                                                    Margin="5,0"
-                                                    Click="OpenSendPanel"
-                                                    Content="编辑命令" />
+                                                    VerticalAlignment="Top"
+                                                    Orientation="Horizontal">
 
-                                                <Button
-                                                    Grid.Column="1"
-                                                    Width="27"
-                                                    Height="27"
-                                                    Margin="5,0"
-                                                    Click="StartSendCommands"
-                                                    Style="{StaticResource RoundNormalButton}"
-                                                    ToolTip="启动"
-                                                    Visibility="Collapsed">
 
-                                                    <Viewbox
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center">
-                                                        <Path
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Data="M512 962c-248.512 0-450-201.487-450-450s201.487-450 450-450 450 201.487 450 450c0 248.512-201.487 450-450 450zM512 174.5c-177.525 0-337.5 159.975-337.5 337.5s159.975 337.5 337.5 337.5c177.525 0 337.5-159.975 337.5-337.5s-159.975-337.5-337.5-337.5zM466.494 682.719c-36.9 22.163-83.081-5.512-83.081-49.838v-241.706c0-44.325 46.125-72 83.081-49.838l201.431 120.881c36.9 22.162 36.9 77.513 0 99.675l-201.431 120.825z"
-                                                            Fill="Green" />
-                                                    </Viewbox>
-                                                </Button>
-                                                <ComboBox
-                                                    Grid.Column="2"
-                                                    MinWidth="50"
-                                                    DisplayMemberPath="ProjectName"
-                                                    ItemsSource="{Binding Path=DataContext.SendCommandProjects, RelativeSource={RelativeSource AncestorType={x:Type super:BaseWindow}}}"
-                                                    SelectedIndex="{Binding CommandsSelectIndex, Mode=OneWay}"
-                                                    SelectedValuePath="ProjectID"
-                                                    SelectionChanged="ComboBox_SelectionChanged"
-                                                    Style="{StaticResource BorderComboBox}" />
-                                                <ScrollViewer
+                                                    <Button
+                                                        Margin="5,0"
+                                                        VerticalAlignment="Center"
+                                                        Click="OpenSendPanel"
+                                                        Content="编辑命令" />
+
+                                                    <Button
+                                                        Width="27"
+                                                        Height="27"
+                                                        Margin="5,0"
+                                                        Click="StartSendCommands"
+                                                        Style="{StaticResource RoundNormalButton}"
+                                                        ToolTip="启动"
+                                                        Visibility="Collapsed">
+
+                                                        <Viewbox
+                                                            Width="20"
+                                                            Height="20"
+                                                            VerticalAlignment="Center">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M512 962c-248.512 0-450-201.487-450-450s201.487-450 450-450 450 201.487 450 450c0 248.512-201.487 450-450 450zM512 174.5c-177.525 0-337.5 159.975-337.5 337.5s159.975 337.5 337.5 337.5c177.525 0 337.5-159.975 337.5-337.5s-159.975-337.5-337.5-337.5zM466.494 682.719c-36.9 22.163-83.081-5.512-83.081-49.838v-241.706c0-44.325 46.125-72 83.081-49.838l201.431 120.881c36.9 22.162 36.9 77.513 0 99.675l-201.431 120.825z"
+                                                                Fill="Green" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                    <ComboBox
+                                                        MinWidth="50"
+                                                        VerticalAlignment="Center"
+                                                        DisplayMemberPath="ProjectName"
+                                                        ItemsSource="{Binding Path=DataContext.SendCommandProjects, RelativeSource={RelativeSource AncestorType={x:Type super:BaseWindow}}}"
+                                                        SelectedIndex="{Binding CommandsSelectIndex, Mode=OneWay}"
+                                                        SelectedValuePath="ProjectID"
+                                                        SelectionChanged="ComboBox_SelectionChanged"
+                                                        Style="{StaticResource BorderComboBox}" />
+                                                </StackPanel>
+                                                <ItemsControl
+                                                    Name="sendButtons"
                                                     Grid.Column="3"
-                                                    HorizontalScrollBarVisibility="Auto"
-                                                    PreviewMouseWheel="ScrollViewer_PreviewMouseWheel_1"
-                                                    VerticalScrollBarVisibility="Disabled">
-                                                    <ItemsControl Name="sendButtons" Margin="5,0">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Button
-                                                                    Margin="5,0"
-                                                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                                                                    Click="SendCustomCommand"
-                                                                    Content="{Binding Name, TargetNullValue=发送命令}"
-                                                                    PreviewMouseRightButtonUp="Button_PreviewMouseRightButtonUp"
-                                                                    Style="{StaticResource BorderButton}"
-                                                                    Tag="{Binding CommandID}"
-                                                                    ToolTip="{Binding Command}">
-                                                                    <Button.ContextMenu>
-                                                                        <ContextMenu>
-                                                                            <MenuItem Click="EditSendCommand" Header="编辑" />
-                                                                            <MenuItem
-                                                                                super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
-                                                                                Click="DeleteSendCommand"
-                                                                                Header="删除" />
-                                                                        </ContextMenu>
-                                                                    </Button.ContextMenu>
-                                                                </Button>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </ScrollViewer>
+                                                    Margin="5,0">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Button
+                                                                Margin="5"
+                                                                VerticalAlignment="Center"
+                                                                BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                                                Click="SendCustomCommand"
+                                                                Content="{Binding Name, TargetNullValue=发送命令}"
+                                                                PreviewMouseRightButtonUp="Button_PreviewMouseRightButtonUp"
+                                                                Style="{StaticResource BorderButton}"
+                                                                Tag="{Binding CommandID}"
+                                                                ToolTip="{Binding Command}">
+                                                                <Button.ContextMenu>
+                                                                    <ContextMenu>
+                                                                        <MenuItem Click="EditSendCommand" Header="编辑" />
+                                                                        <MenuItem
+                                                                            super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
+                                                                            Click="DeleteSendCommand"
+                                                                            Header="删除" />
+                                                                    </ContextMenu>
+                                                                </Button.ContextMenu>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
 
 
                                             </Grid>

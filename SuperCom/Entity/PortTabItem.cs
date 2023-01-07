@@ -128,6 +128,8 @@ namespace SuperCom.Entity
             }
         }
 
+        public bool RunningCommands { get; set; }
+
         public Queue<ResultCheck> ResultChecks { get; set; }
 
         public void ClearData()

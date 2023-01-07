@@ -1839,23 +1839,78 @@
                                                         Content="编辑命令" />
 
                                                     <Button
-                                                        Width="27"
-                                                        Height="27"
-                                                        Margin="5,0"
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        super:CommonExt.CornerRadius="5"
+                                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                                                         Click="StartSendCommands"
-                                                        Style="{StaticResource RoundNormalButton}"
-                                                        ToolTip="启动"
-                                                        Visibility="Collapsed">
-
+                                                        Style="{StaticResource FlatButton}"
+                                                        Tag="{Binding Name}">
                                                         <Viewbox
-                                                            Width="20"
-                                                            Height="20"
+                                                            Width="12"
+                                                            Height="auto"
                                                             VerticalAlignment="Center">
                                                             <Path
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Center"
-                                                                Data="M512 962c-248.512 0-450-201.487-450-450s201.487-450 450-450 450 201.487 450 450c0 248.512-201.487 450-450 450zM512 174.5c-177.525 0-337.5 159.975-337.5 337.5s159.975 337.5 337.5 337.5c177.525 0 337.5-159.975 337.5-337.5s-159.975-337.5-337.5-337.5zM466.494 682.719c-36.9 22.163-83.081-5.512-83.081-49.838v-241.706c0-44.325 46.125-72 83.081-49.838l201.431 120.881c36.9 22.162 36.9 77.513 0 99.675l-201.431 120.825z"
-                                                                Fill="Green" />
+                                                                Data="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
+                                                                Effect="{StaticResource PopupDropShadowEffect}">
+                                                                <Path.Style>
+                                                                    <Style TargetType="Path">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                                                <Setter Property="Fill" Value="Gray" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                                                <Setter Property="Fill" Value="#99E699" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Path.Style>
+                                                            </Path>
+                                                        </Viewbox>
+                                                    </Button>
+
+                                                    <Button
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        super:CommonExt.CornerRadius="5"
+                                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                                        Click="StopSendCommands"
+                                                        IsEnabled="False"
+                                                        Style="{StaticResource FlatButton}"
+                                                        Tag="{Binding Name}">
+
+                                                        <Viewbox
+                                                            Width="12"
+                                                            Height="auto"
+                                                            Margin="6,0"
+                                                            HorizontalAlignment="Left"
+                                                            VerticalAlignment="Center">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M128 128m53.333333 0l661.333334 0q53.333333 0 53.333333 53.333333l0 661.333334q0 53.333333-53.333333 53.333333l-661.333334 0q-53.333333 0-53.333333-53.333333l0-661.333334q0-53.333333 53.333333-53.333333Z"
+                                                                Effect="{StaticResource PopupDropShadowEffect}">
+                                                                <Path.Style>
+                                                                    <Style TargetType="Path">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="False">
+                                                                                <Setter Property="Fill" Value="Gray" />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Button}}}" Value="True">
+                                                                                <Setter Property="Fill" Value="#C85860" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Path.Style>
+                                                            </Path>
                                                         </Viewbox>
                                                     </Button>
                                                     <ComboBox
@@ -1868,10 +1923,7 @@
                                                         SelectionChanged="ComboBox_SelectionChanged"
                                                         Style="{StaticResource BorderComboBox}" />
                                                 </StackPanel>
-                                                <ItemsControl
-                                                    Name="sendButtons"
-                                                    Grid.Column="3"
-                                                    Margin="5,0">
+                                                <ItemsControl Grid.Column="3" Margin="5,0">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />

@@ -1823,7 +1823,7 @@ namespace SuperCom
                     {
                         send.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(send.Commands);
                         SendCommand sendCommand = send.CommandList.Where(arg => arg.CommandID == commandID).FirstOrDefault();
-                        if (sendCommand.IsResultCheck)
+                        if (sendCommand != null && sendCommand.IsResultCheck)
                         {
                             // 过滤找到需要的字符串
                             string recvResult = sendCommand.RecvResult;
@@ -1848,15 +1848,134 @@ namespace SuperCom
         private void StartSendCommands(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
-            Grid grid = button.Parent as Grid;
-            ComboBox comboBox = grid.Children.OfType<ComboBox>().FirstOrDefault();
-            if (comboBox != null && comboBox.SelectedValue != null)
+            if (button == null || button.Tag == null) return;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+            string portName = button.Tag.ToString();
+            if (comboBox != null && comboBox.SelectedValue != null &&
+                vieModel.SendCommandProjects?.Count > 0)
             {
                 string projectID = comboBox.SelectedValue.ToString();
                 // 开始执行队列
-                MessageCard.Warning("开发中");
+                AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                if (advancedSend != null)
+                    BeginSendCommands(advancedSend, portName, button);
             }
         }
+
+        private void StopSendCommands(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button == null || button.Tag == null) return;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+            string portName = button.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (comboBox != null && comboBox.SelectedValue != null &&
+                vieModel.SendCommandProjects?.Count > 0 && portTabItem != null)
+            {
+                string projectID = comboBox.SelectedValue.ToString();
+                // 开始执行队列
+                AdvancedSend advancedSend = vieModel.SendCommandProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                if (advancedSend == null) return;
+                portTabItem.RunningCommands = false;
+                if (advancedSend.CommandList?.Count > 0)
+                    foreach (var item in advancedSend.CommandList)
+                        item.Status = RunningStatus.WaitingToRun;
+
+            }
+
+
+        }
+
+
+        public void BeginSendCommands(AdvancedSend advancedSend, string portName, Button button)
+        {
+            if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands)) return;
+            advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+            if (advancedSend.CommandList == null || advancedSend.CommandList.Count == 0) return;
+            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (portTabItem == null) return;
+            portTabItem.RunningCommands = true;
+            SetRunningStatus(button, true);
+            Task.Run(async () =>
+            {
+                int idx = 0;
+                while (portTabItem.RunningCommands)
+                {
+
+                    SendCommand command = advancedSend.CommandList[idx];
+                    if (idx < advancedSend.CommandList.Count)
+                        advancedSend.CommandList[idx].Status = RunningStatus.Running;
+
+                    bool success = await AsyncSendCommand(idx, portName, command, advancedSend);
+                    advancedSend.CommandList[idx].Status = RunningStatus.WaitingDelay;
+                    int delay = 10;
+                    for (int i = 1; i <= command.Delay; i += delay)
+                    {
+                        if (!portTabItem.RunningCommands)
+                            break;
+                        await Task.Delay(delay);
+                        advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
+                    }
+                    advancedSend.CommandList[idx].StatusText = $"0 ms";
+                    advancedSend.CommandList[idx].Status = RunningStatus.WaitingToRun;
+                    idx++;
+                    if (idx >= advancedSend.CommandList.Count)
+                    {
+                        idx = 0;
+                        advancedSend.CommandList = advancedSend.CommandList.OrderBy(arg => arg.Order).ToList();
+                    }
+                }
+                Dispatcher.Invoke(() =>
+                {
+                    SetRunningStatus(button, false);
+                });
+            });
+        }
+
+
+        public void SetRunningStatus(Button button, bool running)
+        {
+            button.IsEnabled = !running;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            Button stopButton = stackPanel.Children.OfType<Button>().LastOrDefault();
+            if (stopButton != null)
+                stopButton.IsEnabled = running;
+        }
+
+
+        public async Task<bool> AsyncSendCommand(int idx, string portName, SendCommand command, AdvancedSend advancedSend)
+        {
+            bool success = false;
+            await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
+            {
+                SideComPort serialComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
+                {
+                    success = false;
+                    return;
+                }
+                SerialPort port = serialComPort.PortTabItem.SerialPort;
+                PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                string value = command.Command;
+                if (port != null)
+                {
+                    success = SendCommand(port, portTabItem, value);
+                    if (!success)
+                    {
+                        success = false;
+                        return;
+                    }
+                }
+                if (idx < advancedSend.CommandList.Count)
+                    advancedSend.CommandList[idx].Status = RunningStatus.AlreadySend;
+                success = true;
+            });
+            return success;
+        }
+
+
 
         private void Remark(object sender, RoutedEventArgs e)
         {

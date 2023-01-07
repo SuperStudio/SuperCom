@@ -123,7 +123,6 @@ namespace SuperCom.Entity
 
 
 
-
         // 必须要有无参构造器
         public AdvancedSend()
         {

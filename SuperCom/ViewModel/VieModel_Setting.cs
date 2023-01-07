@@ -35,6 +35,12 @@ namespace SuperCom.ViewModel
             get { return _FixedOnSearch; }
             set { _FixedOnSearch = value; RaisePropertyChanged(); }
         }
+        private bool _CloseToBar = ConfigManager.CommonSettings.CloseToBar;
+        public bool CloseToBar
+        {
+            get { return _CloseToBar; }
+            set { _CloseToBar = value; RaisePropertyChanged(); }
+        }
         private bool _FixedOnSendCommand = ConfigManager.CommonSettings.FixedOnSendCommand;
         public bool FixedOnSendCommand
         {

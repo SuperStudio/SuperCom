@@ -29,6 +29,7 @@ namespace SuperCom.Config.WindowConfig
             return _instance;
         }
         public bool FixedOnSearch { get; set; }
+        public bool CloseToBar { get; set; }
         public bool ScrollOnSearchClosed { get; set; }
         public bool FixedOnSendCommand { get; set; }
         public string LogNameFormat { get; set; }

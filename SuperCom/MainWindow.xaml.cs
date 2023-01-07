@@ -44,10 +44,6 @@ namespace SuperCom
 
         private static double DEFAULT_SEND_PANEL_HEIGHT = 186;
 
-
-        public static List<string> OpeningWindows = new List<string>();
-        public bool CloseToTaskBar;
-        public static bool WindowsVisible = true;
         public static TimeSpan FadeInterval { get; set; }
 
         public List<SideComPort> SerialPorts { get; set; }
@@ -120,6 +116,11 @@ namespace SuperCom
             }
         }
 
+        public void RefreshSetting()
+        {
+            this.CloseToTaskBar = ConfigManager.CommonSettings.CloseToBar;
+        }
+
         public void ReadXshdList()
         {
             // 记录先前选定的
@@ -190,71 +191,6 @@ namespace SuperCom
             ShortCutBinding.InitSqlite();
         }
 
-        public async override void CloseWindow(object sender, RoutedEventArgs e)
-        {
-            if (CloseToTaskBar && this.IsVisible == true)
-            {
-                SetWindowVisualStatus(false);
-            }
-            else
-            {
-                this.Visibility = Visibility.Hidden;
-                FadeOut();
-                base.CloseWindow(sender, e);
-            }
-        }
-
-
-
-
-        public void FadeOut()
-        {
-            //if (Properties.Settings.Default.EnableWindowFade)
-            //{
-            //    var anim = new DoubleAnimation(0, (Duration)FadeInterval);
-            //    anim.Completed += (s, _) => this.Close();
-            //    this.BeginAnimation(UIElement.OpacityProperty, anim);
-            //}
-            //else
-            //{
-            this.Close();
-            //}
-        }
-
-        private void AnimateWindow(Window window)
-        {
-            window.Show();
-            double opacity = 1;
-            var anim = new DoubleAnimation(1, opacity, (Duration)FadeInterval, FillBehavior.Stop);
-            anim.Completed += (s, _) => window.Opacity = opacity;
-            window.BeginAnimation(UIElement.OpacityProperty, anim);
-        }
-
-        private void SetWindowVisualStatus(bool visible, bool taskIconVisible = true)
-        {
-
-            if (visible)
-            {
-                foreach (Window window in App.Current.Windows)
-                {
-                    if (OpeningWindows.Contains(window.GetType().ToString()))
-                    {
-                        AnimateWindow(window);
-                    }
-                }
-
-            }
-            else
-            {
-                OpeningWindows.Clear();
-                foreach (Window window in App.Current.Windows)
-                {
-                    window.Hide();
-                    OpeningWindows.Add(window.GetType().ToString());
-                }
-            }
-            WindowsVisible = visible;
-        }
 
         public void MinWindow(object sender, RoutedEventArgs e)
         {
@@ -1350,7 +1286,7 @@ namespace SuperCom
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
             InitThemeSelector();
-
+            RefreshSetting();
             ReadXshdList();// 自定义语法高亮
             LoadDonateConfig();
             await BackupData(); // 备份文件

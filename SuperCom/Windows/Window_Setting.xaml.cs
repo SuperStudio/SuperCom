@@ -211,6 +211,7 @@ namespace SuperCom
         private void SaveSettings(object sender, RoutedEventArgs e)
         {
             ConfigManager.CommonSettings.FixedOnSearch = vieModel.FixedOnSearch;
+            ConfigManager.CommonSettings.CloseToBar = vieModel.CloseToBar;
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
@@ -226,6 +227,7 @@ namespace SuperCom
             MessageCard.Success("保存成功");
             ApplyRule();
             Main?.ReadXshdList();
+            Main?.RefreshSetting();
         }
 
         private void ApplyRule()
@@ -271,6 +273,7 @@ namespace SuperCom
 
             vieModel.LogNameFormat = CommonSettings.DEFAULT_LOGNAMEFORMAT;
             vieModel.FixedOnSearch = true;
+            vieModel.CloseToBar = false;
             vieModel.FixedOnSendCommand = false;
             vieModel.ScrollOnSearchClosed = true;
             MessageCard.Success("已恢复默认值");

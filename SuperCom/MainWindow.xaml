@@ -18,6 +18,7 @@
     Closing="mainWindow_Closing"
     ContentRendered="mainWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Icon="pack://application:,,,/Resources/Ico/Icon_64.png"
     TitleHeight="0"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
@@ -540,7 +541,6 @@
                             </Viewbox>
                         </Button>
                         <Button
-                            Name="ButtonClose"
                             Width="40"
                             Margin="0"
                             Padding="0"

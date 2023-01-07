@@ -41,6 +41,12 @@
                     <CheckBox
                         Margin="10,20,5,5"
                         HorizontalAlignment="Left"
+                        Content="{DynamicResource CloseToBar}"
+                        IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource NormalCheckBox}" />
+                    <CheckBox
+                        Margin="10,5"
+                        HorizontalAlignment="Left"
                         Content="{DynamicResource FixOnSearching}"
                         IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />

@@ -1,0 +1,14 @@
+{
+  "UpgradeSources": [
+    {
+      "Name": "Github",
+      "UpgradeSource": "https://superstudio.github.io/",
+      "PluginPath": "SuperPlugins",
+      "UpdatePath": "SuperCom-Upgrade",
+      "ReleaseUrl": "https://github.com/SuperStudio/SuperCom/releases",
+      "FeedbackUrl": "https://github.com/SuperStudio/SuperCom/issues",
+      "HelpUrl": "https://github.com/SuperStudio/SuperCom/wiki"
+    }
+  ],
+  "ShowDonate": true
+}

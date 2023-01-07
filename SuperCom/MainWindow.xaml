@@ -3,7 +3,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-    xmlns:cmd="clr-namespace:SuperCom.Commands"
     xmlns:converter="clr-namespace:SuperCom.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
@@ -790,7 +789,7 @@
                                         <MenuItem Click="OpenSetting" Header="设置" />
                                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />
-                                        <MenuItem Command="cmd:OpenWindow.Upgrade" Header="检查更新" />
+                                        <MenuItem Click="ShowUpgradeWindow" Header="检查更新" />
                                         <MenuItem Click="ShowAbout" Header="关于" />
                                     </ContextMenu>
                                 </Border.ContextMenu>

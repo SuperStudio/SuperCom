@@ -2,10 +2,10 @@
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
-using SuperCom.Commands;
 using SuperCom.Config;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
+using SuperCom.Upgrade;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperControls.Style.Plugin;
@@ -1350,7 +1350,7 @@ namespace SuperCom
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             OpenBeforePorts();
             InitThemeSelector();
-            CheckUpgrade();
+
             ReadXshdList();// 自定义语法高亮
             LoadDonateConfig();
             await BackupData(); // 备份文件
@@ -1359,7 +1359,13 @@ namespace SuperCom
             //setting.Owner = this;
             //setting.ShowDialog();
             //OpenShortCut(null, null);
+            InitUpgrade();
+        }
 
+        public void InitUpgrade()
+        {
+            UpgradeHelper.Init(this);
+            CheckUpgrade();
         }
 
         private void LoadDonateConfig()
@@ -2043,7 +2049,7 @@ namespace SuperCom
 
             PluginConfig config = new PluginConfig();
             config.PluginBaseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
-            config.RemoteUrl = UrlManager.PluginUrl;
+            config.RemoteUrl = UrlManager.GetPluginUrl();
             // 读取本地配置
             window_Plugin.OnEnabledChange += (enabled) =>
             {
@@ -2069,7 +2075,8 @@ namespace SuperCom
             // 启动后检查更新
             try
             {
-                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await OpenWindow.Upgrader.GetUpgardeInfo();
+                await Task.Delay(UpgradeHelper.AUTO_CHECK_UPGRADE_DELAY);
+                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await UpgradeHelper.GetUpgardeInfo();
                 string remote = result.LatestVersion;
                 if (!string.IsNullOrEmpty(remote))
                 {
@@ -2077,8 +2084,9 @@ namespace SuperCom
                     local = local.Substring(0, local.Length - ".0.0".Length);
                     if (local.CompareTo(remote) < 0)
                     {
-                        new MsgBox(this, "存在新版本！").ShowDialog();
-                        OpenWindow.Upgrade.Execute(this);
+                        bool opened = (bool)new MsgBox(this, "存在新版本！").ShowDialog();
+                        if (opened)
+                            UpgradeHelper.OpenWindow();
                     }
                 }
             }
@@ -2229,7 +2237,7 @@ namespace SuperCom
                     if (advancedSend.CommandList[i].CommandID.Equals(CurrentEditCommand.CommandID))
                     {
                         advancedSend.CommandList[i].Name = editTextBoxName.Text;
-                        advancedSend.CommandList[i].Command = editTextBoxOrder.Text;
+                        advancedSend.CommandList[i].Command = editTextBoxCommand.Text;
                         int.TryParse(editTextBoxDelay.Text, out int delay);
                         int.TryParse(editTextBoxOrder.Text, out int order);
                         advancedSend.CommandList[i].Delay = delay;
@@ -2509,6 +2517,11 @@ namespace SuperCom
             string origin = textEditor.SelectedText;
             string format = FormatString(FormatType.JOINLINE, origin);
             textEditor.SelectedText = format;
+        }
+
+        private void ShowUpgradeWindow(object sender, RoutedEventArgs e)
+        {
+            UpgradeHelper.OpenWindow();
         }
     }
 }

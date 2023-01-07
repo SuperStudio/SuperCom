@@ -42,6 +42,7 @@ namespace SuperCom.Config.WindowConfig
         public long AutoBackupPeriodIndex { get; set; }
         public bool HighlightingSelectedRow { get; set; }
         public bool ShowLineNumbers { get; set; }
+        public long RemoteIndex { get; set; }
 
     }
 }

@@ -103,7 +103,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Commands\OpenWindow.cs" />
     <Compile Include="Comparers\ComPortComparer.cs" />
     <Compile Include="Config\AdvancedSendSettings.cs" />
     <Compile Include="Config\Settings.cs" />
@@ -130,6 +129,7 @@
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Log\Logger.cs" />
+    <Compile Include="Upgrade\UpgradeHelper.cs" />
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
@@ -211,6 +211,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Files\app_config.json" />
     <None Include="AvalonEdit\Higlighting\ComLog.xshd">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -269,4 +270,8 @@
   </Target>
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Debug"    /E /Y /i
+XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y /i</PostBuildEvent>
+  </PropertyGroup>
 </Project>

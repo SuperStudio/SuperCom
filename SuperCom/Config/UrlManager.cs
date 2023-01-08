@@ -55,12 +55,11 @@ namespace SuperCom.Config
         static UrlManager()
         {
             Type t = typeof(UrlManager);
-            FieldInfo[] fields = t.GetFields(BindingFlags.Static | BindingFlags.Public);
             JArray array = FileHelper.TryReadConfigFromJson("UpgradeSources") as JArray;
-            //List<Dictionary<string, string>> dicts = FileHelper.TryReadConfigFromJson("UpgradeSources") as List<Dictionary<string, string>>;
-            if (array?.Count == 0) return;
+            if (array == null || array.Count == 0) return;
             foreach (JObject obj in array)
             {
+                if (obj == null) continue;
                 Dictionary<string, string> dict = obj.ToObject<Dictionary<string, string>>();
                 if (dict == null) continue;
                 if (dict.ContainsKey("Name") && !string.IsNullOrEmpty(dict["Name"]))

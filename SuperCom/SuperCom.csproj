@@ -216,12 +216,8 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="AvalonEdit\Higlighting\JSON\JsonLight.xshd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="AvalonEdit\Higlighting\JSON\JsonDeep.xshd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="AvalonEdit\Higlighting\JSON\JsonLight.xshd" />
+    <None Include="AvalonEdit\Higlighting\JSON\JsonDeep.xshd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

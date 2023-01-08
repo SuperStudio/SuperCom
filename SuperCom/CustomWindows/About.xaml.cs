@@ -54,7 +54,7 @@ namespace SuperCom.CustomWindows
             Hyperlink hyperlink = sender as Hyperlink;
             FileHelper.TryOpenUrl(hyperlink.NavigateUri?.ToString(), (err) =>
             {
-                MessageCard.Error(err);
+                MessageNotify.Error(err);
             });
         }
     }

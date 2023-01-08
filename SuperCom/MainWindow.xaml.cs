@@ -906,7 +906,7 @@ namespace SuperCom
                 {
                     portTabItem.ConnectTime = DateTime.Now;
                     await Task.Delay(500);
-                    MessageCard.Success("成功存到新文件！");
+                    MessageNotify.Success("成功存到新文件！");
                 }
             }
             (sender as FrameworkElement).IsEnabled = true;
@@ -1006,7 +1006,7 @@ namespace SuperCom
                 }
             }
             panelSplitPopup.IsOpen = false;
-            MessageCard.Info("开发中");
+            MessageNotify.Info("开发中");
         }
 
         private void SplitPanel(SplitPanelType type)
@@ -1116,7 +1116,7 @@ namespace SuperCom
             if (string.IsNullOrEmpty(text)) return;
             if (text.Length > MAX_TRANSFORM_SIZE)
             {
-                MessageCard.Warning($"超过了 {MAX_TRANSFORM_SIZE}");
+                MessageNotify.Warning($"超过了 {MAX_TRANSFORM_SIZE}");
                 return;
             }
             hexTransPopup.IsOpen = true;
@@ -1158,7 +1158,7 @@ namespace SuperCom
         {
             if (text.Length > MAX_TIMESTAMP_LENGTH)
             {
-                MessageCard.Warning($"超过了 {MAX_TIMESTAMP_LENGTH}");
+                MessageNotify.Warning($"超过了 {MAX_TIMESTAMP_LENGTH}");
                 return;
             }
             if (string.IsNullOrEmpty(text)) return;
@@ -1795,7 +1795,7 @@ namespace SuperCom
             }
             else
             {
-                MessageCard.Info($"查找超时！");
+                MessageNotify.Info($"查找超时！");
             }
             portTabItem.ResultChecks.Dequeue();
         }
@@ -2014,14 +2014,14 @@ namespace SuperCom
                 }
                 else if (sideComPort.PortTabItem == null)
                 {
-                    MessageCard.Info("打开串口后才能备注");
+                    MessageNotify.Info("打开串口后才能备注");
                 }
             }
         }
 
         private void OpenLog(object sender, RoutedEventArgs e)
         {
-            MessageCard.Info("开发中");
+            MessageNotify.Info("开发中");
         }
 
         private void BuadRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2140,13 +2140,15 @@ namespace SuperCom
                 await Task.Delay(UpgradeHelper.AUTO_CHECK_UPGRADE_DELAY);
                 (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await UpgradeHelper.GetUpgardeInfo();
                 string remote = result.LatestVersion;
+                string ReleaseDate = result.ReleaseDate;
                 if (!string.IsNullOrEmpty(remote))
                 {
                     string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
                     local = local.Substring(0, local.Length - ".0.0".Length);
                     if (local.CompareTo(remote) < 0)
                     {
-                        bool opened = (bool)new MsgBox(this, "存在新版本！").ShowDialog();
+                        bool opened = (bool)new MsgBox(this,
+                            $"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog();
                         if (opened)
                             UpgradeHelper.OpenWindow();
                     }

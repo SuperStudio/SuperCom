@@ -177,12 +177,12 @@ namespace SuperCom
         {
             if (IsPortRunning())
             {
-                MessageCard.Error("请关闭所有串口后再试");
+                MessageNotify.Error("请关闭所有串口后再试");
                 return;
             }
             if (vieModel.BaudRates?.Count <= 1)
             {
-                MessageCard.Error("至少保留一个");
+                MessageNotify.Error("至少保留一个");
                 return;
             }
             Button button = sender as Button;
@@ -224,7 +224,7 @@ namespace SuperCom
             ConfigManager.Settings.Save();
 
             vieModel.SaveAllRule();
-            MessageCard.Success("保存成功");
+            MessageNotify.Success("保存成功");
             ApplyRule();
             Main?.ReadXshdList();
             Main?.RefreshSetting();
@@ -253,7 +253,7 @@ namespace SuperCom
         {
             if (IsPortRunning())
             {
-                MessageCard.Error("请关闭所有串口后再试");
+                MessageNotify.Error("请关闭所有串口后再试");
                 return;
             }
 
@@ -276,7 +276,7 @@ namespace SuperCom
             vieModel.CloseToBar = false;
             vieModel.FixedOnSendCommand = false;
             vieModel.ScrollOnSearchClosed = true;
-            MessageCard.Success("已恢复默认值");
+            MessageNotify.Success("已恢复默认值");
         }
 
 
@@ -356,7 +356,7 @@ namespace SuperCom
             {
                 long.TryParse(button.Tag.ToString(), out long id);
                 if (!vieModel.DeleteRule(id))
-                    MessageCard.Error("删除失败");
+                    MessageNotify.Error("删除失败");
                 else
                 {
                     Main?.ReadXshdList();

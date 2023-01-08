@@ -632,7 +632,7 @@ namespace SuperCom
 
         private void ShowAbout(object sender, RoutedEventArgs e)
         {
-            new About(this).ShowDialog();
+            new CustomWindows.About(this).ShowDialog();
         }
 
         private void OpenContextMenu(object sender, RoutedEventArgs e)

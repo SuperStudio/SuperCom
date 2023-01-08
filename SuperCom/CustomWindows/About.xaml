@@ -100,23 +100,6 @@
 
 
                 </StackPanel>
-
-
-
-                <StackPanel
-                    Margin="20,0"
-                    Orientation="Horizontal"
-                    Visibility="Collapsed">
-                    <Image Width="25" Source="/Resources/Jvedio.ico" />
-                    <TextBlock
-                        Margin="5,10"
-                        FontSize="20"
-                        Foreground="{DynamicResource Window.Foreground}"
-                        TextAlignment="Center"><Hyperlink Click="OpenUrl" NavigateUri="https://hitchao.github.io/JvedioWebPage/">
-                            <Run Text="官网" />
-                        </Hyperlink></TextBlock>
-                </StackPanel>
-
             </StackPanel>
             <TextBlock
                 x:Name="authorText"

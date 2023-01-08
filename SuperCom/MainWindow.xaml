@@ -51,7 +51,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
-                <RowDefinition Height="auto" />
+
             </Grid.RowDefinitions>
             <Border
                 x:Name="TitleBorder"
@@ -2121,30 +2121,7 @@
                     </ItemsControl>
                 </Grid>
             </Grid>
-            <Grid
-                Grid.Row="2"
-                Height="20"
-                Background="{DynamicResource Window.StatusBar.Background}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox
-                    Grid.Column="0"
-                    Height="15"
-                    Margin="5,0"
-                    Padding="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    VerticalContentAlignment="Center"
-                    Background="Transparent"
-                    FontSize="12"
-                    Foreground="{DynamicResource Window.Foreground}"
-                    Style="{StaticResource ReadOnlyTextBox}"
-                    Text="{Binding StatusText}"
-                    TextWrapping="NoWrap" />
 
-            </Grid>
         </Grid>
 
     </Grid>

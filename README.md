@@ -19,7 +19,7 @@ SuperCom 是一款**串口调试工具**，用于 Window 串口的调试
 
 # 关于
 
-SuperCom 是一款**串口调试工具**，支持以下特点：
+SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串口调试工具，支持以下特点：
 
 - 同时打开多个串口进行监听
 - 串口日志自动保存
@@ -27,17 +27,52 @@ SuperCom 是一款**串口调试工具**，支持以下特点：
 - 可以设置波特率、位大小等串口设置
 - 可发送各种 AT 指令
 - 具有各种特性
-- （未来）支持分屏功能
 
-## 特性
+## 创新特性
 
-一、支持 HEX 与字符串互转
+**一、语法高亮**
+
+<img src="Image/image-20230109234347852.png" alt="image-20230109234347852" style="zoom:80%;" />
+
+可自定义
+
+<img src="Image/image-20230109234412138.png" alt="image-20230109234412138" style="zoom:80%;" />
+
+**二、命令自动运行**
+
+<img src="Image/1.gif" alt="1" style="zoom:80%;" />
+
+或者
+
+<img src="Image/2.gif" alt="2" style="zoom:80%;" />
+
+**三、快捷键**
+
+<img src="Image/image-20230109234634330.png" alt="image-20230109234634330" style="zoom:80%;" />
+
+**四、插件与皮肤**
+
+<img src="Image/3.gif" alt="3" style="zoom:80%;" />
+
+切换皮肤
+
+<img src="Image/4.gif" alt="4" style="zoom:80%;" />
+
+五、在线升级
+
+<img src="Image/5.gif" alt="5" style="zoom:80%;" />
+
+六、支持 HEX 与字符串互转
 
 <img src="Image/hex.gif" alt="hex" style="zoom:80%;" />
 
-二、支持时间戳与北京时间互转
+七、支持时间戳与北京时间互转
 
 <img src="Image/time.gif" alt="time" style="zoom:80%;" />
+
+八、格式化 JSON 与合并行
+
+<img src="Image/6.gif" alt="6" style="zoom:80%;" />
 
 # 文档
 

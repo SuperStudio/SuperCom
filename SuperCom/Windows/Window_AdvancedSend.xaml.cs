@@ -1,8 +1,10 @@
 ﻿using SuperCom.Config;
+using SuperCom.Config.WindowConfig;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperUtils.Common;
+using SuperUtils.IO;
 using SuperUtils.Time;
 using System;
 using System.Collections.Generic;
@@ -52,6 +54,11 @@ namespace SuperCom
                 if (running)
                 {
                     this.Owner = Main;
+                    if (ConfigManager.AdvancedSendSettings.WindowOpacity < AdvancedSendSettings.DEFAULT_WINDOW_OPACITY)
+                    {
+                        ConfigManager.AdvancedSendSettings.WindowOpacity = AdvancedSendSettings.DEFAULT_WINDOW_OPACITY;
+                        ConfigManager.AdvancedSendSettings.Save();
+                    }
                     this.Opacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
                 }
                 else
@@ -63,7 +70,7 @@ namespace SuperCom
         }
 
 
-
+        public int SideSelectedIndex { get; set; }
 
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
@@ -79,7 +86,16 @@ namespace SuperCom
                     }
                 }
 
+
+
             }
+            if (Main != null && Main.vieModel != null && vieModel.Projects?.Count > 0)
+            {
+                if (SideSelectedIndex < 0 || SideSelectedIndex > vieModel.Projects.Count)
+                    SideSelectedIndex = 0;
+                sideListBox.SelectedIndex = SideSelectedIndex;
+            }
+
 
 
 
@@ -605,6 +621,20 @@ namespace SuperCom
         private void ClearLogGrid(object sender, RoutedEventArgs e)
         {
             logTextBox.Clear();
+        }
+
+        private void CopyCommand(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Border border = (button.Parent as Grid).Children.OfType<Border>().LastOrDefault();
+            SearchBox searchBox = border.Child as SearchBox;
+            if (!string.IsNullOrEmpty(searchBox.Text))
+            {
+                bool v = ClipBoard.TrySetDataObject(searchBox.Text);
+                if (v)
+                    MessageNotify.Success("已复制");
+            }
+
         }
     }
 }

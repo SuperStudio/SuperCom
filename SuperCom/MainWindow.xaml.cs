@@ -3,6 +3,7 @@ using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
+using SuperCom.Config.WindowConfig;
 using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
@@ -1284,7 +1285,6 @@ namespace SuperCom
         {
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
-            OpenBeforePorts();
             InitThemeSelector();
             RefreshSetting();
             ReadXshdList();// 自定义语法高亮
@@ -1296,6 +1296,8 @@ namespace SuperCom
             //setting.ShowDialog();
             //OpenShortCut(null, null);
             InitUpgrade();
+            CommonSettings.InitLogDir();
+            OpenBeforePorts();
         }
 
         public void InitUpgrade()
@@ -1646,7 +1648,14 @@ namespace SuperCom
         {
             //if (window_AdvancedSend == null || window_AdvancedSend.IsClosed)
             //{
+
+            Button button = sender as Button;
+            int index = 0;
+            if (button != null && button.Tag != null)
+                int.TryParse(button.Tag.ToString(), out index);
+
             Window_AdvancedSend window = new Window_AdvancedSend();
+            window.SideSelectedIndex = index;
             window.Show();
             window.Focus();
             window.BringIntoView();
@@ -1991,10 +2000,10 @@ namespace SuperCom
                     string defaultContent = "请输入备注";
                     if (!string.IsNullOrEmpty(portTabItem.Remark))
                         defaultContent = portTabItem.Remark;
-                    InputWindow inputWindow = new InputWindow(this, defaultContent, true);
-                    if (inputWindow.ShowDialog() == true)
+                    DialogInput dialogInput = new DialogInput(this, defaultContent);
+                    if (dialogInput.ShowDialog() == true)
                     {
-                        string value = inputWindow.Text;
+                        string value = dialogInput.Text;
                         portTabItem.Remark = value;
                         Console.WriteLine(value);
                         portTabItem.SerialPort.SaveRemark(value);
@@ -2046,11 +2055,11 @@ namespace SuperCom
                         }
                     }
                 }
-                InputWindow inputWindow = new InputWindow(this, "");
+                DialogInput dialogInput = new DialogInput(this, "请输入波特率");
                 bool success = false;
-                if ((bool)inputWindow.ShowDialog())
+                if ((bool)dialogInput.ShowDialog())
                 {
-                    string value = inputWindow.Text;
+                    string value = dialogInput.Text;
                     if (!string.IsNullOrEmpty(value) && int.TryParse(value, out int baudrate) &&
                         !vieModel.BaudRates.Contains(baudrate.ToString()))
                     {
@@ -2586,6 +2595,14 @@ namespace SuperCom
         private void ShowUpgradeWindow(object sender, RoutedEventArgs e)
         {
             UpgradeHelper.OpenWindow();
+        }
+
+        private void CopyCommand(object sender, RoutedEventArgs e)
+        {
+            string text = editTextBoxCommand.Text;
+            if (!string.IsNullOrEmpty(text))
+                ClipBoard.TrySetDataObject(text);
+
         }
     }
 }

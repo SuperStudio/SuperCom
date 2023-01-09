@@ -100,7 +100,8 @@
                                 super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                                 Click="OpenContextMenu"
                                 Content="文件"
-                                Style="{StaticResource TitleButton}">
+                                Style="{StaticResource TitleButton}"
+                                Visibility="Collapsed">
                                 <Button.ContextMenu>
                                     <ContextMenu
                                         HorizontalOffset="-40"
@@ -172,7 +173,7 @@
 
                         <super:ThemeSelector x:Name="themeSelector" Width="40" />
 
-                        <Grid>
+                        <Grid Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
                                 <ColumnDefinition Width="auto" />
@@ -848,22 +849,7 @@
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
                                         Text="顺序" />
-                                    <Border
-                                        Margin="5"
-                                        Padding="5"
-                                        Background="{DynamicResource Window.Title.Background}"
-                                        CornerRadius="3">
-                                        <TextBox
-                                            Name="editTextBoxOrder"
-                                            Padding="2,0,0,0"
-                                            HorizontalAlignment="Stretch"
-                                            AcceptsReturn="False"
-                                            Background="Transparent"
-                                            ContextMenu="{StaticResource TextBoxContextMenu}"
-                                            Style="{StaticResource BaseTextBox}"
-                                            TextAlignment="Left"
-                                            TextWrapping="NoWrap" />
-                                    </Border>
+                                    <super:SearchBox Name="editTextBoxOrder" Margin="0,5" />
                                 </DockPanel>
                                 <DockPanel
                                     VerticalAlignment="Top"
@@ -873,22 +859,7 @@
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
                                         Text="名称" />
-                                    <Border
-                                        Margin="5"
-                                        Padding="5"
-                                        Background="{DynamicResource Window.Title.Background}"
-                                        CornerRadius="3">
-                                        <TextBox
-                                            Name="editTextBoxName"
-                                            Padding="2,0,0,0"
-                                            HorizontalAlignment="Stretch"
-                                            AcceptsReturn="False"
-                                            Background="Transparent"
-                                            ContextMenu="{StaticResource TextBoxContextMenu}"
-                                            Style="{StaticResource BaseTextBox}"
-                                            TextAlignment="Left"
-                                            TextWrapping="NoWrap" />
-                                    </Border>
+                                    <super:SearchBox Name="editTextBoxName" Margin="0,5" />
                                 </DockPanel>
                                 <DockPanel
                                     VerticalAlignment="Top"
@@ -898,36 +869,56 @@
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
                                         Text="延时" />
-                                    <Border
-                                        Margin="5"
-                                        Padding="5"
-                                        Background="{DynamicResource Window.Title.Background}"
-                                        CornerRadius="3">
-                                        <TextBox
-                                            Name="editTextBoxDelay"
-                                            Padding="2,0,0,0"
-                                            HorizontalAlignment="Stretch"
-                                            AcceptsReturn="False"
-                                            Background="Transparent"
-                                            ContextMenu="{StaticResource TextBoxContextMenu}"
-                                            Style="{StaticResource BaseTextBox}"
-                                            TextAlignment="Left"
-                                            TextWrapping="NoWrap" />
-                                    </Border>
+
+                                    <super:SearchBox Name="editTextBoxDelay" Margin="0,5" />
+
                                 </DockPanel>
 
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
 
-                                <TextBlock
-                                    MinWidth="50"
-                                    HorizontalAlignment="Left"
-                                    DockPanel.Dock="Top"
-                                    Style="{StaticResource BaseTextBlock}"
-                                    Text="命令" />
+
+
+                                    <TextBlock
+                                        MinWidth="50"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="命令" />
+
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="25"
+                                        Height="25"
+                                        Margin="0,0,5,0"
+                                        Padding="0"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="CopyCommand"
+                                        Style="{StaticResource FlatButton}">
+                                        <Viewbox Width="auto" Height="14">
+                                            <Path
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Data="M891.072 822.144V167.36a34.432 34.432 0 0 0-34.432-34.432H201.856C201.856 94.848 232.704 64 270.784 64h620.288C929.152 64 960 94.848 960 132.928v620.288c0 38.08-30.848 68.928-68.928 68.928z m-68.928-551.36v620.288c0 38.08-30.848 68.928-68.928 68.928H132.928A68.928 68.928 0 0 1 64 891.072V270.784c0-38.08 30.848-68.928 68.928-68.928h620.288c38.08 0 68.928 30.848 68.928 68.928z m-137.856 137.856H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z m0 206.72H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                        </Viewbox>
+                                    </Button>
+                                </StackPanel>
                                 <Border
-                                    Margin="5"
+                                    Margin="15,5,5,5"
                                     Padding="5"
                                     Background="{DynamicResource Window.Title.Background}"
+                                    BorderThickness="1"
                                     CornerRadius="3">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=editTextBoxCommand, Path=IsFocused}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource Button.Selected.BorderBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
                                     <TextBox
                                         Name="editTextBoxCommand"
                                         Padding="2,0,0,0"
@@ -936,6 +927,7 @@
                                         AcceptsReturn="False"
                                         Background="Transparent"
                                         ContextMenu="{StaticResource TextBoxContextMenu}"
+                                        FontSize="12"
                                         Style="{StaticResource BaseTextBox}"
                                         Text=""
                                         TextAlignment="Left"
@@ -1836,7 +1828,8 @@
                                                         Margin="5,0"
                                                         VerticalAlignment="Center"
                                                         Click="OpenSendPanel"
-                                                        Content="编辑命令" />
+                                                        Content="编辑命令"
+                                                        Tag="{Binding ElementName=commandsComboBox, Path=SelectedIndex}" />
 
                                                     <Button
                                                         Width="25"
@@ -1914,6 +1907,7 @@
                                                         </Viewbox>
                                                     </Button>
                                                     <ComboBox
+                                                        Name="commandsComboBox"
                                                         MinWidth="50"
                                                         VerticalAlignment="Center"
                                                         DisplayMemberPath="ProjectName"

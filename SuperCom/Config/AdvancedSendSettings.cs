@@ -6,13 +6,15 @@ namespace SuperCom.Config.WindowConfig
 {
     public class AdvancedSendSettings : AbstractConfig
     {
-
+        public const double DEFAULT_WINDOW_OPACITY = 0.5;
+        public const double DEFAULT_LOG_OPACITY = 0.8;
         private AdvancedSendSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.AdvancedSendSettings")
         {
             Width = SystemParameters.WorkArea.Width * 0.7;
             Height = SystemParameters.WorkArea.Height * 0.7;
             FirstRun = true;
-            LogOpacity = 0.8;
+            LogOpacity = DEFAULT_LOG_OPACITY;
+            WindowOpacity = DEFAULT_WINDOW_OPACITY;
         }
 
         private static AdvancedSendSettings _instance = null;

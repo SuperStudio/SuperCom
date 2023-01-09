@@ -198,7 +198,7 @@ namespace SuperCom.Entity
                 name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
             }
 
-            return Path.Combine(GlobalVariable.LogDir, name + ".log");
+            return Path.Combine(CommonSettings.LogDir, name + ".log");
             // 格式化
             //return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
         }

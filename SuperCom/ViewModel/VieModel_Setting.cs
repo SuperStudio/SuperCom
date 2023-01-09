@@ -59,6 +59,12 @@ namespace SuperCom.ViewModel
             get { return _LogNameFormat; }
             set { _LogNameFormat = value; RaisePropertyChanged(); }
         }
+        private string _LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
+        public string LogSaveDir
+        {
+            get { return _LogSaveDir; }
+            set { _LogSaveDir = value; RaisePropertyChanged(); }
+        }
         private int _TabSelectedIndex = (int)ConfigManager.CommonSettings.TabSelectedIndex;
         public int TabSelectedIndex
         {

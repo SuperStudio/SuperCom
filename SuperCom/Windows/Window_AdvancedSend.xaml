@@ -144,7 +144,9 @@
                     </Viewbox>
                 </Border>
             </StackPanel>
+            <!--  SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  -->
             <ListBox
+                Name="sideListBox"
                 Grid.Row="1"
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Stretch"
@@ -153,7 +155,6 @@
                 IsEnabled="{Binding DataContext.RunningCommands, Converter={StaticResource OppositeBooleanConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
                 ItemsSource="{Binding Projects}"
-                SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 SelectionChanged="ListBox_SelectionChanged"
                 Style="{StaticResource NormalListBox}">
                 <ListBox.ItemTemplate>
@@ -560,31 +561,46 @@
                         SortMemberPath="Command">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border
-                                    Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-200}"
-                                    Margin="0"
-                                    Padding="0,0,25,0"
-                                    Background="Transparent">
-                                    <super:SearchBox
-                                        Margin="0,5"
-                                        LostFocus="SaveSendCommands"
-                                        PlaceHolder="请输入"
-                                        Style="{StaticResource SearchTextBoxStyle}"
-                                        Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        TextChanged="CommandTextChanged" />
-                                    <!--<TextBox
-                                    Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
-                                    Padding="15,0,0,0"
-                                    AcceptsReturn="False"
-                                    Background="Transparent"
-                                    ContextMenu="{StaticResource TextBoxContextMenu}"
-                                    LostFocus="SaveSendCommands"
-                                    Style="{StaticResource BaseTextBox}"
-                                    Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    TextAlignment="Left"
-                                    TextChanged="CommandTextChanged"
-                                    TextWrapping="NoWrap" />-->
-                                </Border>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button
+                                        Grid.Column="0"
+                                        Width="25"
+                                        Height="25"
+                                        Margin="0,0,5,0"
+                                        Padding="0"
+                                        VerticalAlignment="Stretch"
+                                        super:CommonExt.CornerRadius="5"
+                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                        Click="CopyCommand"
+                                        Style="{StaticResource FlatButton}">
+                                        <Viewbox Width="auto" Height="14">
+                                            <Path
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Data="M891.072 822.144V167.36a34.432 34.432 0 0 0-34.432-34.432H201.856C201.856 94.848 232.704 64 270.784 64h620.288C929.152 64 960 94.848 960 132.928v620.288c0 38.08-30.848 68.928-68.928 68.928z m-68.928-551.36v620.288c0 38.08-30.848 68.928-68.928 68.928H132.928A68.928 68.928 0 0 1 64 891.072V270.784c0-38.08 30.848-68.928 68.928-68.928h620.288c38.08 0 68.928 30.848 68.928 68.928z m-137.856 137.856H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z m0 206.72H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z"
+                                                Fill="{DynamicResource Window.Foreground}" />
+                                        </Viewbox>
+                                    </Button>
+                                    <Border
+                                        Grid.Column="1"
+                                        Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-200}"
+                                        Margin="0"
+                                        Padding="0,0,60,0"
+                                        Background="Transparent">
+                                        <super:SearchBox
+                                            Margin="0,5"
+                                            LostFocus="SaveSendCommands"
+                                            PlaceHolder="请输入"
+                                            Style="{StaticResource SearchTextBoxStyle}"
+                                            Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            TextChanged="CommandTextChanged" />
+                                    </Border>
+                                </Grid>
+
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

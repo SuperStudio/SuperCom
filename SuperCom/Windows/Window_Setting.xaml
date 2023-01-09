@@ -212,6 +212,34 @@
             <TabItem Header="日志" Style="{StaticResource FlatTabItem}">
 
                 <StackPanel Margin="5,15" Orientation="Vertical">
+
+                    <TextBlock
+                        Margin="5"
+                        HorizontalAlignment="Left"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="保存目录（绝对路径）" />
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <super:SearchBox
+                            Name="saveDirBox"
+                            Margin="0,10"
+                            Background="{DynamicResource Window.Side.Background}"
+                            Text="{Binding LogSaveDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <Button
+                            Grid.Column="1"
+                            Margin="10"
+                            BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                            Click="SelectLogSaveDir"
+                            Content="选择文件夹"
+                            Style="{StaticResource BorderButton}" />
+                    </Grid>
+
                     <TextBlock
                         Margin="5"
                         HorizontalAlignment="Left"
@@ -221,22 +249,10 @@
 
                     <super:SearchBox
                         Name="searchBox"
-                        Width="auto"
-                        Height="40"
-                        Margin="5,10"
-                        Padding="0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Top"
+                        Margin="0,10"
                         Background="{DynamicResource Window.Side.Background}"
-                        BorderThickness="0"
-                        Foreground="{DynamicResource Window.Foreground}"
-                        HideClearButtonOnMouseLeave="False"
-                        PlaceHolderForeground="{DynamicResource TextBox.PlaceHolder.Foreground}"
                         PreviewTextInput="searchBox_PreviewTextInput"
-                        ShowClearButton="True"
-                        ShowSearchButton="False"
-                        Text="{Binding LogNameFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        TextPadding="5 0" />
+                        Text="{Binding LogNameFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                     <Border
                         Margin="5"
@@ -573,7 +589,7 @@
                                         SortMemberPath="Order">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Border
+                                                <!--<Border
                                                     Margin="5"
                                                     Padding="5"
                                                     Background="{DynamicResource Window.Title.Background}"
@@ -589,7 +605,47 @@
                                                         Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         TextAlignment="Left"
                                                         TextWrapping="NoWrap" />
-                                                </Border>
+                                                </Border>-->
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button
+                                                        Grid.Column="0"
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0,0,5,0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        super:CommonExt.CornerRadius="5"
+                                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                                        Click="CopyCommand"
+                                                        Style="{StaticResource FlatButton}">
+                                                        <Viewbox Width="auto" Height="14">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M891.072 822.144V167.36a34.432 34.432 0 0 0-34.432-34.432H201.856C201.856 94.848 232.704 64 270.784 64h620.288C929.152 64 960 94.848 960 132.928v620.288c0 38.08-30.848 68.928-68.928 68.928z m-68.928-551.36v620.288c0 38.08-30.848 68.928-68.928 68.928H132.928A68.928 68.928 0 0 1 64 891.072V270.784c0-38.08 30.848-68.928 68.928-68.928h620.288c38.08 0 68.928 30.848 68.928 68.928z m-137.856 137.856H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z m0 206.72H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z"
+                                                                Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-200}"
+                                                        Margin="0"
+                                                        Padding="0,0,60,0"
+                                                        Background="Transparent">
+                                                        <super:SearchBox
+                                                            Margin="0,5"
+                                                            LostFocus="SaveRuleSet"
+                                                            PlaceHolder="请输入"
+                                                            Style="{StaticResource SearchTextBoxStyle}"
+                                                            Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                                    </Border>
+                                                </Grid>
+
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -613,15 +669,21 @@
                                 <Border
                                     Grid.Row="1"
                                     Height="150"
+                                    Margin="10,5"
                                     Padding="10"
-                                    Background="{DynamicResource TabItem.Background}">
+                                    Background="{DynamicResource TabItem.Background}"
+                                    BorderThickness="1"
+                                    CornerRadius="5">
 
                                     <avalonEdit:TextEditor
                                         Name="previewTextEditor"
                                         Background="Transparent"
                                         BorderThickness="0"
+                                        Focusable="True"
                                         FontFamily="微软雅黑"
                                         Foreground="{DynamicResource Window.Foreground}"
+                                        GotFocus="previewTextEditor_GotFocus"
+                                        LostFocus="previewTextEditor_LostFocus"
                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
                                         SyntaxHighlighting="ComLog"

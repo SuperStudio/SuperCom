@@ -126,7 +126,6 @@
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />
     <Compile Include="Entity\SplitPanelType.cs" />
-    <Compile Include="GlobalVariable.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />

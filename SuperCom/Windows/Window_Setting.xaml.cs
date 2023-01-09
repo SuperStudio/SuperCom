@@ -146,10 +146,10 @@ namespace SuperCom
 
         private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
         {
-            InputWindow inputWindow = new InputWindow(this);
-            if ((bool)inputWindow.ShowDialog())
+            DialogInput input = new DialogInput(this, "请输入波特率");
+            if ((bool)input.ShowDialog())
             {
-                string text = inputWindow.Text;
+                string text = input.Text;
                 bool success = int.TryParse(text, out int baudRate);
                 if (success && baudRate > 0 && !vieModel.BaudRates.Contains(baudRate.ToString()))
                 {
@@ -215,14 +215,16 @@ namespace SuperCom
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
+            ConfigManager.CommonSettings.LogSaveDir = vieModel.LogSaveDir;
+            ConfigManager.CommonSettings.LogSaveDir = CommonSettings.InitLogDir();
             ConfigManager.CommonSettings.Save();
-
+            vieModel.LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
 
             ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
             ConfigManager.Settings.HighlightingSelectedRow = vieModel.HighlightingSelectedRow;
             ConfigManager.Settings.ShowLineNumbers = vieModel.ShowLineNumbers;
-            ConfigManager.Settings.Save();
 
+            ConfigManager.Settings.Save();
             vieModel.SaveAllRule();
             MessageNotify.Success("保存成功");
             ApplyRule();
@@ -272,6 +274,7 @@ namespace SuperCom
             Main.vieModel.LoadBaudRates();
 
             vieModel.LogNameFormat = CommonSettings.DEFAULT_LOGNAMEFORMAT;
+            vieModel.LogSaveDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
             vieModel.FixedOnSearch = true;
             vieModel.CloseToBar = false;
             vieModel.FixedOnSendCommand = false;
@@ -512,6 +515,36 @@ namespace SuperCom
         {
             string BackupPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backup");
             FileHelper.TryOpenPath(BackupPath);
+        }
+
+        private void SelectLogSaveDir(object sender, RoutedEventArgs e)
+        {
+            string path = FileHelper.SelectPath(this);
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+                vieModel.LogSaveDir = path;
+        }
+
+        private void CopyCommand(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            Border border = (button.Parent as Grid).Children.OfType<Border>().LastOrDefault();
+            SearchBox searchBox = border.Child as SearchBox;
+            if (!string.IsNullOrEmpty(searchBox.Text))
+            {
+                bool v = ClipBoard.TrySetDataObject(searchBox.Text);
+                if (v)
+                    MessageNotify.Success("已复制");
+            }
+        }
+
+        private void previewTextEditor_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ((sender as TextEditor).Parent as Border).BorderBrush = (Brush)FindResource("Button.Selected.BorderBrush"); ;
+        }
+
+        private void previewTextEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ((sender as TextEditor).Parent as Border).BorderBrush = Brushes.Transparent;
         }
     }
 }

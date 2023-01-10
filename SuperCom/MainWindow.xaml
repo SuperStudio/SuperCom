@@ -132,6 +132,63 @@
                                             Header="自动换行"
                                             IsCheckable="True"
                                             IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+                                        <MenuItem
+                                            Name="FontMenuItem"
+                                            Header="字体"
+                                            IsCheckable="False" />
+                                        <MenuItem Header="默认字体颜色" IsCheckable="False">
+                                            <MenuItem>
+                                                <MenuItem.Template>
+                                                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                                                        <Grid>
+                                                            <Border
+                                                                Width="auto"
+                                                                Height="auto"
+                                                                Padding="10"
+                                                                Background="{DynamicResource Menu.Background}"
+                                                                CornerRadius="5">
+                                                                <StackPanel Orientation="Vertical" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}}">
+                                                                    <super:ColorPicker ShowColorPalette="False" />
+                                                                    <Button
+                                                                        Margin="5"
+                                                                        HorizontalAlignment="Center"
+                                                                        Click="SetTextForeground"
+                                                                        Content="确定"
+                                                                        Style="{StaticResource ButtonPrimary}" />
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </Grid>
+                                                    </ControlTemplate>
+                                                </MenuItem.Template>
+                                            </MenuItem>
+
+                                        </MenuItem>
+                                        <MenuItem
+                                            Click="SetTextViewReturn"
+                                            Header="显示换行符"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+                                        <MenuItem
+                                            Click="SetTextViewSpace"
+                                            Header="显示空格"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+                                        <MenuItem
+                                            Click="SetTextViewTab"
+                                            Header="显示Tab"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+                                        <MenuItem
+                                            Click="SetTextViewLineNumber"
+                                            Header="显示行号"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+                                        <MenuItem
+                                            Click="SetTextHighLightCurrent"
+                                            Header="高亮选中行"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding AutoTextWrap, Mode=OneWay}" />
+
 
                                     </ContextMenu>
                                 </Button.ContextMenu>
@@ -571,6 +628,7 @@
                         MaxWidth="500" />
                     <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Border
                     Name="sideBorder"
@@ -1231,7 +1289,7 @@
                     <ScrollViewer
                         Grid.Row="0"
                         HorizontalScrollBarVisibility="Auto"
-                        PreviewMouseWheel="scrollViewer_PreviewMouseWheel"
+                        PreviewMouseWheel="PortTab_PreviewMouseWheel"
                         VerticalScrollBarVisibility="Hidden">
                         <ItemsControl Name="tabItemsControl" ItemsSource="{Binding PortTabItems}">
                             <ItemsControl.ItemsPanel>
@@ -1246,7 +1304,7 @@
                                         MinWidth="150"
                                         BorderThickness="1"
                                         Cursor="Hand"
-                                        PreviewMouseLeftButtonUp="Border_PreviewMouseLeftButtonDown"
+                                        PreviewMouseLeftButtonUp="SetPortSelected"
                                         Tag="{Binding Name}">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -1376,11 +1434,17 @@
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="auto" />
                                         </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
                                         <Border
                                             Grid.Row="0"
                                             Margin="0,0,5,0"
                                             Padding="10"
                                             Background="{DynamicResource TabItem.Background}"
+                                            BorderThickness="1"
+                                            CornerRadius="3"
                                             PreviewMouseWheel="Border_PreviewMouseWheel">
 
                                             <avalonEdit:TextEditor
@@ -1390,7 +1454,9 @@
                                                 FontFamily="微软雅黑"
                                                 FontSize="{Binding SerialPort.TextFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Foreground="{DynamicResource Window.Foreground}"
+                                                GotFocus="textBox_GotFocus"
                                                 IsReadOnly="True"
+                                                LostFocus="textBox_LostFocus"
                                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                 SyntaxHighlighting="ComLog"
@@ -1474,6 +1540,8 @@
                                             </Border>
                                         </StackPanel>
 
+
+
                                         <Border
                                             Grid.Row="1"
                                             Margin="0,5,5,0"
@@ -1536,6 +1604,7 @@
                                                 </Viewbox>-->
                                                 </Button>
                                                 <ToggleButton
+                                                    Name="pinToggleButton"
                                                     Width="auto"
                                                     Height="auto"
                                                     Margin="5,0"
@@ -1640,6 +1709,75 @@
                                                 </StackPanel>
                                             </StackPanel>
                                         </Border>
+
+                                        <Grid
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Right">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Grid />
+
+                                            <StackPanel Orientation="Vertical" Visibility="Collapsed">
+                                                <ToggleButton
+                                                    Margin="0"
+                                                    super:CommonExt.CornerRadius="0"
+                                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                                    BorderThickness="0,0,2,0"
+                                                    SnapsToDevicePixels="True"
+                                                    Style="{StaticResource FlatToggleButton}">
+                                                    <ToggleButton.Content>
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="过" />
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="滤" />
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="器" />
+                                                        </StackPanel>
+                                                    </ToggleButton.Content>
+                                                </ToggleButton>
+                                                <ToggleButton
+                                                    Margin="0"
+                                                    super:CommonExt.CornerRadius="0"
+                                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                                    BorderThickness="0,0,2,0"
+                                                    SnapsToDevicePixels="True"
+                                                    Style="{StaticResource FlatToggleButton}">
+                                                    <ToggleButton.Content>
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="监" />
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="视" />
+                                                            <TextBlock
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource BaseTextBlock}"
+                                                                Text="器" />
+                                                        </StackPanel>
+                                                    </ToggleButton.Content>
+                                                </ToggleButton>
+                                            </StackPanel>
+                                        </Grid>
                                     </Grid>
 
                                     <Grid
@@ -2114,6 +2252,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
+
+
             </Grid>
 
         </Grid>

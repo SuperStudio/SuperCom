@@ -142,6 +142,17 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private string _TextFontName = ConfigManager.Main.TextFontName;
+
+        public string TextFontName
+        {
+            get { return _TextFontName; }
+            set
+            {
+                _TextFontName = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private ObservableCollection<AdvancedSend> _SendCommandProjects;
         public ObservableCollection<AdvancedSend> SendCommandProjects

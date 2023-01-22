@@ -53,24 +53,29 @@
                 <RowDefinition Height="*" />
 
             </Grid.RowDefinitions>
-            <Border
+            <Grid
                 x:Name="TitleBorder"
                 Grid.Row="0"
-                Background="{DynamicResource Window.Title.Background}"
-                BorderThickness="0"
-                MouseMove="MoveWindow"
-                PreviewMouseLeftButtonDown="MaxCurrentWindow">
-                <Border.ContextMenu>
+                Background="{DynamicResource Window.Title.Background}">
+                <Grid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Click="MinWindow" Header="最小化" />
                         <MenuItem
                             Name="MaxMenuItem"
                             Click="OnMaxWindow"
                             Header="最大化" />
-                        <MenuItem Click="CloseWindow" Header="关闭" />
+                        <MenuItem
+                            super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
+                            Click="CloseWindow"
+                            Header="关闭" />
                     </ContextMenu>
-                </Border.ContextMenu>
-                <Grid Panel.ZIndex="50">
+                </Grid.ContextMenu>
+                <Grid
+                    HorizontalAlignment="Stretch"
+                    Panel.ZIndex="50"
+                    Background="Transparent"
+                    MouseMove="OnMoveWindow"
+                    PreviewMouseLeftButtonDown="OnMaxCurrentWindow">
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -619,7 +624,7 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-            </Border>
+            </Grid>
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition

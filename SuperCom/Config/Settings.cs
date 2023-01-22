@@ -6,6 +6,8 @@ namespace SuperCom.Config.WindowConfig
 {
     public class Settings : AbstractConfig
     {
+
+        private const int DEFAULT_LOG_FRAG_SIZE = 40;  // MB
         private Settings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Settings")
         {
             Width = SystemParameters.WorkArea.Width * 0.7;
@@ -13,6 +15,8 @@ namespace SuperCom.Config.WindowConfig
             FirstRun = true;
             AutoBackupPeriodIndex = 0;
             AutoBackup = true;
+            EnabledLogFrag = true;
+            LogFragSize = DEFAULT_LOG_FRAG_SIZE;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -43,6 +47,8 @@ namespace SuperCom.Config.WindowConfig
         public bool HighlightingSelectedRow { get; set; }
         public bool ShowLineNumbers { get; set; }
         public long RemoteIndex { get; set; }
+        public bool EnabledLogFrag { get; set; }
+        public long LogFragSize { get; set; }
 
     }
 }

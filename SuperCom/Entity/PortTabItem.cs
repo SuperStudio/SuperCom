@@ -95,6 +95,10 @@ namespace SuperCom.Entity
             get { return _AddTimeStamp; }
             set { _AddTimeStamp = value; RaisePropertyChanged(); }
         }
+
+
+        public UInt64 CurrentCharSize { get; set; }
+
         private long _RX = 0L;
         public long RX
         {
@@ -203,30 +207,42 @@ namespace SuperCom.Entity
             //return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
         }
 
+        public int FragCount { get; set; }
+
         public void FilterLine(string value)
         {
             // 查找结果
             TextEditor?.AppendText(value);
-            // 回调
-            if (ResultChecks?.Count > 0)
+            if (ConfigManager.Settings.EnabledLogFrag)
             {
-                HashSet<string> set = new HashSet<string>();
-                foreach (ResultCheck item in ResultChecks)
+                //if (CurrentCharSize >= 4096)
+                if (CurrentCharSize / 1024 >= (UInt64)ConfigManager.Settings.LogFragSize)
                 {
-                    // 同一类型的命令仅添加一次 buffer
-                    if (!set.Contains(item.Command))
-                    {
-                        item.Buffer.Append(value);
-                        set.Add(item.Command);
-                    }
+                    CurrentCharSize = 0;
+                    ConnectTime = DateTime.Now;
+                    FragCount++;
                 }
+                // 回调
+                //if (ResultChecks?.Count > 0)
+                //{
+                //    HashSet<string> set = new HashSet<string>();
+                //    foreach (ResultCheck item in ResultChecks)
+                //    {
+                //        // 同一类型的命令仅添加一次 buffer
+                //        if (!set.Contains(item.Command))
+                //        {
+                //            item.Buffer.Append(value);
+                //            set.Add(item.Command);
+                //        }
+                //    }
+                //}
             }
-
         }
 
         public void SaveData(string line)
         {
             RX += line.Length;
+            Console.WriteLine(sizeof(char));
             string value = line.Replace("\0", "\\0");
             if (AddTimeStamp)
             {
@@ -253,6 +269,7 @@ namespace SuperCom.Entity
                 if (string.IsNullOrEmpty(TextEditor.Text))
                     value = $"[{DateHelper.Now()}] " + value;
             }
+            CurrentCharSize += (UInt64)value.Length * sizeof(char);
             FilterLine(value);
             // 保存到本地
             try

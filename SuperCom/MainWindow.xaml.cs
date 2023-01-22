@@ -195,28 +195,29 @@ namespace SuperCom
             this.MaxWindow(sender, e);
         }
 
-        private void MoveWindow(object sender, MouseEventArgs e)
+        private void OnMoveWindow(object sender, MouseEventArgs e)
         {
-            Border border = sender as Border;
+            base.MoveWindow(sender, e);
+            //Border border = sender as Border;
 
-            //移动窗口
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                if (baseWindowState == BaseWindowState.Maximized || (this.Width == SystemParameters.WorkArea.Width && this.Height == SystemParameters.WorkArea.Height))
-                {
-                    baseWindowState = 0;
-                    double fracWidth = e.GetPosition(border).X / border.ActualWidth;
-                    this.Width = WindowSize.Width;
-                    this.Height = WindowSize.Height;
-                    this.WindowState = System.Windows.WindowState.Normal;
-                    this.Left = e.GetPosition(border).X - border.ActualWidth * fracWidth;
-                    this.Top = e.GetPosition(border).Y - border.ActualHeight / 2;
-                    this.OnLocationChanged(EventArgs.Empty);
-                    MaxPath.Data = Geometry.Parse(PathData.MaxPath);
-                    MaxMenuItem.Header = "最大化";
-                }
-                this.DragMove();
-            }
+            ////移动窗口
+            //if (e.LeftButton == MouseButtonState.Pressed)
+            //{
+            //    if (baseWindowState == BaseWindowState.Maximized || (this.Width == SystemParameters.WorkArea.Width && this.Height == SystemParameters.WorkArea.Height))
+            //    {
+            //        baseWindowState = 0;
+            //        double fracWidth = e.GetPosition(border).X / border.ActualWidth;
+            //        this.Width = WindowSize.Width;
+            //        this.Height = WindowSize.Height;
+            //        this.WindowState = System.Windows.WindowState.Normal;
+            //        this.Left = e.GetPosition(border).X - border.ActualWidth * fracWidth;
+            //        this.Top = e.GetPosition(border).Y - border.ActualHeight / 2;
+            //        this.OnLocationChanged(EventArgs.Empty);
+            //        MaxPath.Data = Geometry.Parse(PathData.MaxPath);
+            //        MaxMenuItem.Header = "最大化";
+            //    }
+            //    this.DragMove();
+            //}
         }
 
         private void SetPortSelected(object sender, MouseButtonEventArgs e)
@@ -417,6 +418,8 @@ namespace SuperCom
             sideComPort.PortTabItem = portTabItem;
             sideComPort.PortTabItem.RX = 0;
             sideComPort.PortTabItem.TX = 0;
+            sideComPort.PortTabItem.CurrentCharSize = 0;
+            sideComPort.PortTabItem.FragCount = 0;
             await Task.Run(() =>
             {
                 try
@@ -607,7 +610,21 @@ namespace SuperCom
 
         private void ShowAbout(object sender, RoutedEventArgs e)
         {
-            new CustomWindows.About(this).ShowDialog();
+            //new CustomWindows.About(this).ShowDialog();
+            Dialog_About about = new Dialog_About();
+            string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            local = local.Substring(0, local.Length - ".0.0".Length);
+            about.AppName = "SuperCom";
+            about.AppSubName = "超级串口工具";
+            about.Version = local;
+            about.ReleaseDate = ConfigManager.RELEASE_DATE;
+            about.Author = "Chao";
+            about.License = "GPL-3.0";
+            about.GithubUrl = "https://github.com/SuperStudio/SuperCom";
+            about.WebUrl = "https://github.com/SuperStudio/SuperCom";
+            about.JoinGroupUrl = "https://github.com/SuperStudio/SuperCom";
+            about.Image = SuperUtils.Media.ImageHelper.ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.ico");
+            about.ShowDialog();
         }
 
         private void OpenContextMenu(object sender, RoutedEventArgs e)
@@ -738,7 +755,9 @@ namespace SuperCom
                 string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName))
                 {
-                    FileHelper.TryOpenSelectPath(fileName);
+                    FileHelper.TryOpenSelectPathEx(fileName);
+                    if (portTabItem.FragCount > 0)
+                        MessageNotify.Info($"当前日志已分 {portTabItem.FragCount} 片");
                 }
                 else
                 {
@@ -819,6 +838,9 @@ namespace SuperCom
             }
         }
 
+        private int CurrentErrorCount = 0;
+        private const int MAX_ERROR_COUNT = 2;
+
         public bool SendCommand(SerialPort port, PortTabItem portTabItem, string value, bool saveToHistory = true)
         {
             if (portTabItem == null) return false;
@@ -838,22 +860,25 @@ namespace SuperCom
                     vieModel.SaveSendHistory();
                 }
                 vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
+                CurrentErrorCount = 0;
                 return true;
             }
             catch (Exception ex)
             {
-                MessageCard.Error(ex.Message);
+                CurrentErrorCount++;
+                if (CurrentErrorCount <= MAX_ERROR_COUNT)
+                    MessageCard.Error(ex.Message);
                 return false;
             }
         }
 
-        private void MaxCurrentWindow(object sender, MouseButtonEventArgs e)
+        private void OnMaxCurrentWindow(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount > 1)
-            {
-                MaxWindow(sender, new RoutedEventArgs());
-
-            }
+            //if (e.ClickCount > 1)
+            //{
+            //    MaxWindow(sender, new RoutedEventArgs());
+            //}
+            base.DragMoveWindow(sender, e);
         }
 
 
@@ -1930,15 +1955,18 @@ namespace SuperCom
 
                     bool success = await AsyncSendCommand(idx, portName, command, advancedSend);
                     advancedSend.CommandList[idx].Status = RunningStatus.WaitingDelay;
-                    int delay = 10;
-                    for (int i = 1; i <= command.Delay; i += delay)
+                    if (command.Delay > 0)
                     {
-                        if (!portTabItem.RunningCommands)
-                            break;
-                        await Task.Delay(delay);
-                        advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
+                        int delay = 10;
+                        for (int i = 1; i <= command.Delay; i += delay)
+                        {
+                            if (!portTabItem.RunningCommands)
+                                break;
+                            await Task.Delay(delay);
+                            advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
+                        }
+                        advancedSend.CommandList[idx].StatusText = "0 ms";
                     }
-                    advancedSend.CommandList[idx].StatusText = $"0 ms";
                     advancedSend.CommandList[idx].Status = RunningStatus.WaitingToRun;
                     idx++;
                     if (idx >= advancedSend.CommandList.Count)

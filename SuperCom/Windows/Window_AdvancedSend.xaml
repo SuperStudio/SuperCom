@@ -606,7 +606,10 @@
                     </DataGridTemplateColumn>
 
 
-                    <DataGridTemplateColumn Width="120" Header="返回字符检测">
+                    <DataGridTemplateColumn
+                        Width="120"
+                        Header="返回字符检测"
+                        Visibility="Collapsed">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid IsEnabled="{Binding DataContext.RunningCommands, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Converter={StaticResource OppositeBooleanConverter}}">

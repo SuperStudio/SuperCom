@@ -54,7 +54,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="SuperControls.Style, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll</HintPath>
@@ -268,5 +271,10 @@
   <PropertyGroup>
     <PostBuildEvent>XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Debug"    /E /Y /i
 XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y /i</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>XCOPY  "D:\SuperStudio\Newtonsoft.Json-12.0.3\Src\Newtonsoft.Json\bin\Release\net472\Newtonsoft.Json.dll" "$(ProjectDir)References"    /E /Y /i
+XCOPY  "D:\SuperStudio\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll" "$(ProjectDir)References"    /E /Y /i
+XCOPY  "D:\SuperStudio\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll" "$(ProjectDir)References"    /E /Y /i</PreBuildEvent>
   </PropertyGroup>
 </Project>

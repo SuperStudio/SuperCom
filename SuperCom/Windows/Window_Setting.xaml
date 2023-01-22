@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:config="clr-namespace:SuperCom.Config;assembly=SuperCom"
     xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:localConverter="clr-namespace:SuperCom.Converters"
@@ -62,6 +63,33 @@
                         Content="{DynamicResource FixAfterSendCommand}"
                         IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />
+
+                    <StackPanel Margin="10,5" Orientation="Horizontal">
+                        <CheckBox
+                            Name="logFragCheckBox"
+                            Margin="0,5"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Content="日志分片"
+                            IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}"
+                            Style="{StaticResource NormalCheckBox}" />
+                        <super:Slider
+                            Name="logFragSlider"
+                            Width="300"
+                            Margin="20,0"
+                            LargeChange="5"
+                            Maximum="150"
+                            Minimum="1"
+                            SmallChange="1"
+                            Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}"
+                            Value="{Binding LogFragSize, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="{Binding ElementName=logFragSlider, Path=Value, StringFormat={}{0}\ MB}"
+                            Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}" />
+
+                    </StackPanel>
                     <CheckBox
                         Margin="10"
                         Content="{DynamicResource CloseToBar}"

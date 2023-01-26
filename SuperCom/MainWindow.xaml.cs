@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
@@ -8,6 +9,7 @@ using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
 using SuperCom.ViewModel;
+using SuperCom.Windows;
 using SuperControls.Style;
 using SuperControls.Style.Plugin;
 using SuperControls.Style.Windows;
@@ -1299,6 +1301,7 @@ namespace SuperCom
             InitUpgrade();
             CommonSettings.InitLogDir();
             OpenBeforePorts();
+            new Window_VirtualPort().Show();
 
         }
 
@@ -2725,6 +2728,26 @@ namespace SuperCom
         private void textBox_LostFocus(object sender, RoutedEventArgs e)
         {
             ((sender as TextEditor).Parent as Border).BorderBrush = Brushes.Transparent;
+        }
+        Window_VirtualPort virtualPort;
+        private async void ShowVirtualPort(object sender, RoutedEventArgs e)
+        {
+            if (virtualPort == null)
+
+            {
+                virtualPort = new Window_VirtualPort();
+                virtualPort.Show();
+            }
+            else
+            {
+                if (virtualPort.IsClosed)
+                {
+                    virtualPort = new Window_VirtualPort();
+                    virtualPort.Show();
+                }
+                virtualPort.BringIntoView();
+                virtualPort.Focus();
+            }
         }
     }
 }

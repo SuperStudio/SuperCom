@@ -851,6 +851,9 @@
                                                 Visibility="{Binding ShowDonate, Converter={StaticResource bool2VisibilityConverter}}" />
                                         </MenuItem>
                                         <MenuItem Click="OpenSetting" Header="设置" />
+                                        <MenuItem Header="高级">
+                                            <MenuItem Header="虚拟串口模拟" Click="ShowVirtualPort" />
+                                        </MenuItem>
                                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />
                                         <MenuItem Click="ShowUpgradeWindow" Header="检查更新" />

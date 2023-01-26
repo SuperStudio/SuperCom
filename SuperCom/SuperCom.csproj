@@ -43,6 +43,9 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\Ico\ICON_256.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
@@ -77,6 +80,8 @@
     <Reference Include="System.Data.SQLite.Linq, Version=1.0.116.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.116.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Reactive, Version=5.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.5.0.0\lib\net472\System.Reactive.dll</HintPath>
     </Reference>
@@ -107,6 +112,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Comparers\ComPortComparer.cs" />
+    <Compile Include="Config\VirtualPortSettings.cs" />
     <Compile Include="Config\AdvancedSendSettings.cs" />
     <Compile Include="Config\Settings.cs" />
     <Compile Include="Config\ConfigManager.cs" />
@@ -129,6 +135,7 @@
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />
     <Compile Include="Entity\SplitPanelType.cs" />
+    <Compile Include="Entity\VirtualPort.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Log\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
@@ -143,6 +150,9 @@
     </Compile>
     <Compile Include="Windows\Window_ShortCut.xaml.cs">
       <DependentUpon>Window_ShortCut.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Window_VirtualPort.xaml.cs">
+      <DependentUpon>Window_VirtualPort.xaml</DependentUpon>
     </Compile>
     <Page Include="AvalonEdit\SearchPanel\SearchPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -194,6 +204,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Window_VirtualPort.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -213,6 +227,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.manifest" />
     <None Include="Files\app_config.json" />
     <None Include="AvalonEdit\Higlighting\ComLog.xshd">
       <SubType>Designer</SubType>
@@ -244,8 +259,13 @@
   <ItemGroup>
     <Resource Include="Resources\Ico\ICON_256.ico" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Installer\setup.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="References\HtmlAgilityPack.dll" />
     <Content Include="References\ICSharpCode.AvalonEdit.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
@@ -269,12 +289,14 @@
   <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.116.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Debug"    /E /Y /i
+    <PostBuildEvent>mkdir "$(ProjectDir)bin\Debug"
+mkdir "$(ProjectDir)bin\Release"
+XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Debug"    /E /Y /i
 XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y /i</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>XCOPY  "D:\SuperStudio\Newtonsoft.Json-12.0.3\Src\Newtonsoft.Json\bin\Release\net472\Newtonsoft.Json.dll" "$(ProjectDir)References"    /E /Y /i
-XCOPY  "D:\SuperStudio\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll" "$(ProjectDir)References"    /E /Y /i
-XCOPY  "D:\SuperStudio\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll" "$(ProjectDir)References"    /E /Y /i</PreBuildEvent>
+    <PreBuildEvent>XCOPY  "D:\SuperStudio\Newtonsoft.Json\Src\Newtonsoft.Json\bin\Release\net472\Newtonsoft.Json.dll" "$(ProjectDir)References"    /E /Y /i
+XCOPY  "D:\SuperStudio\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll" "$(ProjectDir)References"    /E /Y /i
+XCOPY  "D:\SuperStudio\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll" "$(ProjectDir)References"    /E /Y /i</PreBuildEvent>
   </PropertyGroup>
 </Project>

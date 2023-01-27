@@ -1,6 +1,8 @@
 ﻿using SuperCom.Config;
+using SuperCom.Log;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.Sql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +21,7 @@ namespace SuperCom.Entity
         public bool Connected { get; set; }
         public bool AddTimeStamp { get; set; }
         public bool AddNewLineWhenWrite { get; set; }
+        public bool EnabledFilter { get; set; }
         public string PortSetting { get; set; } // json 格式
         public string WriteData { get; set; }
 
@@ -58,6 +61,10 @@ namespace SuperCom.Entity
 
         }
 
+        public static string[] SqlCommands = {
+             "ALTER TABLE com_settings ADD COLUMN EnabledFilter INT DEFAULT 0;",
+        };
+
         public static void InitSqlite()
         {
             SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
@@ -66,6 +73,19 @@ namespace SuperCom.Entity
                 if (!mapper.IsTableExists(item))
                 {
                     mapper.CreateTable(item, ComSettings.SqliteTable.Table[item]);
+                }
+            }
+
+            // 新增列
+            foreach (string sql in SqlCommands)
+            {
+                try
+                {
+                    mapper.ExecuteNonQuery(sql);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

@@ -18,6 +18,9 @@ namespace SuperCom.Entity
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        public const int WRITE_TIME_OUT = 1000;
+        public const int READ_TIME_OUT = 2000;
+
 
         public PortSetting _Setting = PortSetting.GetDefaultSetting();
         public PortSetting Setting
@@ -187,6 +190,12 @@ namespace SuperCom.Entity
         {
             get { return _HighLightIndex; }
             set { _HighLightIndex = value; RaisePropertyChanged(); }
+        }
+        private long _FilterSelectedIndex = 0;
+        public long FilterSelectedIndex
+        {
+            get { return _FilterSelectedIndex; }
+            set { _FilterSelectedIndex = value; RaisePropertyChanged(); }
         }
 
 

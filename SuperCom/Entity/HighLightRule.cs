@@ -24,6 +24,12 @@ namespace SuperCom.Entity
     [Table(tableName: "highlight_rule")]
     public class HighLightRule
     {
+        public static List<HighLightRule> AllRules = new List<HighLightRule>();
+        public static List<string> AllName = new List<string>();
+
+
+
+
         [TableId(IdType.AUTO)]
         public long RuleID { get; set; }
         public string RuleName { get; set; }
@@ -147,6 +153,15 @@ namespace SuperCom.Entity
                 }
             }
         }
+
+        public static List<RuleSet> DefaultRuleSet = new List<RuleSet>()
+        {
+            new RuleSet(){RuleType = RuleType.Regex,RuleValue="(\\bE: .+)|(\\[E\\]:.+)"},
+            new RuleSet(){RuleType = RuleType.Regex,RuleValue="(\\bW: .+)|(\\[W\\]:.+)"},
+            new RuleSet(){RuleType = RuleType.Regex,RuleValue="(\\bD: .+)|(\\[D\\]:.+)"},
+            new RuleSet(){RuleType = RuleType.Regex,RuleValue="\\{.+\\}"},
+            new RuleSet(){RuleType = RuleType.KeyWord,RuleValue="SEND >>>>>>>>>>"},
+        };
 
 
         public enum RuleType

@@ -22,6 +22,7 @@ namespace SuperCom.ViewModel
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
         private static SqliteMapper<ComSettings> comMapper { get; set; }
         private static SqliteMapper<ShortCutBinding> shortCutMapper { get; set; }
+        private static SqliteMapper<HighLightRule> ruleMapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
         public List<ShortCutBinding> ShortCutBindings { get; set; }
@@ -131,17 +132,9 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private bool _AutoTextWrap = ConfigManager.Main.AutoTextWrap;
 
-        public bool AutoTextWrap
-        {
-            get { return _AutoTextWrap; }
-            set
-            {
-                _AutoTextWrap = value;
-                RaisePropertyChanged();
-            }
-        }
+
+
         private string _TextFontName = ConfigManager.Main.TextFontName;
 
         public string TextFontName
@@ -169,6 +162,7 @@ namespace SuperCom.ViewModel
             get { return _HighlightingDefinitions; }
             set { _HighlightingDefinitions = value; RaisePropertyChanged(); }
         }
+
         private bool _ShowDonate;
         public bool ShowDonate
         {
@@ -207,6 +201,8 @@ namespace SuperCom.ViewModel
             LoadParitys();
             LoadStopBits();
             LoadShortCut();
+            LoadShortCut();
+            LoadHighLightRule();
             comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
 
 
@@ -291,17 +287,22 @@ namespace SuperCom.ViewModel
         public void LoadHighlightingDefinitions()
         {
             HighlightingDefinitions = new ObservableCollection<IHighlightingDefinition>();
+            HighLightRule.AllName = new List<string>();
             foreach (var item in HighlightingManager.Instance.HighlightingDefinitions)
             {
                 HighlightingDefinitions.Add(item);
+                HighLightRule.AllName.Add(item.Name);
             }
 
         }
 
+
+
+
         public void SaveSendHistory()
         {
-            ConfigManager.Main.SendHistory = JsonUtils.TrySerializeObject(SendHistory);
-            ConfigManager.Main.Save();
+            //ConfigManager.Main.SendHistory = JsonUtils.TrySerializeObject(SendHistory);
+            //ConfigManager.Main.Save();
         }
 
         public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime)
@@ -371,6 +372,12 @@ namespace SuperCom.ViewModel
                 ShortCutBindings.Add(item);
             }
 
+        }
+        public void LoadHighLightRule()
+        {
+            if (ruleMapper == null)
+                ruleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
+            HighLightRule.AllRules = ruleMapper.SelectList();
         }
     }
 }

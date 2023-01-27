@@ -9,6 +9,7 @@ using SuperUtils.WPF.VieModel;
 using SuperUtils.WPF.VisualTools;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.IO.Ports;
 using System.Linq;
 using System.Windows;
@@ -88,28 +89,7 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private bool _HighlightingSelectedRow = ConfigManager.Settings.HighlightingSelectedRow;
-        public bool HighlightingSelectedRow
-        {
-            get { return _HighlightingSelectedRow; }
 
-            set
-            {
-                _HighlightingSelectedRow = value;
-                RaisePropertyChanged();
-            }
-        }
-        private bool _ShowLineNumbers = ConfigManager.Settings.ShowLineNumbers;
-        public bool ShowLineNumbers
-        {
-            get { return _ShowLineNumbers; }
-
-            set
-            {
-                _ShowLineNumbers = value;
-                RaisePropertyChanged();
-            }
-        }
 
         public void SaveValue()
         {
@@ -268,6 +248,7 @@ namespace SuperCom.ViewModel
 
         public void SaveAllRule()
         {
+            HighLightRule.AllRules = new List<HighLightRule>();
             if (HighLightRules.Count > 0)
             {
                 foreach (var item in HighLightRules)
@@ -276,6 +257,7 @@ namespace SuperCom.ViewModel
                     item.WriteToXshd(); // 写入到 xshd 文件中
                     ruleMapper.UpdateById(item);
                 }
+                HighLightRule.AllRules = ruleMapper.SelectList();
             }
         }
 

@@ -44,8 +44,6 @@ namespace SuperCom.Config.WindowConfig
         public bool AutoBackup { get; set; }
 
         public long AutoBackupPeriodIndex { get; set; }
-        public bool HighlightingSelectedRow { get; set; }
-        public bool ShowLineNumbers { get; set; }
         public long RemoteIndex { get; set; }
         public bool EnabledLogFrag { get; set; }
         public long LogFragSize { get; set; }

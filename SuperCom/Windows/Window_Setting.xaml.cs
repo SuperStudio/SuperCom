@@ -221,8 +221,6 @@ namespace SuperCom
             vieModel.LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
 
             ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
-            ConfigManager.Settings.HighlightingSelectedRow = vieModel.HighlightingSelectedRow;
-            ConfigManager.Settings.ShowLineNumbers = vieModel.ShowLineNumbers;
 
             ConfigManager.Settings.Save();
             vieModel.SaveAllRule();
@@ -230,6 +228,7 @@ namespace SuperCom
             ApplyRule();
             Main?.ReadXshdList();
             Main?.RefreshSetting();
+
         }
 
         private void ApplyRule()

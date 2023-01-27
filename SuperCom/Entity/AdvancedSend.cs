@@ -30,11 +30,6 @@ namespace SuperCom.Entity
         Failed
     }
 
-
-
-
-
-
     public class SendCommand : ViewModelBase
     {
 

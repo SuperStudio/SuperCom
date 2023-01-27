@@ -112,6 +112,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Comparers\ComPortComparer.cs" />
+    <Compile Include="Config\PathManager.cs" />
     <Compile Include="Config\VirtualPortSettings.cs" />
     <Compile Include="Config\AdvancedSendSettings.cs" />
     <Compile Include="Config\Settings.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />
     <Compile Include="Entity\SplitPanelType.cs" />
+    <Compile Include="Entity\VarMonitor.cs" />
     <Compile Include="Entity\VirtualPort.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Log\Logger.cs" />

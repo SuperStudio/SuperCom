@@ -83,6 +83,7 @@ namespace SuperCom
             this.DataContext = vieModel;
             SetLang();      // 设置语言
             ReadConfig();   // 读取设置列表
+            PathManager.Init();
         }
 
         public void ReadConfig()
@@ -184,6 +185,7 @@ namespace SuperCom
             AdvancedSend.InitSqlite();
             HighLightRule.InitSqlite();
             ShortCutBinding.InitSqlite();
+            VarMonitor.InitSqlite();
         }
 
 
@@ -606,6 +608,7 @@ namespace SuperCom
                     portTabItem.AddTimeStamp = comSettings.AddTimeStamp;
                     portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
                     portTabItem.EnabledFilter = comSettings.EnabledFilter;
+                    portTabItem.EnabledMonitor = comSettings.EnabledMonitor;
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
                 }
@@ -1116,6 +1119,7 @@ namespace SuperCom
                 comSettings.WriteData = portTabItem.WriteData;
                 comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
                 comSettings.EnabledFilter = portTabItem.EnabledFilter;
+                comSettings.EnabledMonitor = portTabItem.EnabledMonitor;
                 comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
                 portTabItem.SerialPort.RefreshSetting();
                 comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
@@ -2837,6 +2841,64 @@ namespace SuperCom
                 });
             }
 
+        }
+
+        private void OnShowRightPanel(object sender, RoutedEventArgs e)
+        {
+            ConfigManager.Main.ShowRightPanel = false;
+        }
+
+        private void AddNewVarMonitor(object sender, RoutedEventArgs e)
+        {
+            // 新增监视变量
+            vieModel.NewVarMonitor();
+        }
+
+        private void DeleteVarMonitory(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.Tag != null)
+            {
+                long.TryParse(element.Tag.ToString(), out long id);
+                vieModel.DeleteVarMonitor(id);
+            }
+        }
+
+        private void OpenVarMonitorDataPath(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SetMonitorTabVisible(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+
+
+            if (toggleButton.Parent is StackPanel panel &&
+                panel.Parent is Grid grid && grid.Parent is Grid rootGrid)
+            {
+                Grid monitorGrid = rootGrid.FindName("monitorGrid") as Grid;
+
+                if (monitorGrid != null)
+                {
+                    monitorGrid.Visibility = (bool)toggleButton.IsChecked ? Visibility.Visible : Visibility.Collapsed;
+
+                }
+            }
+        }
+
+        private void RefreshVarMonitor(object sender, RoutedEventArgs e)
+        {
+            vieModel.LoadVarMonitor();
+        }
+
+        private void DrawMonitorPicture(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SaveVarMonitor(object sender, RoutedEventArgs e)
+        {
+            vieModel.SaveMonitor();
         }
     }
 }

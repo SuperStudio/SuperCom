@@ -106,6 +106,12 @@ namespace SuperCom.Entity
             get { return _AddTimeStamp; }
             set { _AddTimeStamp = value; RaisePropertyChanged(); }
         }
+        private bool _EnabledMonitor = true;
+        public bool EnabledMonitor
+        {
+            get { return _EnabledMonitor; }
+            set { _EnabledMonitor = value; RaisePropertyChanged(); }
+        }
 
 
         public UInt64 CurrentCharSize { get; set; }

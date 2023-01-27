@@ -22,6 +22,7 @@ namespace SuperCom.Entity
         public bool AddTimeStamp { get; set; }
         public bool AddNewLineWhenWrite { get; set; }
         public bool EnabledFilter { get; set; }
+        public bool EnabledMonitor { get; set; }
         public string PortSetting { get; set; } // json 格式
         public string WriteData { get; set; }
 
@@ -63,6 +64,7 @@ namespace SuperCom.Entity
 
         public static string[] SqlCommands = {
              "ALTER TABLE com_settings ADD COLUMN EnabledFilter INT DEFAULT 0;",
+             "ALTER TABLE com_settings ADD COLUMN EnabledMonitor INT DEFAULT 0;",
         };
 
         public static void InitSqlite()

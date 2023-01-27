@@ -397,7 +397,8 @@
                 CanUserResizeColumns="True"
                 CanUserSortColumns="True"
                 ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                Style="{DynamicResource FlatDataGrid}" SelectionChanged="dataGrid_SelectionChanged">
+                SelectionChanged="dataGrid_SelectionChanged"
+                Style="{DynamicResource FlatDataGrid}">
                 <DataGrid.RowStyle>
                     <Style BasedOn="{StaticResource NormalDataGridRowStyle}" TargetType="DataGridRow">
                         <Setter Property="ContextMenu" Value="{x:Null}" />

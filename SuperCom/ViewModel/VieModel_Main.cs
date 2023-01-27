@@ -2,6 +2,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
+using SuperControls.Style;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
@@ -23,6 +24,7 @@ namespace SuperCom.ViewModel
         private static SqliteMapper<ComSettings> comMapper { get; set; }
         private static SqliteMapper<ShortCutBinding> shortCutMapper { get; set; }
         private static SqliteMapper<HighLightRule> ruleMapper { get; set; }
+        private static SqliteMapper<VarMonitor> monitorMapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
         public List<ShortCutBinding> ShortCutBindings { get; set; }
@@ -162,6 +164,12 @@ namespace SuperCom.ViewModel
             get { return _HighlightingDefinitions; }
             set { _HighlightingDefinitions = value; RaisePropertyChanged(); }
         }
+        private ObservableCollection<VarMonitor> _CurrentVarMonitors;
+        public ObservableCollection<VarMonitor> CurrentVarMonitors
+        {
+            get { return _CurrentVarMonitors; }
+            set { _CurrentVarMonitors = value; RaisePropertyChanged(); }
+        }
 
         private bool _ShowDonate;
         public bool ShowDonate
@@ -203,6 +211,7 @@ namespace SuperCom.ViewModel
             LoadShortCut();
             LoadShortCut();
             LoadHighLightRule();
+            LoadVarMonitor();
             comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
 
 
@@ -379,5 +388,88 @@ namespace SuperCom.ViewModel
                 ruleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
             HighLightRule.AllRules = ruleMapper.SelectList();
         }
+
+
+        #region "变量监视器"
+        public void LoadVarMonitor()
+        {
+            if (monitorMapper == null)
+                monitorMapper = new SqliteMapper<VarMonitor>(ConfigManager.SQLITE_DATA_PATH);
+            CurrentVarMonitors = new ObservableCollection<VarMonitor>();
+            foreach (var item in monitorMapper.SelectList().OrderBy(arg => arg.SortOrder))
+            {
+                CurrentVarMonitors.Add(item);
+            }
+        }
+
+        public void NewVarMonitor()
+        {
+            if (CurrentVarMonitors == null)
+                CurrentVarMonitors = new ObservableCollection<VarMonitor>();
+            int maxOrder = 0;
+            if (CurrentVarMonitors.Count > 0)
+                maxOrder = CurrentVarMonitors.Max(arg => arg.SortOrder);
+            if (maxOrder <= 0)
+                maxOrder = 1;
+            else
+                maxOrder++;
+            VarMonitor varMonitor = new VarMonitor(maxOrder);
+            monitorMapper.InsertAndGetID(varMonitor);
+            CurrentVarMonitors.Add(varMonitor);
+        }
+        public void DeleteVarMonitor(long id)
+        {
+            if (CurrentVarMonitors == null || CurrentVarMonitors.Count == 0 || id <= 0)
+                return;
+            monitorMapper.DeleteById(id);
+
+            int idx = -1;
+
+            for (int i = 0; i < CurrentVarMonitors.Count; i++)
+            {
+                if (CurrentVarMonitors[i].MonitorID == id)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= 0 && idx < CurrentVarMonitors.Count)
+                CurrentVarMonitors.RemoveAt(idx);
+        }
+
+        public void SaveMonitor()
+        {
+            if (CurrentVarMonitors == null || CurrentVarMonitors.Count == 0)
+                return;
+
+            List<VarMonitor> toUpdate = new List<VarMonitor>();
+
+            List<VarMonitor> allData = monitorMapper.SelectList();
+            foreach (var item in CurrentVarMonitors)
+            {
+                VarMonitor varMonitor = allData.FirstOrDefault(arg => arg.MonitorID == item.MonitorID);
+                if (varMonitor == null || !varMonitor.Equals(item))
+                    toUpdate.Add(item);
+            }
+
+
+            if (toUpdate.Count == 0)
+            {
+                MessageNotify.Info("无改变，无需保存");
+                return;
+            }
+            else
+            {
+                foreach (var item in toUpdate)
+                {
+                    monitorMapper.UpdateById(item);
+                }
+                MessageNotify.Success("保存成功");
+                LoadVarMonitor();
+            }
+
+        }
+
+        #endregion
     }
 }

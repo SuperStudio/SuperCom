@@ -1525,7 +1525,7 @@
                                                 <ToggleButton
                                                     Margin="0"
                                                     Click="SetMonitorTabVisible"
-                                                    IsChecked="True"
+                                                    IsChecked="False"
                                                     Style="{StaticResource FlatToggleButton}">
                                                     <StackPanel Orientation="Vertical">
                                                         <TextBlock
@@ -1551,9 +1551,11 @@
                                             Name="monitorGrid"
                                             Grid.Row="0"
                                             Grid.Column="0"
+                                            Width="700"
                                             Margin="10,5"
                                             HorizontalAlignment="Right"
-                                            Panel.ZIndex="5">
+                                            Panel.ZIndex="5"
+                                            Visibility="Collapsed">
                                             <Border Effect="{DynamicResource PopupDropShadowEffect}" Style="{StaticResource InfoBorder}" />
                                             <TabControl
                                                 Name="sideTabControl"
@@ -1571,18 +1573,23 @@
                                                             <Button
                                                                 Click="AddNewVarMonitor"
                                                                 Content="新增"
-                                                                Style="{StaticResource ButtonPrimary}" />
+                                                                Style="{StaticResource ButtonPrimary}"
+                                                                Tag="{Binding Name}" />
                                                             <Button
                                                                 Click="SaveVarMonitor"
                                                                 Content="保存"
-                                                                Style="{StaticResource ButtonSuccess}" />
+                                                                Style="{StaticResource ButtonSuccess}"
+                                                                Tag="{Binding Name}" />
                                                             <Button
+                                                                Margin="5,0"
                                                                 BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                                                 Click="RefreshVarMonitor"
                                                                 Content="刷新"
-                                                                Style="{StaticResource BorderButton}" />
+                                                                Style="{StaticResource BorderButton}"
+                                                                Tag="{Binding Name}" />
                                                             <super:Switch
                                                                 Height="20"
+                                                                Margin="5,0,0,0"
                                                                 Background="{DynamicResource Window.Title.Background}"
                                                                 IsChecked="{Binding EnabledMonitor, Mode=TwoWay}" />
                                                             <TextBlock
@@ -1596,10 +1603,11 @@
                                                             HorizontalContentAlignment="Left"
                                                             CanUserResizeColumns="True"
                                                             CanUserSortColumns="True"
-                                                            ItemsSource="{Binding DataContext.CurrentVarMonitors, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                            ItemsSource="{Binding VarMonitors}"
                                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                            Style="{DynamicResource FlatDataGrid}">
+                                                            Style="{DynamicResource FlatDataGrid}"
+                                                            Tag="{Binding Name}">
 
                                                             <DataGrid.Columns>
                                                                 <DataGridTemplateColumn
@@ -1614,7 +1622,8 @@
                                                                             <Border
                                                                                 Grid.Column="1"
                                                                                 Background="Transparent"
-                                                                                BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                                                                BorderBrush="{StaticResource TabItem.Selected.Background}"
+                                                                                Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGrid}}}">
                                                                                 <Button
                                                                                     Width="20"
                                                                                     Height="20"
@@ -1733,7 +1742,8 @@
                                                                                 <Button
                                                                                     Click="DrawMonitorPicture"
                                                                                     Content="制图"
-                                                                                    Style="{StaticResource ButtonPrimary}" />
+                                                                                    Style="{StaticResource ButtonPrimary}"
+                                                                                    Visibility="{Binding CanDrawImage, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}" />
                                                                             </StackPanel>
                                                                         </DataTemplate>
                                                                     </DataGridTemplateColumn.CellTemplate>

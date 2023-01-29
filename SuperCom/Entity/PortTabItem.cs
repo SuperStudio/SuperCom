@@ -10,6 +10,7 @@ using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
@@ -110,7 +111,18 @@ namespace SuperCom.Entity
         public bool EnabledMonitor
         {
             get { return _EnabledMonitor; }
-            set { _EnabledMonitor = value; RaisePropertyChanged(); }
+            set
+            {
+                _EnabledMonitor = value;
+                RaisePropertyChanged();
+                if (SerialPort != null && SerialPort.IsOpen)
+                {
+                    if (value)
+                        StartMonitorTask();
+                    else
+                        StopMonitorTask();
+                }
+            }
         }
 
 
@@ -163,6 +175,17 @@ namespace SuperCom.Entity
             {
                 _ConnectTime = value;
                 SaveFileName = GetSaveFileName();
+            }
+        }
+
+        private ObservableCollection<VarMonitor> _VarMonitors;
+        public ObservableCollection<VarMonitor> VarMonitors
+        {
+            get { return _VarMonitors; }
+            set
+            {
+                _VarMonitors = value;
+                RaisePropertyChanged();
             }
         }
 
@@ -269,6 +292,7 @@ namespace SuperCom.Entity
 
             }
         }
+
 
 
         private ConcurrentQueue<string> FilterQueue = new ConcurrentQueue<string>();
@@ -386,6 +410,93 @@ namespace SuperCom.Entity
             StopFilter = true;
         }
 
+        private ConcurrentQueue<string> MonitorQueue = new ConcurrentQueue<string>();
+
+        private bool StopMonitor = false;
+        private bool MonitorRunning = false;
+        private StringBuilder MonitorBuffer = new StringBuilder();
+        public void MonitorLine(string value)
+        {
+            if (EnabledMonitor)
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    // 将字符转为一行
+                    int idx = value.IndexOf("\n");
+                    if (idx < 0)
+                        MonitorBuffer.Append(value);
+                    else
+                    {
+                        MonitorBuffer.Append(value.Substring(0, idx + 1));
+                        MonitorQueue.Enqueue(MonitorBuffer.ToString());
+                        MonitorBuffer.Clear();
+                        MonitorLine(value.Substring(idx + 1));
+                    }
+                }
+
+            }
+        }
+
+        private void RecordMonitorValue(string line)
+        {
+            if (VarMonitors == null || VarMonitors.Count == 0)
+                return;
+            foreach (VarMonitor monitor in VarMonitors.ToList())
+            {
+                if (!monitor.Enabled || string.IsNullOrEmpty(monitor.RegexPattern))
+                    continue;
+                Match match = Regex.Match(line, monitor.RegexPattern);
+                if (match != null && match.Success)
+                {
+                    // 写到文件中
+                    string toWrite = $"{{\"value\":\"{match.Value}\", " +
+                        $"\"line\":\"{line}\", " +
+                        $"\"pattern\":\"{monitor.RegexPattern}\"}}{Environment.NewLine}";
+                    Console.WriteLine($"成功捕获：{toWrite}");
+                    FileHelper.TryAppendToFile(monitor.DataFileName, toWrite);
+                    break;
+                }
+            }
+        }
+
+        public void StartMonitorTask()
+        {
+            if (!EnabledMonitor || MonitorRunning)
+                return;
+            StopMonitor = false;
+            MonitorRunning = true;
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (!MonitorQueue.IsEmpty)
+                    {
+                        bool success = MonitorQueue.TryDequeue(out string data);
+                        if (!success)
+                        {
+                            Console.WriteLine("取队列元素失败");
+                            continue;
+                        }
+                        RecordMonitorValue(data);
+                    }
+                    else
+                    {
+                        await Task.Delay(100);
+                        //Console.WriteLine("过滤中...");
+                    }
+                    if (StopMonitor)
+                        break;
+                }
+                MonitorRunning = false;
+            });
+        }
+
+        public void StopMonitorTask()
+        {
+            StopMonitor = true;
+        }
+
+
         public void SepFile()
         {
             if (ConfigManager.Settings.EnabledLogFrag)
@@ -450,6 +561,7 @@ namespace SuperCom.Entity
                 value = builder.ToString();
             }
             CurrentCharSize += (UInt64)value.Length * sizeof(char);
+            MonitorLine(value);
             FilterLine(value);  // 过滤器
             SepFile();
             // 保存到本地

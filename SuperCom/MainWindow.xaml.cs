@@ -380,6 +380,14 @@ namespace SuperCom
                 return false;
             }
 
+            // 加载监视器
+            portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
+            foreach (var item in vieModel.GetVarMonitorByPortName(portName))
+            {
+                portTabItem.VarMonitors.Add(item);
+            }
+
+
             await Task.Delay(DEFAULT_PORT_OPEN_INTERVAL);
             TextEditor textEditor = FindTextBoxByPortName(portName);
             // 编辑器设置
@@ -448,6 +456,7 @@ namespace SuperCom
                         portTabItem.FirstSaveData = true;
                         // 打开后启动对应的过滤器线程
                         portTabItem.StartFilterTask();
+                        portTabItem.StartMonitorTask();
                         portTabItem.ConnectTime = DateTime.Now;
                         SetPortConnectStatus(portName, true);
                     }
@@ -481,6 +490,7 @@ namespace SuperCom
                     serialPort.Close();
                     serialPort.Dispose();
                     portTabItem.StopFilterTask();
+                    portTabItem.StopMonitorTask();
                 }
                 catch (Exception ex)
                 {
@@ -2851,15 +2861,31 @@ namespace SuperCom
         private void AddNewVarMonitor(object sender, RoutedEventArgs e)
         {
             // 新增监视变量
-            vieModel.NewVarMonitor();
+            if (sender is Button button && button.Tag != null)
+            {
+                string name = button.Tag.ToString();
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
+                if (portTabItem != null)
+                {
+                    vieModel.NewVarMonitor(portTabItem, name);
+                }
+
+            }
+
+
         }
 
         private void DeleteVarMonitory(object sender, RoutedEventArgs e)
         {
-            if (sender is FrameworkElement element && element.Tag != null)
+            if (sender is FrameworkElement element && element.Tag != null &&
+                (element.Parent as FrameworkElement).Tag != null &&
+                (element.Parent as FrameworkElement).Tag is System.Windows.Controls.DataGrid dataGrid &&
+                dataGrid.Tag != null)
             {
-                long.TryParse(element.Tag.ToString(), out long id);
-                vieModel.DeleteVarMonitor(id);
+                string name = dataGrid.Tag.ToString();
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
+                if (portTabItem != null && long.TryParse(element.Tag.ToString(), out long id))
+                    vieModel.DeleteVarMonitor(portTabItem, id);
             }
         }
 
@@ -2888,7 +2914,20 @@ namespace SuperCom
 
         private void RefreshVarMonitor(object sender, RoutedEventArgs e)
         {
-            vieModel.LoadVarMonitor();
+            if (sender is Button button && button.Tag != null)
+            {
+                string name = button.Tag.ToString();
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
+                if (portTabItem != null)
+                {
+                    portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
+                    foreach (var item in vieModel.GetVarMonitorByPortName(name))
+                    {
+                        portTabItem.VarMonitors.Add(item);
+                    }
+                }
+            }
+
         }
 
         private void DrawMonitorPicture(object sender, RoutedEventArgs e)
@@ -2898,7 +2937,15 @@ namespace SuperCom
 
         private void SaveVarMonitor(object sender, RoutedEventArgs e)
         {
-            vieModel.SaveMonitor();
+            if (sender is Button button && button.Tag != null)
+            {
+                string name = button.Tag.ToString();
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
+                if (portTabItem != null)
+                {
+                    vieModel.SaveMonitor(portTabItem);
+                }
+            }
         }
     }
 }

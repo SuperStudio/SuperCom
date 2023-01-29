@@ -3,7 +3,9 @@ using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,16 +21,40 @@ namespace SuperCom.Entity
 
     [Table(tableName: "var_monitor")]
 
-    public class VarMonitor
+    public class VarMonitor : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged([CallerMemberName] string name = null)
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         public const string DATA_DIR = "monitor_data";
 
         [TableId(IdType.AUTO)]
         public long MonitorID { get; set; }
+
+        /// <summary>
+        /// 和串口号绑定的
+        /// </summary>
+        public string PortName { get; set; }
         public bool Enabled { get; set; }
         public int SortOrder { get; set; }
-        public int VarType { get; set; }
+        private int _VarType;
+        public int VarType
+        {
+            get { return _VarType; }
+            set
+            {
+                _VarType = value;
+                if (value <= 1)
+                    CanDrawImage = true;
+                else
+                    CanDrawImage = false;
+                RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// 变量名
@@ -45,6 +71,20 @@ namespace SuperCom.Entity
         public string UpdateDate { get; set; }
 
 
+
+        private bool _CanDrawImage = false;
+        [TableField(exist: false)]
+        public bool CanDrawImage
+        {
+            get { return _CanDrawImage; }
+            set
+            {
+                _CanDrawImage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
         // 必须要有无参构造器
         public VarMonitor()
         {
@@ -52,10 +92,11 @@ namespace SuperCom.Entity
             VarType = (int)VarDataType.整数;
         }
 
-        public VarMonitor(int sortOrder) : this()
+        public VarMonitor(int sortOrder, string portName) : this()
         {
             SortOrder = sortOrder;
             Name = $"变量_{sortOrder}";
+            PortName = portName;
         }
 
         // SQLite 中建表语句
@@ -63,12 +104,14 @@ namespace SuperCom.Entity
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()
             {
-
+                //{"DROPTABLE","drop table if exists var_monitor" },
                 {
                     "var_monitor",
 
+                    "BEGIN;" +
                     "create table if not exists var_monitor( " +
                     "MonitorID INTEGER PRIMARY KEY autoincrement, " +
+                    "PortName VARCHAR(20), " +
                     "Enabled INT DEFAULT 1, " +
                     "SortOrder INT DEFAULT 0, " +
                     "VarType INT DEFAULT 0, " +
@@ -77,7 +120,11 @@ namespace SuperCom.Entity
                     "DataFileName VARCHAR(200), " +
                     "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
                     "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
-                    "unique(Name) );" }
+                    "unique(PortName,Name));" +
+                    "CREATE INDEX var_monitor_idx_PortName ON var_monitor (PortName);" +
+                    "CREATE INDEX var_monitor_idx_PortName_Name ON var_monitor (PortName,Name);" +
+                    "COMMIT;"
+                }
             };
 
         }

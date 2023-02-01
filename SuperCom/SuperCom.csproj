@@ -299,6 +299,12 @@ XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y 
   <PropertyGroup>
     <PreBuildEvent>XCOPY  "D:\SuperStudio\Newtonsoft.Json\Src\Newtonsoft.Json\bin\Release\net472\Newtonsoft.Json.dll" "$(ProjectDir)References"    /E /Y /i
 XCOPY  "D:\SuperStudio\SuperUtils\SuperUtils\bin\Debug\SuperUtils.dll" "$(ProjectDir)References"    /E /Y /i
-XCOPY  "D:\SuperStudio\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll" "$(ProjectDir)References"    /E /Y /i</PreBuildEvent>
+XCOPY  "D:\SuperStudio\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll" "$(ProjectDir)References"    /E /Y /i
+XCOPY  "D:\SuperStudio\AvalonEdit\ICSharpCode.AvalonEdit\bin\Release\net462\ICSharpCode.AvalonEdit.dll" "$(ProjectDir)References"    /E /Y /i
+
+
+
+
+</PreBuildEvent>
   </PropertyGroup>
 </Project>

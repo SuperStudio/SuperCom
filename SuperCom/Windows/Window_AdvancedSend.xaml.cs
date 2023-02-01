@@ -89,9 +89,9 @@ namespace SuperCom
 
 
             }
-            if (Main != null && Main.vieModel != null && vieModel.Projects?.Count > 0)
+            if (Main != null && Main.vieModel != null && vieModel.CurrentProjects?.Count > 0)
             {
-                if (SideSelectedIndex < 0 || SideSelectedIndex > vieModel.Projects.Count)
+                if (SideSelectedIndex < 0 || SideSelectedIndex > vieModel.CurrentProjects.Count)
                     SideSelectedIndex = 0;
                 sideListBox.SelectedIndex = SideSelectedIndex;
             }
@@ -122,18 +122,19 @@ namespace SuperCom
         private void DeleteProjectByID(int projectID)
         {
             int idx = -1;
-            for (int i = 0; i < vieModel.Projects.Count; i++)
+            for (int i = 0; i < vieModel.CurrentProjects.Count; i++)
             {
-                if (vieModel.Projects[i].ProjectID == projectID)
+                if (vieModel.CurrentProjects[i].ProjectID == projectID)
                 {
                     idx = i;
                     break;
                 }
             }
-            if (idx >= 0 && idx < vieModel.Projects.Count)
+            if (idx >= 0 && idx < vieModel.CurrentProjects.Count)
             {
-                vieModel.DeleteProject(vieModel.Projects[idx]);
-                vieModel.Projects.RemoveAt(idx);
+                vieModel.DeleteProject(vieModel.CurrentProjects[idx]);
+                vieModel.CurrentProjects.RemoveAt(idx);
+                vieModel.AllProjects.RemoveAll(arg => arg.ProjectID == projectID);
                 DataChanged();
             }
 
@@ -151,6 +152,7 @@ namespace SuperCom
 
         public void DataChanged()
         {
+            vieModel.LoadAllProject();
             // 通知 mainWindow 更新
             MainWindow window = GetWindowByName("mainWindow") as MainWindow;
             window?.RefreshSendCommands();
@@ -164,7 +166,7 @@ namespace SuperCom
         {
             if (!string.IsNullOrEmpty(projectID))
             {
-                AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
                 ShowProjectBySend(advancedSend);
             }
         }
@@ -203,7 +205,7 @@ namespace SuperCom
             else
                 send.Order = 1;
             send.Command = "";
-            AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
+            AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
             if (advancedSend != null)
             {
                 if (advancedSend.CommandList == null)
@@ -234,7 +236,7 @@ namespace SuperCom
                 if (sendCommand != null)
                 {
                     vieModel.SendCommands.Remove(sendCommand);
-                    AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
+                    AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
                     if (advancedSend != null)
                     {
                         if (!string.IsNullOrEmpty(advancedSend.Commands))
@@ -264,7 +266,7 @@ namespace SuperCom
         private void SaveSendCommands(object sender, RoutedEventArgs e)
         {
             string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
-            AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
+            AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
             if (advancedSend != null && !string.IsNullOrEmpty(commands))
             {
                 if (!commands.Equals(advancedSend.Commands))
@@ -307,7 +309,8 @@ namespace SuperCom
                 string projectID = textBox.Tag.ToString();
                 if (!string.IsNullOrEmpty(projectID))
                 {
-                    AdvancedSend advancedSend = vieModel.Projects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                    AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
+                    if (advancedSend == null) return;
                     string oldName = advancedSend.ProjectName;
                     if (string.IsNullOrEmpty(newName))
                     {
@@ -322,12 +325,31 @@ namespace SuperCom
                         TextBlock textBlock = (textBox.Parent as Grid).Children.OfType<TextBlock>().FirstOrDefault();
                         textBlock.Text = newName;
                         DataChanged();
+                        if (!string.IsNullOrEmpty(projectSearchBox.Text))
+                        {
+                            if (newName.ToLower().IndexOf(projectSearchBox.Text) < 0)
+                                RemoveProjectById(projectID);
+                        }
+
                     }
                 }
             }
+        }
 
+        private void RemoveProjectById(string id)
+        {
+            int idx = -1;
+            for (int i = 0; i < vieModel.CurrentProjects.Count; i++)
+            {
+                if (vieModel.CurrentProjects[i].ProjectID.ToString().Equals(id))
+                {
+                    idx = i;
+                    break;
+                }
+            }
 
-
+            if (idx >= 0 && idx < vieModel.CurrentProjects.Count)
+                vieModel.CurrentProjects.RemoveAt(idx);
         }
 
         private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
@@ -638,6 +660,18 @@ namespace SuperCom
         }
 
         private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void SearchProjectByName(object sender, RoutedEventArgs e)
+        {
+            SearchBox searchBox = sender as SearchBox;
+            vieModel.SearchProject(searchBox.Text);
+
+        }
+
+        private void SaveChanges(object sender, RoutedEventArgs e)
         {
 
         }

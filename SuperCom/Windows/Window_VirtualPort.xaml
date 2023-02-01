@@ -93,14 +93,12 @@
             Panel.ZIndex="99"
             Visibility="Collapsed">
             <Border
-                Effect="{StaticResource PopupDropShadowEffect}"
-                Opacity="0.3"
-                Style="{StaticResource InfoBorder}" />
-            <Border
                 Width="500"
                 Height="240"
                 Effect="{StaticResource PopupDropShadowEffect}"
-                Style="{StaticResource InfoBorder}">
+                Opacity="1"
+                Style="{StaticResource InfoBorder}" />
+            <Border Width="500" Height="240">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />

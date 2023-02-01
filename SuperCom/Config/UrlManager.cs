@@ -16,6 +16,7 @@ namespace SuperCom.Config
         public static Dictionary<string, UpgradeSource> UpgradeSourceDict = new Dictionary<string, UpgradeSource>()
         {
             {"Github",new UpgradeSource("https://superstudio.github.io/","https://github.com/SuperStudio/SuperCom/releases","SuperCom-Upgrade") },
+            {"StormGit加速",new UpgradeSource("https://venomplum-54uhej.stormkit.dev/","https://github.com/SuperStudio/SuperCom/releases","") },
             {"Github加速",new UpgradeSource("https://cdn.jsdelivr.net/gh/SuperStudio/","https://gitee.com/SuperStudio/SuperCom/releases","SuperCom-Upgrade") },
         };
 

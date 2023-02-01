@@ -127,6 +127,7 @@
         <Grid Background="{DynamicResource Window.Side.Background}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}" Orientation="Horizontal">
@@ -140,21 +141,32 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Data="M925.696 384q19.456 0 37.376 7.68t30.72 20.48 20.48 30.72 7.68 37.376q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68l-287.744 0 0 287.744q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888l0-287.744-287.744 0q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68l287.744 0 0-287.744q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68q39.936 0 68.096 28.16t28.16 68.096l0 287.744 287.744 0z"
-                            Fill="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" />
+                            Fill="{DynamicResource Window.Foreground}" />
                     </Viewbox>
                 </Border>
             </StackPanel>
             <!--  SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  -->
+
+            <super:SearchBox
+                x:Name="projectSearchBox"
+                Grid.Row="1"
+                Margin="0,5,0,10"
+                Background="{DynamicResource Window.Title.Background}"
+                Search="SearchProjectByName"
+                SearchOnTextChanged="True"
+                ShowSearchButton="False"
+                Style="{StaticResource SearchBoxStyle}" />
             <ListBox
                 Name="sideListBox"
-                Grid.Row="1"
+                Grid.Row="2"
+                Margin="0,0,1,0"
                 VerticalAlignment="Top"
                 HorizontalContentAlignment="Stretch"
                 d:ItemsSource="{d:SampleData ItemCount=5}"
                 Background="Transparent"
                 IsEnabled="{Binding DataContext.RunningCommands, Converter={StaticResource OppositeBooleanConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                 ItemContainerStyle="{StaticResource NormalListBoxItem}"
-                ItemsSource="{Binding Projects}"
+                ItemsSource="{Binding CurrentProjects}"
                 SelectionChanged="ListBox_SelectionChanged"
                 Style="{StaticResource NormalListBox}">
                 <ListBox.ItemTemplate>
@@ -164,6 +176,7 @@
                                 <ContextMenu>
                                     <MenuItem Click="RenameProject" Header="重命名" />
                                     <MenuItem
+                                        super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
                                         Click="DeleteProjectInMenuItem"
                                         Header="删除"
                                         Tag="{Binding ProjectID}" />
@@ -236,6 +249,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <Border
@@ -724,6 +738,16 @@
 
 
             </DataGrid>
+
+            <Button
+                Grid.Row="3"
+                MinWidth="100"
+                Margin="10"
+                HorizontalAlignment="Right"
+                Click="SaveChanges"
+                Content="保存"
+                Style="{StaticResource ButtonSuccess}"
+                Visibility="Collapsed" />
         </Grid>
     </Grid>
 </super:BaseWindow>

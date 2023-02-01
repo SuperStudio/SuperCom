@@ -284,13 +284,13 @@ namespace SuperCom
             Border border = grid.Parent as Border;
             string portName = border.Tag.ToString();
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
-            RemovePortTabItem(portName);
+            RemovePortTabItem(portName, button);
             // 默认选中 0
             if (vieModel.PortTabItems.Count > 0)
                 SetPortTabSelected(vieModel.PortTabItems[0].Name);
         }
 
-        private async void RemovePortTabItem(string portName)
+        private async void RemovePortTabItem(string portName, Button button = null)
         {
             if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName)) return;
             SaveComSettings();
@@ -307,8 +307,11 @@ namespace SuperCom
                 }
                 if (idx >= 0 && idx < vieModel.PortTabItems.Count)
                 {
-                    await ClosePort(portName);
-                    vieModel.PortTabItems.RemoveAt(idx);
+                    if (button != null) button.IsEnabled = false;
+                    bool success = await ClosePort(portName);
+                    if (success)
+                        vieModel.PortTabItems.RemoveAt(idx);
+                    if (button != null) button.IsEnabled = true;
                 }
             }
             catch (Exception ex)
@@ -485,20 +488,45 @@ namespace SuperCom
             CustomSerialPort serialPort = portTabItem.SerialPort;
             if (serialPort != null && serialPort.IsOpen)
             {
-                try
+                bool success = await AsynClosePort(serialPort);
+                if (success)
                 {
-                    serialPort.Close();
-                    serialPort.Dispose();
                     portTabItem.StopFilterTask();
                     portTabItem.StopMonitorTask();
+                    return SetPortConnectStatus(portName, false);
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageNotify.Error(ex.Message);
+                    MessageNotify.Error($"{serialPort.PortName} 关闭串口超时");
+                    return false;
                 }
             }
-            await Task.Delay(1);
-            return SetPortConnectStatus(portName, false);
+            else
+            {
+                return true;
+            }
+        }
+
+        public async Task<bool> AsynClosePort(CustomSerialPort serialPort)
+        {
+            try
+            {
+                return await Task.Run(() =>
+              {
+                  serialPort.Close();
+                  serialPort.Dispose();
+                  return true;
+              }).TimeoutAfter(TimeSpan.FromSeconds(CustomSerialPort.CLOSE_TIME_OUT));
+            }
+            catch (TimeoutException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                MessageNotify.Error(ex.Message);
+            }
+            return false;
         }
 
 
@@ -656,7 +684,6 @@ namespace SuperCom
 
         private void ShowAbout(object sender, RoutedEventArgs e)
         {
-            //new CustomWindows.About(this).ShowDialog();
             Dialog_About about = new Dialog_About();
             string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             local = local.Substring(0, local.Length - ".0.0".Length);
@@ -1613,7 +1640,7 @@ namespace SuperCom
 
 
             TextBox textBox = sender as TextBox;
-            Grid grid = (textBox.Parent as Border).Parent as Grid;
+            Grid grid = ((textBox.Parent as Grid).Parent as Border).Parent as Grid;
             string text = textBox.Text.Trim();
             List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text.ToLower()) >= 0).ToList();
             Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
@@ -2856,6 +2883,13 @@ namespace SuperCom
         private void OnShowRightPanel(object sender, RoutedEventArgs e)
         {
             ConfigManager.Main.ShowRightPanel = false;
+            StackPanel panel = (sender as Button).Parent as StackPanel;
+            Grid grid = panel.Parent as Grid;
+            Grid rootGrid = grid.Parent as Grid;
+            Grid monitorGrid = rootGrid.FindName("monitorGrid") as Grid;
+            monitorGrid.Visibility = Visibility.Collapsed;
+            ToggleButton toggleButton = panel.Children.OfType<ToggleButton>().FirstOrDefault();
+            toggleButton.IsChecked = false;
         }
 
         private void AddNewVarMonitor(object sender, RoutedEventArgs e)
@@ -2945,6 +2979,22 @@ namespace SuperCom
                 {
                     vieModel.SaveMonitor(portTabItem);
                 }
+            }
+        }
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+            Grid grid = toggleButton.Parent as Grid;
+            TextBox textBox = grid.Children.OfType<TextBox>().FirstOrDefault();
+            if ((bool)toggleButton.IsChecked)
+            {
+                textBox.TextWrapping = TextWrapping.Wrap;
+
+            }
+            else
+            {
+                textBox.TextWrapping = TextWrapping.NoWrap;
             }
         }
     }

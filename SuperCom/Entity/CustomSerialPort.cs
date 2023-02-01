@@ -12,6 +12,9 @@ namespace SuperCom.Entity
 {
     public class CustomSerialPort : SerialPort, INotifyPropertyChanged
     {
+
+        public const int CLOSE_TIME_OUT = 5;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged([CallerMemberName] string name = null)
         {

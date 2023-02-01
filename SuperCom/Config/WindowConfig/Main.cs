@@ -63,6 +63,16 @@ namespace SuperCom.Config.WindowConfig
         #region "AvalonText 相关配置"
 
 
+        private bool _AutoWrap = false;
+        public bool AutoWrap
+        {
+            get { return _AutoWrap; }
+            set
+            {
+                _AutoWrap = value;
+                RaisePropertyChanged();
+            }
+        }
         private bool _ShowEndOfLine = false;
         public bool ShowEndOfLine
         {

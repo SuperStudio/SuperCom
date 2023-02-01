@@ -135,7 +135,8 @@ namespace SuperCom.Windows
             if (app != null)
             {
                 IsCom0ConInstalled = true;
-                string path = System.IO.Path.Combine(app.InstallLocation, VirtualPortManager.COM_0_COM_PROGRAM_EXE_NAME);
+                string path = System.IO.Path.Combine(app.InstallLocation,
+                    VirtualPortManager.COM_0_COM_PROGRAM_EXE_NAME);
                 if (!File.Exists(Com0ConInstalledPath) && File.Exists(path))
                     Com0ConInstalledPath = path;
                 ListingPort = true;
@@ -155,24 +156,23 @@ namespace SuperCom.Windows
 
         private static string COM_0_COM_INSTALLED_PATH =
             System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Installer", "setup.exe");
-        private async void InstallCom0Com(object sender, RoutedEventArgs e)
+        private void InstallCom0Com(object sender, RoutedEventArgs e)
         {
             if (!File.Exists(COM_0_COM_INSTALLED_PATH))
             {
                 MessageCard.Error($"不存在：{COM_0_COM_INSTALLED_PATH}");
                 return;
             }
-            Button button = sender as Button;
-            button.IsEnabled = false;
             FileHelper.TryOpenFile(COM_0_COM_INSTALLED_PATH);
-            await Task.Delay(2000);
-            button.IsEnabled = true;
+            bool success = (bool)new MsgBox(this, "安装完成后重新打开虚拟串口").ShowDialog();
+            this.Close();
         }
 
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
             Init();
         }
+
 
         private void SelectPath(object sender, RoutedEventArgs e)
         {

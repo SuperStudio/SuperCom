@@ -23,11 +23,14 @@ namespace SuperCom.ViewModel
         public Action<bool> OnRunCommand { get; set; }
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
 
-        private ObservableCollection<AdvancedSend> _Projects;
-        public ObservableCollection<AdvancedSend> Projects
+
+        public List<AdvancedSend> AllProjects { get; set; }
+
+        private ObservableCollection<AdvancedSend> _CurrentProjects;
+        public ObservableCollection<AdvancedSend> CurrentProjects
         {
-            get { return _Projects; }
-            set { _Projects = value; RaisePropertyChanged(); }
+            get { return _CurrentProjects; }
+            set { _CurrentProjects = value; RaisePropertyChanged(); }
         }
 
         private ObservableCollection<SendCommand> _SendCommands;
@@ -175,15 +178,16 @@ namespace SuperCom.ViewModel
 
         private void Init()
         {
-            Projects = new ObservableCollection<AdvancedSend>();
+            CurrentProjects = new ObservableCollection<AdvancedSend>();
             SendCommands = new ObservableCollection<SendCommand>();
+            AllProjects = new List<AdvancedSend>();
             // 从数据库中读取
             if (mapper != null)
             {
-                List<AdvancedSend> advancedSends = mapper.SelectList();
-                foreach (var item in advancedSends)
+                AllProjects = mapper.SelectList();
+                foreach (var item in AllProjects)
                 {
-                    Projects.Add(item);
+                    CurrentProjects.Add(item);
                 }
             }
             foreach (Window window in App.Current.Windows)
@@ -195,6 +199,30 @@ namespace SuperCom.ViewModel
                 }
             }
             LoadSideComports();
+        }
+
+        public void SearchProject(string name)
+        {
+            CurrentProjects = new ObservableCollection<AdvancedSend>();
+            if (string.IsNullOrEmpty(name))
+            {
+                AllProjects = mapper.SelectList();
+                foreach (var item in AllProjects)
+                    CurrentProjects.Add(item);
+            }
+            else
+            {
+                foreach (var item in AllProjects.Where(arg => arg.ProjectName
+                    .ToLower().IndexOf(name.ToLower()) >= 0))
+                {
+                    CurrentProjects.Add(item);
+                }
+            }
+        }
+
+        public void LoadAllProject()
+        {
+            AllProjects = mapper.SelectList();
         }
 
 
@@ -254,7 +282,10 @@ namespace SuperCom.ViewModel
             send.ProjectName = projectName;
             bool success = mapper.Insert(send);
             if (success)
-                Projects.Add(send);
+            {
+                CurrentProjects.Add(send);
+                AllProjects.Add(send);
+            }
         }
 
         public void SetCurrentSendCommands()

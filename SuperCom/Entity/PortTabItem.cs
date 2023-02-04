@@ -189,6 +189,13 @@ namespace SuperCom.Entity
             }
         }
 
+        private bool _Pinned;
+        public bool Pinned
+        {
+            get { return _Pinned; }
+            set { _Pinned = value; RaisePropertyChanged(); }
+        }
+
         public bool RunningCommands { get; set; }
 
         public Queue<ResultCheck> ResultChecks { get; set; }

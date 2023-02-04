@@ -42,6 +42,12 @@ namespace SuperCom.Entity
             get { return _Remark; }
             set { _Remark = value; RaisePropertyChanged(); }
         }
+        private bool _Hide;
+        public bool Hide
+        {
+            get { return _Hide; }
+            set { _Hide = value; RaisePropertyChanged(); }
+        }
 
         public SideComPort(string name, bool connected)
         {

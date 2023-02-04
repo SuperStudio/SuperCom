@@ -48,6 +48,11 @@
             Margin="0"
             Source="{x:Null}"
             Stretch="UniformToFill" />
+
+
+
+
+
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -642,6 +647,31 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
+
+                <Grid
+                    Grid.ColumnSpan="10"
+                    Panel.ZIndex="99"
+                    Visibility="{Binding DoingLongWork, Converter={StaticResource bool2VisibilityConverter}, FallbackValue=Collapsed}">
+                    <Border Background="{DynamicResource Window.Title.Background}" Opacity="0.7" />
+                    <Grid>
+                        <Border
+                            Width="200"
+                            Height="200"
+                            Background="{DynamicResource Window.Side.Background}"
+                            Effect="{StaticResource PopupDropShadowEffect}" />
+                        <StackPanel
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Orientation="Vertical">
+                            <super:LoadingCircle Width="40" Height="40" />
+                            <TextBlock
+                                Margin="10"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="{Binding DoingWorkMsg}" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
                 <Border
                     Name="sideBorder"
                     Grid.Column="0"
@@ -682,6 +712,7 @@
 
                                         <MenuItem Click="OpenAllPort" Header="打开所有串口" />
                                         <MenuItem Click="CloseAllPort" Header="关闭所有串口" />
+                                        <MenuItem Click="ShowAllHidePort" Header="显示隐藏的串口" />
                                     </ContextMenu>
                                 </Border.ContextMenu>
                                 <Viewbox Width="auto" Height="16">
@@ -731,94 +762,113 @@
                             ItemsSource="{Binding SideComPorts}"
                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                             Style="{StaticResource NormalListBox}">
+                            <ListBox.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource BaseListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Hide}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid
+                                    <Border
+                                        Margin="0,2"
                                         Background="{DynamicResource ListBoxItem.Background}"
-                                        PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown"
-                                        Tag="{Binding Name}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto" />
-                                            <ColumnDefinition Width="auto" />
-                                            <ColumnDefinition Width="auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Click="Remark" Header="备注" />
-                                            </ContextMenu>
-                                        </Grid.ContextMenu>
-                                        <Border
-                                            Grid.Column="0"
-                                            Width="10"
-                                            Height="10"
-                                            Margin="5"
-                                            CornerRadius="10">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="Green" />
-                                                    <Style.Triggers>
-
-                                                        <DataTrigger Binding="{Binding Connected}" Value="True">
-                                                            <Setter Property="Background" Value="Red" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            MaxWidth="120"
-                                            Margin="0"
-                                            Padding="10,5"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource BaseTextBlock}"
-                                            Text="{Binding Name}"
-                                            TextTrimming="WordEllipsis"
-                                            TextWrapping="WrapWithOverflow" />
-                                        <TextBlock
-                                            Grid.Column="2"
-                                            MaxWidth="120"
-                                            Margin="0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource BaseTextBlock}"
-                                            Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
-                                            TextTrimming="WordEllipsis"
-                                            TextWrapping="WrapWithOverflow" />
-                                        <Button
-                                            Grid.Column="3"
-                                            Margin="5"
-                                            HorizontalAlignment="Right"
-                                            Click="ConnectPort"
+                                        CornerRadius="5">
+                                        <Grid
+                                            Background="Transparent"
+                                            PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown"
                                             Tag="{Binding Name}">
-                                            <Button.Style>
-                                                <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
-                                                    <Setter Property="Content" Value="连接" />
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Connected}" Value="True">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Click="Remark" Header="备注" />
+                                                    <MenuItem Click="HidePort" Header="隐藏" />
+                                                </ContextMenu>
+                                            </Grid.ContextMenu>
+                                            <Border
+                                                Grid.Column="0"
+                                                Width="10"
+                                                Height="10"
+                                                Margin="5"
+                                                CornerRadius="10">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Green" />
+                                                        <Style.Triggers>
 
-                                                            <Setter Property="Content" Value="断开" />
-                                                            <Setter Property="Background" Value="Red" />
-                                                            <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
-                                                        </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Connected}" Value="True">
+                                                                <Setter Property="Background" Value="Red" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                MaxWidth="120"
+                                                Margin="0"
+                                                Padding="10,5"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="{Binding Name}"
+                                                TextTrimming="WordEllipsis"
+                                                TextWrapping="WrapWithOverflow" />
+                                            <TextBlock
+                                                Grid.Column="2"
+                                                MaxWidth="120"
+                                                Margin="0"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource Window.Sub.Foreground}"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                                                TextTrimming="WordEllipsis"
+                                                TextWrapping="WrapWithOverflow" />
+                                            <Button
+                                                Grid.Column="3"
+                                                Margin="5"
+                                                HorizontalAlignment="Right"
+                                                Click="ConnectPort"
+                                                Tag="{Binding Name}">
+                                                <Button.Style>
+                                                    <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
+                                                        <Setter Property="Content" Value="连接" />
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Connected}" Value="True">
 
-                                                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
+                                                                <Setter Property="Content" Value="断开" />
+                                                                <Setter Property="Background" Value="Red" />
+                                                                <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
+                                                            </DataTrigger>
 
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
+                                                            <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
 
 
 
 
 
-                                    </Grid>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -1319,7 +1369,9 @@
                                         MinWidth="150"
                                         BorderThickness="1"
                                         Cursor="Hand"
+                                        PreviewMouseLeftButtonDown="BeginDragTabItem"
                                         PreviewMouseLeftButtonUp="SetPortSelected"
+                                        PreviewMouseMove="Border_PreviewMouseMove"
                                         Tag="{Binding Name}">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -1333,6 +1385,21 @@
                                         </Border.Style>
                                         <Border.ContextMenu>
                                             <ContextMenu>
+                                                <MenuItem Click="CloseCurrentPort" Header="关闭" />
+                                                <MenuItem Click="CloseOtherPort" Header="关闭其它" />
+                                                <MenuItem Click="CloseAllLeftPort" Header="关闭左边所有" />
+                                                <MenuItem Click="CloseAllRightPort" Header="关闭右边所有" />
+                                                <MenuItem Click="CloseAllPorts" Header="关闭所有" />
+                                                <Separator />
+                                                <MenuItem Click="MoveToFirst" Header="移到最前" />
+                                                <MenuItem Click="MoveToLast" Header="移到最后" />
+                                                <Separator />
+                                                <MenuItem
+                                                    Click="PinPort"
+                                                    Header="固定"
+                                                    IsCheckable="True"
+                                                    IsChecked="{Binding Pinned, Mode=OneWay}" />
+                                                <Separator />
                                                 <MenuItem Click="Remark" Header="备注" />
                                             </ContextMenu>
                                         </Border.ContextMenu>
@@ -1377,37 +1444,69 @@
                                                 Margin="0"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource Window.Sub.Foreground}"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Remark}"
                                                 TextTrimming="WordEllipsis"
                                                 TextWrapping="WrapWithOverflow" />
 
-                                            <Border
-                                                x:Name="border"
-                                                Grid.Column="3"
-                                                Background="Transparent"
-                                                BorderBrush="{StaticResource TabItem.Selected.Background}">
-                                                <Button
-                                                    Width="20"
-                                                    Height="20"
-                                                    Margin="5"
-                                                    HorizontalAlignment="Right"
-                                                    Click="CloseTabItem"
-                                                    Style="{StaticResource RoundNormalButton}"
-                                                    Tag="{DynamicResource TabItem.Hover.Background}"
-                                                    Visibility="Visible">
-                                                    <Viewbox
-                                                        Width="10"
-                                                        Height="auto"
-                                                        VerticalAlignment="Center">
-                                                        <Path
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                                    </Viewbox>
-                                                </Button>
-                                            </Border>
+                                            <Grid Grid.Column="3">
+                                                <Border
+                                                    Panel.ZIndex="2"
+                                                    Background="Transparent"
+                                                    BorderBrush="{StaticResource TabItem.Selected.Background}"
+                                                    PreviewMouseLeftButtonDown="PinTabItem"
+                                                    Visibility="{Binding Pinned, Converter={StaticResource bool2VisibilityConverter}}">
+                                                    <Button
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="5"
+                                                        HorizontalAlignment="Right"
+                                                        Style="{StaticResource RoundNormalButton}"
+                                                        Tag="{DynamicResource TabItem.Hover.Background}">
+                                                        <Viewbox
+                                                            Width="12"
+                                                            Height="auto"
+                                                            Margin="-7.5,0"
+                                                            HorizontalAlignment="Left"
+                                                            VerticalAlignment="Center">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M393.846154 64.174932l117.454119 0.399843H512.499805l117.454119-0.399843-10.395939 10.395939c-18.89262 18.89262-28.488872 44.982429-26.28973 71.472081l20.292073 250.502148c2.998829 36.68567 18.092932 72.171808 42.483405 99.661069l34.186646 38.684889-122.252245-0.899648-55.478329-0.399844h-0.99961l-55.478329 0.399844-122.452167 0.799687 34.186646-38.684888c24.390472-27.589223 39.484576-62.9754 42.483405-99.66107l20.292074-250.402187c2.199141-26.589613-7.397111-52.679422-26.289731-71.472081l-10.395939-10.395939m281.889887-64.174932h-0.199922L512.399844 0.599766h-0.799688L348.36392 0h-0.199922c-20.891839 0-39.684498 13.494729-45.582194 33.58688-4.098399 13.994533-1.899258 30.887934 17.79305 47.581414l38.584927 38.584927c5.597813 5.597813 8.39672 13.294807 7.796955 21.091761L346.464662 391.247169c-1.899258 23.190941-11.195627 45.08239-26.589613 62.475596l-61.87583 69.872706c-8.696603 9.796173-13.894572 22.291292-14.394377 35.386177-0.299883 8.996486 1.599375 18.89262 8.596642 27.28934 6.897306 8.296759 17.293245 12.894963 27.989067 12.894963h0.299882l175.931277-1.199532 55.178446 422.834831 0.399844 3.098789 0.399844-3.098789 55.178446-422.834831 175.931277 1.199532h0.299882c10.795783 0 21.191722-4.598204 27.989067-12.894963 6.897306-8.39672 8.796564-18.292854 8.596642-27.28934-0.399844-13.094885-5.697774-25.590004-14.394377-35.386177l-61.87583-69.872706c-15.393987-17.393206-24.690355-39.284654-26.589613-62.475596l-20.292074-250.402187c-0.599766-7.796954 2.199141-15.593909 7.796955-21.091761l38.584927-38.584927c19.692308-16.693479 21.891449-33.58688 17.79305-47.581414-5.997657-19.992191-24.790316-33.58688-45.682155-33.58688z"
+                                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                </Border>
+                                                <Border
+                                                    x:Name="border"
+                                                    Background="Transparent"
+                                                    BorderBrush="{StaticResource TabItem.Selected.Background}"
+                                                    PreviewMouseLeftButtonDown="CloseTabItem"
+                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToOppositeVisibilityConverter}}">
+                                                    <Button
+                                                        Width="20"
+                                                        Height="20"
+                                                        Margin="5"
+                                                        HorizontalAlignment="Right"
+                                                        Style="{StaticResource RoundNormalButton}"
+                                                        Tag="{DynamicResource TabItem.Hover.Background}">
+                                                        <Viewbox
+                                                            Width="10"
+                                                            Height="auto"
+                                                            VerticalAlignment="Center">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                </Border>
+                                            </Grid>
+
+
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -1500,7 +1599,7 @@
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
                                             Visibility="Collapsed">
-                                            <!--Visibility="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">-->
+                                            <!--  Visibility="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">  -->
                                             <StackPanel
                                                 Grid.Column="1"
                                                 HorizontalAlignment="Right"

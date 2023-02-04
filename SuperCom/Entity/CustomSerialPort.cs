@@ -45,10 +45,16 @@ namespace SuperCom.Entity
         }
 
         public string Remark = "";
+        public bool Pinned = false;
 
         public void SaveRemark(string remark)
         {
             this.Remark = remark;
+            SettingJson = PortSettingToJson(); // 保存
+        }
+        public void SavePinned(bool pinned)
+        {
+            this.Pinned = pinned;
             SettingJson = PortSettingToJson(); // 保存
         }
 
@@ -86,6 +92,7 @@ namespace SuperCom.Entity
             dic.Add("StopBits", this.StopBitsString);
             dic.Add("Parity", this.ParityString);
             dic.Add("Remark", this.Remark);
+            dic.Add("Pinned", this.Pinned);
             dic.Add("TextFontSize", this.TextFontSize);
             dic.Add("HighLightIndex", this.HighLightIndex);
             return JsonUtils.TrySerializeObject(dic);
@@ -122,6 +129,8 @@ namespace SuperCom.Entity
                 this.StopBitsString = dict["StopBits"].ToString();
                 if (dict.ContainsKey("Remark"))
                     this.Remark = dict["Remark"].ToString();
+                if (dict.ContainsKey("Pinned"))
+                    this.Pinned = dict["Pinned"].ToString().ToLower().Equals("true") ? true : false;
             }
         }
 
@@ -134,6 +143,17 @@ namespace SuperCom.Entity
                     return dict["Remark"].ToString();
             }
             return "";
+        }
+        public static bool GetPinned(string json)
+        {
+            Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
+            string pinned = "";
+            if (dict != null)
+            {
+                if (dict.ContainsKey("Pinned"))
+                    pinned = dict["Pinned"].ToString();
+            }
+            return pinned.ToLower().Equals("true") ? true : false;
         }
 
 

@@ -172,6 +172,18 @@ namespace SuperCom.ViewModel
             get { return _ShowDonate; }
             set { _ShowDonate = value; RaisePropertyChanged(); }
         }
+        private bool _DoingLongWork;
+        public bool DoingLongWork
+        {
+            get { return _DoingLongWork; }
+            set { _DoingLongWork = value; RaisePropertyChanged(); }
+        }
+        private string _DoingWorkMsg;
+        public string DoingWorkMsg
+        {
+            get { return _DoingWorkMsg; }
+            set { _DoingWorkMsg = value; RaisePropertyChanged(); }
+        }
 
         public AdvancedSend CurrentAdvancedSend { get; set; }
 

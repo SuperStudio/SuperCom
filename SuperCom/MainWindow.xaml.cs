@@ -227,12 +227,36 @@ namespace SuperCom
 
         private void SetPortSelected(object sender, MouseButtonEventArgs e)
         {
+            CanDrageTabItem = false;
+            if (CurrentDragElement != null)
+                Mouse.Capture(CurrentDragElement, CaptureMode.None);
+            this.Cursor = Cursors.Arrow;
+
+
+
+        }
+        private FrameworkElement CurrentDragElement;
+        private void BeginDragTabItem(object sender, MouseButtonEventArgs e)
+        {
+            CanDrageTabItem = true;
+            CurrentDragElement = sender as FrameworkElement;
+            Mouse.Capture(CurrentDragElement, CaptureMode.Element);
+
             Border border = (Border)sender;
             if (border == null || border.Tag == null) return;
             string portName = border.Tag.ToString();
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems == null ||
                 vieModel.PortTabItems.Count <= 0) return;
             SetPortTabSelected(portName);
+        }
+
+        private void Border_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!CanDrageTabItem)
+                return;
+            this.Cursor = Cursors.Hand;
+
+
         }
 
         public void SetPortTabSelected(string portName)
@@ -276,13 +300,29 @@ namespace SuperCom
             e.Handled = true;
         }
 
-
-        private void CloseTabItem(object sender, RoutedEventArgs e)
+        private void PinTabItem(object sender, MouseButtonEventArgs e)
         {
-            Button button = sender as Button;
-            Grid grid = (button.Parent as Border).Parent as Grid;
-            Border border = grid.Parent as Border;
-            string portName = border.Tag.ToString();
+            Border border = sender as Border;
+            Button button = border.Child as Button;
+            Grid grid = (border.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            PinPort(portTabItem);
+        }
+
+        private void CloseTabItem(object sender, MouseButtonEventArgs e)
+        {
+            Border border = sender as Border;
+            Button button = border.Child as Button;
+            Grid grid = (border.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            ClosePortTabItemByName(portName, button);
+        }
+
+        private void ClosePortTabItemByName(string portName, Button button = null)
+        {
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
             RemovePortTabItem(portName, button);
             // 默认选中 0
@@ -293,7 +333,7 @@ namespace SuperCom
         private async void RemovePortTabItem(string portName, Button button = null)
         {
             if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName)) return;
-            SaveComSettings();
+
             int idx = -1;
             try
             {
@@ -305,12 +345,18 @@ namespace SuperCom
                         break;
                     }
                 }
+
                 if (idx >= 0 && idx < vieModel.PortTabItems.Count)
                 {
                     if (button != null) button.IsEnabled = false;
                     bool success = await ClosePort(portName);
                     if (success)
+                    {
+                        vieModel.PortTabItems[idx].Pinned = false;
+                        SavePinnedByName(portName, false);
+                        SaveComSettings();
                         vieModel.PortTabItems.RemoveAt(idx);
+                    }
                     if (button != null) button.IsEnabled = true;
                 }
             }
@@ -319,6 +365,30 @@ namespace SuperCom
                 MessageNotify.Error(ex.Message);
             }
 
+        }
+
+        private async Task<bool> RemovePortsByName(List<string> portNames)
+        {
+            if (portNames == null || portNames.Count == 0)
+                return true;
+            SaveComSettings();
+            List<string> toRemoved = new List<string>();
+            bool success = false;
+            foreach (var name in portNames)
+            {
+                vieModel.DoingWorkMsg = $"关闭串口 {name}";
+                success = await ClosePort(name);
+                if (success)
+                    toRemoved.Add(name);
+            }
+            // 移除 item
+            foreach (var item in toRemoved)
+            {
+                if (vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(item))
+                    is PortTabItem portTabItem)
+                    vieModel.PortTabItems.Remove(portTabItem);
+            }
+            return true;
         }
 
         private void RefreshPortsStatus(object sender, MouseButtonEventArgs e)
@@ -344,7 +414,9 @@ namespace SuperCom
                 vieModel.SideComPorts[i] = sideComPort;
                 ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => portName.Equals(arg.PortName));
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
+                {
                     vieModel.SideComPorts[i].Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                }
             }
         }
 
@@ -649,6 +721,7 @@ namespace SuperCom
                     portTabItem.EnabledMonitor = comSettings.EnabledMonitor;
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
+                    portTabItem.Pinned = portTabItem.SerialPort.Pinned;
                 }
                 portTabItem.Selected = true;
                 vieModel.PortTabItems.Add(portTabItem);
@@ -1047,6 +1120,8 @@ namespace SuperCom
         {
             foreach (var item in vieModel.SideComPorts)
             {
+                if (item.Hide)
+                    continue;
                 ClosePort(item.Name);
             }
         }
@@ -1055,6 +1130,8 @@ namespace SuperCom
         {
             foreach (SideComPort item in vieModel.SideComPorts)
             {
+                if (item.Hide)
+                    continue;
                 OpenPort(item);
             }
         }
@@ -1505,11 +1582,13 @@ namespace SuperCom
                 SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 if (comSettings != null && sideComPort != null && comSettings.Connected)
                 {
-                    await OpenPort(sideComPort);
+                    // 这里不需要等待
+                    OpenPort(sideComPort);
                 }
                 else
                 {
-                    await OpenPortTabItem(portName, false);
+                    // 这里不需要等待
+                    OpenPortTabItem(portName, false);
                 }
             }
             SetFontFamily(ConfigManager.Main.TextFontName);
@@ -1588,26 +1667,26 @@ namespace SuperCom
         #region "历史记录弹窗"
         private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-            string text = textBox.Text.Trim().ToLower();
-            if (string.IsNullOrEmpty(text)) return;
-            List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text) >= 0).ToList();
-            if (list.Count > 0)
-            {
-                Grid grid = (textBox.Parent as Border).Parent as Grid;
-                Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
-                if (popup != null)
-                {
-                    popup.IsOpen = true;
-                    Grid g = popup.Child as Grid;
-                    ItemsControl itemsControl = g.FindName("itemsControl") as ItemsControl;
-                    if (itemsControl != null)
-                    {
-                        itemsControl.ItemsSource = list;
-                        vieModel.SendHistorySelectedIndex = 0;
-                    }
-                }
-            }
+            //TextBox textBox = sender as TextBox;
+            //string text = textBox.Text.Trim().ToLower();
+            //if (string.IsNullOrEmpty(text)) return;
+            //List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text) >= 0).ToList();
+            //if (list.Count > 0)
+            //{
+            //    Grid grid = (textBox.Parent as Border).Parent as Grid;
+            //    Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+            //    if (popup != null)
+            //    {
+            //        popup.IsOpen = true;
+            //        Grid g = popup.Child as Grid;
+            //        ItemsControl itemsControl = g.FindName("itemsControl") as ItemsControl;
+            //        if (itemsControl != null)
+            //        {
+            //            itemsControl.ItemsSource = list;
+            //            vieModel.SendHistorySelectedIndex = 0;
+            //        }
+            //    }
+            //}
         }
 
         private void SetSendHistory(object sender, MouseButtonEventArgs e)
@@ -1665,8 +1744,8 @@ namespace SuperCom
                     else idx++;
                     if (idx >= list.Count) idx = 0;
                     else if (idx < 0) idx = list.Count - 1;
-                    Console.WriteLine("text=" + text);
-                    Console.WriteLine(idx);
+                    //Console.WriteLine("text=" + text);
+                    //Console.WriteLine(idx);
                     vieModel.SendHistorySelectedIndex = idx;
                     vieModel.SendHistorySelectedValue = list[idx];
                     // 设置当前选中状态
@@ -2158,6 +2237,26 @@ namespace SuperCom
             }
         }
 
+        private void HidePort(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            FrameworkElement frameworkElement = contextMenu.PlacementTarget as FrameworkElement;
+            if (frameworkElement != null && frameworkElement.Tag != null)
+            {
+                string portName = frameworkElement.Tag.ToString();
+                SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (sideComPort != null)
+                    sideComPort.Hide = true;
+            }
+        }
+
+        private void ShowAllHidePort(object sender, RoutedEventArgs e)
+        {
+            foreach (SideComPort item in vieModel.SideComPorts)
+                item.Hide = false;
+        }
+
         private void OpenLog(object sender, RoutedEventArgs e)
         {
             MessageNotify.Info("开发中");
@@ -2490,7 +2589,7 @@ namespace SuperCom
                 }
             }
 
-            Console.WriteLine($"key = {e.Key}");
+            //Console.WriteLine($"key = {e.Key}");
 
             // 快捷键检测
             ShortCutBinding shortCutBinding = null;
@@ -2997,5 +3096,289 @@ namespace SuperCom
                 textBox.TextWrapping = TextWrapping.NoWrap;
             }
         }
+
+        private bool CanDrageTabItem = false;
+
+
+        private string GetPortNameByMenuItem(object sender)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem == null) return "";
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            if (contextMenu != null && contextMenu.PlacementTarget is Border border)
+            {
+                if (border.Tag != null) return border.Tag.ToString();
+            }
+            return "";
+        }
+
+
+
+        private void MoveToFirst(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem.Pinned)
+            {
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++)
+                {
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                    {
+                        oldIndex = i;
+                        break;
+                    }
+                }
+                if (oldIndex < 0)
+                    return;
+                vieModel.PortTabItems.Move(oldIndex, 0);
+            }
+            else
+            {
+                bool hasPinned = false;
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++)
+                {
+                    if (vieModel.PortTabItems[i].Pinned)
+                    {
+                        hasPinned = true;
+                        targetIndex = i;
+                    }
+
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                }
+                if (oldIndex < 0)
+                    return;
+                if (targetIndex < 0 || targetIndex + 1 >= vieModel.PortTabItems.Count)
+                    targetIndex = 0;
+                if (hasPinned && targetIndex + 1 < vieModel.PortTabItems.Count)
+                    vieModel.PortTabItems.Move(oldIndex, targetIndex + 1);
+                else
+                    vieModel.PortTabItems.Move(oldIndex, 0);
+            }
+        }
+
+        private void MoveToLast(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem.Pinned)
+            {
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++)
+                {
+                    if (vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                }
+                if (oldIndex < 0 || targetIndex < 0)
+                    return;
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            }
+            else
+            {
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++)
+                {
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                    {
+                        oldIndex = i;
+                        break;
+                    }
+                }
+                if (oldIndex < 0)
+                    return;
+                if (vieModel.PortTabItems.Count - 1 >= 0)
+                    vieModel.PortTabItems.Move(oldIndex, vieModel.PortTabItems.Count - 1);
+            }
+        }
+
+        private async void CloseAllLeftPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Name.Equals(portName))
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx <= 0 || idx >= list.Count)
+                return;
+            List<string> names = new List<string>();
+            for (int i = 0; i < idx; i++)
+            {
+                if (list[i].Pinned) continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private async void CloseAllRightPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Name.Equals(portName))
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= list.Count - 1)
+                return;
+            List<string> names = new List<string>();
+            for (int i = idx + 1; i < list.Count; i++)
+            {
+                if (list[i].Pinned) continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private void PinPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            PinPort(portTabItem);
+        }
+
+
+        private void PinPort(PortTabItem portTabItem)
+        {
+            string portName = portTabItem.Name;
+            if (portTabItem.Pinned)
+            {
+                // 取消固定
+                // todo 所有的都无固定
+                int targetIndex = vieModel.PortTabItems.Count;
+                int oldIndex = -1;
+                for (int i = vieModel.PortTabItems.Count - 1; i >= 0; i--)
+                {
+                    if (targetIndex == vieModel.PortTabItems.Count && vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                    if (targetIndex < vieModel.PortTabItems.Count && oldIndex >= 0)
+                        break;
+                }
+                if (oldIndex < 0)
+                    return;
+                if (targetIndex == vieModel.PortTabItems.Count)
+                    targetIndex = 0;
+                portTabItem.Pinned = false;
+                // 移动到前面
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            }
+            else
+            {
+                // 固定
+                // todo 所有的都固定
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++)
+                {
+                    if (targetIndex < 0 && !vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                    if (targetIndex >= 0 && oldIndex >= 0)
+                        break;
+                }
+                if (targetIndex < 0 || oldIndex < 0)
+                    return;
+                portTabItem.Pinned = true;
+                // 移动到前面
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            }
+
+            SavePinnedByName(portName, portTabItem.Pinned);
+
+        }
+
+        private void SavePinnedByName(string portName, bool pinned)
+        {
+            SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (sideComPort != null && sideComPort.PortTabItem is PortTabItem tabItem)
+            {
+                tabItem.SerialPort.SavePinned(pinned);
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
+                if (comSettings != null)
+                {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                    if (dict != null && dict.ContainsKey("Pinned"))
+                    {
+                        dict["Pinned"] = pinned.ToString();
+                        comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                    }
+                }
+            }
+        }
+
+        private void CloseCurrentPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            ClosePortTabItemByName(portName);
+        }
+
+        private async void CloseOtherPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Name.Equals(portName))
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            List<string> names = new List<string>();
+            for (int i = idx + 1; i < list.Count; i++)
+            {
+                if (list[i].Pinned) continue;
+                names.Add(list[i].Name);
+            }
+            for (int i = 0; i < idx; i++)
+            {
+                if (list[i].Pinned) continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private async void CloseAllPorts(object sender, RoutedEventArgs e)
+        {
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<string> names = vieModel.PortTabItems.Where(arg => !arg.Pinned).Select(arg => arg.Name).ToList();
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+
     }
 }

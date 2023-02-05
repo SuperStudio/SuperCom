@@ -273,7 +273,6 @@ namespace SuperCom
                 {
                     advancedSend.Commands = commands;
                     vieModel.UpdateProject(advancedSend);
-                    Console.WriteLine("保存项目");
                     DataChanged();
 
                 }

@@ -181,7 +181,7 @@ namespace SuperCom.ViewModel
             CurrentProjects = new ObservableCollection<AdvancedSend>();
             SendCommands = new ObservableCollection<SendCommand>();
             AllProjects = new List<AdvancedSend>();
-            // ´ÓÊı¾İ¿âÖĞ¶ÁÈ¡
+            // ä»æ•°æ®åº“ä¸­è¯»å–
             if (mapper != null)
             {
                 AllProjects = mapper.SelectList();
@@ -237,7 +237,7 @@ namespace SuperCom.ViewModel
             {
                 SideComPorts.Add(item);
                 bool isChecked = false;
-                // ÉèÖÃÑ¡ÖĞ
+                // è®¾ç½®é€‰ä¸­
                 if (dict != null && dict.ContainsKey(item.Name))
                     isChecked = dict[item.Name];
                 SideComPortSelected.Add(item, isChecked);
@@ -249,7 +249,7 @@ namespace SuperCom.ViewModel
             int count = mapper.UpdateById(send);
             if (count <= 0)
             {
-                System.Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
+                Console.WriteLine($"æ’å…¥ {send.ProjectName} å¤±è´¥");
             }
         }
 
@@ -258,7 +258,7 @@ namespace SuperCom.ViewModel
             bool result = mapper.UpdateFieldById("ProjectName", send.ProjectName, send.ProjectID);
             if (!result)
             {
-                System.Console.WriteLine($"¸üĞÂ {send.ProjectName} Ê§°Ü");
+                Console.WriteLine($"æ›´æ–° {send.ProjectName} å¤±è´¥");
             }
         }
 
@@ -267,7 +267,7 @@ namespace SuperCom.ViewModel
             int count = mapper.DeleteById(send.ProjectID);
             if (count <= 0)
             {
-                System.Console.WriteLine($"É¾³ı {send.ProjectName} Ê§°Ü");
+                Console.WriteLine($"åˆ é™¤ {send.ProjectName} å¤±è´¥");
             }
             else
             {

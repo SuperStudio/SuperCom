@@ -259,13 +259,20 @@
                 VerticalAlignment="Center"
                 Background="{DynamicResource Window.Title.Background}"
                 CornerRadius="3">
-                <StackPanel Orientation="Horizontal">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
                     <Button
+                        Grid.Column="0"
                         Width="25"
                         Height="25"
                         Margin="0"
                         Padding="0"
-                        VerticalAlignment="Stretch"
+                        VerticalAlignment="Top"
                         super:CommonExt.CornerRadius="5"
                         super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                         Click="StartCommands"
@@ -297,11 +304,12 @@
                     </Button>
 
                     <Button
+                        Grid.Column="1"
                         Width="25"
                         Height="25"
                         Margin="0"
                         Padding="0"
-                        VerticalAlignment="Stretch"
+                        VerticalAlignment="Top"
                         super:CommonExt.CornerRadius="5"
                         super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                         Click="StopCommands"
@@ -336,7 +344,9 @@
                     </Button>
                     <CheckBox
                         Name="showLogCheckBox"
-                        Margin="4,0"
+                        Grid.Column="2"
+                        Margin="4"
+                        VerticalAlignment="Top"
                         super:CheckBoxExt.HookWidth="10"
                         super:CheckBoxExt.MarkHeight="16"
                         super:CheckBoxExt.MarkWidth="16"
@@ -346,7 +356,10 @@
                         Style="{StaticResource NormalCheckBox}" />
 
 
-                    <ItemsControl Margin="5,0" ItemsSource="{Binding SideComPortSelected}">
+                    <ItemsControl
+                        Grid.Column="3"
+                        Margin="5,0"
+                        ItemsSource="{Binding SideComPortSelected}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" />
@@ -355,6 +368,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox
+                                    Margin="4"
                                     VerticalContentAlignment="Center"
                                     super:CheckBoxExt.HookWidth="10"
                                     super:CheckBoxExt.MarkHeight="16"
@@ -371,7 +385,7 @@
 
 
 
-                </StackPanel>
+                </Grid>
             </Border>
 
             <StackPanel Grid.Row="1" Orientation="Horizontal">

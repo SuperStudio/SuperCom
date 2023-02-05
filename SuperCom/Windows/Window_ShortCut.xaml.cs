@@ -222,8 +222,6 @@ namespace SuperCom
         {
             Key currentKey = e.Key == Key.System ? e.SystemKey : e.Key;
 
-            //Console.WriteLine(currentKey);
-
             if (currentKey == Key.Escape)
             {
                 inputKeyPopup.IsOpen = false;
@@ -280,10 +278,6 @@ namespace SuperCom
                 sameTextBlock.Visibility = Visibility.Collapsed;
             }
 
-            Console.WriteLine($"keys = {string.Join(",", keys)}");
-            Console.WriteLine($"normals = {string.Join(",", normals)}");
-
-
             bool containsFunKey =
                 funcKeys.Contains(Key.LeftAlt) ||
                 funcKeys.Contains(Key.LeftCtrl) ||
@@ -292,8 +286,6 @@ namespace SuperCom
                 funcKeys.Contains(Key.RightCtrl) ||
                 funcKeys.Contains(Key.RightShift) ||
                 KeyBoardHelper.IsFKey(currentKey);
-
-            Console.WriteLine("containsFunKey = " + containsFunKey);
 
             if (!containsFunKey || currentKey == Key.None)
             {
@@ -350,7 +342,6 @@ namespace SuperCom
             funcKeys.Clear();
             normalKeys.Clear();
             fastKeys.Clear();
-            Console.WriteLine("popup closed");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperUtils.Common;
@@ -98,7 +99,6 @@ namespace SuperCom.Entity
             set { _WriteData = value; RaisePropertyChanged(); }
         }
 
-        private StringBuilder Builder { get; set; }
         public TextEditor TextEditor { get; set; }
 
         private bool _AddTimeStamp = true;
@@ -126,7 +126,7 @@ namespace SuperCom.Entity
         }
 
 
-        public UInt64 CurrentCharSize { get; set; }
+        public double CurrentCharSize { get; set; }
 
         private long _RX = 0L;
         public long RX
@@ -195,6 +195,30 @@ namespace SuperCom.Entity
             get { return _Pinned; }
             set { _Pinned = value; RaisePropertyChanged(); }
         }
+        private bool _FixedText;
+        public bool FixedText
+        {
+            get { return _FixedText; }
+            set
+            {
+                _FixedText = value;
+                RaisePropertyChanged();
+                if (TextEditor != null)
+                {
+                    if (value)
+                        TextEditor.TextChanged -= TextBox_TextChanged;
+                    else
+                        TextEditor.TextChanged += TextBox_TextChanged;
+                }
+            }
+        }
+
+
+        public void TextBox_TextChanged(object sender, EventArgs e)
+        {
+            TextEditor textEditor = sender as TextEditor;
+            textEditor?.ScrollToEnd();
+        }
 
         public bool RunningCommands { get; set; }
 
@@ -202,7 +226,6 @@ namespace SuperCom.Entity
 
         public void ClearData()
         {
-            Builder.Clear();
             FirstSaveData = true;
         }
 
@@ -397,7 +420,7 @@ namespace SuperCom.Entity
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        App.Logger.Error(ex.Message);
                         continue;
                     }
 
@@ -509,7 +532,11 @@ namespace SuperCom.Entity
             if (ConfigManager.Settings.EnabledLogFrag)
             {
                 //if (CurrentCharSize >= 4096)
-                if (CurrentCharSize / 1024 >= (UInt64)ConfigManager.Settings.LogFragSize)
+#if DEBUG
+                if (CurrentCharSize / 1024 / 1024 >= (UInt64)ConfigManager.Settings.LogFragSize)
+#else
+                if (CurrentCharSize / 1024 / 1024 >= (UInt64)ConfigManager.Settings.LogFragSize)
+#endif
                 {
                     CurrentCharSize = 0;
                     ConnectTime = DateTime.Now;
@@ -533,14 +560,15 @@ namespace SuperCom.Entity
         }
 
         public bool FirstSaveData;
+        private StringBuilder builder = new StringBuilder();
         public void SaveData(string line)
         {
-            RX += line.Length;
+            RX += Encoding.UTF8.GetByteCount(line);     // todo
             string value = line.Replace("\0", "\\0");
             if (AddTimeStamp)
             {
                 // 遍历字符串
-                StringBuilder builder = new StringBuilder();
+                builder.Clear();
                 // 一次遍历效率最高，使用 indexof 还额外多遍历几次
                 char c;
                 for (int i = 0; i < value.Length; i++)
@@ -567,7 +595,7 @@ namespace SuperCom.Entity
                 }
                 value = builder.ToString();
             }
-            CurrentCharSize += (UInt64)value.Length * sizeof(char);
+            CurrentCharSize += Encoding.UTF8.GetByteCount(value);
             MonitorLine(value);
             FilterLine(value);  // 过滤器
             SepFile();
@@ -578,7 +606,7 @@ namespace SuperCom.Entity
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                App.Logger.Error(ex.Message);
             }
         }
 
@@ -590,7 +618,6 @@ namespace SuperCom.Entity
             Name = name;
             Connected = connected;
             Setting = new PortSetting();
-            Builder = new StringBuilder();
             SaveFileName = GetSaveFileName();
         }
     }

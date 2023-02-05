@@ -1,4 +1,6 @@
-﻿using SuperControls.Style.Windows;
+﻿using SuperCom.Log;
+using SuperCom.WatchDog;
+using SuperControls.Style.Windows;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,15 +16,37 @@ namespace SuperCom
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
+    /// 
+
     public partial class App : Application
     {
+        private static bool Error { get; set; }
+
+        public static Logger Logger = Logger.Instance;
+        private static MemoryDog memoryDog { get; set; }
+
+        public static Action OnMemoryDog;
+        public static Action<long> OnMemoryChanged;
+
+        static App()
+        {
+            memoryDog = new MemoryDog();
+            memoryDog.OnNotFeed += () =>
+            {
+                OnMemoryDog?.Invoke();
+            };
+            memoryDog.OnMemoryChanged += (memory) =>
+            {
+                OnMemoryChanged?.Invoke(memory);
+            };
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             // UI线程未捕获异常处理事件
-            //#if DEBUG
+#if DEBUG
 
-            //#else
+#else
             this.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(App_DispatcherUnhandledException);
 
             // Task线程内未捕获异常处理事件
@@ -31,7 +55,9 @@ namespace SuperCom
             // 非UI线程未捕获异常处理事件
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-            //#endif
+#endif
+            // 看门狗
+            memoryDog.Watch();
             base.OnStartup(e);
         }
 
@@ -39,9 +65,15 @@ namespace SuperCom
         {
             try
             {
+                if (Error)
+                    return;
+                Error = true;
                 Window_ErrorMsg window_ErrorMsg = new Window_ErrorMsg();
-                window_ErrorMsg.SetError(e.Exception.ToString());
+                string error = e.Exception.ToString();
+                Logger.Error(error);
+                window_ErrorMsg.SetError(error);
                 window_ErrorMsg.ShowDialog();
+                
             }
             catch (Exception ex)
             {
@@ -59,11 +91,13 @@ namespace SuperCom
 
             try
             {
-                StringBuilder builder = new StringBuilder();
-                if (e.IsTerminating)
+                if (e.IsTerminating && !Error)
                 {
+                    Error = true;
                     Window_ErrorMsg window_ErrorMsg = new Window_ErrorMsg();
-                    window_ErrorMsg.SetError(e.ExceptionObject.ToString());
+                    string error = e.ExceptionObject.ToString();
+                    Logger.Error(error);
+                    window_ErrorMsg.SetError(error);
                     window_ErrorMsg.ShowDialog();
                 }
             }
@@ -81,8 +115,8 @@ namespace SuperCom
         void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             // task线程内未处理捕获
-            Console.WriteLine(e.Exception.StackTrace);
-            Console.WriteLine(e.Exception.Message);
+            Logger.Error(e.Exception.StackTrace);
+            Logger.Error(e.Exception.Message);
             e.SetObserved(); // 设置该异常已察觉（这样处理后就不会引起程序崩溃）
         }
     }

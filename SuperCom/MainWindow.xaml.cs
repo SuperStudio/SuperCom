@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -71,20 +72,76 @@ namespace SuperCom
             InitSqlite();
             ConfigManager.InitConfig(); // 读取配置
             // 注册 SuperUtils 异常事件
+
+            SuperUtils.Handler.LogHandler.Logger = App.Logger;
             SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
             {
-                // MessageCard.Error(e.Message); 
+                App.Logger.Error(e.Message);
             };
-            SuperUtils.Handler.LogHandler.OnLog += (msg) =>
-            {
-                Console.WriteLine(msg);
-            };
+
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
             SetLang();      // 设置语言
             ReadConfig();   // 读取设置列表
             PathManager.Init();
+
+            // 看门狗
+
+            App.OnMemoryChanged += (memory) =>
+            {
+                vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
+            };
+
+            App.OnMemoryDog += () =>
+           {
+               // 找到最大的，清空
+               App.Current.Dispatcher.Invoke(() =>
+              {
+                  if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0)
+                  {
+                      PortTabItem port = null;
+                      long maxLength = 0;
+                      foreach (var item in vieModel.PortTabItems)
+                      {
+                          if (item.TextEditor == null || !item.Connected)
+                              continue;
+                          if (item.TextEditor.Text.Length > maxLength)
+                          {
+                              maxLength = item.TextEditor.Text.Length;
+                              port = item;
+                          }
+                      }
+                      if (port != null && maxLength > 0)
+                      {
+                          TextEditor oldTextEditor = port.TextEditor;
+                          Border border = oldTextEditor.Parent as Border;
+                          TextEditor newTextEditor = new TextEditor();
+                          SetTextEditorConfig(ref newTextEditor, true);
+                          IHighlightingDefinition syntaxHighlighting = oldTextEditor.SyntaxHighlighting;
+                          double FontSize = oldTextEditor.FontSize;
+
+                          newTextEditor.SyntaxHighlighting = syntaxHighlighting;
+                          newTextEditor.FontSize = FontSize;
+                          newTextEditor.Options = oldTextEditor.Options;
+                          newTextEditor.ShowLineNumbers = oldTextEditor.ShowLineNumbers;
+                          newTextEditor.Language = oldTextEditor.Language;
+                          newTextEditor.FontFamily = oldTextEditor.FontFamily;
+                          newTextEditor.Foreground = oldTextEditor.Foreground;
+
+
+                          if (port.FixedText)
+                              newTextEditor.TextChanged -= port.TextBox_TextChanged;
+                          else
+                              newTextEditor.TextChanged += port.TextBox_TextChanged;
+                          port.TextEditor = newTextEditor;
+                          border.Child = newTextEditor;
+                          MessageCard.Warning($"内存限制，清空 {port.Name} 的日志（本地日志保留）");
+                      }
+                  }
+              });
+           };
         }
+
 
         public void ReadConfig()
         {
@@ -230,10 +287,6 @@ namespace SuperCom
             CanDrageTabItem = false;
             if (CurrentDragElement != null)
                 Mouse.Capture(CurrentDragElement, CaptureMode.None);
-            this.Cursor = Cursors.Arrow;
-
-
-
         }
         private FrameworkElement CurrentDragElement;
         private void BeginDragTabItem(object sender, MouseButtonEventArgs e)
@@ -254,9 +307,6 @@ namespace SuperCom
         {
             if (!CanDrageTabItem)
                 return;
-            this.Cursor = Cursors.Hand;
-
-
         }
 
         public void SetPortTabSelected(string portName)
@@ -455,6 +505,19 @@ namespace SuperCom
                 return false;
             }
 
+            await Task.Delay(DEFAULT_PORT_OPEN_INTERVAL);
+            TextEditor textEditor = portTabItem.TextEditor;
+            if (textEditor == null)
+            {
+                textEditor = FindTextBoxByPortName(portName);
+                SetTextEditorConfig(ref textEditor);
+                textEditor.TextChanged += portTabItem.TextBox_TextChanged;
+                portTabItem.TextEditor = textEditor;
+                // 设置语法高亮
+                int idx = (int)portTabItem.SerialPort.HighLightIndex;
+                if (vieModel.HighlightingDefinitions != null && idx < vieModel.HighlightingDefinitions.Count && idx >= 0)
+                    portTabItem.TextEditor.SyntaxHighlighting = vieModel.HighlightingDefinitions[idx];
+            }
             // 加载监视器
             portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
             foreach (var item in vieModel.GetVarMonitorByPortName(portName))
@@ -463,61 +526,15 @@ namespace SuperCom
             }
 
 
-            await Task.Delay(DEFAULT_PORT_OPEN_INTERVAL);
-            TextEditor textEditor = FindTextBoxByPortName(portName);
-            // 编辑器设置
-            TextEditorOptions textEditorOptions = new TextEditorOptions();
-            textEditorOptions.HighlightCurrentLine = ConfigManager.Main.HighlightCurrentLine;
-            textEditorOptions.ShowEndOfLine = ConfigManager.Main.ShowEndOfLine;
-            textEditorOptions.ShowSpaces = ConfigManager.Main.ShowSpaces;
-            textEditorOptions.ShowTabs = ConfigManager.Main.ShowTabs;
-            textEditor.Options = textEditorOptions;
-            textEditor.ShowLineNumbers = ConfigManager.Main.ShowLineNumbers;
-            textEditor.Language = XmlLanguage.GetLanguage(VisualHelper.ZH_CN);
-            if (!string.IsNullOrEmpty(ConfigManager.Main.TextFontName))
-                textEditor.FontFamily = new FontFamily(ConfigManager.Main.TextFontName);
-            if (!string.IsNullOrEmpty(ConfigManager.Main.TextForeground))
-            {
-                Brush brush = SuperUtils.WPF.VisualTools.VisualHelper.HexStringToBrush(ConfigManager.Main.TextForeground);
-                textEditor.Foreground = brush;
-            }
-
-
-
-            portTabItem.TextEditor = textEditor;
             // 搜索框
-            SearchPanel searchPanel = SearchPanel.Install(portTabItem.TextEditor);
-
-            Grid rootGrid = (portTabItem.TextEditor.Parent as Border).Parent as Grid;
-            ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
-
-
-            searchPanel.OnSearching += (e) =>
-            {
-                if (ConfigManager.CommonSettings.FixedOnSearch)
-                {
-                    // 将文本固定
-                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                    toggleButton.IsEnabled = false;
-                    toggleButton.IsChecked = true;
-                }
-            };
-            searchPanel.OnClosed += () =>
-            {
-                if (ConfigManager.CommonSettings.ScrollOnSearchClosed)
-                {
-                    toggleButton.IsChecked = false;
-                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                    portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
-                }
-                toggleButton.IsEnabled = true;
-            };
-
             sideComPort.PortTabItem = portTabItem;
             sideComPort.PortTabItem.RX = 0;
             sideComPort.PortTabItem.TX = 0;
             sideComPort.PortTabItem.CurrentCharSize = 0;
             sideComPort.PortTabItem.FragCount = 0;
+
+
+
             await Task.Run(() =>
             {
                 try
@@ -552,11 +569,59 @@ namespace SuperCom
             return true;
         }
 
+
+
+        private void SetTextEditorConfig(ref TextEditor textEditor, bool createInCode = false)
+        {
+            if (createInCode)
+            {
+                // 恢复绑定
+                textEditor.Background = Brushes.Transparent;
+                textEditor.BorderThickness = new Thickness(0);
+
+                Binding binding1 = new Binding();
+                binding1.Source = vieModel.PortTabItems;
+                binding1.Path = new PropertyPath("SerialPort.TextFontSize");
+                binding1.Mode = BindingMode.TwoWay;
+                binding1.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+                BindingOperations.SetBinding(textEditor, TextEditor.FontSizeProperty, binding1);
+
+
+                Binding binding2 = new Binding();
+                binding2.Source = ConfigManager.Main;
+                binding2.Path = new PropertyPath("AutoWrap");
+                binding2.Mode = BindingMode.OneWay;
+                BindingOperations.SetBinding(textEditor, TextEditor.WordWrapProperty, binding2);
+
+
+                textEditor.SetResourceReference(TextEditor.ForegroundProperty, "Window.Foreground");
+                textEditor.IsReadOnly = true;
+                textEditor.GotFocus += textBox_GotFocus;
+                textEditor.LostFocus += textBox_LostFocus;
+            }
+
+            textEditor.Name = "textEditor";
+            textEditor.ContextMenu = this.Resources["TextEditorContextMenu"] as ContextMenu;
+            TextEditorOptions textEditorOptions = new TextEditorOptions();
+            textEditorOptions.HighlightCurrentLine = ConfigManager.Main.HighlightCurrentLine;
+            textEditorOptions.ShowEndOfLine = ConfigManager.Main.ShowEndOfLine;
+            textEditorOptions.ShowSpaces = ConfigManager.Main.ShowSpaces;
+            textEditorOptions.ShowTabs = ConfigManager.Main.ShowTabs;
+            textEditor.Options = textEditorOptions;
+            textEditor.ShowLineNumbers = ConfigManager.Main.ShowLineNumbers;
+            textEditor.Language = XmlLanguage.GetLanguage(VisualHelper.ZH_CN);
+            SearchPanel.Install(textEditor);
+
+
+        }
+
         private async Task<bool> ClosePort(string portName)
         {
-            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName)) return false;
+            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName))
+                return false;
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-            if (portTabItem == null) return false;
+            if (portTabItem == null)
+                return false;
             CustomSerialPort serialPort = portTabItem.SerialPort;
             if (serialPort != null && serialPort.IsOpen)
             {
@@ -592,7 +657,7 @@ namespace SuperCom
             }
             catch (TimeoutException ex)
             {
-                Console.WriteLine(ex.Message);
+                App.Logger.Error(ex.Message);
             }
             catch (Exception ex)
             {
@@ -612,7 +677,7 @@ namespace SuperCom
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                App.Logger.Error(ex.Message);
             }
             string portName = serialPort.PortName;
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
@@ -628,7 +693,7 @@ namespace SuperCom
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    App.Logger.Error(ex.Message);
                 }
             }
 
@@ -749,12 +814,6 @@ namespace SuperCom
             }
         }
 
-        private void TextBox_TextChanged(object sender, EventArgs e)
-        {
-
-            (sender as TextEditor).ScrollToEnd();
-        }
-
         private void ShowAbout(object sender, RoutedEventArgs e)
         {
             Dialog_About about = new Dialog_About();
@@ -809,19 +868,19 @@ namespace SuperCom
 
         private void SetTextBoxScroll(object sender, RoutedEventArgs e)
         {
-            ToggleButton toggleButton = sender as ToggleButton;
-            bool fix = (bool)toggleButton.IsChecked;
-            PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-            if (portTabItem != null && portTabItem.TextEditor != null)
-            {
-                if (fix)
-                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                else
-                {
-                    portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                    portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
-                }
-            }
+            //ToggleButton toggleButton = sender as ToggleButton;
+            //bool fix = (bool)toggleButton.IsChecked;
+            //PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
+            //if (portTabItem != null && portTabItem.TextEditor != null)
+            //{
+            //    if (fix)
+            //        portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
+            //    else
+            //    {
+            //        portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
+            //        portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
+            //    }
+            //}
         }
 
         private TextEditor FindTextBox(Grid rootGrid)
@@ -845,7 +904,7 @@ namespace SuperCom
                 if (presenter == null) continue;
                 Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "rootGrid");
                 if (grid != null && grid.Tag != null && portName.Equals(grid.Tag.ToString())
-                    && grid.FindName("textBox") is TextEditor textEditor) return textEditor;
+                    && grid.FindName("textEditor") is TextEditor textEditor) return textEditor;
             }
             return null;
         }
@@ -946,11 +1005,9 @@ namespace SuperCom
                 SendCommand(portName);
                 if (ConfigManager.CommonSettings.FixedOnSendCommand)
                 {
-                    Grid grid = ((button.Parent as Grid).Parent as Grid).Parent as Grid;
-                    Grid baseGrid = grid.Parent as Grid;
-                    (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
-                    toggleButton.IsChecked = true;
-                    textEditor.TextChanged -= TextBox_TextChanged;
+                    PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (portTabItem != null)
+                        portTabItem.FixedText = true;
                 }
             }
         }
@@ -1007,10 +1064,8 @@ namespace SuperCom
             portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
             try
             {
-                //Console.WriteLine($"before port write, value = {value}");
                 port.Write(value);
-                //Console.WriteLine($"after port write");
-                portTabItem.TX += value.Length;
+                portTabItem.TX += Encoding.UTF8.GetByteCount(value);
                 // todo 保存到发送历史
                 //if (saveToHistory)
                 //{
@@ -1209,7 +1264,7 @@ namespace SuperCom
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                App.Logger.Error(ex.Message);
             }
 
         }
@@ -1499,7 +1554,7 @@ namespace SuperCom
 
             foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                TextEditor textEditor = FindTextBoxByPortName(item.Name);
+                TextEditor textEditor = item.TextEditor;
                 if (textEditor != null)
                     textEditor.FontFamily = VisualHelper.SYSTEM_FONT_FAMILIES[name];
             }
@@ -1744,8 +1799,6 @@ namespace SuperCom
                     else idx++;
                     if (idx >= list.Count) idx = 0;
                     else if (idx < 0) idx = list.Count - 1;
-                    //Console.WriteLine("text=" + text);
-                    //Console.WriteLine(idx);
                     vieModel.SendHistorySelectedIndex = idx;
                     vieModel.SendHistorySelectedValue = list[idx];
                     // 设置当前选中状态
@@ -1928,7 +1981,9 @@ namespace SuperCom
         {
             foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                TextEditor textEditor = FindTextBoxByPortName(item.Name);
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor == null)
+                    textEditor = FindTextBoxByPortName(item.Name);
                 if (textEditor != null)
                 {
                     ComboBox comboBox = FindCombobox(textEditor);
@@ -2050,10 +2105,9 @@ namespace SuperCom
                     // 设置固定滚屏
                     if (ConfigManager.CommonSettings.FixedOnSendCommand)
                     {
-                        Grid baseGrid = (border.Parent as Grid).Parent as Grid;
-                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
-                        toggleButton.IsChecked = true;
-                        textEditor.TextChanged -= TextBox_TextChanged;
+                        PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                        if (portTabItem != null)
+                            portTabItem.FixedText = true;
                     }
                 }
             }
@@ -2106,11 +2160,17 @@ namespace SuperCom
 
         public void BeginSendCommands(AdvancedSend advancedSend, string portName, Button button)
         {
-            if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands)) return;
+            if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands))
+                return;
             advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-            if (advancedSend.CommandList == null || advancedSend.CommandList.Count == 0) return;
+            if (advancedSend.CommandList == null || advancedSend.CommandList.Count == 0)
+                return;
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-            if (portTabItem == null) return;
+            if (portTabItem == null || !portTabItem.Connected)
+            {
+                MessageNotify.Error($"端口 {portName} 未连接");
+                return;
+            }
             portTabItem.RunningCommands = true;
             SetRunningStatus(button, true);
             Task.Run(async () =>
@@ -2124,6 +2184,8 @@ namespace SuperCom
                         advancedSend.CommandList[idx].Status = RunningStatus.Running;
 
                     bool success = await AsyncSendCommand(idx, portName, command, advancedSend);
+                    if (!success)
+                        break;
                     advancedSend.CommandList[idx].Status = RunningStatus.WaitingDelay;
                     if (command.Delay > 0)
                     {
@@ -2206,15 +2268,11 @@ namespace SuperCom
                 SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem)
                 {
-                    string defaultContent = "请输入备注";
-                    if (!string.IsNullOrEmpty(portTabItem.Remark))
-                        defaultContent = portTabItem.Remark;
-                    DialogInput dialogInput = new DialogInput(this, defaultContent);
+                    DialogInput dialogInput = new DialogInput(this, "请输入备注", portTabItem.Remark);
                     if (dialogInput.ShowDialog() == true)
                     {
                         string value = dialogInput.Text;
                         portTabItem.Remark = value;
-                        Console.WriteLine(value);
                         portTabItem.SerialPort.SaveRemark(value);
                         sideComPort.Remark = value;
                         ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();
@@ -2378,7 +2436,7 @@ namespace SuperCom
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                App.Logger.Error(ex.Message);
             }
         }
 
@@ -2589,7 +2647,7 @@ namespace SuperCom
                 }
             }
 
-            //Console.WriteLine($"key = {e.Key}");
+            App.Logger.Debug($"按下按键：{e.Key}");
 
             // 快捷键检测
             ShortCutBinding shortCutBinding = null;
@@ -2649,17 +2707,20 @@ namespace SuperCom
                 case 4:
                     {
                         // 固定滚屏
-                        Grid baseGrid = sender as Grid;
-                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
-                        if (!toggleButton.IsEnabled) return;
-                        toggleButton.IsChecked = !toggleButton.IsChecked;
-                        if ((bool)toggleButton.IsChecked)
-                            textEditor.TextChanged -= TextBox_TextChanged;
-                        else
-                        {
-                            textEditor.TextChanged -= TextBox_TextChanged;
-                            textEditor.TextChanged += TextBox_TextChanged;
-                        }
+                        //Grid baseGrid = sender as Grid;
+                        //(ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        //if (!toggleButton.IsEnabled) return;
+                        //toggleButton.IsChecked = !toggleButton.IsChecked;
+                        //if ((bool)toggleButton.IsChecked)
+                        //    textEditor.TextChanged -= TextBox_TextChanged;
+                        //else
+                        //{
+                        //    textEditor.TextChanged -= TextBox_TextChanged;
+                        //    textEditor.TextChanged += TextBox_TextChanged;
+                        //}
+                        PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                        if (portTabItem != null)
+                            portTabItem.FixedText = !portTabItem.FixedText;
                     }
                     break;
                 case 5:
@@ -2825,23 +2886,12 @@ namespace SuperCom
             return (sender as MenuItem).IsChecked;
         }
 
-        private void SetTextWrap(object sender, RoutedEventArgs e)
-        {
-            //bool status = GetMenuItemCheckedStatus(sender);
-            //foreach (PortTabItem item in vieModel.PortTabItems)
-            //{
-            //    TextEditor textEditor = FindTextBoxByPortName(item.Name);
-            //    if (textEditor != null)
-            //        textEditor.WordWrap = status;
-            //}
-            //vieModel.AutoTextWrap = status;
-        }
 
         private void SetTextEditOption(string optionName, object status)
         {
             foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                TextEditor textEditor = FindTextBoxByPortName(item.Name);
+                TextEditor textEditor = item.TextEditor;
                 if (textEditor != null)
                 {
                     TextEditorOptions options = textEditor.Options;
@@ -2856,7 +2906,7 @@ namespace SuperCom
         {
             foreach (PortTabItem item in vieModel.PortTabItems)
             {
-                TextEditor textEditor = FindTextBoxByPortName(item.Name);
+                TextEditor textEditor = item.TextEditor;
                 if (textEditor != null)
                 {
                     System.Reflection.PropertyInfo propertyInfo = textEditor.GetType().GetProperty(propName);
@@ -2900,23 +2950,52 @@ namespace SuperCom
 
         private void SetTextForeground(object sender, RoutedEventArgs e)
         {
-            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
-            ColorPicker colorPicker = stackPanel.Children.OfType<ColorPicker>().FirstOrDefault();
+            //StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            //ColorPicker colorPicker = stackPanel.Children.OfType<ColorPicker>().FirstOrDefault();
+            //SolidColorBrush brush = new SolidColorBrush(colorPicker.SelectedColor);
+            //SetTextPropOption("Foreground", brush);
+            //ConfigManager.Main.TextForeground = brush.ToString();
+            //if (stackPanel.Tag != null && stackPanel.Tag is ContextMenu contextMenu)
+            //    contextMenu.IsOpen = false;
+        }
+
+        private void colorPicker_SelectedColorChanged(object sender, EventArgs e)
+        {
+            ColorPicker colorPicker = sender as ColorPicker;
             SolidColorBrush brush = new SolidColorBrush(colorPicker.SelectedColor);
             SetTextPropOption("Foreground", brush);
             ConfigManager.Main.TextForeground = brush.ToString();
-            if (stackPanel.Tag != null && stackPanel.Tag is ContextMenu contextMenu)
-                contextMenu.IsOpen = false;
+
         }
 
         private void textBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            ((sender as TextEditor).Parent as Border).BorderBrush = (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
+            TextEditor textEditor = sender as TextEditor;
+            if (textEditor == null || textEditor.Parent == null)
+                return;
+            Border border = textEditor.Parent as Border;
+            if (border == null)
+                return;
+            border.BorderBrush = (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
+            // 设置不滚动
+            Grid rootGrid = border.Parent as Grid;
+            ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
+            // 将文本固定
+            string portName = rootGrid.Tag.ToString();
+            SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && !(bool)toggleButton.IsChecked)
+            {
+                //portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
+                //toggleButton.IsChecked = true;
+                portTabItem.FixedText = true;
+            }
         }
 
         private void textBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            ((sender as TextEditor).Parent as Border).BorderBrush = Brushes.Transparent;
+            TextEditor textEditor = sender as TextEditor;
+            if (textEditor != null && textEditor.Parent is Border border)
+                border.BorderBrush = Brushes.Transparent;
         }
         Window_VirtualPort virtualPort;
         private async void ShowVirtualPort(object sender, RoutedEventArgs e)
@@ -2940,44 +3019,28 @@ namespace SuperCom
         }
 
 
-
-
-
-        private void MenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
+        private void CloseForegroundSelected(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
-            if (menuItem.Items != null && menuItem.Items.Count > 0 && menuItem.Items[0] is MenuItem item)
-            {
-                Task.Run(async () =>
-                {
-                    await Task.Delay(200);  // 等待一会，因为 template 未渲染出来
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        ControlTemplate template = item.Template;
-                        object v = template.FindName("colorPicker", item);
-                        if (v != null && v is ColorPicker colorPicker)
-                        {
-
-                            string colorText = ConfigManager.Main.TextForeground;
-                            if (!string.IsNullOrEmpty(colorText))
-                            {
-
-                                Brush brush = SuperUtils.WPF.VisualTools.VisualHelper.HexStringToBrush(colorText);
-                                if (brush != null)
-                                {
-                                    SolidColorBrush solidColorBrush = (SolidColorBrush)brush;
-                                    colorPicker.SetCurrentColor(solidColorBrush.Color);
-                                }
-
-                            }
-                        }
-                    });
-
-
-                });
-            }
-
+            ForegroundPopup.IsOpen = false;
         }
+
+        private void OpenForegroundSelected(object sender, RoutedEventArgs e)
+        {
+            ForegroundPopup.IsOpen = true;
+            string colorText = ConfigManager.Main.TextForeground;
+            if (!string.IsNullOrEmpty(colorText))
+            {
+
+                Brush brush = SuperUtils.WPF.VisualTools.VisualHelper.HexStringToBrush(colorText);
+                if (brush != null)
+                {
+                    SolidColorBrush solidColorBrush = (SolidColorBrush)brush;
+                    colorPicker.SetCurrentColor(solidColorBrush.Color);
+                }
+            }
+        }
+
+
 
         private void OnShowRightPanel(object sender, RoutedEventArgs e)
         {
@@ -3379,6 +3442,14 @@ namespace SuperCom
             vieModel.DoingLongWork = false;
         }
 
-
+        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count == 0) return;
+            ComboBox comboBox = sender as ComboBox;
+            string portName = comboBox.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem != null && portTabItem.TextEditor != null)
+                portTabItem.TextEditor.SyntaxHighlighting = e.AddedItems[0] as IHighlightingDefinition;
+        }
     }
 }

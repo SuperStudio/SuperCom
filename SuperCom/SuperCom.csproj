@@ -144,6 +144,9 @@
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
+    <Compile Include="WatchDog\AbstractDog.cs" />
+    <Compile Include="WatchDog\IDog.cs" />
+    <Compile Include="WatchDog\MemoryDog.cs" />
     <Compile Include="Windows\Window_AdvancedSend.xaml.cs">
       <DependentUpon>Window_AdvancedSend.xaml</DependentUpon>
     </Compile>

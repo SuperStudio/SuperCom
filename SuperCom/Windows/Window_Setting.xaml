@@ -45,18 +45,18 @@
                         Content="{DynamicResource CloseToBar}"
                         IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />
-                    <CheckBox
+                    <!--<CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
                         Content="{DynamicResource FixOnSearching}"
                         IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />
-                    <CheckBox
+                        Style="{StaticResource NormalCheckBox}" />-->
+                    <!--<CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
                         Content="{DynamicResource ScrollOnNotSearching}"
                         IsChecked="{Binding ScrollOnSearchClosed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />
+                        Style="{StaticResource NormalCheckBox}" />-->
                     <CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
@@ -88,6 +88,36 @@
                             Style="{StaticResource BaseTextBlock}"
                             Text="{Binding ElementName=logFragSlider, Path=Value, StringFormat={}{0}\ MB}"
                             Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}" />
+
+                    </StackPanel>
+                    <StackPanel Margin="10,5" Orientation="Horizontal">
+                        <Border
+                            Width="25"
+                            Height="25"
+                            Margin="0"
+                            Padding="0"
+                            VerticalAlignment="Stretch"
+                            Background="Transparent"
+                            ToolTip="超过上限后，文本框中的内容自动清空（硬盘日志保留）">
+                            <Viewbox Width="auto" Height="14">
+                                <Path
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
+                                    Fill="{DynamicResource Window.Foreground}" />
+                            </Viewbox>
+                        </Border>
+                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="内存上限" />
+                        <super:Slider
+                            Width="300"
+                            Margin="20,0"
+                            LargeChange="100"
+                            Maximum="2048"
+                            Minimum="256"
+                            SmallChange="10"
+                            Value="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0}\ MB}" />
 
                     </StackPanel>
                     <CheckBox

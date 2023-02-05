@@ -8,6 +8,7 @@ namespace SuperCom.Config.WindowConfig
     {
 
         private const int DEFAULT_LOG_FRAG_SIZE = 40;  // MB
+        private const int DEFAULT_MEMORY_LIMIT = 1024; // MB
         private Settings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Settings")
         {
             Width = SystemParameters.WorkArea.Width * 0.7;
@@ -17,6 +18,7 @@ namespace SuperCom.Config.WindowConfig
             AutoBackup = true;
             EnabledLogFrag = true;
             LogFragSize = DEFAULT_LOG_FRAG_SIZE;
+            MemoryLimit = DEFAULT_MEMORY_LIMIT;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -47,6 +49,7 @@ namespace SuperCom.Config.WindowConfig
         public long RemoteIndex { get; set; }
         public bool EnabledLogFrag { get; set; }
         public long LogFragSize { get; set; }
+        public long MemoryLimit { get; set; }
 
     }
 }

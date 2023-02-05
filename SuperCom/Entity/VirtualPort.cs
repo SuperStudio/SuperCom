@@ -103,7 +103,7 @@ namespace SuperCom.Entity
                         result.Add(port);
                 }, null, (ex) =>
                 {
-                    Console.WriteLine(ex.Message);
+                    App.Logger.Error(ex.Message);
                 }, () =>
                 {
                     completed = true;
@@ -140,13 +140,13 @@ namespace SuperCom.Entity
             {
                 CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
                 {
-                    Console.WriteLine(output);
+                    App.Logger.Info(output);
                     if (output.IndexOf("logged as \"in use\"") >= 0)
                         count++;
                     completed = count == 2;
                 }, null, (ex) =>
                 {
-                    Console.WriteLine(ex.Message);
+                    App.Logger.Error(ex.Message);
                 });
             });
             // 超时
@@ -177,14 +177,14 @@ namespace SuperCom.Entity
             {
                 CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
                 {
-                    Console.WriteLine(output);
+                    App.Logger.Info(output);
                     if (output.IndexOf($"Removed CNCA{n}") >= 0 ||
                         output.IndexOf($"Removed CNCB{n}") >= 0)
                         count++;
                     completed = count == 2;
                 }, null, (ex) =>
                 {
-                    Console.WriteLine(ex.Message);
+                    App.Logger.Error(ex.Message);
                     completed = true;
                 });
             });
@@ -211,12 +211,12 @@ namespace SuperCom.Entity
             foreach (VirtualPort port in ports)
             {
                 string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe change {port.ID} {port.ToUpdateString()}";
-                Console.WriteLine(cmdParam);
+                App.Logger.Info($"执行命令：{cmdParam}");
                 await Task.Run(() =>
                 {
                     CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
                     {
-                        Console.WriteLine(output);
+                        App.Logger.Info(output);
                         if (output.IndexOf($"Restarted {port.ID}") >= 0)
                             completed = true;
                     });

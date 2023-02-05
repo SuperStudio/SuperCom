@@ -32,7 +32,7 @@ namespace SuperCom.Lang
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        App.Logger.Error(ex.Message);
                         return false;
                     }
                 }

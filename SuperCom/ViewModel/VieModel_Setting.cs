@@ -15,6 +15,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using static SuperCom.Entity.HighLightRule;
+using System;
 
 namespace SuperCom.ViewModel
 {
@@ -99,7 +100,7 @@ namespace SuperCom.ViewModel
         }
 
 
-        #region "ÈÕÖ¾¸ßÁÁ"
+        #region "ï¿½ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½"
 
 
         private ObservableCollection<HighLightRule> _HighLightRules;
@@ -148,7 +149,7 @@ namespace SuperCom.ViewModel
             }
         }
 
-        public void NewRule(string ruleName = "×Ô¶¨Òå¹æÔò")
+        public void NewRule(string ruleName = "ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")
         {
             HighLightRule rule = new HighLightRule();
             rule.RuleName = ruleName;
@@ -241,7 +242,7 @@ namespace SuperCom.ViewModel
             int count = ruleMapper.UpdateById(rule);
             if (count <= 0)
             {
-                System.Console.WriteLine($"²åÈë {rule.RuleName} Ê§°Ü");
+                Console.WriteLine($"ï¿½ï¿½ï¿½ï¿½ {rule.RuleName} Ê§ï¿½ï¿½");
             }
 
         }
@@ -254,7 +255,7 @@ namespace SuperCom.ViewModel
                 foreach (var item in HighLightRules)
                 {
                     item.SetFileName();
-                    item.WriteToXshd(); // Ð´Èëµ½ xshd ÎÄ¼þÖÐ
+                    item.WriteToXshd(); // Ð´ï¿½ëµ½ xshd ï¿½Ä¼ï¿½ï¿½ï¿½
                     ruleMapper.UpdateById(item);
                 }
                 HighLightRule.AllRules = ruleMapper.SelectList();
@@ -266,7 +267,7 @@ namespace SuperCom.ViewModel
             bool result = ruleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
             if (!result)
             {
-                System.Console.WriteLine($"¸üÐÂ {rule.RuleName} Ê§°Ü");
+                Console.WriteLine($"ï¿½ï¿½ï¿½ï¿½ {rule.RuleName} Ê§ï¿½ï¿½");
             }
 
         }

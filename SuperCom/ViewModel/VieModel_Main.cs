@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO.Ports;
 using System.Linq;
+using System;
 
 namespace SuperCom.ViewModel
 {
@@ -184,6 +185,12 @@ namespace SuperCom.ViewModel
             get { return _DoingWorkMsg; }
             set { _DoingWorkMsg = value; RaisePropertyChanged(); }
         }
+        private double _MemoryUsed;
+        public double MemoryUsed
+        {
+            get { return _MemoryUsed; }
+            set { _MemoryUsed = value; RaisePropertyChanged(); }
+        }
 
         public AdvancedSend CurrentAdvancedSend { get; set; }
 
@@ -295,7 +302,7 @@ namespace SuperCom.ViewModel
             int count = mapper.UpdateById(send);
             if (count <= 0)
             {
-                System.Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
+                Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
             }
         }
 

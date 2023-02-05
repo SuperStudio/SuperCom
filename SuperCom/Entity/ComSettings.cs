@@ -87,7 +87,7 @@ namespace SuperCom.Entity
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    App.Logger.Error(ex.Message);
                 }
             }
         }

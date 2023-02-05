@@ -25,6 +25,20 @@
     mc:Ignorable="d">
 
     <super:BaseWindow.Resources>
+
+        <ContextMenu x:Key="TextEditorContextMenu">
+            <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
+            <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+            <MenuItem Header="格式化">
+                <MenuItem Click="FormatJson" Header="JSON(F2)" />
+            </MenuItem>
+            <MenuItem Header="编辑">
+                <MenuItem Click="JoinLine" Header="合并为一行(F3)" />
+            </MenuItem>
+            <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
+            <MenuItem Click="OpenTimeTransform" Header="时间戳" />
+        </ContextMenu>
+
         <Style x:Key="BgHoverBorder" TargetType="Border">
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="CornerRadius" Value="0" />
@@ -50,6 +64,35 @@
             Stretch="UniformToFill" />
 
 
+        <Popup
+            x:Name="ForegroundPopup"
+            AllowsTransparency="True"
+            HorizontalOffset="-80"
+            Placement="MousePoint"
+            PopupAnimation="Fade"
+            StaysOpen="True"
+            VerticalOffset="0">
+            <Grid Margin="5">
+                <Border
+                    Margin="5"
+                    Background="{DynamicResource Menu.Background}"
+                    CornerRadius="5"
+                    Effect="{StaticResource PopupDropShadowEffect}" />
+                <StackPanel Orientation="Vertical" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}}">
+                    <super:ColorPicker
+                        Name="colorPicker"
+                        SelectedColorChanged="colorPicker_SelectedColorChanged"
+                        ShowColorPalette="False" />
+                    <Button
+                        Margin="5,0,5,10"
+                        HorizontalAlignment="Center"
+                        Click="CloseForegroundSelected"
+                        Content="关闭"
+                        Style="{StaticResource ButtonDanger}" />
+                </StackPanel>
+            </Grid>
+        </Popup>
+
 
 
 
@@ -57,6 +100,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
 
             </Grid.RowDefinitions>
             <Grid
@@ -80,8 +124,8 @@
                     HorizontalAlignment="Stretch"
                     Panel.ZIndex="50"
                     Background="Transparent"
-                    MouseMove="OnMoveWindow"
-                    PreviewMouseLeftButtonDown="OnMaxCurrentWindow">
+                    MouseLeftButtonDown="OnMaxCurrentWindow"
+                    MouseMove="OnMoveWindow">
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -106,131 +150,74 @@
                             Grid.Column="1"
                             Margin="20,0"
                             Orientation="Horizontal">
-                            <Button
-                                Width="70"
-                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                Click="OpenContextMenu"
-                                Content="文件"
-                                Style="{StaticResource TitleButton}"
-                                Visibility="Collapsed">
-                                <Button.ContextMenu>
-                                    <ContextMenu
-                                        HorizontalOffset="-40"
-                                        StaysOpen="True"
-                                        VerticalOffset="10">
-                                        <MenuItem
-                                            Click="OpenLog"
-                                            Header="打开日志"
-                                            IsCheckable="False" />
-
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                            <Button
-                                Width="70"
-                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                Click="OpenContextMenu"
-                                Content="编辑"
-                                Style="{StaticResource TitleButton}">
-                                <Button.ContextMenu>
-                                    <ContextMenu
-                                        Background="{DynamicResource Menu.Background}"
-                                        HorizontalOffset="-40"
-                                        StaysOpen="True"
-                                        VerticalOffset="10">
-                                        <MenuItem
-                                            Header="自动换行"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
-                                        <MenuItem
-                                            Name="FontMenuItem"
-                                            Header="字体"
-                                            IsCheckable="False" />
-                                        <MenuItem
-                                            Header="默认字体颜色"
-                                            IsCheckable="False"
-                                            SubmenuOpened="MenuItem_SubmenuOpened">
-                                            <MenuItem>
-                                                <MenuItem.Template>
-                                                    <ControlTemplate TargetType="{x:Type MenuItem}">
-                                                        <Grid>
-                                                            <Border
-                                                                Width="auto"
-                                                                Height="auto"
-                                                                Padding="10"
-                                                                Background="{DynamicResource Menu.Background}"
-                                                                CornerRadius="5">
-                                                                <StackPanel Orientation="Vertical" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}}">
-                                                                    <super:ColorPicker Name="colorPicker" ShowColorPalette="False" />
-                                                                    <Button
-                                                                        Margin="5"
-                                                                        HorizontalAlignment="Center"
-                                                                        Click="SetTextForeground"
-                                                                        Content="确定"
-                                                                        Style="{StaticResource ButtonPrimary}" />
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </Grid>
-                                                    </ControlTemplate>
-                                                </MenuItem.Template>
-                                            </MenuItem>
-
-                                        </MenuItem>
-                                        <MenuItem
-                                            Click="SetTextViewReturn"
-                                            Header="显示换行符"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
-                                        <MenuItem
-                                            Click="SetTextViewSpace"
-                                            Header="显示空格"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
-                                        <MenuItem
-                                            Click="SetTextViewTab"
-                                            Header="显示Tab"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
-                                        <MenuItem
-                                            Click="SetTextViewLineNumber"
-                                            Header="显示行号"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
-                                        <MenuItem
-                                            Click="SetTextHighLightCurrent"
-                                            Header="高亮选中行"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
-
-
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                            <Button
-                                Width="70"
-                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                Click="OpenContextMenu"
-                                Content="视图"
-                                Style="{StaticResource TitleButton}">
-                                <Button.ContextMenu>
-                                    <ContextMenu
-                                        HorizontalOffset="-40"
-                                        StaysOpen="True"
-                                        VerticalOffset="10">
-                                        <MenuItem
-                                            Name="sideGridMenuItem"
-                                            Click="HideSide"
-                                            Header="侧边栏"
-                                            IsCheckable="True"
-                                            IsChecked="True" />
-                                        <!--<MenuItem
+                            <Menu>
+                                <MenuItem
+                                    Background="{DynamicResource Window.Title.Background}"
+                                    Header="文件"
+                                    Style="{StaticResource TopMenuItemStyle}">
+                                    <MenuItem Click="OpenLog" Header="打开日志" />
+                                </MenuItem>
+                                <MenuItem
+                                    Background="{DynamicResource Window.Title.Background}"
+                                    Header="编辑"
+                                    Style="{StaticResource TopMenuItemStyle}">
+                                    <MenuItem
+                                        Header="自动换行"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
+                                    <MenuItem
+                                        Name="FontMenuItem"
+                                        Header="字体"
+                                        IsCheckable="False" />
+                                    <MenuItem
+                                        Click="OpenForegroundSelected"
+                                        Header="字体颜色"
+                                        IsCheckable="False" />
+                                    <MenuItem
+                                        Click="SetTextViewReturn"
+                                        Header="显示换行符"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
+                                    <MenuItem
+                                        Click="SetTextViewSpace"
+                                        Header="显示空格"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
+                                    <MenuItem
+                                        Click="SetTextViewTab"
+                                        Header="显示Tab"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
+                                    <MenuItem
+                                        Click="SetTextViewLineNumber"
+                                        Header="显示行号"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
+                                    <MenuItem
+                                        Click="SetTextHighLightCurrent"
+                                        Header="高亮选中行"
+                                        IsCheckable="True"
+                                        IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
+                                </MenuItem>
+                                <MenuItem
+                                    Background="{DynamicResource Window.Title.Background}"
+                                    Header="视图"
+                                    Style="{StaticResource TopMenuItemStyle}">
+                                    <MenuItem
+                                        Name="sideGridMenuItem"
+                                        Click="HideSide"
+                                        Header="侧边栏"
+                                        IsCheckable="True"
+                                        IsChecked="True" />
+                                    <!--<MenuItem
                                             Header="右侧功能栏"
                                             IsCheckable="True"
                                             IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
 
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
+                                </MenuItem>
+                            </Menu>
+
+
 
                         </StackPanel>
                     </Grid>
@@ -1562,35 +1549,18 @@
                                             CornerRadius="3"
                                             PreviewMouseWheel="Border_PreviewMouseWheel">
                                             <avalonEdit:TextEditor
-                                                Name="textBox"
+                                                Name="textEditor"
                                                 Background="Transparent"
                                                 BorderThickness="0"
+                                                ContextMenu="{StaticResource TextEditorContextMenu}"
                                                 FontFamily="微软雅黑"
                                                 FontSize="{Binding SerialPort.TextFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Foreground="{DynamicResource Window.Foreground}"
                                                 GotFocus="textBox_GotFocus"
                                                 IsReadOnly="True"
                                                 LostFocus="textBox_LostFocus"
-                                                ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                                ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                 SyntaxHighlighting="ComLog"
-                                                TextChanged="TextBox_TextChanged"
-                                                WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}">
-                                                <avalonEdit:TextEditor.ContextMenu>
-                                                    <ContextMenu>
-                                                        <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
-                                                        <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
-                                                        <MenuItem Header="格式化">
-                                                            <MenuItem Click="FormatJson" Header="JSON(F2)" />
-                                                        </MenuItem>
-                                                        <MenuItem Header="编辑">
-                                                            <MenuItem Click="JoinLine" Header="合并为一行(F3)" />
-                                                        </MenuItem>
-                                                        <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
-                                                        <MenuItem Click="OpenTimeTransform" Header="时间戳" />
-                                                    </ContextMenu>
-                                                </avalonEdit:TextEditor.ContextMenu>
-                                            </avalonEdit:TextEditor>
+                                                WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>
 
                                         <Grid
@@ -1988,7 +1958,7 @@
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
                                                     Background="Transparent"
-                                                    Click="SetTextBoxScroll"
+                                                    IsChecked="{Binding FixedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     Style="{StaticResource FlatToggleButton}"
                                                     ToolTip="固定/滚屏">
                                                     <Viewbox
@@ -2049,7 +2019,7 @@
                                                 <Button
                                                     Margin="5,0"
                                                     Click="SaveToNewFile"
-                                                    Content="存到新文件" />
+                                                    Content="日志立即分片" />
 
                                                 <TextBlock
                                                     Margin="10,0,5,0"
@@ -2066,8 +2036,9 @@
                                                     FontSize="12"
                                                     ItemsSource="{Binding DataContext.HighlightingDefinitions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     SelectedIndex="{Binding SerialPort.HighLightIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    SelectedItem="{Binding SyntaxHighlighting, ElementName=textBox}"
-                                                    Style="{StaticResource BorderComboBox}" />
+                                                    SelectionChanged="highlightingComboBox_SelectionChanged"
+                                                    Style="{StaticResource BorderComboBox}"
+                                                    Tag="{Binding Name}" />
 
                                                 <super:Switch
                                                     Height="20"
@@ -2682,6 +2653,21 @@
                 </Grid>
 
 
+            </Grid>
+
+            <Grid
+                Grid.Row="2"
+                Height="30"
+                Background="{DynamicResource Window.StatusBar.Background}"
+                Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Margin="5,0"
+                    VerticalAlignment="Center"
+                    Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />
             </Grid>
 
         </Grid>

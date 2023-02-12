@@ -100,7 +100,7 @@ namespace SuperCom.ViewModel
         }
 
 
-        #region "��־����"
+        #region "语法高亮"
 
 
         private ObservableCollection<HighLightRule> _HighLightRules;
@@ -149,7 +149,7 @@ namespace SuperCom.ViewModel
             }
         }
 
-        public void NewRule(string ruleName = "�Զ������")
+        public void NewRule(string ruleName = "我的规则")
         {
             HighLightRule rule = new HighLightRule();
             rule.RuleName = ruleName;
@@ -242,7 +242,7 @@ namespace SuperCom.ViewModel
             int count = ruleMapper.UpdateById(rule);
             if (count <= 0)
             {
-                Console.WriteLine($"���� {rule.RuleName} ʧ��");
+                Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
 
         }
@@ -255,7 +255,7 @@ namespace SuperCom.ViewModel
                 foreach (var item in HighLightRules)
                 {
                     item.SetFileName();
-                    item.WriteToXshd(); // д�뵽 xshd �ļ���
+                    item.WriteToXshd();
                     ruleMapper.UpdateById(item);
                 }
                 HighLightRule.AllRules = ruleMapper.SelectList();
@@ -267,7 +267,7 @@ namespace SuperCom.ViewModel
             bool result = ruleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
             if (!result)
             {
-                Console.WriteLine($"���� {rule.RuleName} ʧ��");
+                Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
 
         }

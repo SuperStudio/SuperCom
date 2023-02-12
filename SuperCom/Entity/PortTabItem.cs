@@ -248,7 +248,7 @@ namespace SuperCom.Entity
                         if (!string.IsNullOrEmpty(Remark))
                             result = result.Replace(item, Remark);
                         else
-                            result = result.Replace("[%R]", "");
+                            result = result.Replace("%R", "");
                         break;
                     case "%Y":
                         result = result.Replace(item, ConnectTime.Year.ToString());
@@ -280,19 +280,65 @@ namespace SuperCom.Entity
             return result;
         }
 
+        private string GetDirByFormat(string format)
+        {
+            //  "%C","%R","%Y","%M","%D","%H","%M","%S","%F"
+            string result = format;
+            foreach (string item in CommonSettings.SUPPORT_FORMAT)
+            {
+                switch (item)
+                {
+                    case "%C":
+                        result = result.Replace(item, Name);
+                        break;
+                    case "%R":
+                        if (!string.IsNullOrEmpty(Remark))
+                            result = result.Replace(item, Remark);
+                        else
+                            result = result.Replace("%R", "");
+                        break;
+                    case "%Y":
+                        result = result.Replace(item, ConnectTime.Year.ToString());
+                        break;
+                    case "%M":
+                        result = result.Replace(item, ConnectTime.Month.ToString());
+                        break;
+                    case "%D":
+                        result = result.Replace(item, ConnectTime.Day.ToString());
+                        break;
+                    case "%h":
+                        result = result.Replace(item, ConnectTime.Hour.ToString());
+                        break;
+                    case "%m":
+                        result = result.Replace(item, ConnectTime.Minute.ToString());
+                        break;
+                    case "%s":
+                        result = result.Replace(item, ConnectTime.Second.ToString());
+                        break;
+                    case "%f":
+                        result = result.Replace(item, ConnectTime.Millisecond.ToString());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return result;
+        }
+
 
         public string GetSaveFileName()
         {
             string format = ConfigManager.CommonSettings.LogNameFormat;
             string name = GetFileNameByFormat(format);
             if (string.IsNullOrEmpty(name))
-            {
                 name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
-            }
 
-            return Path.Combine(CommonSettings.LogDir, name + ".log");
-            // 格式化
-            //return Path.Combine(GlobalVariable.LogDir, $"[{Name}]{ConnectTime.ToString("yyyy-MM-dd-HH-mm-ss-fff")}.log");
+            string logDir = GetDirByFormat(CommonSettings.LogDir);
+            if (string.IsNullOrEmpty(logDir))
+                logDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
+            if (!Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
+            return Path.Combine(logDir, name + ".log");
         }
 
         public int FragCount { get; set; }
@@ -301,26 +347,26 @@ namespace SuperCom.Entity
 
         public void FilterLine(string value)
         {
-            if (!EnabledFilter)
-                TextEditor?.AppendText(value);
-            else
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    // 将字符转为一行
-                    int idx = value.IndexOf("\n");
-                    if (idx < 0)
-                        Buffer.Append(value);
-                    else
-                    {
-                        Buffer.Append(value.Substring(0, idx + 1));
-                        FilterQueue.Enqueue(Buffer.ToString());
-                        Buffer.Clear();
-                        FilterLine(value.Substring(idx + 1));
-                    }
-                }
+            // if (!EnabledFilter)
+            TextEditor?.AppendText(value);
+            // else
+            // {
+            //     if (!string.IsNullOrEmpty(value))
+            //     {
+            //         // 将字符转为一行
+            //         int idx = value.IndexOf("\n");
+            //         if (idx < 0)
+            //             Buffer.Append(value);
+            //         else
+            //         {
+            //             Buffer.Append(value.Substring(0, idx + 1));
+            //             FilterQueue.Enqueue(Buffer.ToString());
+            //             Buffer.Clear();
+            //             FilterLine(value.Substring(idx + 1));
+            //         }
+            //     }
 
-            }
+            // }
         }
 
 
@@ -332,6 +378,7 @@ namespace SuperCom.Entity
 
         public void StartFilterTask()
         {
+            return;
             if (!EnabledFilter || FilterRunning)
                 return;
             StopFilter = false;
@@ -618,7 +665,6 @@ namespace SuperCom.Entity
             Name = name;
             Connected = connected;
             Setting = new PortSetting();
-            SaveFileName = GetSaveFileName();
         }
     }
 

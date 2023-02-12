@@ -1,9 +1,12 @@
 ﻿
+using Microsoft.Win32;
 using SuperControls.Style;
 using SuperUtils.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -44,8 +47,57 @@ namespace SuperCom.Entity
             RefreshSetting();
         }
 
+        /// <summary>
+        /// 仅可以有 COM 加 数字
+        /// </summary>
+        /// <returns></returns>
+        public static string[] GetAllPorts()
+        {
+            List<string> result = new List<string>();
+            string[] ports = GetPortNames();
+            foreach (var item in ports)
+            {
+                if (int.TryParse(item.ToUpper().Replace("COM", ""), out int portNumber))
+                    result.Add(item);
+            }
+            return result.ToArray();
+        }
+
+        public static string[] GetUsbSerDevices()
+        {
+            // HKLM\SYSTEM\CurrentControlSet\services\usbser\Enum -> Device IDs of what is plugged in
+            // HKLM\SYSTEM\CurrentControlSet\Enum\{Device_ID}\Device Parameters\PortName -> COM port name.
+
+            List<string> ports = new List<string>();
+
+            RegistryKey k1 = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\services\usbser\Enum");
+            if (k1 == null)
+            {
+                Debug.Fail("Unable to open Enum key");
+            }
+            else
+            {
+                int count = (int)k1.GetValue("Count");
+                for (int i = 0; i < count; i++)
+                {
+                    object deviceID = k1.GetValue(i.ToString("D", CultureInfo.InvariantCulture));
+                    Debug.Assert(deviceID != null && deviceID is string);
+                    RegistryKey k2 = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Enum\" + (string)deviceID + @"\Device Parameters");
+                    if (k2 == null)
+                    {
+                        continue;
+                    }
+                    object portName = k2.GetValue("PortName");
+                    Debug.Assert(portName != null && portName is string);
+                    ports.Add((string)portName);
+                }
+            }
+            return ports.ToArray();
+        }
+
         public string Remark = "";
         public bool Pinned = false;
+        public bool Hide = false;
 
         public void SaveRemark(string remark)
         {
@@ -55,6 +107,11 @@ namespace SuperCom.Entity
         public void SavePinned(bool pinned)
         {
             this.Pinned = pinned;
+            SettingJson = PortSettingToJson(); // 保存
+        }
+        public void SaveHide(bool hide)
+        {
+            this.Hide = hide;
             SettingJson = PortSettingToJson(); // 保存
         }
 
@@ -93,6 +150,7 @@ namespace SuperCom.Entity
             dic.Add("Parity", this.ParityString);
             dic.Add("Remark", this.Remark);
             dic.Add("Pinned", this.Pinned);
+            dic.Add("Hide", this.Hide);
             dic.Add("TextFontSize", this.TextFontSize);
             dic.Add("HighLightIndex", this.HighLightIndex);
             return JsonUtils.TrySerializeObject(dic);
@@ -131,6 +189,8 @@ namespace SuperCom.Entity
                     this.Remark = dict["Remark"].ToString();
                 if (dict.ContainsKey("Pinned"))
                     this.Pinned = dict["Pinned"].ToString().ToLower().Equals("true") ? true : false;
+                if (dict.ContainsKey("Hide"))
+                    this.Hide = dict["Hide"].ToString().ToLower().Equals("true") ? true : false;
             }
         }
 
@@ -144,16 +204,27 @@ namespace SuperCom.Entity
             }
             return "";
         }
+        public static bool GetHide(string json)
+        {
+            Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
+            string status = "";
+            if (dict != null)
+            {
+                if (dict.ContainsKey("Hide"))
+                    status = dict["Hide"].ToString();
+            }
+            return status.ToLower().Equals("true") ? true : false;
+        }
         public static bool GetPinned(string json)
         {
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
-            string pinned = "";
+            string status = "";
             if (dict != null)
             {
                 if (dict.ContainsKey("Pinned"))
-                    pinned = dict["Pinned"].ToString();
+                    status = dict["Pinned"].ToString();
             }
-            return pinned.ToLower().Equals("true") ? true : false;
+            return status.ToLower().Equals("true") ? true : false;
         }
 
 

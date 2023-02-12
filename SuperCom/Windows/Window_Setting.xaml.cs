@@ -32,6 +32,7 @@ namespace SuperCom
     public partial class Window_Setting : BaseWindow
     {
 
+        public const int HIGH_LIGHT_TAB_INDEX = 3;
         private MainWindow Main { get; set; }
         public VieModel_Setting vieModel { get; set; }
         public Window_Setting()
@@ -215,11 +216,15 @@ namespace SuperCom
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
-            ConfigManager.CommonSettings.LogSaveDir = vieModel.LogSaveDir;
-            ConfigManager.CommonSettings.LogSaveDir = CommonSettings.InitLogDir();
+            if (FileHelper.IsProperDirName(vieModel.LogSaveDir))
+            {
+                ConfigManager.CommonSettings.LogSaveDir = vieModel.LogSaveDir;
+            }
+            else
+            {
+                MessageNotify.Error("错误的日志保存路径");
+            }
             ConfigManager.CommonSettings.Save();
-            vieModel.LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
-
             ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
 
             ConfigManager.Settings.Save();

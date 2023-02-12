@@ -138,7 +138,7 @@
                             VerticalAlignment="Center"
                             Orientation="Horizontal">
                             <Image
-                                Height="25"
+                                Height="20"
                                 Margin="5,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
@@ -148,14 +148,18 @@
                         </StackPanel>
                         <StackPanel
                             Grid.Column="1"
-                            Margin="20,0"
+                            Margin="20,2"
                             Orientation="Horizontal">
                             <Menu>
                                 <MenuItem
                                     Background="{DynamicResource Window.Title.Background}"
                                     Header="文件"
                                     Style="{StaticResource TopMenuItemStyle}">
-                                    <MenuItem Click="OpenLog" Header="打开日志" />
+                                    <MenuItem Click="OpenLog" Header="加载日志" />
+                                    <MenuItem
+                                        Click="SaveLog"
+                                        Header="日志另存为"
+                                        Icon="/Resources/Pictures/save.png" />
                                 </MenuItem>
                                 <MenuItem
                                     Background="{DynamicResource Window.Title.Background}"
@@ -719,12 +723,16 @@
                                     <ContextMenu HorizontalOffset="-50">
 
                                         <MenuItem
+                                            super:MenuItemExt.Desc="False"
+                                            super:MenuItemExt.Sortable="True"
                                             Click="SortSidePorts"
                                             Header="按添加顺序"
+                                            Style="{StaticResource SortMenuItemStyle}"
                                             Tag="AddTime" />
                                         <MenuItem
                                             Click="SortSidePorts"
                                             Header="按串口名"
+                                            Style="{StaticResource SortMenuItemStyle}"
                                             Tag="PortName" />
                                     </ContextMenu>
                                 </Border.ContextMenu>
@@ -894,14 +902,23 @@
                                                 Icon="/Resources/Pictures/donate.png"
                                                 Visibility="Collapsed" />
                                         </MenuItem>
-                                        <MenuItem Click="OpenSetting" Header="设置" />
+                                        <MenuItem
+                                            Click="OpenSetting"
+                                            Header="设置"
+                                            Icon="/Resources/Pictures/setting.png" />
                                         <MenuItem Header="高级">
                                             <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
                                         </MenuItem>
                                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />
-                                        <MenuItem Click="ShowUpgradeWindow" Header="检查更新" />
-                                        <MenuItem Click="ShowAbout" Header="关于" />
+                                        <MenuItem
+                                            Click="ShowUpgradeWindow"
+                                            Header="检查更新"
+                                            Icon="/Resources/Pictures/update.png" />
+                                        <MenuItem
+                                            Click="ShowAbout"
+                                            Header="关于"
+                                            Icon="/Resources/Pictures/about.png" />
                                     </ContextMenu>
                                 </Border.ContextMenu>
                                 <Viewbox
@@ -1372,6 +1389,11 @@
                                         </Border.Style>
                                         <Border.ContextMenu>
                                             <ContextMenu>
+                                                <MenuItem
+                                                    Click="CloseAllConnectPort"
+                                                    Header="断开所有"
+                                                    Icon="/Resources/Pictures/closeport.png" />
+                                                <Separator />
                                                 <MenuItem Click="CloseCurrentPort" Header="关闭" />
                                                 <MenuItem Click="CloseOtherPort" Header="关闭其它" />
                                                 <MenuItem Click="CloseAllLeftPort" Header="关闭左边所有" />
@@ -1387,7 +1409,10 @@
                                                     IsCheckable="True"
                                                     IsChecked="{Binding Pinned, Mode=OneWay}" />
                                                 <Separator />
-                                                <MenuItem Click="Remark" Header="备注" />
+                                                <MenuItem
+                                                    Click="Remark"
+                                                    Header="备注"
+                                                    Icon="/Resources/Pictures/remark.png" />
                                             </ContextMenu>
                                         </Border.ContextMenu>
                                         <Grid>
@@ -2021,37 +2046,10 @@
                                                     Click="SaveToNewFile"
                                                     Content="日志立即分片" />
 
-                                                <TextBlock
-                                                    Margin="10,0,5,0"
-                                                    HorizontalAlignment="Left"
-                                                    Style="{StaticResource BaseTextBlock}"
-                                                    Text="语法高亮" />
-
-                                                <ComboBox
-                                                    Name="highlightingComboBox"
-                                                    Width="130"
-                                                    Margin="5,0"
-                                                    VerticalAlignment="Center"
-                                                    Background="{DynamicResource Window.Title.Background}"
-                                                    FontSize="12"
-                                                    ItemsSource="{Binding DataContext.HighlightingDefinitions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                                    SelectedIndex="{Binding SerialPort.HighLightIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    SelectionChanged="highlightingComboBox_SelectionChanged"
-                                                    Style="{StaticResource BorderComboBox}"
-                                                    Tag="{Binding Name}" />
-
-                                                <super:Switch
-                                                    Height="20"
-                                                    VerticalAlignment="Center"
-                                                    Background="{DynamicResource Window.Title.Background}"
-                                                    IsChecked="{Binding EnabledFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    Style="{StaticResource BaseTextBlock}"
-                                                    Text="过滤器"
-                                                    ToolTip="过滤规则同语法高亮" />
-
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                <StackPanel
+                                                    Grid.Column="1"
+                                                    Margin="10,0"
+                                                    Orientation="Horizontal">
 
                                                     <TextBox
                                                         MinWidth="100"
@@ -2146,7 +2144,7 @@
                                     <Grid
                                         Name="advancedGrid"
                                         Grid.Row="0"
-                                        Margin="380,0,0,0"
+                                        Margin="250,0,0,0"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Bottom"
                                         Panel.ZIndex="10"
@@ -2160,11 +2158,14 @@
                                             <StackPanel Margin="5,0" Orientation="Horizontal">
                                                 <TextBlock
                                                     Width="60"
+                                                    FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
                                                     Text="编码"
-                                                    TextAlignment="Center" />
+                                                    TextAlignment="Right" />
                                                 <ComboBox
-                                                    Width="150"
+                                                    Width="120"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
                                                     ItemsSource="{Binding DataContext.Encodings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     Text="{Binding SerialPort.PortEncoding, Mode=TwoWay}">
                                                     <ComboBox.Style>
@@ -2184,11 +2185,14 @@
                                             <StackPanel Margin="5,0" Orientation="Horizontal">
                                                 <TextBlock
                                                     Width="60"
+                                                    FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
                                                     Text="Parity"
-                                                    TextAlignment="Center" />
+                                                    TextAlignment="Right" />
                                                 <ComboBox
-                                                    Width="150"
+                                                    Width="120"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
                                                     ItemsSource="{Binding DataContext.Paritys, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                                     <ComboBox.Style>
@@ -2208,11 +2212,14 @@
                                             <StackPanel Margin="5,0" Orientation="Horizontal">
                                                 <TextBlock
                                                     Width="60"
+                                                    FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
                                                     Text="StopBits"
-                                                    TextAlignment="Center" />
+                                                    TextAlignment="Right" />
                                                 <ComboBox
-                                                    Width="150"
+                                                    Width="120"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
                                                     ItemsSource="{Binding DataContext.StopBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     Text="{Binding SerialPort.StopBitsString, Mode=TwoWay}">
                                                     <ComboBox.Style>
@@ -2260,9 +2267,14 @@
                                             Background="{DynamicResource Window.Title.Background}"
                                             CornerRadius="5">
                                             <WrapPanel Orientation="Horizontal">
-                                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="BaudRate" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="波特率" />
                                                 <ComboBox
-                                                    MinWidth="150"
+                                                    MinWidth="120"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
                                                     ItemsSource="{Binding DataContext.BaudRates, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     SelectionChanged="BuadRate_SelectionChanged"
                                                     Tag="{Binding Name}"
@@ -2280,9 +2292,14 @@
                                                         </Style>
                                                     </ComboBox.Style>
                                                 </ComboBox>
-                                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="DataBits" />
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="数据位" />
                                                 <ComboBox
-                                                    MinWidth="150"
+                                                    MinWidth="70"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="12"
                                                     ItemsSource="{Binding DataContext.DataBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                     Text="{Binding SerialPort.DataBits, Mode=TwoWay}">
                                                     <ComboBox.Style>
@@ -2304,6 +2321,48 @@
                                                     Click="ShowAdvancedOptions"
                                                     Content="更多串口设置" />
 
+
+                                                <TextBlock
+                                                    Margin="10,0,5,0"
+                                                    HorizontalAlignment="Left"
+                                                    FontSize="12"
+                                                    FontWeight="Bold"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="语法高亮" />
+
+                                                <ComboBox
+                                                    Name="highlightingComboBox"
+                                                    Width="130"
+                                                    Margin="5,0"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource Window.Title.Background}"
+                                                    FontSize="12"
+                                                    FontWeight="Bold"
+                                                    ItemsSource="{Binding DataContext.HighlightingDefinitions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                    SelectedIndex="{Binding SerialPort.HighLightIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    SelectionChanged="highlightingComboBox_SelectionChanged"
+                                                    Style="{StaticResource BorderComboBox}"
+                                                    Tag="{Binding Name}" />
+                                                <Button
+                                                    Margin="5,0"
+                                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                                    Click="ShowHighLightEdit"
+                                                    Content="编辑"
+                                                    FontSize="10"
+                                                    Style="{StaticResource BorderButton}" />
+
+                                                <super:Switch
+                                                    Height="20"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource Window.Title.Background}"
+                                                    IsChecked="{Binding EnabledFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Visibility="Collapsed" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="过滤器"
+                                                    ToolTip="过滤规则同语法高亮"
+                                                    Visibility="Collapsed" />
 
                                             </WrapPanel>
                                         </Border>

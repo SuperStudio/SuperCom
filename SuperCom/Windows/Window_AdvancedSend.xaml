@@ -10,7 +10,6 @@
     Title="发送队列"
     Width="800"
     Height="450"
-    AllowsTransparency="True"
     Background="{DynamicResource Window.Background}"
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"

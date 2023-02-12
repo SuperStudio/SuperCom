@@ -66,9 +66,6 @@ namespace SuperCom.ViewModel
             set { _StopBits = value; RaisePropertyChanged(); }
         }
 
-
-
-        /* ÒÑ¾­´ò¿ªµÄÑ¡Ïî¿¨ */
         private ObservableCollection<PortTabItem> _PortTabItems;
         public ObservableCollection<PortTabItem> PortTabItems
         {
@@ -76,14 +73,14 @@ namespace SuperCom.ViewModel
             set { _PortTabItems = value; RaisePropertyChanged(); }
         }
 
-        /* ²à±ßÀ¸´®¿ÚÑ¡Ïî */
+
         private ObservableCollection<SideComPort> _SideComPorts;
         public ObservableCollection<SideComPort> SideComPorts
         {
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
-        private string _StatusText = "¾ÍĞ÷";
+        private string _StatusText = "å°±ç»ª";
         public string StatusText
         {
             get { return _StatusText; }
@@ -282,7 +279,7 @@ namespace SuperCom.ViewModel
             }
             ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(BaudRates);
             ConfigManager.Main.Save();
-            BaudRates.Add("ĞÂÔö");
+            BaudRates.Add("æ–°å¢");
         }
 
         public void LoadSendCommands()
@@ -302,7 +299,7 @@ namespace SuperCom.ViewModel
             int count = mapper.UpdateById(send);
             if (count <= 0)
             {
-                Console.WriteLine($"²åÈë {send.ProjectName} Ê§°Ü");
+                Console.WriteLine($"æ’å…¥ {send.ProjectName} å¤±è´¥");
             }
         }
 
@@ -327,17 +324,24 @@ namespace SuperCom.ViewModel
             //ConfigManager.Main.Save();
         }
 
-        public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime)
+        public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime, bool desc = true)
         {
-            string[] ports = SerialPort.GetPortNames();
+            string[] ports = CustomSerialPort.GetAllPorts();
+
             List<string> portNames = new List<string>();
             switch (sortType)
             {
                 case ComPortSortType.AddTime:
-                    portNames = ports.ToList();
+                    if (desc)
+                        portNames = ports.Reverse().ToList();
+                    else
+                        portNames = ports.ToList();
                     break;
                 case ComPortSortType.PortName:
-                    portNames = ports.OrderBy(name => name, new ComPortComparer()).ToList();
+                    if (desc)
+                        portNames = ports.OrderByDescending(name => name, new ComPortComparer()).ToList();
+                    else
+                        portNames = ports.OrderBy(name => name, new ComPortComparer()).ToList();
                     break;
                 default:
                     break;
@@ -357,7 +361,7 @@ namespace SuperCom.ViewModel
             List<string> baudrates = new List<string>();
             for (int i = 0; i < BaudRates.Count; i++)
             {
-                if (!"ĞÂÔö".Equals(BaudRates[i]))
+                if (!"æ–°å¢".Equals(BaudRates[i]))
                 {
                     baudrates.Add(BaudRates[i]);
                 }
@@ -403,7 +407,7 @@ namespace SuperCom.ViewModel
         }
 
 
-        #region "±äÁ¿¼àÊÓÆ÷"
+        #region "å˜é‡ç›‘è§†å™¨"
         public List<VarMonitor> GetVarMonitorByPortName(string portName)
         {
             if (monitorMapper == null)
@@ -468,7 +472,7 @@ namespace SuperCom.ViewModel
 
             if (toUpdate.Count == 0)
             {
-                MessageNotify.Info("ÎŞ¸Ä±ä£¬ÎŞĞè±£´æ");
+                MessageNotify.Info("æ— æ”¹å˜ï¼Œæ— éœ€ä¿å­˜");
                 return;
             }
             else
@@ -476,7 +480,7 @@ namespace SuperCom.ViewModel
                 foreach (var item in toUpdate)
                     monitorMapper.UpdateById(item);
 
-                MessageNotify.Success("±£´æ³É¹¦");
+                MessageNotify.Success("ä¿å­˜æˆåŠŸ");
                 portTabItem.VarMonitors = new ObservableCollection<VarMonitor>();
 
                 foreach (var item in GetVarMonitorByPortName(portTabItem.Name))

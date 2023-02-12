@@ -155,6 +155,7 @@ namespace SuperCom
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
                     item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                    item.Hide = CustomSerialPort.GetHide(comSettings.PortSetting);
                 }
             }
             //textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
@@ -186,7 +187,6 @@ namespace SuperCom
                 {
                     if (item.SerialPort == null) continue;
                     selectDict.Add(item.Name, item.SerialPort.HighLightIndex);
-
                 }
             }
 
@@ -207,8 +207,10 @@ namespace SuperCom
                                 HighlightingLoader.Load(reader, HighlightingManager.Instance);
                         }
                     }
-                    // and register it in the HighlightingManager
-                    HighlightingManager.Instance.RegisterHighlighting(customHighlighting.Name, null, customHighlighting);
+                    // 检查是否在数据库中存在
+                    string name = customHighlighting.Name;
+                    if (name.Equals("ComLog") || HighLightRule.AllRules.FirstOrDefault(arg => arg.RuleName.Equals(name)) != null)
+                        HighlightingManager.Instance.RegisterHighlighting(name, null, customHighlighting);
                 }
                 catch (Exception ex)
                 {
@@ -466,6 +468,7 @@ namespace SuperCom
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
                     vieModel.SideComPorts[i].Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
+                    vieModel.SideComPorts[i].Hide = CustomSerialPort.GetHide(comSettings.PortSetting);
                 }
             }
         }
@@ -787,6 +790,7 @@ namespace SuperCom
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
                     portTabItem.Pinned = portTabItem.SerialPort.Pinned;
+
                 }
                 portTabItem.Selected = true;
                 vieModel.PortTabItems.Add(portTabItem);
@@ -967,7 +971,7 @@ namespace SuperCom
                 }
                 else
                 {
-                    MessageCard.Warning($"当前无日志");
+                    MessageNotify.Warning($"当前无日志");
                 }
 
             }
@@ -1515,7 +1519,7 @@ namespace SuperCom
             //OpenShortCut(null, null);
             LoadFontFamily();
             InitUpgrade();
-            CommonSettings.InitLogDir();
+            //CommonSettings.InitLogDir();
             OpenBeforePorts();
 
         }
@@ -2312,7 +2316,10 @@ namespace SuperCom
         private void ShowAllHidePort(object sender, RoutedEventArgs e)
         {
             foreach (SideComPort item in vieModel.SideComPorts)
+            {
                 item.Hide = false;
+            }
+
         }
 
         private void OpenLog(object sender, RoutedEventArgs e)
@@ -2370,19 +2377,33 @@ namespace SuperCom
             }
 
         }
+
         private void SortSidePorts(object sender, RoutedEventArgs e)
         {
             MenuItem menuItem = sender as MenuItem;
             if (menuItem != null && menuItem.Tag != null)
             {
+                SetAllMenuItemSortable(menuItem);
+                MenuItemExt.SetSortable(menuItem, true);
+                bool desc = MenuItemExt.GetDesc(menuItem);
                 List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
                 string value = menuItem.Tag.ToString();
                 Enum.TryParse(value, out ComPortSortType sortType);
-                vieModel.InitPortData(sortType);
+                vieModel.InitPortData(sortType, desc);
                 RetainSidePortValue(sideComPorts);
+                MenuItemExt.SetDesc(menuItem, !desc);
             }
         }
 
+        private void SetAllMenuItemSortable(MenuItem menuItem)
+        {
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            List<MenuItem> menuItems = contextMenu.Items.OfType<MenuItem>().ToList();
+            foreach (var item in menuItems)
+            {
+                MenuItemExt.SetSortable(item, false);
+            }
+        }
 
 
         private void ShowPluginWindow(object sender, RoutedEventArgs e)
@@ -3395,6 +3416,7 @@ namespace SuperCom
             }
         }
 
+
         private void CloseCurrentPort(object sender, RoutedEventArgs e)
         {
             string portName = GetPortNameByMenuItem(sender);
@@ -3450,6 +3472,68 @@ namespace SuperCom
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (portTabItem != null && portTabItem.TextEditor != null)
                 portTabItem.TextEditor.SyntaxHighlighting = e.AddedItems[0] as IHighlightingDefinition;
+        }
+
+        private void ShowHighLightEdit(object sender, RoutedEventArgs e)
+        {
+            OpenSetting(null, null);
+            window_Setting.vieModel.TabSelectedIndex = Window_Setting.HIGH_LIGHT_TAB_INDEX;
+        }
+
+        private void CloseAllConnectPort(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in vieModel.PortTabItems)
+            {
+                if (item.Connected)
+                    ClosePort(item.Name);
+            }
+        }
+
+        private void SaveLog(object sender, RoutedEventArgs e)
+        {
+
+
+
+
+            PortTabItem portTabItem = null;
+
+            foreach (var item in vieModel.PortTabItems)
+            {
+                if (item.Selected)
+                {
+                    portTabItem = item;
+                    break;
+                }
+            }
+
+
+            if (portTabItem != null)
+            {
+                string fileName = portTabItem.SaveFileName;
+                if (File.Exists(fileName))
+                {
+                    string path = FileHelper.SaveFile();
+                    bool target = FileHelper.IsProperDirName(path);
+                    if (!target)
+                    {
+                        MessageNotify.Error("文件名存在非法字符");
+                        return;
+                    }
+                    else
+                    {
+                        // 复制到该目录
+                        FileHelper.TryCopyFile(fileName, path, true);
+                        FileHelper.TryOpenSelectPathEx(path);
+                    }
+                }
+                else
+                {
+                    MessageNotify.Warning($"当前无日志");
+                }
+            }
+
+
+
         }
     }
 }

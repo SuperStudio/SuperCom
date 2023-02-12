@@ -18,25 +18,7 @@ namespace SuperCom.Config.WindowConfig
             "%C","%R","%Y","%M","%D","%h","%m","%s","%f"
         };
         public static string LogDir { get; set; }
-        public static string InitLogDir()
-        {
-            if (!string.IsNullOrEmpty(ConfigManager.CommonSettings.LogSaveDir))
-                LogDir = ConfigManager.CommonSettings.LogSaveDir;
-            else
-                LogDir = DEFAULT_LOG_SAVE_DIR;
 
-            if (!Directory.Exists(LogDir))
-            {
-                bool success = DirHelper.TryCreateDirectory(LogDir);
-                if (!success)
-                {
-                    MessageCard.Error($"创建目录失败：{LogDir}，使用默认目录");
-                    LogDir = DEFAULT_LOG_SAVE_DIR;
-                    Directory.CreateDirectory(LogDir);
-                }
-            }
-            return LogDir;
-        }
         private CommonSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.CommonSettings")
         {
             FixedOnSearch = true;

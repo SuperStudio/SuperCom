@@ -59,12 +59,12 @@ namespace SuperCom
                         ConfigManager.AdvancedSendSettings.WindowOpacity = AdvancedSendSettings.DEFAULT_WINDOW_OPACITY;
                         ConfigManager.AdvancedSendSettings.Save();
                     }
-                    this.Opacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
+                    //this.Opacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
                 }
                 else
                 {
                     this.Owner = null;
-                    this.Opacity = 1;
+                    //this.Opacity = 1;
                 }
             };
         }
@@ -588,9 +588,9 @@ namespace SuperCom
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            this.Opacity = (double)e.NewValue;
-            ConfigManager.AdvancedSendSettings.WindowOpacity = this.Opacity;
-            ConfigManager.AdvancedSendSettings.Save();
+            //this.Opacity = (double)e.NewValue;
+            //ConfigManager.AdvancedSendSettings.WindowOpacity = this.Opacity;
+            //ConfigManager.AdvancedSendSettings.Save();
         }
 
 

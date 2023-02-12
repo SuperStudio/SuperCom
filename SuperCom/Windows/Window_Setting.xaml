@@ -16,7 +16,10 @@
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Icon="/Resources/Pictures/setting.png"
     Loaded="BaseWindow_Loaded"
+    TitleAlign="Left"
+    TitleMargin="0"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

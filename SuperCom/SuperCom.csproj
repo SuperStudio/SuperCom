@@ -63,7 +63,7 @@
     </Reference>
     <Reference Include="SuperControls.Style, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SuperControls\SuperControls.Style\bin\Debug\SuperControls.Style.dll</HintPath>
+      <HintPath>References\SuperControls.Style.dll</HintPath>
     </Reference>
     <Reference Include="SuperUtils">
       <HintPath>References\SuperUtils.dll</HintPath>
@@ -277,8 +277,16 @@
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
     <Content Include="References\MihaZupan.HttpToSocks5Proxy.dll" />
     <Content Include="References\Newtonsoft.Json.dll" />
+    <Content Include="References\SuperControls.Style.dll" />
     <Content Include="References\SuperUtils.dll" />
     <Resource Include="Resources\Pictures\donate.png" />
+    <Resource Include="Resources\Pictures\closeport.png" />
+    <Resource Include="Resources\Pictures\save.png" />
+    <Resource Include="Resources\Pictures\setting.png" />
+    <Resource Include="Resources\Pictures\update.png" />
+    <Resource Include="Resources\Pictures\about.png" />
+    <Resource Include="Resources\Pictures\pinned.png" />
+    <Resource Include="Resources\Pictures\remark.png" />
     <Content Include="Sql\advanced_send.sql" />
     <Content Include="Sql\com_settings.sql" />
   </ItemGroup>

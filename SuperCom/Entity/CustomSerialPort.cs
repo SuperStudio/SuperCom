@@ -259,19 +259,34 @@ namespace SuperCom.Entity
         public string PortEncoding
         {
             get { return _PortEncoding; }
-            set { _PortEncoding = value; RaisePropertyChanged(); }
+            set
+            {
+                _PortEncoding = value;
+                RaisePropertyChanged();
+                RefreshSetting();
+            }
         }
         private string _StopBitsString = "One";
         public string StopBitsString
         {
             get { return _StopBitsString; }
-            set { _StopBitsString = value; RaisePropertyChanged(); }
+            set
+            {
+                _StopBitsString = value;
+                RaisePropertyChanged();
+                RefreshSetting();
+            }
         }
         private string _ParityString = "One";
         public string ParityString
         {
             get { return _ParityString; }
-            set { _ParityString = value; RaisePropertyChanged(); }
+            set
+            {
+                _ParityString = value;
+                RaisePropertyChanged();
+                RefreshSetting();
+            }
         }
         private double _TextFontSize = DEFAULT_FONTSIZE;
         public double TextFontSize

@@ -12,12 +12,11 @@ namespace SuperCom.Config.WindowConfig
     {
 
         public static string DEFAULT_LOGNAMEFORMAT = "[%C] %Y-%M-%D %h-%m-%s.%f";
-        public static string DEFAULT_LOG_SAVE_DIR = System.IO.Path.Combine(Environment.CurrentDirectory, "logs","%Y-%M-%D");
+        public static string DEFAULT_LOG_SAVE_DIR = System.IO.Path.Combine(Environment.CurrentDirectory, "logs", "%Y-%M-%D");
         public static List<string> SUPPORT_FORMAT = new List<string>()
         {
             "%C","%R","%Y","%M","%D","%h","%m","%s","%f"
         };
-        public static string LogDir { get; set; }
 
         private CommonSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.CommonSettings")
         {

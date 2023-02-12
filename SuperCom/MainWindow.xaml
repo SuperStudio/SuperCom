@@ -1460,6 +1460,7 @@
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 FontSize="12"
+                                                MaxWidth="50"
                                                 Foreground="{DynamicResource Window.Sub.Foreground}"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Remark}"
@@ -2275,6 +2276,7 @@
                                                     Style="{StaticResource BaseTextBlock}"
                                                     Text="波特率" />
                                                 <ComboBox
+                                                    x:Name="baudRateComboBox"
                                                     MinWidth="120"
                                                     VerticalAlignment="Center"
                                                     FontSize="12"

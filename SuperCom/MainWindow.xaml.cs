@@ -12,6 +12,7 @@ using SuperCom.ViewModel;
 using SuperCom.Windows;
 using SuperControls.Style;
 using SuperControls.Style.Plugin;
+using SuperControls.Style.Utils;
 using SuperControls.Style.Windows;
 using SuperControls.Style.XAML.CustomWindows;
 using SuperUtils.Common;
@@ -613,6 +614,16 @@ namespace SuperCom
             textEditor.Options = textEditorOptions;
             textEditor.ShowLineNumbers = ConfigManager.Main.ShowLineNumbers;
             textEditor.Language = XmlLanguage.GetLanguage(VisualHelper.ZH_CN);
+            // 字体
+            textEditor.FontFamily = new FontFamily(ConfigManager.Main.TextFontName);
+            // 颜色
+            if (!string.IsNullOrEmpty(ConfigManager.Main.TextForeground))
+            {
+                RGB rGB = ColorHelper.HexToRgb(new HEX(ConfigManager.Main.TextForeground));
+                textEditor.Foreground = new SolidColorBrush(Color.FromRgb(rGB.R, rGB.G, rGB.B));
+            }
+
+
             SearchPanel.Install(textEditor);
 
 
@@ -1521,7 +1532,41 @@ namespace SuperCom
             InitUpgrade();
             //CommonSettings.InitLogDir();
             OpenBeforePorts();
+            SetBaudRateAction();
 
+        }
+
+        public void SetBaudRateAction()
+        {
+            vieModel.OnBaudRatesChanged += (beforePorts) =>
+            {
+                if (vieModel.PortTabItems == null)
+                    return;
+                if (itemsControl == null || itemsControl.ItemsSource == null) return;
+                for (int i = 0; i < itemsControl.Items.Count; i++)
+                {
+                    ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                    if (presenter == null) continue;
+                    ComboBox comboBox = VisualHelper.FindElementByName<ComboBox>(presenter, "baudRateComboBox");
+                    if (comboBox == null || comboBox.Tag == null) continue;
+                    string portName = comboBox.Tag.ToString();
+                    PortTabItem portTabItem = beforePorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (portTabItem == null || portTabItem.SerialPort == null) continue;
+                    int number = portTabItem.SerialPort.BaudRate;
+                    bool found = false;
+                    for (int j = 0; j < comboBox.Items.Count; j++)
+                    {
+                        if (comboBox.Items[j].ToString().Equals(number.ToString()))
+                        {
+                            comboBox.SelectedIndex = j;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        comboBox.SelectedIndex = 0;
+                }
+            };
         }
 
 

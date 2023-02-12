@@ -19,9 +19,7 @@ namespace SuperCom.ViewModel
     public class VieModel_Main : ViewModelBase
     {
 
-
-
-
+        public Action<List<PortTabItem>> OnBaudRatesChanged;
         private static SqliteMapper<AdvancedSend> mapper { get; set; }
         private static SqliteMapper<ComSettings> comMapper { get; set; }
         private static SqliteMapper<ShortCutBinding> shortCutMapper { get; set; }
@@ -261,6 +259,15 @@ namespace SuperCom.ViewModel
         }
         public void LoadBaudRates()
         {
+            List<PortTabItem> beforePortTabItems = new List<PortTabItem>();
+            foreach (var item in PortTabItems)
+            {
+                PortTabItem portTabItem = new PortTabItem(item.Name, item.Connected);
+                portTabItem.SerialPort = new CustomSerialPort(item.Name, item.SerialPort.BaudRate, item.SerialPort.Parity, item.SerialPort.DataBits, item.SerialPort.StopBits);
+                beforePortTabItems.Add(portTabItem);
+            }
+
+
             BaudRates = new ObservableCollection<string>();
             List<string> baudrates = PortSetting.GetAllBaudRates();
             foreach (var item in baudrates)
@@ -280,6 +287,7 @@ namespace SuperCom.ViewModel
             ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(BaudRates);
             ConfigManager.Main.Save();
             BaudRates.Add("新增");
+            OnBaudRatesChanged?.Invoke(beforePortTabItems);
         }
 
         public void LoadSendCommands()

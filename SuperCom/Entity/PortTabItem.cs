@@ -335,7 +335,7 @@ namespace SuperCom.Entity
             if (string.IsNullOrEmpty(name))
                 name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
 
-            string dirName = CommonSettings.LogDir;
+            string dirName = ConfigManager.CommonSettings.LogSaveDir;
             if (string.IsNullOrEmpty(dirName))
                 dirName = CommonSettings.DEFAULT_LOG_SAVE_DIR;
             string logDir = GetDirByFormat(dirName);

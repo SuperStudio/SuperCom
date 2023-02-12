@@ -329,11 +329,16 @@ namespace SuperCom.Entity
         public string GetSaveFileName()
         {
             string format = ConfigManager.CommonSettings.LogNameFormat;
+            if (string.IsNullOrEmpty(format))
+                format = CommonSettings.DEFAULT_LOGNAMEFORMAT;
             string name = GetFileNameByFormat(format);
             if (string.IsNullOrEmpty(name))
                 name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
 
-            string logDir = GetDirByFormat(CommonSettings.LogDir);
+            string dirName = CommonSettings.LogDir;
+            if (string.IsNullOrEmpty(dirName))
+                dirName = CommonSettings.DEFAULT_LOG_SAVE_DIR;
+            string logDir = GetDirByFormat(dirName);
             if (string.IsNullOrEmpty(logDir))
                 logDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
             if (!Directory.Exists(logDir))

@@ -786,7 +786,10 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Click="Remark" Header="备注" />
+                                                    <MenuItem
+                                                        Click="Remark"
+                                                        Header="备注"
+                                                        Icon="/Resources/Pictures/remark.png" />
                                                     <MenuItem Click="HidePort" Header="隐藏" />
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
@@ -2335,7 +2338,6 @@
                                                     Width="130"
                                                     Margin="5,0"
                                                     VerticalAlignment="Center"
-                                                    Background="{DynamicResource Window.Title.Background}"
                                                     FontSize="12"
                                                     FontWeight="Bold"
                                                     ItemsSource="{Binding DataContext.HighlightingDefinitions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"

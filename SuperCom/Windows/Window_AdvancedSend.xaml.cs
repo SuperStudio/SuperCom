@@ -528,7 +528,7 @@ namespace SuperCom
             {
                 if (ConfigManager.AdvancedSendSettings.Height == SystemParameters.WorkArea.Height && ConfigManager.AdvancedSendSettings.Width < SystemParameters.WorkArea.Width)
                 {
-                    baseWindowState = 0;
+                    //baseWindowState = 0;
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     this.CanResize = true;
                 }
@@ -541,18 +541,18 @@ namespace SuperCom
                 }
 
 
-                baseWindowState = (BaseWindowState)ConfigManager.AdvancedSendSettings.WindowState;
-                if (baseWindowState == BaseWindowState.FullScreen)
-                {
-                    this.WindowState = System.Windows.WindowState.Maximized;
-                }
-                else if (baseWindowState == BaseWindowState.None)
-                {
-                    baseWindowState = 0;
-                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                }
-                if (this.Width == SystemParameters.WorkArea.Width
-                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+                //baseWindowState = (BaseWindowState)ConfigManager.AdvancedSendSettings.WindowState;
+                //if (baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    this.WindowState = System.Windows.WindowState.Maximized;
+                //}
+                //else if (baseWindowState == BaseWindowState.None)
+                //{
+                //    baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //}
+                //if (this.Width == SystemParameters.WorkArea.Width
+                //    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
             }
         }
 
@@ -562,7 +562,7 @@ namespace SuperCom
             ConfigManager.AdvancedSendSettings.Y = this.Top;
             ConfigManager.AdvancedSendSettings.Width = this.Width;
             ConfigManager.AdvancedSendSettings.Height = this.Height;
-            ConfigManager.AdvancedSendSettings.WindowState = (long)baseWindowState;
+            //ConfigManager.AdvancedSendSettings.WindowState = (long)baseWindowState;
             ConfigManager.AdvancedSendSettings.Save();
         }
 

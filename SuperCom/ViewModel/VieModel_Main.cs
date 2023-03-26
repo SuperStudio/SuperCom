@@ -186,6 +186,12 @@ namespace SuperCom.ViewModel
             get { return _MemoryUsed; }
             set { _MemoryUsed = value; RaisePropertyChanged(); }
         }
+        private bool _ShowSoft = true;
+        public bool ShowSoft
+        {
+            get { return _ShowSoft; }
+            set { _ShowSoft = value; RaisePropertyChanged(); }
+        }
 
         public AdvancedSend CurrentAdvancedSend { get; set; }
 
@@ -203,6 +209,13 @@ namespace SuperCom.ViewModel
         public void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
+            PortTabItems.CollectionChanged += (s, e) =>
+            {
+                if (PortTabItems != null && PortTabItems.Count > 0)
+                    ShowSoft = false;
+                else
+                    ShowSoft = true;
+            };
             InitPortData();
             if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory))
             {

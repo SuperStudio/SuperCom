@@ -5,6 +5,7 @@ using SuperUtils.NetWork;
 using SuperUtils.NetWork.Crawler;
 using SuperUtils.WPF.VieModel;
 using SuperUtils.WPF.VisualTools;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -12,6 +13,7 @@ namespace SuperCom.Upgrade
 {
     public static class UpgradeHelper
     {
+        public static Action OnBeforeCopyFile { get; set; }
         public static int AUTO_CHECK_UPGRADE_DELAY = 60 * 1000;
         public static void Init(Window parent)
         {
@@ -44,6 +46,10 @@ namespace SuperCom.Upgrade
             dialog_Upgrade.Closed += (s, e) =>
             {
                 WindowClosed = true;
+            };
+            dialog_Upgrade.OnCloseApp += () =>
+            {
+                OnBeforeCopyFile?.Invoke();
             };
             WindowClosed = false;
         }

@@ -3,7 +3,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-    xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
@@ -15,20 +14,19 @@
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     Loaded="BaseWindow_Loaded"
+    RestoreSize="False"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     mc:Ignorable="d">
 
     <super:BaseWindow.Resources>
 
-        <converter:OppositeBooleanConverter x:Key="OppositeBooleanConverter" />
         <ContextMenu x:Key="dataGridContextMenu">
             <MenuItem Header="移到顶部" />
             <MenuItem Header="移到底部" />
             <MenuItem Header="删除" />
         </ContextMenu>
 
-        <converter:BiggerWidthConverter x:Key="BiggerWidthConverter" />
     </super:BaseWindow.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -49,7 +47,7 @@
             VerticalAlignment="Top"
             Panel.ZIndex="10"
             Opacity="{Binding ElementName=logSlider, Path=Value}"
-            Visibility="{Binding ElementName=showLogCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}">
+            Visibility="{Binding ElementName=showLogCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
 
             <Border Effect="{StaticResource PopupDropShadowEffect}" Style="{StaticResource InfoBorder}" />
 
@@ -243,7 +241,7 @@
             Panel.ZIndex="10"
             Style="{StaticResource HoverSpliter}" />
 
-        <Grid Grid.Column="2" Visibility="{Binding ShowCurrentSendCommand, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">
+        <Grid Grid.Column="2" Visibility="{Binding ShowCurrentSendCommand, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -395,7 +393,7 @@
                     Content="添加命令" />
 
 
-                <StackPanel Orientation="Horizontal" Visibility="{Binding RunningCommands, Converter={StaticResource bool2VisibilityConverter}}">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding RunningCommands, Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock
                         Margin="5,0"
                         Style="{StaticResource BaseTextBlock}"

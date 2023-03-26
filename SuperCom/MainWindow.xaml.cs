@@ -59,17 +59,6 @@ namespace SuperCom
 
         public void Init()
         {
-            this.MaximumToNormal += (s, e) =>
-            {
-                MaxPath.Data = Geometry.Parse(PathData.MaxPath);
-                MaxMenuItem.Header = "最大化";
-            };
-
-            this.NormalToMaximum += (s, e) =>
-            {
-                MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
-                MaxMenuItem.Header = "窗口化";
-            };
             InitSqlite();
             ConfigManager.InitConfig(); // 读取配置
             // 注册 SuperUtils 异常事件
@@ -249,42 +238,6 @@ namespace SuperCom
         }
 
 
-        public new void MinWindow(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = System.Windows.WindowState.Minimized;
-        }
-
-
-        public void OnMaxWindow(object sender, RoutedEventArgs e)
-        {
-            this.MaxWindow(sender, e);
-        }
-
-        private void OnMoveWindow(object sender, MouseEventArgs e)
-        {
-            base.MoveWindow(sender, e);
-            //Border border = sender as Border;
-
-            ////移动窗口
-            //if (e.LeftButton == MouseButtonState.Pressed)
-            //{
-            //    if (baseWindowState == BaseWindowState.Maximized || (this.Width == SystemParameters.WorkArea.Width && this.Height == SystemParameters.WorkArea.Height))
-            //    {
-            //        baseWindowState = 0;
-            //        double fracWidth = e.GetPosition(border).X / border.ActualWidth;
-            //        this.Width = WindowSize.Width;
-            //        this.Height = WindowSize.Height;
-            //        this.WindowState = System.Windows.WindowState.Normal;
-            //        this.Left = e.GetPosition(border).X - border.ActualWidth * fracWidth;
-            //        this.Top = e.GetPosition(border).Y - border.ActualHeight / 2;
-            //        this.OnLocationChanged(EventArgs.Empty);
-            //        MaxPath.Data = Geometry.Parse(PathData.MaxPath);
-            //        MaxMenuItem.Header = "最大化";
-            //    }
-            //    this.DragMove();
-            //}
-        }
-
         private void SetPortSelected(object sender, MouseButtonEventArgs e)
         {
             CanDrageTabItem = false;
@@ -410,7 +363,8 @@ namespace SuperCom
                         SaveComSettings();
                         vieModel.PortTabItems.RemoveAt(idx);
                     }
-                    if (button != null) button.IsEnabled = true;
+                    if (button != null)
+                        button.IsEnabled = true;
                 }
             }
             catch (Exception ex)
@@ -637,7 +591,7 @@ namespace SuperCom
             if (portTabItem == null)
                 return false;
             CustomSerialPort serialPort = portTabItem.SerialPort;
-            if (serialPort != null && serialPort.IsOpen)
+            if (serialPort != null)
             {
                 bool success = await AsynClosePort(serialPort);
                 if (success)
@@ -1102,11 +1056,11 @@ namespace SuperCom
 
         private void OnMaxCurrentWindow(object sender, MouseButtonEventArgs e)
         {
-            //if (e.ClickCount > 1)
-            //{
-            //    MaxWindow(sender, new RoutedEventArgs());
-            //}
-            base.DragMoveWindow(sender, e);
+            //    //if (e.ClickCount > 1)
+            //    //{
+            //    //    MaxWindow(sender, new RoutedEventArgs());
+            //    //}
+            //    base.DragMoveWindow(sender, e);
         }
 
 
@@ -1170,7 +1124,7 @@ namespace SuperCom
 
         private void ShowSplitPopup(object sender, RoutedEventArgs e)
         {
-            panelSplitPopup.IsOpen = true;
+            //panelSplitPopup.IsOpen = true;
         }
 
         private void ShowContextMenu(object sender, MouseButtonEventArgs e)
@@ -1238,8 +1192,8 @@ namespace SuperCom
                     SplitPanel(SplitPanelType.None);
                 }
             }
-            panelSplitPopup.IsOpen = false;
-            MessageNotify.Info("开发中");
+            //panelSplitPopup.IsOpen = false;
+            //MessageNotify.Info("开发中");
         }
 
         private void SplitPanel(SplitPanelType type)
@@ -1331,7 +1285,7 @@ namespace SuperCom
             ConfigManager.Main.Y = this.Top;
             ConfigManager.Main.Width = this.Width;
             ConfigManager.Main.Height = this.Height;
-            ConfigManager.Main.WindowState = (long)baseWindowState;
+            //ConfigManager.Main.WindowState = (long)baseWindowState;
             ConfigManager.Main.SideGridWidth = SideGridColumn.ActualWidth;
             ConfigManager.Main.Save();
         }
@@ -1516,6 +1470,8 @@ namespace SuperCom
 
         private async void mainWindow_ContentRendered(object sender, EventArgs e)
         {
+            this.TopMenu = TopMenus;
+
             AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             InitThemeSelector();
@@ -1523,17 +1479,16 @@ namespace SuperCom
             ReadXshdList();// 自定义语法高亮
             LoadDonateConfig();
             await BackupData(); // 备份文件
-            //new Window_AdvancedSend().Show();
-            //Window_Setting setting = new Window_Setting();
-            //setting.Owner = this;
-            //setting.ShowDialog();
-            //OpenShortCut(null, null);
+                                //new Window_AdvancedSend().Show();
+                                //Window_Setting setting = new Window_Setting();
+                                //setting.Owner = this;
+                                //setting.ShowDialog();
+                                //OpenShortCut(null, null);
             LoadFontFamily();
             InitUpgrade();
             //CommonSettings.InitLogDir();
             OpenBeforePorts();
             SetBaudRateAction();
-
         }
 
         public void SetBaudRateAction()
@@ -1614,6 +1569,12 @@ namespace SuperCom
         public void InitUpgrade()
         {
             UpgradeHelper.Init(this);
+            UpgradeHelper.OnBeforeCopyFile += () =>
+            {
+                CloseAllPorts(null, null);
+                this.CloseToTaskBar = false;
+                this.Close();
+            };
             CheckUpgrade();
         }
 
@@ -1641,33 +1602,33 @@ namespace SuperCom
 
         public void InitThemeSelector()
         {
-            themeSelector.AddTransParentColor("TabItem.Background");
-            themeSelector.AddTransParentColor("Window.Title.Background");
-            themeSelector.AddTransParentColor("ListBoxItem.Background");
-            themeSelector.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
-            themeSelector.onThemeChanged += (ThemeIdx, ThemeID) =>
+            DefaultThemeSelector.AddTransParentColor("TabItem.Background");
+            DefaultThemeSelector.AddTransParentColor("Window.Title.Background");
+            DefaultThemeSelector.AddTransParentColor("Window.Side.Background");
+            DefaultThemeSelector.AddTransParentColor("Window.Side.Hover.Background");
+            DefaultThemeSelector.AddTransParentColor("ListBoxItem.Background");
+            DefaultThemeSelector.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
+            DefaultThemeSelector.onThemeChanged += (ThemeIdx, ThemeID) =>
             {
                 ConfigManager.Settings.ThemeIdx = ThemeIdx;
                 ConfigManager.Settings.ThemeID = ThemeID;
                 ConfigManager.Settings.Save();
             };
-            themeSelector.onBackGroundImageChanged += (image) =>
+            DefaultThemeSelector.onBackGroundImageChanged += (image) =>
             {
-                BgImage.Source = image;
+                DefaultBgImage.Source = image;
             };
-            themeSelector.onSetBgColorTransparent += () =>
+            DefaultThemeSelector.onSetBgColorTransparent += () =>
            {
-               if (itemsControl == null || itemsControl.ItemsSource == null) return;
-               TitleBorder.Background = Brushes.Transparent;
+               DefaultTitleBorder.Background = Brushes.Transparent;
            };
 
-            themeSelector.onReSetBgColorBinding += () =>
+            DefaultThemeSelector.onReSetBgColorBinding += () =>
             {
-                if (itemsControl == null || itemsControl.ItemsSource == null) return;
-                TitleBorder.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
+                DefaultTitleBorder.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
             };
 
-            themeSelector.InitThemes();
+            DefaultThemeSelector.InitThemes();
         }
 
 
@@ -1712,7 +1673,7 @@ namespace SuperCom
             {
                 if (ConfigManager.Main.Height == SystemParameters.WorkArea.Height && ConfigManager.Main.Width < SystemParameters.WorkArea.Width)
                 {
-                    baseWindowState = 0;
+                    //baseWindowState = 0;
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     this.CanResize = true;
                 }
@@ -1725,24 +1686,24 @@ namespace SuperCom
                 }
 
 
-                baseWindowState = (BaseWindowState)ConfigManager.Main.WindowState;
-                if (baseWindowState == BaseWindowState.FullScreen)
-                {
-                    this.WindowState = System.Windows.WindowState.Maximized;
-                }
-                else if (baseWindowState == BaseWindowState.None)
-                {
-                    baseWindowState = 0;
-                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                }
-                if (this.Width == SystemParameters.WorkArea.Width
-                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+                //baseWindowState = (BaseWindowState)ConfigManager.Main.WindowState;
+                //if (baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    this.WindowState = System.Windows.WindowState.Maximized;
+                //}
+                //else if (baseWindowState == BaseWindowState.None)
+                //{
+                //    baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ////}
+                //if (this.Width == SystemParameters.WorkArea.Width
+                //    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
 
-                if (baseWindowState == BaseWindowState.Maximized || baseWindowState == BaseWindowState.FullScreen)
-                {
-                    MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
-                    MaxMenuItem.Header = "窗口化";
-                }
+                //if (baseWindowState == BaseWindowState.Maximized || baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
+                //    MaxMenuItem.Header = "窗口化";
+                //}
 
 
             }
@@ -2459,12 +2420,12 @@ namespace SuperCom
             config.PluginBaseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
             config.RemoteUrl = UrlManager.GetPluginUrl();
             // 读取本地配置
-            window_Plugin.OnEnabledChange += (enabled) =>
+            window_Plugin.OnEnabledChange += (data, enabled) =>
             {
                 return true;
             };
 
-            window_Plugin.OnDelete += (data) =>
+            window_Plugin.OnBeginDelete += (data) =>
             {
                 return true;
             };
@@ -2767,7 +2728,7 @@ namespace SuperCom
                     break;
                 case 3:
                     // 全屏
-                    this.MaxWindow(null, null);
+                    //this.MaxWindow(null, null);
 
                     break;
                 case 4:
@@ -3579,6 +3540,12 @@ namespace SuperCom
 
 
 
+        }
+
+        private void pinToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (ConfigManager.Settings.HintWhenPin)
+                MessageNotify.Info("固定当前日志（日志仍在收集）");
         }
     }
 }

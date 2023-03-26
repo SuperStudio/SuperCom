@@ -1,5 +1,4 @@
 ﻿using SuperCom.Config;
-using SuperCom.Log;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.Sql;

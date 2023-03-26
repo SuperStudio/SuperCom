@@ -61,7 +61,7 @@ namespace SuperCom
             ShortCutBindingList = ShortCutBindings.ToList();
             dataGrid.ItemsSource = ShortCutBindings;
 
-            Window window = WindowHelper.GetWindowByName("MainWindow", App.Current.Windows);
+            Window window = SuperUtils.WPF.VisualTools.WindowHelper.GetWindowByName("MainWindow", App.Current.Windows);
             if (window != null && window is MainWindow w)
             {
                 mainWindow = w;

@@ -103,7 +103,7 @@ namespace SuperCom
             {
                 if (ConfigManager.Settings.Height == SystemParameters.WorkArea.Height && ConfigManager.Settings.Width < SystemParameters.WorkArea.Width)
                 {
-                    baseWindowState = 0;
+                    //baseWindowState = 0;
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     this.CanResize = true;
                 }
@@ -116,18 +116,18 @@ namespace SuperCom
                 }
 
 
-                baseWindowState = (BaseWindowState)ConfigManager.Settings.WindowState;
-                if (baseWindowState == BaseWindowState.FullScreen)
-                {
-                    this.WindowState = System.Windows.WindowState.Maximized;
-                }
-                else if (baseWindowState == BaseWindowState.None)
-                {
-                    baseWindowState = 0;
-                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                }
-                if (this.Width == SystemParameters.WorkArea.Width
-                    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+                //baseWindowState = (BaseWindowState)ConfigManager.Settings.WindowState;
+                //if (baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    this.WindowState = System.Windows.WindowState.Maximized;
+                //}
+                //else if (baseWindowState == BaseWindowState.None)
+                //{
+                //    baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //}
+                //if (this.Width == SystemParameters.WorkArea.Width
+                //    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
             }
         }
 
@@ -137,7 +137,7 @@ namespace SuperCom
             ConfigManager.Settings.Y = this.Top;
             ConfigManager.Settings.Width = this.Width;
             ConfigManager.Settings.Height = this.Height;
-            ConfigManager.Settings.WindowState = (long)baseWindowState;
+            //ConfigManager.Settings.WindowState = (long)baseWindowState;
             ConfigManager.Settings.AutoBackup = vieModel.AutoBackup;
             ConfigManager.Settings.AutoBackupPeriodIndex = vieModel.AutoBackupPeriodIndex;
             ConfigManager.Settings.Save();

@@ -190,7 +190,7 @@
                                     Margin="10,0"
                                     DotSize="3"
                                     Foreground="{DynamicResource Window.Foreground}"
-                                    Visibility="{Binding AddingPort, Converter={StaticResource bool2VisibilityConverter}}" />
+                                    Visibility="{Binding AddingPort, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <TextBlock VerticalAlignment="Center" Text="确认" />
                             </StackPanel>
                         </Button>
@@ -314,7 +314,7 @@
                         Margin="10,0"
                         DotSize="3"
                         Foreground="{DynamicResource Window.Foreground}"
-                        Visibility="{Binding ListingPort, Converter={StaticResource bool2VisibilityConverter}}" />
+                        Visibility="{Binding ListingPort, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <TextBlock
                         Margin="0"
                         VerticalAlignment="Center"
@@ -330,7 +330,7 @@
             Panel.ZIndex="10"
             Opacity="0.7"
             Style="{StaticResource InfoBorder}"
-            Visibility="{Binding DeletingPort, Converter={StaticResource bool2VisibilityConverter}, FallbackValue=Hidden}">
+            Visibility="{Binding DeletingPort, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}">
             <StackPanel
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
@@ -682,7 +682,7 @@
             <super:LoadingCircle
                 Width="30"
                 Height="30"
-                Visibility="{Binding Saving, Converter={StaticResource bool2VisibilityConverter}}" />
+                Visibility="{Binding Saving, Converter={StaticResource BoolToVisibilityConverter}}" />
             <Button
                 MinWidth="80"
                 Margin="20,10"

@@ -1,7 +1,6 @@
 
 using SuperCom.Config;
 using SuperCom.Entity;
-using SuperCom.Log;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;

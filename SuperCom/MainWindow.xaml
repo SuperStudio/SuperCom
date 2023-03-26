@@ -20,7 +20,9 @@
     ContentRendered="mainWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     Icon="pack://application:,,,/Resources/Ico/Icon_64.png"
-    TitleHeight="0"
+    ShowThemeSelector="True"
+    TitleHeight="30"
+    TitleMargin="5 0"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
@@ -57,13 +59,6 @@
     </super:BaseWindow.Resources>
 
     <Grid>
-        <Image
-            x:Name="BgImage"
-            Margin="0"
-            Source="{x:Null}"
-            Stretch="UniformToFill" />
-
-
         <Popup
             x:Name="ForegroundPopup"
             AllowsTransparency="True"
@@ -98,12 +93,84 @@
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
 
             </Grid.RowDefinitions>
-            <Grid
+
+            <Grid>
+                <Menu x:Name="TopMenus">
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="文件"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem Click="OpenLog" Header="加载日志" />
+                        <MenuItem
+                            Click="SaveLog"
+                            Header="日志另存为"
+                            Icon="/Resources/Pictures/save.png" />
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="编辑"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Header="自动换行"
+                            IsCheckable="True"
+                            IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Name="FontMenuItem"
+                            Header="字体"
+                            IsCheckable="False" />
+                        <MenuItem
+                            Click="OpenForegroundSelected"
+                            Header="字体颜色"
+                            IsCheckable="False" />
+                        <MenuItem
+                            Click="SetTextViewReturn"
+                            Header="显示换行符"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewSpace"
+                            Header="显示空格"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewTab"
+                            Header="显示Tab"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewLineNumber"
+                            Header="显示行号"
+                            IsCheckable="True"
+                            IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextHighLightCurrent"
+                            Header="高亮选中行"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="视图"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Name="sideGridMenuItem"
+                            Click="HideSide"
+                            Header="侧边栏"
+                            IsCheckable="True"
+                            IsChecked="True" />
+                        <!--<MenuItem
+                                            Header="右侧功能栏"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
+
+                    </MenuItem>
+                </Menu>
+            </Grid>
+            <!--<Grid
                 x:Name="TitleBorder"
                 Grid.Row="0"
                 Background="{DynamicResource Window.Title.Background}">
@@ -146,84 +213,7 @@
                             <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding ElementName=mainWindow, Path=Title}" />
 
                         </StackPanel>
-                        <StackPanel
-                            Grid.Column="1"
-                            Margin="20,2"
-                            Orientation="Horizontal">
-                            <Menu>
-                                <MenuItem
-                                    Background="{DynamicResource Window.Title.Background}"
-                                    Header="文件"
-                                    Style="{StaticResource TopMenuItemStyle}">
-                                    <MenuItem Click="OpenLog" Header="加载日志" />
-                                    <MenuItem
-                                        Click="SaveLog"
-                                        Header="日志另存为"
-                                        Icon="/Resources/Pictures/save.png" />
-                                </MenuItem>
-                                <MenuItem
-                                    Background="{DynamicResource Window.Title.Background}"
-                                    Header="编辑"
-                                    Style="{StaticResource TopMenuItemStyle}">
-                                    <MenuItem
-                                        Header="自动换行"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
-                                    <MenuItem
-                                        Name="FontMenuItem"
-                                        Header="字体"
-                                        IsCheckable="False" />
-                                    <MenuItem
-                                        Click="OpenForegroundSelected"
-                                        Header="字体颜色"
-                                        IsCheckable="False" />
-                                    <MenuItem
-                                        Click="SetTextViewReturn"
-                                        Header="显示换行符"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
-                                    <MenuItem
-                                        Click="SetTextViewSpace"
-                                        Header="显示空格"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
-                                    <MenuItem
-                                        Click="SetTextViewTab"
-                                        Header="显示Tab"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
-                                    <MenuItem
-                                        Click="SetTextViewLineNumber"
-                                        Header="显示行号"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
-                                    <MenuItem
-                                        Click="SetTextHighLightCurrent"
-                                        Header="高亮选中行"
-                                        IsCheckable="True"
-                                        IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
-                                </MenuItem>
-                                <MenuItem
-                                    Background="{DynamicResource Window.Title.Background}"
-                                    Header="视图"
-                                    Style="{StaticResource TopMenuItemStyle}">
-                                    <MenuItem
-                                        Name="sideGridMenuItem"
-                                        Click="HideSide"
-                                        Header="侧边栏"
-                                        IsCheckable="True"
-                                        IsChecked="True" />
-                                    <!--<MenuItem
-                                            Header="右侧功能栏"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
 
-                                </MenuItem>
-                            </Menu>
-
-
-
-                        </StackPanel>
                     </Grid>
 
 
@@ -627,8 +617,8 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-            </Grid>
-            <Grid Grid.Row="1">
+            </Grid>-->
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition
                         Name="SideGridColumn"
@@ -642,7 +632,7 @@
                 <Grid
                     Grid.ColumnSpan="10"
                     Panel.ZIndex="99"
-                    Visibility="{Binding DoingLongWork, Converter={StaticResource bool2VisibilityConverter}, FallbackValue=Collapsed}">
+                    Visibility="{Binding DoingLongWork, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
                     <Border Background="{DynamicResource Window.Title.Background}" Opacity="0.7" />
                     <Grid>
                         <Border
@@ -685,7 +675,7 @@
                                 Margin="5"
                                 MouseLeftButtonUp="RefreshPortsStatus"
                                 Style="{StaticResource RoundHoverBorder}">
-                                <Viewbox Width="auto" Height="13">
+                                <Viewbox Width="auto" Height="14">
                                     <Path
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -706,7 +696,10 @@
                                         <MenuItem Click="ShowAllHidePort" Header="显示隐藏的串口" />
                                     </ContextMenu>
                                 </Border.ContextMenu>
-                                <Viewbox Width="auto" Height="16">
+                                <Viewbox
+                                    Width="auto"
+                                    Height="14"
+                                    Margin="-2,-2,0,0">
                                     <Path
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -736,7 +729,7 @@
                                             Tag="PortName" />
                                     </ContextMenu>
                                 </Border.ContextMenu>
-                                <Viewbox Width="auto" Height="15">
+                                <Viewbox Width="auto" Height="14">
                                     <Path
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
@@ -1357,6 +1350,58 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
+                    <StackPanel
+                        Grid.RowSpan="2"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Orientation="Vertical"
+                        Visibility="{Binding ShowSoft, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <Image
+                            Grid.Row="0"
+                            Height="128"
+                            Margin="10"
+                            Source="pack://application:,,,/Resources/Ico/ICON_256.ico">
+                            <Image.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </Image.Effect>
+                        </Image>
+                        <TextBlock
+                            Grid.Row="1"
+                            FontSize="25"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="欢迎使用 SuperCom">
+                            <TextBlock.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="2"
+                            FontSize="15"
+                            Foreground="{DynamicResource Window.Sub.Foreground}"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="@SuperStudio Copyright © 2022">
+                            <TextBlock.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </StackPanel>
+
                     <!--  选项 tabitem 栏  -->
                     <ScrollViewer
                         Grid.Row="0"
@@ -1456,11 +1501,11 @@
                                                 TextWrapping="WrapWithOverflow" />
                                             <TextBlock
                                                 Grid.Column="2"
+                                                MaxWidth="50"
                                                 Margin="0"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 FontSize="12"
-                                                MaxWidth="50"
                                                 Foreground="{DynamicResource Window.Sub.Foreground}"
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Remark}"
@@ -1473,7 +1518,7 @@
                                                     Background="Transparent"
                                                     BorderBrush="{StaticResource TabItem.Selected.Background}"
                                                     PreviewMouseLeftButtonDown="PinTabItem"
-                                                    Visibility="{Binding Pinned, Converter={StaticResource bool2VisibilityConverter}}">
+                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Button
                                                         Width="25"
                                                         Height="25"
@@ -1548,7 +1593,7 @@
                                     Name="baseGrid"
                                     PreviewKeyDown="baseGrid_PreviewKeyDown"
                                     Tag="{Binding Name}"
-                                    Visibility="{Binding Selected, Converter={StaticResource bool2VisibilityConverter}}">
+                                    Visibility="{Binding Selected, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" MinHeight="100" />
                                         <RowDefinition Height="5" />
@@ -1598,7 +1643,7 @@
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
                                             Visibility="Collapsed">
-                                            <!--  Visibility="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">  -->
+                                            <!--  Visibility="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">  -->
                                             <StackPanel
                                                 Grid.Column="1"
                                                 HorizontalAlignment="Right"
@@ -1847,7 +1892,7 @@
                                                                                     Click="DrawMonitorPicture"
                                                                                     Content="制图"
                                                                                     Style="{StaticResource ButtonPrimary}"
-                                                                                    Visibility="{Binding CanDrawImage, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}" />
+                                                                                    Visibility="{Binding CanDrawImage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                                                                             </StackPanel>
                                                                         </DataTemplate>
                                                                     </DataGridTemplateColumn.CellTemplate>
@@ -1987,6 +2032,7 @@
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
                                                     Background="Transparent"
+                                                    Checked="pinToggleButton_Checked"
                                                     IsChecked="{Binding FixedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     Style="{StaticResource FlatToggleButton}"
                                                     ToolTip="固定/滚屏">
@@ -2719,7 +2765,7 @@
             </Grid>
 
             <Grid
-                Grid.Row="2"
+                Grid.Row="1"
                 Height="30"
                 Background="{DynamicResource Window.StatusBar.Background}"
                 Visibility="Collapsed">

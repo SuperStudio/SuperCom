@@ -8,7 +8,7 @@ namespace SuperCom.Config
     {
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
 
-        public const string RELEASE_DATE = "2023-02-12";
+        public const string RELEASE_DATE = "2023-03-26";
         public static Main Main { get; set; }
         public static CommonSettings CommonSettings { get; set; }
         public static Settings Settings { get; set; }

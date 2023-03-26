@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:config="clr-namespace:SuperCom.Config;assembly=SuperCom"
-    xmlns:converter="clr-namespace:SuperUtils.Converter;assembly=SuperUtils"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:localConverter="clr-namespace:SuperCom.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -25,8 +24,8 @@
 
     <super:BaseWindow.Resources>
         <localConverter:ColorToBrushConverter x:Key="ColorToBrushConverter" />
-        <converter:BiggerWidthConverter x:Key="BiggerWidthConverter" />
         <localConverter:RuleTypeEnumConverter x:Key="RuleTypeEnumConverter" />
+        <Style BasedOn="{StaticResource NormalCheckBox}" TargetType="CheckBox" />
     </super:BaseWindow.Resources>
     <Grid>
 
@@ -42,12 +41,74 @@
             Style="{StaticResource FlatTabControl}">
             <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
                 <StackPanel Orientation="Vertical">
-                    <CheckBox
-                        Margin="10,20,5,5"
-                        HorizontalAlignment="Left"
-                        Content="{DynamicResource CloseToBar}"
-                        IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="基本" />
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="5"
+                            Orientation="Vertical">
+                            <CheckBox Content="{DynamicResource CloseToBar}" IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox Content="{DynamicResource FixAfterSendCommand}" IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox Content="固定滚屏时弹出提示" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox Content="日志分片" IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}" />
+                                <super:Slider
+                                    Name="logFragSlider"
+                                    Width="300"
+                                    Margin="20,0"
+                                    LargeChange="5"
+                                    Maximum="150"
+                                    Minimum="1"
+                                    SmallChange="1"
+                                    Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Value="{Binding LogFragSize, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <TextBlock
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="{Binding ElementName=logFragSlider, Path=Value, StringFormat={}{0}\ MB}"
+                                    Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+
+                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="内存上限" />
+                                <Border
+                                    Width="25"
+                                    Height="25"
+                                    Margin="0"
+                                    Padding="0"
+                                    VerticalAlignment="Stretch"
+                                    Background="Transparent"
+                                    ToolTip="超过上限后，文本框中的内容自动清空（硬盘日志保留）">
+                                    <Viewbox Width="auto" Height="14">
+                                        <Path
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
+                                            Fill="{DynamicResource Window.Foreground}" />
+                                    </Viewbox>
+                                </Border>
+                                <super:Slider
+                                    Width="300"
+                                    Margin="13,0"
+                                    LargeChange="100"
+                                    Maximum="2048"
+                                    Minimum="256"
+                                    SmallChange="10"
+                                    Value="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0}\ MB}" />
+
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Grid>
+
                     <!--<CheckBox
                         Margin="10,5"
                         HorizontalAlignment="Left"
@@ -60,107 +121,51 @@
                         Content="{DynamicResource ScrollOnNotSearching}"
                         IsChecked="{Binding ScrollOnSearchClosed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource NormalCheckBox}" />-->
-                    <CheckBox
-                        Margin="10,5"
-                        HorizontalAlignment="Left"
-                        Content="{DynamicResource FixAfterSendCommand}"
-                        IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />
 
-                    <StackPanel Margin="10,5" Orientation="Horizontal">
-                        <CheckBox
-                            Name="logFragCheckBox"
-                            Margin="0,5"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Content="日志分片"
-                            IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}"
-                            Style="{StaticResource NormalCheckBox}" />
-                        <super:Slider
-                            Name="logFragSlider"
-                            Width="300"
-                            Margin="20,0"
-                            LargeChange="5"
-                            Maximum="150"
-                            Minimum="1"
-                            SmallChange="1"
-                            Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}"
-                            Value="{Binding LogFragSize, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <TextBlock
-                            Style="{StaticResource BaseTextBlock}"
-                            Text="{Binding ElementName=logFragSlider, Path=Value, StringFormat={}{0}\ MB}"
-                            Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource bool2VisibilityConverter}}" />
-
-                    </StackPanel>
-                    <StackPanel Margin="10,5" Orientation="Horizontal">
-                        <Border
-                            Width="25"
-                            Height="25"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            Background="Transparent"
-                            ToolTip="超过上限后，文本框中的内容自动清空（硬盘日志保留）">
-                            <Viewbox Width="auto" Height="14">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Border>
-                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="内存上限" />
-                        <super:Slider
-                            Width="300"
-                            Margin="20,0"
-                            LargeChange="100"
-                            Maximum="2048"
-                            Minimum="256"
-                            SmallChange="10"
-                            Value="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding MemoryLimit, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0}\ MB}" />
-
-                    </StackPanel>
                     <CheckBox
                         Margin="10"
                         Content="{DynamicResource CloseToBar}"
                         Style="{StaticResource NormalCheckBox}"
                         Visibility="Collapsed" />
 
-                    <StackPanel Margin="15,5" Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource Language}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Margin="20,15,40,10"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource Language}" />
                         <ComboBox
                             Name="langComboBox"
                             Grid.Column="1"
                             Height="30"
                             MinWidth="200"
                             Margin="5"
-                            HorizontalAlignment="Stretch"
+                            HorizontalAlignment="Left"
                             Style="{StaticResource BorderComboBox}">
                             <ComboBoxItem Content="中文" Tag="zh-CN" />
                             <ComboBoxItem Content="English" Tag="en-US" />
                             <ComboBoxItem Content="日本語" Tag="ja-JP" />
                         </ComboBox>
-                    </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Border
-                        Margin="10"
-                        Padding="5"
-                        Background="{DynamicResource Control.Background}"
-                        CornerRadius="10">
-                        <StackPanel Orientation="Vertical">
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="备份" />
+                        <StackPanel
+                            Grid.Column="5"
+                            Margin="5"
+                            Orientation="Vertical">
+                            <CheckBox Content="{DynamicResource AutoBackLibrary}" IsChecked="{Binding AutoBackup, Mode=TwoWay}" />
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox
-                                    HorizontalAlignment="Left"
-                                    Content="{DynamicResource AutoBackLibrary}"
-                                    IsChecked="{Binding AutoBackup, Mode=TwoWay}"
-                                    Style="{StaticResource NormalCheckBox}" />
-                                <TextBlock
-                                    Margin="20,0,0,0"
-                                    Style="{StaticResource BaseTextBlock}"
-                                    Text="{DynamicResource BackUpPeriodDay}" />
+                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource BackUpPeriodDay}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     Height="30"
@@ -183,88 +188,97 @@
                                     Style="{StaticResource BorderButton}" />
                             </StackPanel>
                         </StackPanel>
-                    </Border>
+                    </Grid>
+
 
                 </StackPanel>
             </TabItem>
             <TabItem Header="串口设置" Style="{StaticResource FlatTabItem}">
                 <StackPanel Margin="10">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            Margin="10"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource BaseTextBlock}"
-                            Text="波特率设置" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                        <Border
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="波特率" />
+                        <StackPanel
+                            Grid.Column="1"
                             Margin="5"
-                            MouseLeftButtonUp="AddNewBaudRate"
-                            Style="{StaticResource RoundHoverBorder}"
-                            ToolTip="新增">
-                            <Viewbox Width="auto" Height="13">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M925.696 384q19.456 0 37.376 7.68t30.72 20.48 20.48 30.72 7.68 37.376q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68l-287.744 0 0 287.744q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888l0-287.744-287.744 0q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68l287.744 0 0-287.744q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68q39.936 0 68.096 28.16t28.16 68.096l0 287.744 287.744 0z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Border>
-                    </StackPanel>
-                    <ListBox
-                        Grid.Row="1"
-                        MinWidth="200"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        HorizontalContentAlignment="Stretch"
-                        d:ItemsSource="{d:SampleData ItemCount=5}"
-                        Background="{DynamicResource Window.Side.Background}"
-                        ItemContainerStyle="{StaticResource NormalListBoxItem}"
-                        ItemsSource="{Binding BaudRates}"
-                        Style="{StaticResource NormalListBox}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Background="Transparent">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock
-                                        Grid.Column="0"
-                                        Padding="5,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        Background="Transparent"
-                                        Style="{StaticResource BaseTextBlock}"
-                                        Text="{Binding .}" />
-                                    <Border
-                                        Grid.Column="1"
-                                        Background="Transparent"
-                                        BorderBrush="{StaticResource TabItem.Selected.Background}">
-                                        <Button
-                                            Width="20"
-                                            Height="20"
-                                            Margin="5"
-                                            HorizontalAlignment="Right"
-                                            super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
-                                            Click="DeleteBaudRate"
-                                            Style="{StaticResource RoundNormalButton}"
-                                            Tag="{Binding .}"
-                                            Visibility="Visible">
-                                            <Viewbox
-                                                Width="10"
-                                                Height="auto"
-                                                VerticalAlignment="Center">
-                                                <Path
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                    Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                            </Viewbox>
-                                        </Button>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                            Orientation="Vertical">
+                            <Border
+                                Margin="5"
+                                HorizontalAlignment="Left"
+                                MouseLeftButtonUp="AddNewBaudRate"
+                                Style="{StaticResource RoundHoverBorder}"
+                                ToolTip="新增">
+                                <Viewbox Width="auto" Height="13">
+                                    <Path
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Data="M925.696 384q19.456 0 37.376 7.68t30.72 20.48 20.48 30.72 7.68 37.376q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68l-287.744 0 0 287.744q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888l0-287.744-287.744 0q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68l287.744 0 0-287.744q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68q39.936 0 68.096 28.16t28.16 68.096l0 287.744 287.744 0z"
+                                        Fill="{DynamicResource Window.Foreground}" />
+                                </Viewbox>
+                            </Border>
+                            <ListBox
+                                Grid.Row="1"
+                                MinWidth="200"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                HorizontalContentAlignment="Stretch"
+                                d:ItemsSource="{d:SampleData ItemCount=5}"
+                                Background="{DynamicResource Window.Side.Background}"
+                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
+                                ItemsSource="{Binding BaudRates}"
+                                Style="{StaticResource NormalListBox}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Padding="5,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                Background="Transparent"
+                                                Style="{StaticResource BaseTextBlock}"
+                                                Text="{Binding .}" />
+                                            <Border
+                                                Grid.Column="1"
+                                                Background="Transparent"
+                                                BorderBrush="{StaticResource TabItem.Selected.Background}">
+                                                <Button
+                                                    Width="20"
+                                                    Height="20"
+                                                    Margin="5"
+                                                    HorizontalAlignment="Right"
+                                                    super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
+                                                    Click="DeleteBaudRate"
+                                                    Style="{StaticResource RoundNormalButton}"
+                                                    Tag="{Binding .}"
+                                                    Visibility="Visible">
+                                                    <Viewbox
+                                                        Width="10"
+                                                        Height="auto"
+                                                        VerticalAlignment="Center">
+                                                        <Path
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
+                                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
+                                                    </Viewbox>
+                                                </Button>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+
+                        </StackPanel>
+                    </Grid>
 
 
                 </StackPanel>
@@ -273,73 +287,99 @@
             <TabItem Header="日志" Style="{StaticResource FlatTabItem}">
 
                 <StackPanel Margin="5,15" Orientation="Vertical">
-
-                    <TextBlock
-                        Margin="5"
-                        HorizontalAlignment="Left"
-                        FontWeight="Bold"
-                        Style="{StaticResource BaseTextBlock}"
-                        Text="保存目录（绝对路径）" />
-
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <super:SearchBox
-                            Name="saveDirBox"
-                            Margin="0,10"
-                            Background="{DynamicResource Window.Side.Background}"
-                            Text="{Binding LogSaveDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                        <Button
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="存储" />
+                        <StackPanel
                             Grid.Column="1"
-                            Margin="10"
-                            BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                            Click="SelectLogSaveDir"
-                            Content="选择文件夹"
-                            Style="{StaticResource BorderButton}" />
-                    </Grid>
-
-                    <TextBlock
-                        Margin="5"
-                        HorizontalAlignment="Left"
-                        FontWeight="Bold"
-                        Style="{StaticResource BaseTextBlock}"
-                        Text="格式化文件名" />
-
-                    <super:SearchBox
-                        Name="searchBox"
-                        Margin="0,10"
-                        Background="{DynamicResource Window.Side.Background}"
-                        PreviewTextInput="searchBox_PreviewTextInput"
-                        Text="{Binding LogNameFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <Border
-                        Margin="5"
-                        Background="{DynamicResource Window.Title.Background}"
-                        BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                        BorderThickness="4,0,0,0"
-                        CornerRadius="5">
-                        <StackPanel Orientation="Vertical">
+                            Margin="5"
+                            Orientation="Vertical">
                             <TextBlock
-                                Margin="10"
+                                Margin="5"
                                 HorizontalAlignment="Left"
+                                FontWeight="Bold"
                                 Style="{StaticResource BaseTextBlock}"
-                                Text="%C 串口名" />
-                            <TextBlock
-                                Margin="10"
-                                HorizontalAlignment="Left"
-                                Style="{StaticResource BaseTextBlock}"
-                                Text="%R 备注名" />
-                            <TextBlock
-                                Margin="10"
-                                HorizontalAlignment="Left"
-                                Style="{StaticResource BaseTextBlock}"
-                                Text="%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒" />
+                                Text="保存目录（绝对路径）" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <super:SearchBox
+                                    Name="saveDirBox"
+                                    Margin="0,10"
+                                    Background="{DynamicResource Window.Side.Background}"
+                                    Text="{Binding LogSaveDir, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <Button
+                                    Grid.Column="1"
+                                    Margin="10"
+                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                    Click="SelectLogSaveDir"
+                                    Content="选择文件夹"
+                                    Style="{StaticResource BorderButton}" />
+                            </Grid>
+
                         </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    </Border>
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="格式" />
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="5"
+                            Orientation="Vertical">
+                            <TextBlock
+                                Margin="5"
+                                HorizontalAlignment="Left"
+                                FontWeight="Bold"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="文件名" />
+
+                            <super:SearchBox
+                                Name="searchBox"
+                                Margin="0,10"
+                                Background="{DynamicResource Window.Side.Background}"
+                                PreviewTextInput="searchBox_PreviewTextInput"
+                                Text="{Binding LogNameFormat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <Border
+                                Margin="5"
+                                Background="{DynamicResource Window.Title.Background}"
+                                BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
+                                BorderThickness="4,0,0,0"
+                                CornerRadius="5">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="%C 串口名" />
+                                    <TextBlock
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="%R 备注名" />
+                                    <TextBlock
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒" />
+                                </StackPanel>
+
+                            </Border>
+
+
+                        </StackPanel>
+                    </Grid>
 
 
                 </StackPanel>
@@ -463,7 +503,7 @@
                         <Grid
                             Grid.Column="2"
                             Background="{DynamicResource Window.Detail.Background}"
-                            Visibility="{Binding ShowCurrentRule, Mode=OneWay, Converter={StaticResource bool2VisibilityConverter}}">
+                            Visibility="{Binding ShowCurrentRule, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="*" />
@@ -764,6 +804,12 @@
                 </Grid>
             </TabItem>
 
+            <TabItem
+                Header="{DynamicResource Show}"
+                Style="{StaticResource FlatTabItem}"
+                Visibility="Collapsed">
+                <StackPanel Orientation="Vertical" />
+            </TabItem>
 
         </TabControl>
 

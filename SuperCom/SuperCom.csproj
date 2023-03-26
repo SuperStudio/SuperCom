@@ -139,7 +139,6 @@
     <Compile Include="Entity\VarMonitor.cs" />
     <Compile Include="Entity\VirtualPort.cs" />
     <Compile Include="Lang\LangManager.cs" />
-    <Compile Include="Log\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />

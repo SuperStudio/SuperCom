@@ -11,11 +11,11 @@
 [![Star](https://img.shields.io/github/stars/SuperStudio/SuperCom?label=Star%20this%20repo)](https://github.com/SuperStudio/SuperCom)
 [![Fork](https://img.shields.io/github/forks/SuperStudio/SuperCom?label=Fork%20this%20repo)](https://github.com/SuperStudio/SuperCom/fork)
 
-SuperCom 是一款**串口调试工具**，用于 Window 串口的调试
+SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集、存储、可视化等功能。**免费开源！**
 
 下载地址：[点此下载](https://github.com/SuperStudio/SuperCom/releases)
 
-<img src="Image/image-20220828232341836.png" alt="image-20220828232341836" style="zoom:80%;" />
+<img src="Image/Snipaste_2023-04-11_08-24-53.png" alt="Snipaste_2023-04-11_08-24-53" style="zoom:80%;" />
 
 # 关于
 
@@ -34,7 +34,7 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 <img src="Image/image-20230109234347852.png" alt="image-20230109234347852" style="zoom:80%;" />
 
-可自定义
+可自定义语法高亮
 
 <img src="Image/image-20230109234412138.png" alt="image-20230109234412138" style="zoom:80%;" />
 
@@ -95,7 +95,7 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 工具来源于：[com0com](https://sourceforge.net/p/com0com/)
 
-命令行用法
+该工具命令行用法如下
 
 ```
 Usage:

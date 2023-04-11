@@ -15,7 +15,7 @@ SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集�
 
 下载地址：[点此下载](https://github.com/SuperStudio/SuperCom/releases)
 
-<img src="Image/Snipaste_2023-04-11_08-24-53.png" alt="Snipaste_2023-04-11_08-24-53" style="zoom:80%;" />
+<img src="Image/Snipaste_2023-04-11_08-24-53-16811737714532.png" alt="Snipaste_2023-04-11_08-24-53" style="zoom:80%;" />
 
 # 关于
 

@@ -147,8 +147,8 @@ namespace SuperCom
 
         private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
         {
-            DialogInput input = new DialogInput(this, "请输入波特率");
-            if ((bool)input.ShowDialog())
+            DialogInput input = new DialogInput("请输入波特率");
+            if ((bool)input.ShowDialog(this))
             {
                 string text = input.Text;
                 bool success = int.TryParse(text, out int baudRate);

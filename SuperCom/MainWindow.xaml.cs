@@ -2295,8 +2295,8 @@ namespace SuperCom
                 SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem)
                 {
-                    DialogInput dialogInput = new DialogInput(this, "请输入备注", portTabItem.Remark);
-                    if (dialogInput.ShowDialog() == true)
+                    DialogInput dialogInput = new DialogInput("请输入备注", portTabItem.Remark);
+                    if (dialogInput.ShowDialog(this) == true)
                     {
                         string value = dialogInput.Text;
                         portTabItem.Remark = value;
@@ -2372,9 +2372,9 @@ namespace SuperCom
                         }
                     }
                 }
-                DialogInput dialogInput = new DialogInput(this, "请输入波特率");
+                DialogInput dialogInput = new DialogInput("请输入波特率");
                 bool success = false;
-                if ((bool)dialogInput.ShowDialog())
+                if ((bool)dialogInput.ShowDialog(this))
                 {
                     string value = dialogInput.Text;
                     if (!string.IsNullOrEmpty(value) && int.TryParse(value, out int baudrate) &&

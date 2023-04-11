@@ -164,7 +164,7 @@ namespace SuperCom.Windows
                 return;
             }
             FileHelper.TryOpenFile(COM_0_COM_INSTALLED_PATH);
-            bool success = (bool)new MsgBox(this, "安装完成后重新打开虚拟串口").ShowDialog();
+            bool success = (bool)new MsgBox("安装完成后重新打开虚拟串口").ShowDialog(this);
             this.Close();
         }
 
@@ -176,7 +176,7 @@ namespace SuperCom.Windows
 
         private void SelectPath(object sender, RoutedEventArgs e)
         {
-            string filePath = FileHelper.SelectFile("", "setupc.exe|*.exe");
+            string filePath = FileHelper.SelectFile(this, "setupc.exe|*.exe");
             if (File.Exists(filePath) && filePath.EndsWith("setupc.exe"))
             {
                 Com0ConInstalledPath = filePath;
@@ -190,7 +190,7 @@ namespace SuperCom.Windows
 
         private async void DeletePort(object sender, RoutedEventArgs e)
         {
-            if (!(bool)new MsgBox(this, "确定删除该串口对？").ShowDialog())
+            if (!(bool)new MsgBox("确定删除该串口对？").ShowDialog(this))
                 return;
 
             bool deleted = false;

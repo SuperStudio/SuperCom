@@ -14,7 +14,6 @@
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     Loaded="BaseWindow_Loaded"
-    RestoreSize="False"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     mc:Ignorable="d">
@@ -149,9 +148,10 @@
                 Grid.Row="1"
                 Margin="0,5,0,10"
                 Background="{DynamicResource Window.Title.Background}"
+                PlaceHolder=""
                 Search="SearchProjectByName"
                 SearchOnTextChanged="True"
-                ShowSearchButton="False"
+                ShowSearchButton="True"
                 Style="{StaticResource SearchBoxStyle}" />
             <ListBox
                 Name="sideListBox"

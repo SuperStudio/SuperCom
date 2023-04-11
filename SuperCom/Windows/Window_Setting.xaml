@@ -25,7 +25,6 @@
     <super:BaseWindow.Resources>
         <localConverter:ColorToBrushConverter x:Key="ColorToBrushConverter" />
         <localConverter:RuleTypeEnumConverter x:Key="RuleTypeEnumConverter" />
-        <Style BasedOn="{StaticResource NormalCheckBox}" TargetType="CheckBox" />
     </super:BaseWindow.Resources>
     <Grid>
 

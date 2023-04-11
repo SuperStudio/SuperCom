@@ -4,8 +4,6 @@ using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
-using SuperCom.Config.WindowConfig;
-using SuperCom.CustomWindows;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
 using SuperCom.ViewModel;
@@ -14,7 +12,6 @@ using SuperControls.Style;
 using SuperControls.Style.Plugin;
 using SuperControls.Style.Utils;
 using SuperControls.Style.Windows;
-using SuperControls.Style.XAML.CustomWindows;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
@@ -34,7 +31,6 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using System.Xml;
 
@@ -47,6 +43,8 @@ namespace SuperCom
     {
         private const double DEFAULT_SEND_PANEL_HEIGHT = 186;
         private const int DEFAULT_PORT_OPEN_INTERVAL = 100;
+
+
 
         Window_Setting window_Setting { get; set; }
         public VieModel_Main vieModel { get; set; }
@@ -64,10 +62,7 @@ namespace SuperCom
             // 注册 SuperUtils 异常事件
 
             SuperUtils.Handler.LogHandler.Logger = App.Logger;
-            SuperUtils.Handler.ExceptionHandler.OnError += (e) =>
-            {
-                App.Logger.Error(e.Message);
-            };
+            SuperControls.Style.Handler.LogHandler.Logger = App.Logger;
 
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
@@ -930,7 +925,7 @@ namespace SuperCom
                 string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName))
                 {
-                    FileHelper.TryOpenSelectPathEx(fileName);
+                    FileHelper.TryOpenSelectPath(fileName);
                     if (portTabItem.FragCount > 0)
                         MessageNotify.Info($"当前日志已分 {portTabItem.FragCount} 片");
                 }
@@ -1489,6 +1484,28 @@ namespace SuperCom
             //CommonSettings.InitLogDir();
             OpenBeforePorts();
             SetBaudRateAction();
+            InitNotice();
+        }
+
+        public void InitNotice()
+        {
+            noticeViewer.SetConfig(UrlManager.NOTICE_URL, ConfigManager.Main.LatestNotice);
+            noticeViewer.onError += (error) =>
+            {
+                App.Logger?.Error(error);
+            };
+
+            noticeViewer.onShowMarkdown += (markdown) =>
+            {
+                //MessageCard.Info(markdown);
+            };
+            noticeViewer.onNewNotice += (newNotice) =>
+            {
+                ConfigManager.Main.LatestNotice = newNotice;
+                ConfigManager.Main.Save();
+            };
+
+            noticeViewer.BeginCheckNotice();
         }
 
         public void SetBaudRateAction()
@@ -1602,33 +1619,33 @@ namespace SuperCom
 
         public void InitThemeSelector()
         {
-            DefaultThemeSelector.AddTransParentColor("TabItem.Background");
-            DefaultThemeSelector.AddTransParentColor("Window.Title.Background");
-            DefaultThemeSelector.AddTransParentColor("Window.Side.Background");
-            DefaultThemeSelector.AddTransParentColor("Window.Side.Hover.Background");
-            DefaultThemeSelector.AddTransParentColor("ListBoxItem.Background");
-            DefaultThemeSelector.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
-            DefaultThemeSelector.onThemeChanged += (ThemeIdx, ThemeID) =>
+            ThemeSelectorDefault.AddTransParentColor("TabItem.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Title.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Side.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Side.Hover.Background");
+            ThemeSelectorDefault.AddTransParentColor("ListBoxItem.Background");
+            ThemeSelectorDefault.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
+            ThemeSelectorDefault.onThemeChanged += (ThemeIdx, ThemeID) =>
             {
                 ConfigManager.Settings.ThemeIdx = ThemeIdx;
                 ConfigManager.Settings.ThemeID = ThemeID;
                 ConfigManager.Settings.Save();
             };
-            DefaultThemeSelector.onBackGroundImageChanged += (image) =>
+            ThemeSelectorDefault.onBackGroundImageChanged += (image) =>
             {
-                DefaultBgImage.Source = image;
+                ImageBackground.Source = image;
             };
-            DefaultThemeSelector.onSetBgColorTransparent += () =>
+            ThemeSelectorDefault.onSetBgColorTransparent += () =>
            {
-               DefaultTitleBorder.Background = Brushes.Transparent;
+               BorderTitle.Background = Brushes.Transparent;
            };
 
-            DefaultThemeSelector.onReSetBgColorBinding += () =>
+            ThemeSelectorDefault.onReSetBgColorBinding += () =>
             {
-                DefaultTitleBorder.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
+                BorderTitle.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
             };
 
-            DefaultThemeSelector.InitThemes();
+            ThemeSelectorDefault.InitThemes();
         }
 
 
@@ -2454,10 +2471,9 @@ namespace SuperCom
                     local = local.Substring(0, local.Length - ".0.0".Length);
                     if (local.CompareTo(remote) < 0)
                     {
-                        bool opened = (bool)new MsgBox(this,
-                            $"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog();
+                        bool opened = (bool)new MsgBox($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog(this);
                         if (opened)
-                            UpgradeHelper.OpenWindow();
+                            UpgradeHelper.OpenWindow(this);
                     }
                 }
             }
@@ -2895,7 +2911,7 @@ namespace SuperCom
 
         private void ShowUpgradeWindow(object sender, RoutedEventArgs e)
         {
-            UpgradeHelper.OpenWindow();
+            UpgradeHelper.OpenWindow(this);
         }
 
         private void CopyCommand(object sender, RoutedEventArgs e)
@@ -3529,7 +3545,7 @@ namespace SuperCom
                     {
                         // 复制到该目录
                         FileHelper.TryCopyFile(fileName, path, true);
-                        FileHelper.TryOpenSelectPathEx(path);
+                        FileHelper.TryOpenSelectPath(path);
                     }
                 }
                 else

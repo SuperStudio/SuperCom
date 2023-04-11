@@ -263,7 +263,7 @@ namespace SuperCom
                 return;
             }
 
-            if (new MsgBox(this, "将删除所有自定义串口设置，是否继续？").ShowDialog() == false)
+            if (new MsgBox("将删除所有自定义串口设置，是否继续？").ShowDialog(this) == false)
             {
                 return;
             }

@@ -45,6 +45,7 @@ namespace SuperCom.Config.WindowConfig
         public string OpeningPorts { get; set; }
 
         public string CustomBaudRates { get; set; }
+        public string LatestNotice { get; set; }
         public bool UseDefaultBaudRate { get; set; }
         public long CommandsSelectIndex { get; set; }
 

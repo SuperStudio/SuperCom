@@ -33,7 +33,7 @@ namespace SuperCom.Upgrade
 
         public static void CreateDialog_Upgrade()
         {
-            dialog_Upgrade = new Dialog_Upgrade(Window, Upgrader);
+            dialog_Upgrade = new Dialog_Upgrade(Upgrader);
             dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             dialog_Upgrade.OnSourceChanged += (s, e) =>
             {
@@ -47,7 +47,7 @@ namespace SuperCom.Upgrade
             {
                 WindowClosed = true;
             };
-            dialog_Upgrade.OnCloseApp += () =>
+            dialog_Upgrade.OnExitApp += () =>
             {
                 OnBeforeCopyFile?.Invoke();
             };
@@ -57,11 +57,11 @@ namespace SuperCom.Upgrade
         private static bool WindowClosed { get; set; }
         private static Window Window { get; set; }
 
-        public static void OpenWindow()
+        public static void OpenWindow(Window window = null)
         {
             if (WindowClosed)
                 CreateDialog_Upgrade();
-            dialog_Upgrade?.ShowDialog();
+            dialog_Upgrade?.ShowDialog(window);
 
         }
 

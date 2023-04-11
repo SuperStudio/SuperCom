@@ -28,6 +28,7 @@ namespace SuperCom.Config
         private static string PluginBasePath = "SuperPlugins";
         public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";
         public static string HelpUrl = "https://github.com/SuperStudio/SuperCom/wiki";
+        public const string NOTICE_URL = "https://superstudio.github.io/SuperCom-Upgrade/notice.json";
 
         public static int GetRemoteIndex()
         {

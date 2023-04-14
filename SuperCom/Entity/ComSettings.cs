@@ -20,6 +20,8 @@ namespace SuperCom.Entity
         public bool Connected { get; set; }
         public bool AddTimeStamp { get; set; }
         public bool AddNewLineWhenWrite { get; set; }
+        public bool SendHex { get; set; }
+        public bool RecvShowHex { get; set; }
         public bool EnabledFilter { get; set; }
         public bool EnabledMonitor { get; set; }
         public string PortSetting { get; set; } // json 格式
@@ -64,6 +66,8 @@ namespace SuperCom.Entity
         public static string[] SqlCommands = {
              "ALTER TABLE com_settings ADD COLUMN EnabledFilter INT DEFAULT 0;",
              "ALTER TABLE com_settings ADD COLUMN EnabledMonitor INT DEFAULT 0;",
+             "ALTER TABLE com_settings ADD COLUMN SendHex INT DEFAULT 0;",
+             "ALTER TABLE com_settings ADD COLUMN RecvShowHex INT DEFAULT 0;",
         };
 
         public static void InitSqlite()

@@ -53,6 +53,7 @@
                             Orientation="Vertical">
                             <CheckBox Content="{DynamicResource CloseToBar}" IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             <CheckBox Content="{DynamicResource FixAfterSendCommand}" IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox Content="自动固定滚屏" IsChecked="{Binding FixedWhenFocus, Source={x:Static config:ConfigManager.Settings}}" />
                             <CheckBox Content="固定滚屏时弹出提示" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
                             <StackPanel Orientation="Horizontal">
                                 <CheckBox Content="日志分片" IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}" />
@@ -297,6 +298,7 @@
                             Grid.Column="1"
                             Margin="5"
                             Orientation="Vertical">
+                            <CheckBox Content="自动保存日志" IsChecked="{Binding WriteLogToFile, Source={x:Static config:ConfigManager.CommonSettings}}" />
                             <TextBlock
                                 Margin="5"
                                 HorizontalAlignment="Left"

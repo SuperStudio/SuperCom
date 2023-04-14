@@ -90,13 +90,47 @@ namespace SuperCom.Entity
         public bool AddNewLineWhenWrite
         {
             get { return _AddNewLineWhenWrite; }
-            set { _AddNewLineWhenWrite = value; RaisePropertyChanged(); }
+            set
+            {
+                _AddNewLineWhenWrite = value;
+                RaisePropertyChanged();
+                RefreshSendHexValue(WriteData);
+            }
+        }
+        private bool _SendHex;
+        public bool SendHex
+        {
+            get { return _SendHex; }
+            set
+            {
+                _SendHex = value;
+                RaisePropertyChanged();
+                if (value)
+                    RefreshSendHexValue(WriteData);
+            }
+        }
+        private bool _RecvShowHex;
+        public bool RecvShowHex
+        {
+            get { return _RecvShowHex; }
+            set { _RecvShowHex = value; RaisePropertyChanged(); }
+        }
+        private string _SendHexValue;
+        public string SendHexValue
+        {
+            get { return _SendHexValue; }
+            set { _SendHexValue = value; RaisePropertyChanged(); }
         }
         private string _WriteData = "";
         public string WriteData
         {
             get { return _WriteData; }
-            set { _WriteData = value; RaisePropertyChanged(); }
+            set
+            {
+                _WriteData = value;
+                RaisePropertyChanged();
+                RefreshSendHexValue(value);
+            }
         }
 
         public TextEditor TextEditor { get; set; }
@@ -232,6 +266,20 @@ namespace SuperCom.Entity
 
         public string SaveFileName { get; set; }
 
+
+        private void RefreshSendHexValue(string value)
+        {
+            if (SendHex)
+            {
+                string data = value;
+                if (AddNewLineWhenWrite)
+                    data += "\r\n";
+
+                byte[] bytes = TransformHelper.ParseHexString(data);
+                string printstr = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+                SendHexValue = $"将发送：{printstr}";
+            }
+        }
 
         private string GetFileNameByFormat(string format)
         {
@@ -654,7 +702,8 @@ namespace SuperCom.Entity
             // 保存到本地
             try
             {
-                File.AppendAllText(SaveFileName, value, Encoding.UTF8);
+                if (ConfigManager.CommonSettings.WriteLogToFile)
+                    File.AppendAllText(SaveFileName, value, Encoding.UTF8);
             }
             catch (Exception ex)
             {

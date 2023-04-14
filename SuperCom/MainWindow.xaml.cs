@@ -3,6 +3,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
+using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
@@ -22,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,6 +35,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace SuperCom
 {
@@ -630,19 +633,26 @@ namespace SuperCom
         }
 
 
-        // todo 检视重构
-        private void HandleDataReceived(CustomSerialPort serialPort)
+        private Queue<byte> recievedData = new Queue<byte>();
+
+        void ProcessData(CustomSerialPort serialPort)
         {
-            string line = "";
-            try
+            // Determine if we have a "packet" in the queue
+            if (recievedData.Count > 50)
             {
-                line = serialPort.ReadExisting();
+                byte[] bytes = Enumerable.Range(0, 50).Select(i => recievedData.Dequeue()).ToArray();
+                string line = TransformHelper.HexToStr(bytes);
+
             }
-            catch (Exception ex)
-            {
-                App.Logger.Error(ex.Message);
-            }
+        }
+
+        void ProcessLine(CustomSerialPort serialPort, string line)
+        {
+            if (string.IsNullOrEmpty(line))
+                return;
             string portName = serialPort.PortName;
+            //if (!line.EndsWith("\r\n"))
+            //    line += "\r\n";
             PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
             if (portTabItem != null)
             {
@@ -659,7 +669,30 @@ namespace SuperCom
                     App.Logger.Error(ex.Message);
                 }
             }
+        }
 
+        /// <summary>
+        /// 处理收到的 COM 数据
+        /// <para>参考：<see href="https://stackoverflow.com/a/13755084">stackoverflow</see></para>
+        /// </summary>
+        /// <param name="serialPort"></param>
+        private void HandleDataReceived(CustomSerialPort serialPort)
+        {
+            string line = "";
+            try
+            {
+                //serialPort.BaseStream.
+                line = serialPort.ReadExisting();
+                //byte[] data = new byte[serialPort.BytesToRead];
+                //serialPort.Read(data, 0, data.Length);
+                //data.ToList().ForEach(b => recievedData.Enqueue(b));
+                //ProcessData(serialPort);
+                ProcessLine(serialPort, line);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.Error(ex.Message);
+            }
         }
 
         private bool SetPortConnectStatus(string portName, bool status)
@@ -745,6 +778,8 @@ namespace SuperCom
                     portTabItem.WriteData = comSettings.WriteData;
                     portTabItem.AddTimeStamp = comSettings.AddTimeStamp;
                     portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
+                    portTabItem.SendHex = comSettings.SendHex;
+                    portTabItem.RecvShowHex = comSettings.RecvShowHex;
                     portTabItem.EnabledFilter = comSettings.EnabledFilter;
                     portTabItem.EnabledMonitor = comSettings.EnabledMonitor;
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
@@ -1010,6 +1045,20 @@ namespace SuperCom
         private const int MAX_ERROR_COUNT = 2;
 
 
+        public int SendHexData(PortTabItem portTabItem, string value, SerialPort port)
+        {
+            if (string.IsNullOrEmpty(value))
+                return 0;
+            byte[] bytes = TransformHelper.ParseHexString(value);
+            if (bytes == null || bytes.Length == 0)
+                return 0;
+            string printstr = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+            portTabItem.SaveData($"SEND >>>>>>>>>> {printstr}\r\n");
+            port.Write(bytes, 0, bytes.Length);
+            return bytes.Length;
+        }
+
+
         /// <summary>
         /// 异步超时发送
         /// </summary>
@@ -1025,18 +1074,27 @@ namespace SuperCom
             {
                 value += "\r\n";
             }
-            portTabItem.SaveData($"SEND >>>>>>>>>> {value}");
             try
             {
-                port.Write(value);
-                portTabItem.TX += Encoding.UTF8.GetByteCount(value);
+                if (portTabItem.SendHex)
+                {
+                    int len = SendHexData(portTabItem, value, port);
+                    portTabItem.TX += len;
+                }
+                else
+                {
+                    port.Write(value);
+                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}\r\n");
+                    portTabItem.TX += Encoding.UTF8.GetByteCount(value);
+                }
+
                 // todo 保存到发送历史
                 //if (saveToHistory)
                 //{
                 //    vieModel.SendHistory.Add(value.Trim());
                 //    vieModel.SaveSendHistory();
                 //}
-                vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
+                //vieModel.StatusText = $"【发送命令】=>{portTabItem.WriteData}";
                 CurrentErrorCount = 0;
                 return true;
             }
@@ -1251,6 +1309,8 @@ namespace SuperCom
 
                 comSettings.WriteData = portTabItem.WriteData;
                 comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
+                comSettings.SendHex = portTabItem.SendHex;
+                comSettings.RecvShowHex = portTabItem.RecvShowHex;
                 comSettings.EnabledFilter = portTabItem.EnabledFilter;
                 comSettings.EnabledMonitor = portTabItem.EnabledMonitor;
                 comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
@@ -1798,70 +1858,17 @@ namespace SuperCom
 
         private void SendTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-
-
-            TextBox textBox = sender as TextBox;
-            Grid grid = ((textBox.Parent as Grid).Parent as Border).Parent as Grid;
-            string text = textBox.Text.Trim();
-            List<string> list = vieModel.SendHistory.Where(arg => arg.ToLower().IndexOf(text.ToLower()) >= 0).ToList();
-            Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
-            if (string.IsNullOrEmpty(text) || list.Count <= 0)
-            {
-                if (popup != null)
-                    popup.IsOpen = false;
-                if (e.Key == Key.Enter && grid.Tag != null)
-                {
-                    string portName = grid.Tag.ToString();
-                    SendCommand(portName);
-                }
+            if (e.Key != Key.Enter)
                 return;
-            }
-            if (e.Key == Key.Up || e.Key == Key.Down)
-            {
-                if (list.Count > 0 && popup != null && popup.IsOpen)
-                {
-                    popup.Focus();
-                    int idx = vieModel.SendHistorySelectedIndex;
-                    if (e.Key == Key.Up) idx--;
-                    else idx++;
-                    if (idx >= list.Count) idx = 0;
-                    else if (idx < 0) idx = list.Count - 1;
-                    vieModel.SendHistorySelectedIndex = idx;
-                    vieModel.SendHistorySelectedValue = list[idx];
-                    // 设置当前选中状态
-                    Grid grid1 = popup.Child as Grid;
-                    ItemsControl itemsControl = grid1.FindName("itemsControl") as ItemsControl;
-                    SetSelectedStatus(itemsControl);
-
-                }
-            }
-            else if (e.Key == Key.Enter || e.Key == Key.Tab)
-            {
-                if (grid.Tag != null)
-                {
-                    string portName = grid.Tag.ToString();
-                    if (popup != null && popup.IsOpen && !string.IsNullOrEmpty(vieModel.SendHistorySelectedValue))
-                    {
-
-                        PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                        if (portTabItem != null)
-                        {
-                            portTabItem.WriteData = vieModel.SendHistorySelectedValue;
-                            textBox.CaretIndex = textBox.Text.Length;
-                            popup.IsOpen = false;
-                        }
-                    }
-                    else if (e.Key == Key.Enter)
-                    {
-                        SendCommand(portName);
-                    }
-                }
-            }
-            else if (e.Key == Key.Escape)
-            {
-                if (popup != null)
-                    popup.IsOpen = false;
-            }
+            TextBox textBox = sender as TextBox;
+            if (textBox == null || textBox.Tag == null)
+                return;
+            string portName = textBox.Tag.ToString();
+            if (string.IsNullOrEmpty(portName))
+                return;
+            string text = textBox.Text.Trim();
+            if (!string.IsNullOrEmpty(text))
+                SendCommand(portName);
         }
 
         private void SetSelectedStatus(ItemsControl itemsControl)
@@ -3021,16 +3028,24 @@ namespace SuperCom
                 return;
             border.BorderBrush = (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
             // 设置不滚动
-            Grid rootGrid = border.Parent as Grid;
-            ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
+            FixedTextEditor(border);
+        }
+
+        private void FixedTextEditor(Border border)
+        {
             // 将文本固定
-            string portName = rootGrid.Tag.ToString();
-            SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
-            if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && !(bool)toggleButton.IsChecked)
+            if (ConfigManager.Settings.FixedWhenFocus)
             {
-                //portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                //toggleButton.IsChecked = true;
-                portTabItem.FixedText = true;
+                Grid rootGrid = border.Parent as Grid;
+                ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
+                string portName = rootGrid.Tag.ToString();
+                SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && !(bool)toggleButton.IsChecked)
+                {
+                    //portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
+                    //toggleButton.IsChecked = true;
+                    portTabItem.FixedText = true;
+                }
             }
         }
 

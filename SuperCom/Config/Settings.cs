@@ -20,6 +20,7 @@ namespace SuperCom.Config.WindowConfig
             LogFragSize = DEFAULT_LOG_FRAG_SIZE;
             MemoryLimit = DEFAULT_MEMORY_LIMIT;
             HintWhenPin = true;
+            FixedWhenFocus = true;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -52,6 +53,7 @@ namespace SuperCom.Config.WindowConfig
         public long LogFragSize { get; set; }
         public long MemoryLimit { get; set; }
         public bool HintWhenPin { get; set; }
+        public bool FixedWhenFocus { get; set; }
 
     }
 }

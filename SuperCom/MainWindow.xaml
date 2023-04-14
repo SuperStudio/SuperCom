@@ -2096,6 +2096,29 @@
                                                     IsChecked="{Binding AddTimeStamp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     Style="{StaticResource NormalCheckBox}" />
 
+                                                <ToggleButton
+                                                    MinWidth="40"
+                                                    Margin="5,0"
+                                                    Padding="5"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    IsChecked="{Binding RecvShowHex, Mode=TwoWay}"
+                                                    Opacity="0.8"
+                                                    Visibility="Collapsed">
+                                                    <ToggleButton.Style>
+                                                        <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
+                                                            <Setter Property="Content" Value="STR" />
+                                                            <Setter Property="ToolTip" Value="当前模式：显示字符串" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <Setter Property="Content" Value="HEX" />
+                                                                    <Setter Property="ToolTip" Value="当前模式：显示十六进制" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ToggleButton.Style>
+                                                </ToggleButton>
+
                                                 <Button
                                                     Margin="5,0"
                                                     Click="SaveToNewFile"
@@ -2488,7 +2511,7 @@
                                                     <Button
                                                         Width="25"
                                                         Height="25"
-                                                        Margin="0"
+                                                        Margin="5,0"
                                                         Padding="0"
                                                         VerticalAlignment="Stretch"
                                                         super:CommonExt.CornerRadius="5"
@@ -2501,7 +2524,6 @@
                                                         <Viewbox
                                                             Width="12"
                                                             Height="auto"
-                                                            Margin="6,0"
                                                             HorizontalAlignment="Left"
                                                             VerticalAlignment="Center">
                                                             <Path
@@ -2577,12 +2599,80 @@
                                             MinHeight="100"
                                             Tag="{Binding Name, Mode=OneWay}">
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="100" />
                                             </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="6">
+                                                <ToggleButton
+                                                    Margin="0"
+                                                    Padding="5"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Bottom"
+                                                    Click="ToggleButton_Click"
+                                                    Opacity="0.8"
+                                                    Style="{StaticResource FlatToggleButton}"
+                                                    ToolTip="文本框过长时换行显示"
+                                                    Visibility="Collapsed">
+                                                    <Viewbox
+                                                        Width="15"
+                                                        Height="auto"
+                                                        VerticalAlignment="Center">
+                                                        <Viewbox
+                                                            Width="15"
+                                                            Height="auto"
+                                                            VerticalAlignment="Center">
+                                                            <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Viewbox>
+                                                </ToggleButton>
+                                                <ToggleButton
+                                                    MinWidth="40"
+                                                    Margin="5"
+                                                    Padding="5"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    IsChecked="{Binding AddNewLineWhenWrite, Mode=TwoWay}"
+                                                    Opacity="0.8"
+                                                    Style="{StaticResource FlatToggleButton}"
+                                                    ToolTip="发送时加回车换行">
+                                                    <Viewbox
+                                                        Width="15"
+                                                        Height="auto"
+                                                        VerticalAlignment="Center">
+                                                        <Viewbox
+                                                            Width="15"
+                                                            Height="auto"
+                                                            VerticalAlignment="Center">
+                                                            <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Viewbox>
+                                                </ToggleButton>
+                                                <ToggleButton
+                                                    MinWidth="40"
+                                                    Margin="5"
+                                                    Padding="5"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Bottom"
+                                                    IsChecked="{Binding SendHex, Mode=TwoWay}"
+                                                    Opacity="0.8">
+                                                    <ToggleButton.Style>
+                                                        <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
+                                                            <Setter Property="Content" Value="STR" />
+                                                            <Setter Property="ToolTip" Value="当前模式：发送字符串" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <Setter Property="Content" Value="HEX" />
+                                                                    <Setter Property="ToolTip" Value="当前模式：发送十六进制" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ToggleButton.Style>
+                                                </ToggleButton>
+                                            </StackPanel>
                                             <Border
+                                                Grid.Column="1"
                                                 Margin="0,5"
-                                                Padding="10"
                                                 Background="{DynamicResource Window.Side.Background}"
                                                 BorderThickness="1"
                                                 CornerRadius="5">
@@ -2596,42 +2686,44 @@
                                                     </Style>
                                                 </Border.Style>
                                                 <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="auto" />
+                                                    </Grid.RowDefinitions>
                                                     <TextBox
                                                         Name="sendTextBox"
+                                                        Grid.Row="0"
+                                                        Margin="10"
                                                         VerticalAlignment="Stretch"
                                                         AcceptsReturn="False"
                                                         Background="Transparent"
-                                                        TextWrapping="Wrap"
                                                         BorderThickness="0"
                                                         CaretBrush="{DynamicResource Window.Foreground}"
                                                         ContextMenu="{StaticResource TextBoxContextMenu}"
                                                         Foreground="{DynamicResource Window.Foreground}"
                                                         PreviewKeyDown="SendTextBox_PreviewKeyDown"
                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                        Tag="{Binding Name, Mode=OneWay}"
                                                         Text="{Binding WriteData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        TextChanged="SendTextBox_TextChanged" />
-
-                                                    <!--<ToggleButton
-                                                        Margin="0"
-                                                        Padding="5"
-                                                        HorizontalAlignment="Left"
-                                                        VerticalAlignment="Bottom"
-                                                        Click="ToggleButton_Click"
-                                                        Opacity="0.8"
-                                                        Style="{StaticResource FlatToggleButton}"
-                                                        ToolTip="文本框过长时换行显示">
-                                                        <Viewbox
-                                                            Width="15"
-                                                            Height="auto"
-                                                            VerticalAlignment="Center">
-                                                            <Viewbox
-                                                                Width="15"
-                                                                Height="auto"
-                                                                VerticalAlignment="Center">
-                                                                <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
-                                                            </Viewbox>
-                                                        </Viewbox>
-                                                    </ToggleButton>-->
+                                                        TextChanged="SendTextBox_TextChanged"
+                                                        TextWrapping="Wrap" />
+                                                    <Border Grid.Row="1" Margin="0">
+                                                        <Border.Style>
+                                                            <Style BasedOn="{StaticResource InfoBorder}" TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding SendHex}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBox
+                                                            Margin="0"
+                                                            FontSize="10"
+                                                            Style="{StaticResource ReadOnlyNoWrapTextBox}"
+                                                            Text="{Binding SendHexValue}" />
+                                                    </Border>
                                                 </Grid>
                                             </Border>
 
@@ -2726,26 +2818,9 @@
                                                 </Grid>
                                             </Popup>
 
-                                            <Grid Grid.Column="1">
+                                            <Grid Grid.Column="2">
 
-                                                <ToggleButton
-                                                    Width="auto"
-                                                    Height="auto"
-                                                    Margin="5,8,8,5"
-                                                    Padding="2,4,4,4"
-                                                    HorizontalAlignment="Stretch"
-                                                    VerticalAlignment="Top"
-                                                    Background="Transparent"
-                                                    IsChecked="{Binding AddNewLineWhenWrite, Mode=TwoWay}"
-                                                    Style="{StaticResource FlatToggleButton}"
-                                                    ToolTip="发送时加回车换行">
-                                                    <Viewbox
-                                                        Width="20"
-                                                        Height="auto"
-                                                        VerticalAlignment="Center">
-                                                        <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
-                                                    </Viewbox>
-                                                </ToggleButton>
+
 
                                                 <Button
                                                     Margin="5,5,7,5"

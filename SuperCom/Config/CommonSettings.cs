@@ -25,6 +25,7 @@ namespace SuperCom.Config.WindowConfig
             FixedOnSendCommand = false;
             LogNameFormat = DEFAULT_LOGNAMEFORMAT;
             LogSaveDir = DEFAULT_LOG_SAVE_DIR;
+            WriteLogToFile = true;
         }
 
         private static CommonSettings _instance = null;
@@ -43,6 +44,7 @@ namespace SuperCom.Config.WindowConfig
         public string LogSaveDir { get; set; }
         public long TabSelectedIndex { get; set; }
         public long HighLightSideIndex { get; set; }
+        public bool WriteLogToFile { get; set; }
 
     }
 }

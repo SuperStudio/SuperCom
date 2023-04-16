@@ -5,7 +5,6 @@ using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperControls.Style.Windows;
-using SuperControls.Style.XAML.CustomWindows;
 using SuperUtils.Common;
 using SuperUtils.IO;
 using System;

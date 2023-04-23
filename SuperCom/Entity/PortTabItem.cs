@@ -1,6 +1,7 @@
 ﻿
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
+using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperUtils.Common;
@@ -15,10 +16,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -46,6 +49,88 @@ namespace SuperCom.Entity
             {
                 _Connected = value;
                 RaisePropertyChanged();
+                if (value && !TaskRunning)
+                    StartHexRecvTask();
+                if (!value)
+                    TaskRunning = false; // 停止该任务
+            }
+        }
+
+
+        public void WaitHandleSet()
+        {
+            WaitHandle?.Set();
+        }
+
+        private EventWaitHandle WaitHandle { get; set; }
+
+        private const int MAX_READ_LENGTH = 10240;
+        private const int READ_INTERVAL = 50;
+
+        public void StartHexRecvTask()
+        {
+            TaskRunning = true;
+            if (WaitHandle == null)
+                WaitHandle = new AutoResetEvent(true);
+            WaitHandle.Reset();
+            App.Logger?.Debug("WaitHandle Reset");
+            Task.Run(async () =>
+            {
+                while (TaskRunning)
+                {
+                    App.Logger?.Debug("WaitHandle WaitOne start");
+                    WaitHandle.WaitOne();
+                    App.Logger?.Debug("WaitHandle WaitOne end");
+
+                    await Task.Delay(READ_INTERVAL);
+                    List<byte> result = new List<byte>();
+                    while (true)
+                    {
+                        if (SerialPort == null || !Connected)
+                            break;
+                        try
+                        {
+                            int length = SerialPort.BytesToRead;
+                            App.Logger?.Debug($"读数据: {length} B");
+                            if (length == 0)
+                                break;
+                            byte[] rev = new byte[length];
+                            SerialPort.Read(rev, 0, length);
+                            if (rev.Length == 0)
+                                break;
+                            result.AddRange(rev);
+                        }
+                        catch
+                        {
+                            break;
+                        }
+
+                        if (result.Count > MAX_READ_LENGTH)
+                            break;
+
+                        await Task.Delay(READ_INTERVAL);
+                    }
+
+                    if (result.Count > 0)
+                    {
+                        App.Current.Dispatcher.Invoke(() =>
+                         {
+                             SaveHex(result.ToArray());
+                         });
+                    }
+                }
+            });
+        }
+
+        private bool _TaskRunning;
+        private bool TaskRunning
+        {
+            get { return _TaskRunning; }
+            set
+            {
+                _TaskRunning = value;
+                RaisePropertyChanged();
+                App.Logger?.Debug($"TaskRunning = {value}");
             }
         }
 
@@ -113,7 +198,12 @@ namespace SuperCom.Entity
         public bool RecvShowHex
         {
             get { return _RecvShowHex; }
-            set { _RecvShowHex = value; RaisePropertyChanged(); }
+            set
+            {
+                _RecvShowHex = value;
+                RaisePropertyChanged();
+                SetDataReceivedType();
+            }
         }
         private string _SendHexValue;
         public string SendHexValue
@@ -265,6 +355,130 @@ namespace SuperCom.Entity
 
 
         public string SaveFileName { get; set; }
+
+
+
+
+
+        void ProcessLine(CustomSerialPort serialPort, string line)
+        {
+            if (string.IsNullOrEmpty(line))
+                return;
+            string portName = serialPort.PortName;
+            //if (!line.EndsWith("\r\n"))
+            //    line += "\r\n";
+            try
+            {
+                // 异步存储
+                App.Current.Dispatcher.Invoke(() =>
+                 {
+                     SaveData(line);
+                 });
+            }
+            catch (Exception ex)
+            {
+                App.Logger.Error(ex.Message);
+
+            }
+        }
+
+        /// <summary>
+        /// 处理收到的 COM 数据
+        /// <para>参考：<see href="https://stackoverflow.com/a/13755084">stackoverflow</see></para>
+        /// </summary>
+        /// <param name="serialPort"></param>
+        private void HandleStrReceived(CustomSerialPort serialPort)
+        {
+            string line = "";
+            try
+            {
+                //serialPort.BaseStream.
+                line = serialPort.ReadExisting();
+                //byte[] data = new byte[serialPort.BytesToRead];
+                //serialPort.Read(data, 0, data.Length);
+                //data.ToList().ForEach(b => recievedData.Enqueue(b));
+                //ProcessData(serialPort);
+                ProcessLine(serialPort, line);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.Error(ex.Message);
+            }
+        }
+
+
+
+
+        private void HandleHexReceived(CustomSerialPort serialPort)
+        {
+            string portName = serialPort.PortName;
+            if (string.IsNullOrEmpty(portName))
+                return;
+
+            int length = SerialPort.BytesToRead;
+            App.Logger?.Warn("产生事件：HandleHexReceived ********************************************");
+            App.Logger?.Debug($"读数据: {length} B");
+            if (length != 0)
+            {
+                byte[] rev = new byte[length];
+                SerialPort.Read(rev, 0, length);
+                if (rev.Length == 0)
+                {
+                    App.Logger?.Debug("rev.Length == 0");
+                }
+                else
+                {
+                    string v = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(rev), "", " ");
+                    App.Logger?.Debug($"recv = {v}");
+                }
+            }
+
+            //WaitHandleSet();
+        }
+
+
+        private void OnRevievedStr(object sender, SerialDataReceivedEventArgs e)
+        {
+            CustomSerialPort serialPort = sender as CustomSerialPort;
+            HandleStrReceived(serialPort);
+        }
+        private void OnRevievedHEX(object sender, SerialDataReceivedEventArgs e)
+        {
+            CustomSerialPort serialPort = sender as CustomSerialPort;
+            HandleHexReceived(serialPort);
+        }
+
+
+
+        /// <summary>
+        /// 两种接收模式：HEX 和 STR
+        /// <para>HEX：根据 bytestoread 来检测何时读取完毕，参考：<see href="https://github.com/chenxuuu/llcom">llcom</see></para>
+        /// <para>STR：使用</para>
+        /// </summary>
+        /// <param name="serialPort"></param>
+        /// <param name="tabItem"></param>
+        public void SetDataReceivedType()
+        {
+            if (SerialPort == null)
+                return;
+            if (RecvShowHex)
+            {
+                // HEX 模式
+                SerialPort.DataReceived -= OnRevievedStr;
+                SerialPort.DataReceived -= OnRevievedHEX;
+                SerialPort.DataReceived += OnRevievedHEX;
+                if (Connected)
+                    StartHexRecvTask();
+            }
+            else
+            {
+                // STR 模式
+                TaskRunning = false;
+                SerialPort.DataReceived -= OnRevievedHEX;
+                SerialPort.DataReceived -= OnRevievedStr;
+                SerialPort.DataReceived += OnRevievedStr;
+            }
+        }
 
 
         private void RefreshSendHexValue(string value)
@@ -711,6 +925,16 @@ namespace SuperCom.Entity
             }
         }
 
+
+        public void SaveHex(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return;
+            App.Logger.Debug($"存数据：{bytes.Length} B");
+            string value =
+                TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+            SaveData(value + "\r\n");
+        }
 
 
 

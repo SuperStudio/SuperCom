@@ -19,7 +19,7 @@
     Closing="mainWindow_Closing"
     ContentRendered="mainWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
-    Icon="pack://application:,,,/Resources/Ico/Icon_64.png"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
     MenuAlign="Left"
     MenuMargin="200 0 0 0"
     ShowThemeSelector="True"
@@ -111,6 +111,8 @@
                             Click="SaveLog"
                             Header="日志另存为"
                             Icon="/Resources/Pictures/save.png" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="OpenAppDir" Header="打开软件目录" />
                     </MenuItem>
                     <MenuItem
                         Background="{DynamicResource Window.Title.Background}"
@@ -120,6 +122,7 @@
                             Header="自动换行"
                             IsCheckable="True"
                             IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
+                        <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Name="FontMenuItem"
                             Header="字体"
@@ -128,6 +131,7 @@
                             Click="OpenForegroundSelected"
                             Header="字体颜色"
                             IsCheckable="False" />
+                        <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Click="SetTextViewReturn"
                             Header="显示换行符"
@@ -170,6 +174,46 @@
                                             IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
 
                     </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="工具"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Click="OpenSetting"
+                            Header="设置"
+                            Icon="/Resources/Pictures/setting.png" />
+
+                        <MenuItem Click="OpenShortCut" Header="快捷键" />
+                        <MenuItem Click="ShowPluginWindow" Header="插件" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Click="ShowAscii"
+                            Header="ASCII 表"
+                            IsCheckable="False" />
+                        <MenuItem
+                            Click="ShowReferences"
+                            Header="参考文献"
+                            IsCheckable="False" />
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="关于"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Click="ShowUpgradeWindow"
+                            Header="检查更新"
+                            Icon="/Resources/Pictures/update.png" />
+                        <MenuItem
+                            Click="ShowAbout"
+                            Header="关于"
+                            Icon="/Resources/Pictures/about.png" />
+                        <MenuItem Click="OpenFeedBack" Header="反馈" />
+                        <MenuItem Click="OpenHelp" Header="帮助" />
+
+                    </MenuItem>
+
                 </Menu>
             </Grid>
             <!--<Grid
@@ -740,7 +784,14 @@
                                 </Viewbox>
                             </Border>
 
-
+                            <!--<Image
+                                Grid.Column="0"
+                                Width="24"
+                                Height="24"
+                                Margin="5,0"
+                                HorizontalAlignment="Left"
+                                Source="{Binding Icon, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                Stretch="UniformToFill" />-->
 
 
                         </Grid>
@@ -891,23 +942,10 @@
                                 Style="{StaticResource HoverBorder}">
                                 <Border.ContextMenu>
                                     <ContextMenu HorizontalOffset="-40">
-                                        <MenuItem Header="其它">
-                                            <MenuItem Click="OpenFeedBack" Header="反馈" />
-                                            <MenuItem Click="OpenHelp" Header="帮助" />
-                                            <MenuItem
-                                                Click="OpenDonate"
-                                                Header="为我充电"
-                                                Icon="/Resources/Pictures/donate.png"
-                                                Visibility="Collapsed" />
-                                        </MenuItem>
                                         <MenuItem
                                             Click="OpenSetting"
                                             Header="设置"
                                             Icon="/Resources/Pictures/setting.png" />
-                                        <MenuItem Header="高级">
-                                            <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
-                                        </MenuItem>
-                                        <MenuItem Click="OpenShortCut" Header="快捷键" />
                                         <MenuItem Click="ShowPluginWindow" Header="插件" />
                                         <MenuItem
                                             Click="ShowUpgradeWindow"
@@ -1366,7 +1404,7 @@
                             Grid.Row="0"
                             Height="128"
                             Margin="10"
-                            Source="pack://application:,,,/Resources/Ico/ICON_256.ico">
+                            Source="pack://application:,,,/Resources/Ico/ICON_256.png">
                             <Image.Effect>
                                 <DropShadowEffect
                                     BlurRadius="4"
@@ -2232,94 +2270,363 @@
                                             Background="{DynamicResource Menu.Background}"
                                             CornerRadius="5"
                                             Effect="{StaticResource PopupDropShadowEffect}" />
-                                        <StackPanel Margin="10" Orientation="Vertical">
-                                            <StackPanel Margin="5,0" Orientation="Horizontal">
-                                                <TextBlock
-                                                    Width="60"
-                                                    FontSize="12"
-                                                    Style="{StaticResource BaseTextBlock}"
-                                                    Text="编码"
-                                                    TextAlignment="Right" />
-                                                <ComboBox
-                                                    Width="120"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    ItemsSource="{Binding DataContext.Encodings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                                    Text="{Binding SerialPort.PortEncoding, Mode=TwoWay}">
-                                                    <ComboBox.Style>
-                                                        <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
-                                                            <Setter Property="SelectedIndex">
-                                                                <Setter.Value>
-                                                                    <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
-                                                                        <Binding Path="SerialPort.PortEncoding" />
-                                                                        <Binding Path="DataContext.Encodings" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
-                                                                    </MultiBinding>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </ComboBox.Style>
-                                                </ComboBox>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="2" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel
+                                                Grid.Row="0"
+                                                Margin="10"
+                                                Orientation="Vertical">
+                                                <StackPanel
+                                                    Margin="5,0"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="编码"
+                                                        TextAlignment="Right" />
+                                                    <ComboBox
+                                                        Width="120"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        ItemsSource="{Binding DataContext.Encodings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                        SelectionChanged="OnPortSettingChanged"
+                                                        Text="{Binding SerialPort.PortEncoding, Mode=TwoWay}">
+                                                        <ComboBox.Style>
+                                                            <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                                <Setter Property="SelectedIndex">
+                                                                    <Setter.Value>
+                                                                        <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                            <Binding Path="SerialPort.PortEncoding" />
+                                                                            <Binding Path="DataContext.Encodings" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                        </MultiBinding>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ComboBox.Style>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                                <StackPanel
+                                                    Margin="5,0"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="Parity"
+                                                        TextAlignment="Right" />
+                                                    <ComboBox
+                                                        Width="120"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        ItemsSource="{Binding DataContext.Paritys, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                        SelectionChanged="OnPortSettingChanged"
+                                                        Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                                        <ComboBox.Style>
+                                                            <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                                <Setter Property="SelectedIndex">
+                                                                    <Setter.Value>
+                                                                        <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                            <Binding Path="SerialPort.ParityString" />
+                                                                            <Binding Path="DataContext.Paritys" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                        </MultiBinding>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ComboBox.Style>
+                                                    </ComboBox>
+                                                </StackPanel>
+                                                <StackPanel
+                                                    Margin="5,0"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="StopBits"
+                                                        TextAlignment="Right" />
+                                                    <ComboBox
+                                                        Width="120"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        ItemsSource="{Binding DataContext.StopBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                        SelectionChanged="OnPortSettingChanged"
+                                                        Text="{Binding SerialPort.StopBitsString, Mode=TwoWay}">
+                                                        <ComboBox.Style>
+                                                            <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                                <Setter Property="SelectedIndex">
+                                                                    <Setter.Value>
+                                                                        <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                            <Binding Path="SerialPort.StopBitsString" />
+                                                                            <Binding Path="DataContext.StopBits" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                        </MultiBinding>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ComboBox.Style>
+                                                    </ComboBox>
+                                                </StackPanel>
+
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="DTR"
+                                                        TextAlignment="Right" />
+                                                    <super:Switch
+                                                        Height="20"
+                                                        Margin="5,0"
+                                                        Background="{DynamicResource Window.Title.Background}"
+                                                        Click="OnPortSettingChanged"
+                                                        IsChecked="{Binding SerialPort.DtrEnable, Mode=TwoWay}" />
+                                                    <Border
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        Background="Transparent"
+                                                        ToolTip="Data Terminal Ready, 通信控制信号&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial">
+                                                        <Viewbox Width="auto" Height="14">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
+                                                                Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                </StackPanel>
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="RTS"
+                                                        TextAlignment="Right" />
+                                                    <super:Switch
+                                                        Height="20"
+                                                        Margin="5,0"
+                                                        Background="{DynamicResource Window.Title.Background}"
+                                                        Click="OnPortSettingChanged"
+                                                        IsChecked="{Binding SerialPort.RtsEnable, Mode=TwoWay}">
+                                                        <!--<super:Switch.Style>
+                                                            <Style TargetType="{x:Type super:Switch}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="2">
+                                                                        <Setter Property="IsEnabled" Value="False" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="3">
+                                                                        <Setter Property="IsEnabled" Value="False" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </super:Switch.Style>-->
+                                                    </super:Switch>
+                                                    <Border
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        Background="Transparent"
+                                                        ToolTip="Request to Send， 流量控制机制&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial">
+                                                        <Viewbox Width="auto" Height="14">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
+                                                                Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}"
+                                                    Visibility="Collapsed">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="中断"
+                                                        TextAlignment="Right" />
+                                                    <super:Switch
+                                                        Height="20"
+                                                        Margin="5,0"
+                                                        Background="{DynamicResource Window.Title.Background}"
+                                                        Click="OnPortSettingChanged"
+                                                        IsEnabled="{Binding Connected}" />
+                                                    <Border
+                                                        Width="25"
+                                                        Height="25"
+                                                        Margin="0"
+                                                        Padding="0"
+                                                        VerticalAlignment="Stretch"
+                                                        Background="Transparent"
+                                                        ToolTip="中断信号状态发生在传输暂停时，线路处于中断状态（全低，无停止位）直到被释放">
+                                                        <Viewbox Width="auto" Height="14">
+                                                            <Path
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center"
+                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
+                                                                Fill="{DynamicResource Window.Foreground}" />
+                                                        </Viewbox>
+                                                    </Border>
+                                                </StackPanel>
+
                                             </StackPanel>
-                                            <StackPanel Margin="5,0" Orientation="Horizontal">
-                                                <TextBlock
-                                                    Width="60"
-                                                    FontSize="12"
-                                                    Style="{StaticResource BaseTextBlock}"
-                                                    Text="Parity"
-                                                    TextAlignment="Right" />
-                                                <ComboBox
-                                                    Width="120"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    ItemsSource="{Binding DataContext.Paritys, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                                    Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                                    <ComboBox.Style>
-                                                        <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
-                                                            <Setter Property="SelectedIndex">
-                                                                <Setter.Value>
-                                                                    <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
-                                                                        <Binding Path="SerialPort.ParityString" />
-                                                                        <Binding Path="DataContext.Paritys" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
-                                                                    </MultiBinding>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </ComboBox.Style>
-                                                </ComboBox>
+
+                                            <Rectangle
+                                                Grid.Row="0"
+                                                Grid.Column="1"
+                                                Width="2"
+                                                Margin="0,20"
+                                                Fill="{DynamicResource Window.Sub.Foreground}"
+                                                RadiusX="2"
+                                                RadiusY="2" />
+
+                                            <StackPanel
+                                                Grid.Row="0"
+                                                Grid.Column="2"
+                                                Margin="10"
+                                                Orientation="Vertical">
+
+
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="读超时"
+                                                        TextAlignment="Right" />
+                                                    <super:SearchBox
+                                                        Width="100"
+                                                        Height="30"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="10"
+                                                        ShowClearButton="False"
+                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                        Text="{Binding SerialPort.ReadTimeoutValue, Mode=TwoWay}"
+                                                        TextAlignment="Center"
+                                                        TextChanged="OnPortSettingChanged" />
+                                                    <TextBlock VerticalAlignment="Center" Text="ms" />
+                                                </StackPanel>
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="写超时"
+                                                        TextAlignment="Right" />
+                                                    <super:SearchBox
+                                                        Width="100"
+                                                        Height="30"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="10"
+                                                        ShowClearButton="False"
+                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                        Text="{Binding SerialPort.WriteTimeoutValue, Mode=TwoWay}"
+                                                        TextAlignment="Center"
+                                                        TextChanged="OnPortSettingChanged" />
+                                                    <TextBlock VerticalAlignment="Center" Text="ms" />
+                                                </StackPanel>
+
+                                                <StackPanel
+                                                    Margin="5,0"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="握手"
+                                                        TextAlignment="Right" />
+                                                    <ComboBox
+                                                        Width="120"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        ItemsSource="{Binding DataContext.HandShakes, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                        SelectionChanged="OnPortSettingChanged"
+                                                        Text="{Binding SerialPort.Handshake, Mode=TwoWay}">
+                                                        <ComboBox.Style>
+                                                            <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
+                                                                <Setter Property="SelectedIndex">
+                                                                    <Setter.Value>
+                                                                        <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
+                                                                            <Binding Path="SerialPort.Handshake" />
+                                                                            <Binding Path="DataContext.HandShakes" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
+                                                                        </MultiBinding>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ComboBox.Style>
+                                                    </ComboBox>
+                                                </StackPanel>
+
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="忽略空字符"
+                                                        TextAlignment="Right" />
+                                                    <super:Switch
+                                                        Height="20"
+                                                        Margin="5,0"
+                                                        Background="{DynamicResource Window.Title.Background}"
+                                                        Click="OnPortSettingChanged"
+                                                        IsChecked="{Binding SerialPort.DiscardNull, Mode=TwoWay}" />
+                                                </StackPanel>
                                             </StackPanel>
-                                            <StackPanel Margin="5,0" Orientation="Horizontal">
-                                                <TextBlock
-                                                    Width="60"
-                                                    FontSize="12"
-                                                    Style="{StaticResource BaseTextBlock}"
-                                                    Text="StopBits"
-                                                    TextAlignment="Right" />
-                                                <ComboBox
-                                                    Width="120"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="12"
-                                                    ItemsSource="{Binding DataContext.StopBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                                    Text="{Binding SerialPort.StopBitsString, Mode=TwoWay}">
-                                                    <ComboBox.Style>
-                                                        <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">
-                                                            <Setter Property="SelectedIndex">
-                                                                <Setter.Value>
-                                                                    <MultiBinding Converter="{StaticResource ComboBoxSelectedIndexConverter}" Mode="OneWay">
-                                                                        <Binding Path="SerialPort.StopBitsString" />
-                                                                        <Binding Path="DataContext.StopBits" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}" />
-                                                                    </MultiBinding>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </ComboBox.Style>
-                                                </ComboBox>
-                                            </StackPanel>
-                                            <Button
-                                                Margin="0,10,0,5"
+
+                                            <StackPanel
+                                                Grid.Row="1"
+                                                Grid.ColumnSpan="3"
+                                                Margin="0,0,0,20"
+                                                HorizontalAlignment="Center"
                                                 VerticalAlignment="Bottom"
-                                                Click="HideAdvancedGrid"
-                                                Content="关闭" />
-                                        </StackPanel>
+                                                Orientation="Horizontal"
+                                                Tag="{Binding Name}">
+                                                <Button
+                                                    Click="HideAdvancedGrid"
+                                                    Content="关闭"
+                                                    Style="{StaticResource ButtonDanger}" />
+                                                <Button
+                                                    Click="RestorePortSetting"
+                                                    Content="恢复默认"
+                                                    Style="{StaticResource ButtonPrimary}"
+                                                    Visibility="Collapsed" />
+                                            </StackPanel>
+                                        </Grid>
+
                                     </Grid>
 
 
@@ -2344,7 +2651,7 @@
                                             Padding="5,0"
                                             Background="{DynamicResource Window.Title.Background}"
                                             CornerRadius="5">
-                                            <WrapPanel Orientation="Horizontal">
+                                            <WrapPanel Orientation="Horizontal" Tag="{Binding Name}">
                                                 <TextBlock
                                                     FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
@@ -2380,6 +2687,7 @@
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
                                                     ItemsSource="{Binding DataContext.DataBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                    SelectionChanged="OnPortSettingChanged"
                                                     Text="{Binding SerialPort.DataBits, Mode=TwoWay}">
                                                     <ComboBox.Style>
                                                         <Style BasedOn="{StaticResource BorderComboBox}" TargetType="ComboBox">

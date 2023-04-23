@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using SuperControls.Style;
 using SuperControls.Style.Upgrade;
 using SuperUtils.Common;
 using SuperUtils.IO;
@@ -29,6 +30,15 @@ namespace SuperCom.Config
         public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";
         public static string HelpUrl = "https://github.com/SuperStudio/SuperCom/wiki";
         public const string NOTICE_URL = "https://superstudio.github.io/SuperCom-Upgrade/notice.json";
+
+        public static List<ReferenceData> REFERENCE_DATAS = new List<ReferenceData>()
+        {
+            new ReferenceData("Serial and UART Tutorial",
+                "https://docs.freebsd.org/en/articles/serial-uart/","FreeBSD","1996/01/13","-"),
+            new ReferenceData("SerialPort Class",
+                "https://learn.microsoft.com/en-us/dotnet/api/system.io.ports.serialport?view=netframework-4.7.2",
+                "Microsoft","-","-"),
+        };
 
         public static int GetRemoteIndex()
         {

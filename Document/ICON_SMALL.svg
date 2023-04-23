@@ -1,0 +1,38 @@
+<svg width="800.000000" height="800.000000" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<rect width="800.000000" height="800.000000" fill="none"/>
+	<g clip-path="url(#clip8_15)">
+		<g filter="url(#filter_8_10_dd)">
+			<rect id="阴影" x="15.000000" y="15.000000" rx="80.000000" width="770.000000" height="770.000000" fill="#000000" fill-opacity="0.25"/>
+		</g>
+		<rect id="背景" x="25.000000" y="25.000000" rx="80.000000" width="750.000000" height="750.000000" fill="url(#paint_linear_8_11_0)"/>
+		<path id="C" d="M184.039 246.461Q146.93 311.695 146.93 393.922Q146.93 476.344 184.039 541.188Q221.344 606.031 285.797 642.555Q350.25 678.883 430.133 678.883Q524.664 678.883 594.586 631.227Q664.508 583.57 692.633 498.023L563.727 498.023Q544.586 538.062 509.82 558.57Q475.055 578.883 429.352 578.883Q380.523 578.883 342.438 556.031Q304.547 533.18 283.258 491.188Q262.164 449.195 262.164 393.922Q262.164 338.062 283.258 296.461Q304.547 254.859 342.438 232.008Q380.523 209.156 429.352 209.156Q475.055 209.156 509.82 229.273Q544.586 249.195 563.727 289.234L692.633 289.234Q664.508 204.469 594.195 156.422Q523.883 108.375 430.133 108.375Q350.25 108.375 285.797 144.898Q221.344 181.227 184.039 246.461Z" fill="#FFFFFFFF"/>
+		<path id="Super背景" d="M95 480L299 480C337.66 480 369 511.34 369 550L369 695C369 739.183 333.183 775 289 775L105 775C60.8172 775 25 739.183 25 695L25 550C25 511.34 56.3401 480 95 480Z" fill-rule="evenodd" fill="#FFC000"/>
+		<path id="S" d="M168.102 564.213C168.102 584.867 179.528 596 200.476 605.595L216.369 612.772C261.12 632.914 277.6 650.932 277.6 684.77C277.6 724.687 247.277 752.006 190.881 752.006C166.271 752.006 139.025 745.707 121.008 733.988L123.132 682.426L140.49 682.426L156.384 734.574C165.393 737.87 174.401 739.115 185.827 739.115C215.49 739.115 231.97 724.979 231.97 701.615C231.97 681.181 223.327 670.414 199.304 659.867L184.875 653.568C144.665 635.624 123.425 615.482 123.425 579.521C123.425 539.018 156.091 515.873 205.017 515.873C228.381 515.873 249.401 522.172 265.881 533.012L263.171 581.864L245.812 581.864L230.505 532.133C224.499 529.423 218.493 528.471 211.022 528.471C184.875 528.471 168.102 541.728 168.102 564.213Z" fill="#FF000000"/>
+	</g>
+	<defs>
+		<filter id="filter_8_10_dd" x="4.999996" y="4.999993" width="790.000000" height="790.000000" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+			<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+			<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+			<feGaussianBlur stdDeviation="3.33333" result="effect_layerBlur_1"/>
+		</filter>
+		<filter id="filter_8_12_dd" x="119.000000" y="-205.999939" width="634.398926" height="1220.000000" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+			<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+			<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+			<feOffset dx="10" dy="10"/>
+			<feGaussianBlur stdDeviation="3.33333"/>
+			<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0"/>
+			<feBlend mode="normal" in2="BackgroundImageFix" result="effect_dropShadow_1"/>
+			<feBlend mode="normal" in="SourceGraphic" in2="effect_dropShadow_1" result="shape"/>
+		</filter>
+		<clipPath id="clip8_15">
+			<rect id="ICON" width="800.000000" height="800.000000" fill="none"/>
+		</clipPath>
+		<linearGradient id="paint_linear_8_11_0" x1="400.000000" y1="25.000000" x2="400.000000" y2="775.000000" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#0093E9"/>
+			<stop offset="1.000000" stop-color="#80D0C7"/>
+		</linearGradient>
+	</defs>
+</svg>

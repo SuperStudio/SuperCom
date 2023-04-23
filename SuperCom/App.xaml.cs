@@ -17,7 +17,7 @@ namespace SuperCom
 
     public partial class App : Application
     {
-        public static Log Logger = Log.Instance;
+        public static AbstractLogger Logger = Log.Logger.Instance;
         private static MemoryDog memoryDog { get; set; }
 
         public static Action OnMemoryDog;
@@ -43,7 +43,7 @@ namespace SuperCom
             {
                 Logger.Error(str);
             };
-
+            Logger.Info("APP 初始化");
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -60,6 +60,7 @@ namespace SuperCom
 
             // 非UI线程未捕获异常处理事件
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Window_ErrorMsg.CurrentDomain_UnhandledException);
+            Logger.Info("异常后处理启动");
 #endif
             // 看门狗
             memoryDog.Watch();

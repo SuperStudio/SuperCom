@@ -241,6 +241,17 @@ namespace SuperCom.Windows
 
         private async void SaveChanges(object sender, RoutedEventArgs e)
         {
+            bool ret = await SaveChanges();
+            if (ret)
+                this.Close();
+        }
+        private async void ApplyChanges(object sender, RoutedEventArgs e)
+        {
+            await SaveChanges();
+        }
+
+        public async Task<bool> SaveChanges()
+        {
             // 检查是否输入
 
             foreach (var item in CurrentVirtualPorts)
@@ -248,17 +259,17 @@ namespace SuperCom.Windows
                 if (string.IsNullOrEmpty(item.PortName))
                 {
                     MessageNotify.Error("存在未填写的串口号");
-                    return;
+                    return false;
                 }
                 if (!VirtualPort.IsProperPortName(item.PortName))
                 {
                     MessageNotify.Error("串口号填写错误");
-                    return;
+                    return false;
                 }
                 if (!VirtualPort.IsProperNumber(item))
                 {
                     MessageNotify.Error("数值填写有误");
-                    return;
+                    return false;
                 }
                 item.PortName = item.PortName.ToUpper();
             }
@@ -267,7 +278,7 @@ namespace SuperCom.Windows
             if (count != CurrentVirtualPorts.Count)
             {
                 MessageNotify.Error("存在重复串口号");
-                return;
+                return false;
             }
 
             List<VirtualPort> AllPorts = await VirtualPortManager.ListAllPort();
@@ -285,7 +296,7 @@ namespace SuperCom.Windows
             {
                 Saving = false;
                 MessageNotify.Info("无改动项");
-                return;
+                return false;
             }
             bool success = await VirtualPortManager.UpdatePorts(toChange);
             Saving = false;
@@ -293,10 +304,11 @@ namespace SuperCom.Windows
             {
                 MessageNotify.Success("成功");
                 Init();
+                return true;
             }
-            else
-                MessageNotify.Error("失败");
 
+            MessageNotify.Error("失败");
+            return false;
         }
 
         private async void AddNewVirtualPort(object sender, RoutedEventArgs e)

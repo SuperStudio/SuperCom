@@ -210,6 +210,17 @@ namespace SuperCom
 
         private void SaveSettings(object sender, RoutedEventArgs e)
         {
+            if (SaveSettings())
+                this.Close();
+        }
+
+        public void ApplySetting(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+        }
+
+        public bool SaveSettings()
+        {
             ConfigManager.CommonSettings.FixedOnSearch = vieModel.FixedOnSearch;
             ConfigManager.CommonSettings.CloseToBar = vieModel.CloseToBar;
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
@@ -222,17 +233,19 @@ namespace SuperCom
             else
             {
                 MessageNotify.Error("错误的日志保存路径");
+                return false;
             }
             ConfigManager.CommonSettings.Save();
             ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
 
             ConfigManager.Settings.Save();
             vieModel.SaveAllRule();
-            MessageNotify.Success("保存成功");
             ApplyRule();
             Main?.ReadXshdList();
             Main?.RefreshSetting();
 
+            MessageNotify.Success("保存成功");
+            return true;
         }
 
         private void ApplyRule()

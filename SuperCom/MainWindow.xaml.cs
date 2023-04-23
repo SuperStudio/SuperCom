@@ -3,7 +3,6 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Folding;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
-using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
@@ -23,7 +22,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,7 +33,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
+using static SuperCom.App;
 
 namespace SuperCom
 {
@@ -46,8 +44,6 @@ namespace SuperCom
     {
         private const double DEFAULT_SEND_PANEL_HEIGHT = 186;
         private const int DEFAULT_PORT_OPEN_INTERVAL = 100;
-
-
 
         Window_Setting window_Setting { get; set; }
         public VieModel_Main vieModel { get; set; }
@@ -128,6 +124,9 @@ namespace SuperCom
                   }
               });
            };
+
+
+            Logger.Info("主窗体初始化");
         }
 
 
@@ -152,11 +151,13 @@ namespace SuperCom
         private void SetLang()
         {
             // 设置语言
-            if (!string.IsNullOrEmpty(ConfigManager.Settings.CurrentLanguage)
-                && SuperControls.Style.LangManager.SupportLanguages.Contains(ConfigManager.Settings.CurrentLanguage))
+            string lang = ConfigManager.Settings.CurrentLanguage;
+            if (!string.IsNullOrEmpty(lang)
+                && SuperControls.Style.LangManager.SupportLanguages.Contains(lang))
             {
-                SuperControls.Style.LangManager.SetLang(ConfigManager.Settings.CurrentLanguage);
-                SuperCom.Lang.LangManager.SetLang(ConfigManager.Settings.CurrentLanguage);
+                SuperControls.Style.LangManager.SetLang(lang);
+                SuperCom.Lang.LangManager.SetLang(lang);
+                Logger.Debug($"设置语言：{lang}");
             }
         }
 
@@ -223,6 +224,7 @@ namespace SuperCom
                     item.SerialPort.HighLightIndex = idx;
                 }
             }
+            Logger.Info("读取正则高亮");
         }
 
 
@@ -368,6 +370,7 @@ namespace SuperCom
             catch (Exception ex)
             {
                 MessageNotify.Error(ex.Message);
+                Logger?.Error(ex);
             }
 
         }
@@ -498,8 +501,9 @@ namespace SuperCom
                     CustomSerialPort serialPort = portTabItem.SerialPort;
                     if (!serialPort.IsOpen)
                     {
-                        serialPort.WriteTimeout = CustomSerialPort.WRITE_TIME_OUT;
-                        serialPort.ReadTimeout = CustomSerialPort.READ_TIME_OUT;
+                        //serialPort.WriteTimeout = CustomSerialPort.WRITE_TIME_OUT;
+                        //serialPort.ReadTimeout = CustomSerialPort.READ_TIME_OUT;
+                        serialPort.PrintSetting();
                         serialPort.Open();
                         portTabItem.FirstSaveData = true;
                         // 打开后启动对应的过滤器线程
@@ -635,66 +639,6 @@ namespace SuperCom
 
         private Queue<byte> recievedData = new Queue<byte>();
 
-        void ProcessData(CustomSerialPort serialPort)
-        {
-            // Determine if we have a "packet" in the queue
-            if (recievedData.Count > 50)
-            {
-                byte[] bytes = Enumerable.Range(0, 50).Select(i => recievedData.Dequeue()).ToArray();
-                string line = TransformHelper.HexToStr(bytes);
-
-            }
-        }
-
-        void ProcessLine(CustomSerialPort serialPort, string line)
-        {
-            if (string.IsNullOrEmpty(line))
-                return;
-            string portName = serialPort.PortName;
-            //if (!line.EndsWith("\r\n"))
-            //    line += "\r\n";
-            PortTabItem portTabItem = vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-            if (portTabItem != null)
-            {
-                try
-                {
-                    // 异步存储
-                    Dispatcher.Invoke(() =>
-                    {
-                        portTabItem.SaveData(line);
-                    });
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.Error(ex.Message);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 处理收到的 COM 数据
-        /// <para>参考：<see href="https://stackoverflow.com/a/13755084">stackoverflow</see></para>
-        /// </summary>
-        /// <param name="serialPort"></param>
-        private void HandleDataReceived(CustomSerialPort serialPort)
-        {
-            string line = "";
-            try
-            {
-                //serialPort.BaseStream.
-                line = serialPort.ReadExisting();
-                //byte[] data = new byte[serialPort.BytesToRead];
-                //serialPort.Read(data, 0, data.Length);
-                //data.ToList().ForEach(b => recievedData.Enqueue(b));
-                //ProcessData(serialPort);
-                ProcessLine(serialPort, line);
-            }
-            catch (Exception ex)
-            {
-                App.Logger.Error(ex.Message);
-            }
-        }
-
         private bool SetPortConnectStatus(string portName, bool status)
         {
             try
@@ -731,6 +675,9 @@ namespace SuperCom
             return true;
         }
 
+
+
+
         private async Task<bool> OpenPortTabItem(string portName, bool connect)
         {
             // 打开窗口
@@ -760,10 +707,7 @@ namespace SuperCom
                 if (portTabItem.SerialPort == null)
                 {
                     serialPort = new CustomSerialPort(portName);
-                    serialPort.DataReceived += new SerialDataReceivedEventHandler((a, b) =>
-                    {
-                        HandleDataReceived(serialPort);
-                    });
+
                     portTabItem.SerialPort = serialPort;
                 }
                 else
@@ -789,6 +733,9 @@ namespace SuperCom
                 }
                 portTabItem.Selected = true;
                 vieModel.PortTabItems.Add(portTabItem);
+
+                portTabItem.SetDataReceivedType();
+
                 await Task.Run(async () =>
                 {
                     await Task.Delay(500);
@@ -827,7 +774,7 @@ namespace SuperCom
             about.GithubUrl = "https://github.com/SuperStudio/SuperCom";
             about.WebUrl = "https://github.com/SuperStudio/SuperCom";
             about.JoinGroupUrl = "https://github.com/SuperStudio/SuperCom";
-            about.Image = SuperUtils.Media.ImageHelper.ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.ico");
+            about.Image = SuperUtils.Media.ImageHelper.ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.png");
             about.ShowDialog();
         }
 
@@ -1489,8 +1436,28 @@ namespace SuperCom
 
         private void HideAdvancedGrid(object sender, RoutedEventArgs e)
         {
-            StackPanel panel = (sender as Button).Parent as StackPanel;
-            (panel.Parent as Grid).Visibility = Visibility.Hidden;
+            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            Grid grid = stackPanel.Parent as Grid;
+            (grid.Parent as Grid).Visibility = Visibility.Hidden;
+        }
+
+        private void RestorePortSetting(object sender, RoutedEventArgs e)
+        {
+
+
+            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            if (stackPanel.Tag == null || !(stackPanel.Tag.ToString() is string name))
+                return;
+
+            if (!(bool)new MsgBox($"是否将【{name}】配置恢复默认？").ShowDialog(this))
+                return;
+            if (vieModel.PortTabItems != null &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name)) is PortTabItem tabItem &&
+                tabItem.SerialPort is CustomSerialPort port)
+            {
+                port.RestoreDefault();
+                port.PrintSetting();
+            }
         }
 
         private void SetStayOpenStatus(object sender, RoutedEventArgs e)
@@ -2115,37 +2082,37 @@ namespace SuperCom
             if (button.Tag != null)
                 int.TryParse(button.Tag.ToString(), out commandID);
             Border border = button.FindParentOfType<Border>("sendBorder");
-            if (border != null && border.Tag != null)
-            {
-                string portName = border.Tag.ToString();
-                SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (sideComPort != null && sideComPort.PortTabItem != null && sideComPort.PortTabItem.SerialPort != null)
-                {
+            if (border == null || border.Tag == null)
+                return;
 
-                    AdvancedSend send = vieModel.CurrentAdvancedSend;
-                    if (send != null && !string.IsNullOrEmpty(send.Commands))
-                    {
-                        send.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(send.Commands);
-                        SendCommand sendCommand = send.CommandList.Where(arg => arg.CommandID == commandID).FirstOrDefault();
-                        if (sendCommand != null && sendCommand.IsResultCheck)
-                        {
-                            // 过滤找到需要的字符串
-                            string recvResult = sendCommand.RecvResult;
-                            int timeOut = sendCommand.RecvTimeOut;
-                            SendToFindResultTask(sideComPort.PortTabItem, recvResult, timeOut, command);
-                        }
-                    }
-                    SendCommand(sideComPort.PortTabItem.SerialPort, sideComPort.PortTabItem, command, false);
-                    // 设置固定滚屏
-                    if (ConfigManager.CommonSettings.FixedOnSendCommand)
-                    {
-                        PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-                        if (portTabItem != null)
-                            portTabItem.FixedText = true;
-                    }
-                }
+            string portName = border.Tag.ToString();
+            SideComPort sideComPort = vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+            if (sideComPort == null || sideComPort.PortTabItem == null || sideComPort.PortTabItem.SerialPort == null)
+                return;
+
+            AdvancedSend send = vieModel.CurrentAdvancedSend;
+            if (send == null || string.IsNullOrEmpty(send.Commands))
+                return;
+
+            send.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(send.Commands);
+            SendCommand sendCommand = send.CommandList.Where(arg => arg.CommandID == commandID).FirstOrDefault();
+            if (sendCommand != null && sendCommand.IsResultCheck)
+            {
+                // 过滤找到需要的字符串
+                string recvResult = sendCommand.RecvResult;
+                int timeOut = sendCommand.RecvTimeOut;
+                SendToFindResultTask(sideComPort.PortTabItem, recvResult, timeOut, command);
             }
 
+            // 设置固定滚屏
+            if (ConfigManager.CommonSettings.FixedOnSendCommand)
+            {
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (portTabItem != null)
+                    portTabItem.FixedText = true;
+            }
+            CurrentErrorCount = 0;
+            SendCommand(sideComPort.PortTabItem.SerialPort, sideComPort.PortTabItem, command, false);
         }
 
         private void StartSendCommands(object sender, RoutedEventArgs e)
@@ -2359,9 +2326,12 @@ namespace SuperCom
 
         private void BuadRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems == null || e.AddedItems.Count <= 0) return;
+            ComboBox comboBox = (ComboBox)sender;
+            if (!comboBox.IsLoaded)
+                return;
 
-
+            if (e.AddedItems == null || e.AddedItems.Count <= 0)
+                return;
             string text = e.AddedItems[0].ToString();
             if ("新增".Equals(text))
             {
@@ -3578,5 +3548,76 @@ namespace SuperCom
             if (ConfigManager.Settings.HintWhenPin)
                 MessageNotify.Info("固定当前日志（日志仍在收集）");
         }
+
+        private void OpenAppDir(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenPath(AppDomain.CurrentDomain.BaseDirectory);
+        }
+
+        private void ShowAscii(object sender, RoutedEventArgs e)
+        {
+            Window_Ascii window_Ascii = new Window_Ascii((int)ConfigManager.CommonSettings.AsciiSelectedIndex);
+            window_Ascii.OnSelectedChanged += (index) =>
+            {
+                ConfigManager.CommonSettings.AsciiSelectedIndex = index;
+                ConfigManager.CommonSettings.Save();
+            };
+            window_Ascii.Show();
+        }
+
+        private void ShowReferences(object sender, RoutedEventArgs e)
+        {
+            Window_References reference = new Window_References(UrlManager.REFERENCE_DATAS,
+                (int)ConfigManager.CommonSettings.RefSelectedIndex);
+            reference.OnSelectedChanged += (index) =>
+            {
+                ConfigManager.CommonSettings.RefSelectedIndex = index;
+                ConfigManager.CommonSettings.Save();
+            };
+            reference.Show();
+        }
+
+        private void OnPortSettingChanged(object sender, RoutedEventArgs e)
+        {
+            PortSettingChanged(sender);
+        }
+
+        private void PortSettingChanged(object sender)
+        {
+            FrameworkElement frameworkElement = sender as FrameworkElement;
+            object tag = (frameworkElement.Parent as FrameworkElement).Tag;
+            if (tag != null && tag.ToString() is string portName &&
+                !string.IsNullOrEmpty(portName) &&
+                vieModel.PortTabItems != null &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem &&
+                portTabItem.SerialPort is CustomSerialPort port)
+            {
+                port.PrintSetting();
+            };
+        }
+
+        private void OnPortSettingChanged(object sender, TextChangedEventArgs e)
+        {
+            PortSettingChanged(sender);
+        }
+
+        private void OnPortSettingChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            if (!comboBox.IsLoaded)
+                return;
+            // 等待数据更新后在打印
+            Task.Run(async () =>
+           {
+               await Task.Delay(100);
+               await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate
+                {
+                    PortSettingChanged(sender);
+                });
+           });
+
+        }
+
+
     }
 }

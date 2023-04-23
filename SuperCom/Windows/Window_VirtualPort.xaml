@@ -675,22 +675,29 @@
             </DataGrid>
         </Border>
 
-        <StackPanel
-            Grid.Row="3"
-            HorizontalAlignment="Right"
-            Orientation="Horizontal">
-            <super:LoadingCircle
-                Width="30"
-                Height="30"
-                Visibility="{Binding Saving, Converter={StaticResource BoolToVisibilityConverter}}" />
-            <Button
-                MinWidth="80"
-                Margin="20,10"
-                HorizontalAlignment="Right"
-                Click="SaveChanges"
-                Content="保存"
-                IsEnabled="{Binding Saving, Converter={StaticResource OppositeBooleanConverter}}"
-                Style="{StaticResource ButtonSuccess}" />
-        </StackPanel>
+        <Grid Grid.Row="3" Background="{DynamicResource Window.Title.Background}">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <super:LoadingCircle
+                    Width="30"
+                    Height="30"
+                    Margin="10"
+                    Visibility="{Binding Saving, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <Button
+                    MinWidth="100"
+                    Click="SaveChanges"
+                    Content="{DynamicResource Save}"
+                    IsEnabled="{Binding Saving, Converter={StaticResource OppositeBooleanConverter}}"
+                    Style="{StaticResource ButtonSuccess}" />
+                <Button
+                    MinWidth="100"
+                    Click="ApplyChanges"
+                    Content="{DynamicResource Apply}"
+                    IsEnabled="{Binding Saving, Converter={StaticResource OppositeBooleanConverter}}"
+                    Style="{StaticResource ButtonPrimary}" />
+            </StackPanel>
+        </Grid>
+
+
     </Grid>
 </super:BaseWindow>

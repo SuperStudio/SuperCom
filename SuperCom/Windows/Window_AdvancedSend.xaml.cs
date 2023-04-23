@@ -674,5 +674,15 @@ namespace SuperCom
         {
 
         }
+
+        private void Save(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Apply(object sender, RoutedEventArgs e)
+        {
+            MessageNotify.Success("保存成功");
+        }
     }
 }

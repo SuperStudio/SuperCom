@@ -1,11 +1,8 @@
 ﻿using SuperCom.Config;
 using SuperUtils.IO;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static SuperCom.App;
 
 namespace SuperCom.WatchDog
 {
@@ -20,7 +17,7 @@ namespace SuperCom.WatchDog
         public Action<long> OnMemoryChanged;
 
 #if DEBUG
-        private const int WATCH_INTERVAL = 5 * 1000;
+        private const int WATCH_INTERVAL = 60 * 1000;
 #else
         private const int WATCH_INTERVAL = 60 * 1000;
 #endif
@@ -34,7 +31,7 @@ namespace SuperCom.WatchDog
             using (Process proc = Process.GetCurrentProcess())
             {
                 long currentMemory = proc.PrivateMemorySize64;
-                Console.WriteLine($"memory = {currentMemory.ToProperFileSize()}");
+                Logger.Debug($"当前内存: {currentMemory.ToProperFileSize()}");
                 OnMemoryChanged?.Invoke(currentMemory);
                 if ((double)currentMemory / 1024 / 1024 >= ConfigManager.Settings.MemoryLimit)
                     return false;

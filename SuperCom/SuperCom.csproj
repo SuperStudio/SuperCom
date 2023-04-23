@@ -41,7 +41,7 @@
     <StartupObject>SuperCom.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\Ico\ICON_256.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Ico\ICON.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -250,14 +250,6 @@
     <Resource Include="Resources\Ico\github.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Ico\Icon_128.png" />
-    <Resource Include="Resources\Ico\Icon_32.png" />
-    <Resource Include="Resources\Ico\Icon_64.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Ico\ICON_256.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +272,9 @@
     <Resource Include="Resources\Pictures\about.png" />
     <Resource Include="Resources\Pictures\pinned.png" />
     <Resource Include="Resources\Pictures\remark.png" />
+    <Resource Include="Resources\Ico\ICON.ico" />
+    <Resource Include="Resources\Ico\ICON_256.png" />
+    <Resource Include="Resources\Ico\ICON_32.png" />
     <Content Include="Sql\advanced_send.sql" />
     <Content Include="Sql\com_settings.sql" />
   </ItemGroup>

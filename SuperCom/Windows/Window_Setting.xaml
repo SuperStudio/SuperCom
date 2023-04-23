@@ -814,16 +814,19 @@
 
         </TabControl>
 
-        <Grid Grid.Row="1">
-            <Button
-                Width="100"
-                Height="30"
-                Margin="10"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Click="SaveSettings"
-                Content="保存"
-                Style="{StaticResource ButtonPrimary}" />
+        <Grid Grid.Row="1" Background="{DynamicResource Window.Title.Background}">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    MinWidth="100"
+                    Click="SaveSettings"
+                    Content="{DynamicResource Save}"
+                    Style="{StaticResource ButtonSuccess}" />
+                <Button
+                    MinWidth="100"
+                    Click="ApplySetting"
+                    Content="{DynamicResource Apply}"
+                    Style="{StaticResource ButtonPrimary}" />
+            </StackPanel>
             <Button
                 Width="100"
                 Height="30"

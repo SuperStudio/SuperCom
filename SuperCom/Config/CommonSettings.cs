@@ -45,6 +45,8 @@ namespace SuperCom.Config.WindowConfig
         public long TabSelectedIndex { get; set; }
         public long HighLightSideIndex { get; set; }
         public bool WriteLogToFile { get; set; }
+        public long AsciiSelectedIndex { get; set; }
+        public long RefSelectedIndex { get; set; }
 
     }
 }

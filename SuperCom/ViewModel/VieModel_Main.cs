@@ -57,6 +57,12 @@ namespace SuperCom.ViewModel
             get { return _Paritys; }
             set { _Paritys = value; RaisePropertyChanged(); }
         }
+        private ObservableCollection<string> _HandShakes;
+        public ObservableCollection<string> HandShakes
+        {
+            get { return _HandShakes; }
+            set { _HandShakes = value; RaisePropertyChanged(); }
+        }
         private ObservableCollection<string> _StopBits;
         public ObservableCollection<string> StopBits
         {
@@ -231,7 +237,7 @@ namespace SuperCom.ViewModel
             LoadParitys();
             LoadStopBits();
             LoadShortCut();
-            LoadShortCut();
+            LoadHandshake();
             LoadHighLightRule();
             comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
 
@@ -268,6 +274,14 @@ namespace SuperCom.ViewModel
             foreach (var item in PortSetting.DEFAULT_DATABITS_LIST)
             {
                 DataBits.Add(item.ToString());
+            }
+        }
+        public void LoadHandshake()
+        {
+            HandShakes = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_HANDSHAKES)
+            {
+                HandShakes.Add(item.ToString());
             }
         }
         public void LoadBaudRates()

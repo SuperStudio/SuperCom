@@ -49,6 +49,8 @@ namespace SuperCom.Entity
             "One","Two","OnePointFive"
         };
 
+        public static List<string> DEFAULT_HANDSHAKES = Enum.GetNames(typeof(System.IO.Ports.Handshake)).ToList();
+
         public static int DEFAULT_BAUDRATE = 115200;
         public static int DEFAULT_DATABITS = 8;
         public static StopBits DEFAULT_STOPBITS = StopBits.One;

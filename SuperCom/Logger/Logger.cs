@@ -3,7 +3,7 @@ using SuperUtils.IO;
 using System;
 using System.IO;
 
-namespace SuperCom
+namespace SuperCom.Log
 {
     public class Logger : AbstractLogger
     {

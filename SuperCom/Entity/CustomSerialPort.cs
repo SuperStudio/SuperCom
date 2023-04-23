@@ -10,6 +10,7 @@ using System.Globalization;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static SuperCom.App;
 
 namespace SuperCom.Entity
 {
@@ -18,14 +19,20 @@ namespace SuperCom.Entity
 
         public const int CLOSE_TIME_OUT = 5;
 
+        public static Encoding DEFAULT_ENCODING = System.Text.Encoding.UTF8;
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public const int WRITE_TIME_OUT = 1000;
-        public const int READ_TIME_OUT = 2000;
+        private const int DEFAULT_WRITE_TIME_OUT = 1000;
+        private const int DEFAULT_READ_TIME_OUT = 2000;
+        private const int MIN_TIME_OUT = 0;
+        private const int MAX_TIME_OUT = 60 * 60 * 1000;
+
+        public bool HandledDataReceived { get; set; }
 
 
         public PortSetting _Setting = PortSetting.GetDefaultSetting();
@@ -148,6 +155,24 @@ namespace SuperCom.Entity
             dic.Add("Encoding", this.Encoding.HeaderName);
             dic.Add("StopBits", this.StopBitsString);
             dic.Add("Parity", this.ParityString);
+            dic.Add("DTR", this.DtrEnable);
+            dic.Add("Handshake", this.Handshake);
+            if (this.Handshake == Handshake.RequestToSend || this.Handshake == Handshake.RequestToSendXOnXOff)
+            {
+                // Handshake 设置为 RequestToSend 或 RequestToSendXOnXOff，则无法访问 RtsEnable
+            }
+            else
+            {
+                dic.Add("RTS", this.RtsEnable);
+            }
+            //dic.Add("BreakState", this.BreakState);
+            dic.Add("ReadTimeout", this.ReadTimeoutValue);
+            dic.Add("WriteTimeout", this.WriteTimeoutValue);
+
+            dic.Add("DiscardNull", this.DiscardNull);
+
+
+
             dic.Add("Remark", this.Remark);
             dic.Add("Pinned", this.Pinned);
             dic.Add("Hide", this.Hide);
@@ -185,12 +210,31 @@ namespace SuperCom.Entity
                 this.PortEncoding = dict["Encoding"].ToString();
                 this.ParityString = dict["Parity"].ToString();
                 this.StopBitsString = dict["StopBits"].ToString();
+
+
+                if (dict.ContainsKey("DTR") && dict["DTR"] is bool dtr)
+                    this.DtrEnable = dtr;
+                if (dict.ContainsKey("RTS") && dict["RTS"] is bool rts)
+                    this.RtsEnable = rts;
+                //if (dict.ContainsKey("BreakState") && dict["BreakState"] is bool BreakState)
+                //    this.BreakState = BreakState;
+                if (dict.ContainsKey("DiscardNull") && dict["DiscardNull"] is bool DiscardNull)
+                    this.DiscardNull = DiscardNull;
+
+                if (dict.ContainsKey("ReadTimeout") && int.TryParse(dict["ReadTimeout"].ToString(), out int readTimeOut))
+                    this.ReadTimeoutValue = readTimeOut;
+                if (dict.ContainsKey("WriteTimeout") && int.TryParse(dict["WriteTimeout"].ToString(), out int writeTimeOut))
+                    this.WriteTimeoutValue = writeTimeOut;
+                if (dict.ContainsKey("Handshake") && Enum.TryParse(dict["Handshake"].ToString(), out Handshake Handshake))
+                    this.Handshake = Handshake;
+
                 if (dict.ContainsKey("Remark"))
                     this.Remark = dict["Remark"].ToString();
                 if (dict.ContainsKey("Pinned"))
                     this.Pinned = dict["Pinned"].ToString().ToLower().Equals("true") ? true : false;
                 if (dict.ContainsKey("Hide"))
                     this.Hide = dict["Hide"].ToString().ToLower().Equals("true") ? true : false;
+
             }
         }
 
@@ -306,6 +350,37 @@ namespace SuperCom.Entity
             get { return _FilterSelectedIndex; }
             set { _FilterSelectedIndex = value; RaisePropertyChanged(); }
         }
+        private long _ReadTimeoutValue = DEFAULT_READ_TIME_OUT;
+        public long ReadTimeoutValue
+        {
+            get { return _ReadTimeoutValue; }
+            set
+            {
+                _ReadTimeoutValue = value;
+                RaisePropertyChanged();
+                if (value >= MIN_TIME_OUT && value <= MAX_TIME_OUT)
+                    this.ReadTimeout = (int)value;
+
+            }
+        }
+        private long _WriteTimeoutValue = DEFAULT_WRITE_TIME_OUT;
+        public long WriteTimeoutValue
+        {
+            get { return _WriteTimeoutValue; }
+            set
+            {
+                _WriteTimeoutValue = value;
+                RaisePropertyChanged();
+                if (value >= MIN_TIME_OUT && value <= MAX_TIME_OUT)
+                    this.WriteTimeout = (int)value;
+            }
+        }
+
+        public void PrintSetting()
+        {
+            string data = PortSettingToJson();
+            Logger.Info(data);
+        }
 
 
         public override bool Equals(object obj)
@@ -320,6 +395,19 @@ namespace SuperCom.Entity
         public override int GetHashCode()
         {
             return PortName.GetHashCode();
+        }
+
+        public void RestoreDefault()
+        {
+            this.DtrEnable = false;
+            this.RtsEnable = false;
+            this.DiscardNull = false;
+            this.ReadTimeout = DEFAULT_READ_TIME_OUT;
+            this.WriteTimeout = DEFAULT_WRITE_TIME_OUT;
+            this.Handshake = Handshake.None;
+            this.StopBits = StopBits.One;
+            this.Parity = Parity.None;
+            this.Encoding = DEFAULT_ENCODING;
         }
     }
 }

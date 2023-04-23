@@ -284,13 +284,23 @@ namespace SuperCom
 
         private void SetGridVisible(string portName)
         {
+            Logger.Debug(portName);
             if (string.IsNullOrEmpty(portName)) return;
             for (int i = 0; i < itemsControl.Items.Count; i++)
             {
                 ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
-                if (presenter == null) continue;
+                if (presenter == null)
+                {
+                    Logger.Debug($"presenter[{i}] is null");
+                    continue;
+                }
                 Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "baseGrid");
-                if (grid == null || grid.Tag == null) continue;
+                if (grid == null || grid.Tag == null)
+                {
+                    Logger.Debug($"presenter[{i}] baseGrid is null");
+                    continue;
+                }
+
                 string name = grid.Tag.ToString();
                 if (portName.Equals(name))
                     grid.Visibility = Visibility.Visible;
@@ -327,18 +337,18 @@ namespace SuperCom
             ClosePortTabItemByName(portName, button);
         }
 
-        private void ClosePortTabItemByName(string portName, Button button = null)
+        private async void ClosePortTabItemByName(string portName, Button button = null)
         {
             if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0) return;
-            RemovePortTabItem(portName, button);
+            await RemovePortTabItem(portName, button);
             // 默认选中 0
             if (vieModel.PortTabItems.Count > 0)
                 SetPortTabSelected(vieModel.PortTabItems[0].Name);
         }
 
-        private async void RemovePortTabItem(string portName, Button button = null)
+        private async Task<bool> RemovePortTabItem(string portName, Button button = null)
         {
-            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName)) return;
+            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName)) return false;
 
             int idx = -1;
             try
@@ -366,11 +376,13 @@ namespace SuperCom
                     if (button != null)
                         button.IsEnabled = true;
                 }
+                return true;
             }
             catch (Exception ex)
             {
                 MessageNotify.Error(ex.Message);
                 Logger?.Error(ex);
+                return false;
             }
 
         }

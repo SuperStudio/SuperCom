@@ -1,5 +1,6 @@
 ﻿using SuperUtils.Framework.Logger;
 using SuperUtils.IO;
+using SuperUtils.Time;
 using System;
 using System.IO;
 
@@ -7,7 +8,7 @@ namespace SuperCom.Log
 {
     public class Logger : AbstractLogger
     {
-        public static string FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.log");
+        public static string LOG_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_logs");
         private Logger() { }
 
         public static Logger Instance { get; }
@@ -23,7 +24,10 @@ namespace SuperCom.Log
         public override void LogPrint(string str)
         {
             Console.Write(str);
-            FileHelper.TryAppendToFile(FilePath, str);
+            if (!Directory.Exists(LOG_DIR))
+                DirHelper.TryCreateDirectory(LOG_DIR);
+            string filePath = Path.Combine(LOG_DIR, DateHelper.NowDate() + ".log");
+            FileHelper.TryAppendToFile(filePath, str);
         }
     }
 }

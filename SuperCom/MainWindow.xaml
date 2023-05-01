@@ -2142,7 +2142,7 @@
                                                     VerticalAlignment="Center"
                                                     IsChecked="{Binding RecvShowHex, Mode=TwoWay}"
                                                     Opacity="0.8"
-                                                    Visibility="Collapsed">
+                                                    >
                                                     <ToggleButton.Style>
                                                         <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
                                                             <Setter Property="Content" Value="STR" />

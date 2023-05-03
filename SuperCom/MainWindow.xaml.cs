@@ -138,7 +138,8 @@ namespace SuperCom
             // 设置配置
             foreach (var item in vieModel.SideComPorts)
             {
-                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name)).FirstOrDefault();
+                ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name))
+                    .FirstOrDefault();
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
                     item.Remark = SerialPortEx.GetRemark(comSettings.PortSetting);

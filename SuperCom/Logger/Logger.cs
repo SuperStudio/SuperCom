@@ -20,7 +20,11 @@ namespace SuperCom.Log
         static Logger()
         {
             Instance = new Logger();
+#if DEBUG
             Instance.LogLevel = Level.Debug;
+#else
+            Instance.LogLevel = Level.Info;
+#endif
         }
 
         public override void LogPrint(string str)

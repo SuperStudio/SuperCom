@@ -43,7 +43,7 @@ namespace SuperCom.Entity
 
         public SerialPortEx()
         {
-
+            Init();
         }
 
         public SerialPortEx(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
@@ -249,8 +249,8 @@ namespace SuperCom.Entity
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
             if (dict != null)
             {
-                if (dict.ContainsKey("Remark"))
-                    return dict["Remark"].ToString();
+                if (dict.ContainsKey("Remark") && dict.Get("Remark", "") is object remark)
+                    return remark.ToString();
             }
             return "";
         }

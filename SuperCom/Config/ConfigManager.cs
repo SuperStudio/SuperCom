@@ -6,9 +6,9 @@ namespace SuperCom.Config
 {
     public static class ConfigManager
     {
-        public const string SQLITE_DATA_PATH = "user_data.sqlite";
+        public const string RELEASE_DATE = "2023-05-03";
 
-        public const string RELEASE_DATE = "2023-04-23";
+        public const string SQLITE_DATA_PATH = "user_data.sqlite";
         public const string LICENSE = "GPL-3.0";
         public const string AUTHOR = "chao";
         public const string APP_NAME = "SuperCom";

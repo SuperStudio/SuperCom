@@ -15,13 +15,13 @@ namespace SuperCom.Entity
 {
     public static class VirtualPortManager
     {
-        private static string AppPath = "";
-
         public const string COM_0_COM_PROGRAM_NAME = "Null-modem emulator (com0com)";
         public const string COM_0_COM_PROGRAM_EXE_NAME = "setupc.exe";
         public const int CMD_RUN_TIME_OUT = 5000;
 
-        private static string AppDir;
+        private static string AppDir { get; set; }
+        private static string AppPath { get; set; }
+
         public static void Init(string appPath)
         {
             AppPath = appPath;

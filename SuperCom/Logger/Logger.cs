@@ -9,7 +9,9 @@ namespace SuperCom.Log
     public class Logger : AbstractLogger
     {
         public static string LOG_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_logs");
-        private Logger() { }
+        private Logger()
+        {
+        }
 
         public static Logger Instance { get; }
 

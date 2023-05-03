@@ -1,21 +1,8 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ICSharpCode.AvalonEdit;
-using SuperUtils.Time;
-using System;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Threading;
 using SuperUtils.WPF.VieModel;
+using System.Collections.Generic;
 
 namespace SuperCom.Entity
 {
@@ -32,8 +19,11 @@ namespace SuperCom.Entity
 
     public class SendCommand : ViewModelBase
     {
+        public const int DEFAULT_DELAY = 200;
+        public const int DEFAULT_TIMEOUT = 5000;
 
-        private static Dictionary<RunningStatus, string> RunningStatusToString = new Dictionary<RunningStatus, string>() {
+        private static readonly Dictionary<RunningStatus, string> RUN_STATUS_TABLE =
+            new Dictionary<RunningStatus, string>() {
             { RunningStatus.WaitingToRun,"就绪" },
             { RunningStatus.WaitingDelay,"等待中" },
             { RunningStatus.Running,"运行中" },
@@ -42,8 +32,7 @@ namespace SuperCom.Entity
             { RunningStatus.Failed,"失败" },
         };
 
-        public static int DEFAULT_DELAY = 200;
-        public static int DEFAULT_TIMEOUT = 5000;
+
         public long CommandID { get; set; }
         public string Name { get; set; }
 
@@ -63,7 +52,7 @@ namespace SuperCom.Entity
             set
             {
                 _Status = value; RaisePropertyChanged();
-                StatusText = RunningStatusToString[value];
+                StatusText = RUN_STATUS_TABLE[value];
             }
         }
         private string _StatusText = "就绪";
@@ -133,7 +122,16 @@ namespace SuperCom.Entity
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()
             {
-                {"advanced_send","create table if not exists advanced_send( ProjectID INTEGER PRIMARY KEY autoincrement, ProjectName VARCHAR(200), Commands TEXT, CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) );" }
+                {
+                    "advanced_send",
+                    "create table if not exists advanced_send( " +
+                        "ProjectID INTEGER PRIMARY KEY autoincrement, " +
+                        "ProjectName VARCHAR(200), " +
+                        "Commands TEXT, " +
+                        "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                        "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) " +
+                    ");"
+                }
             };
 
         }

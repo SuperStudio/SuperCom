@@ -12,8 +12,10 @@ namespace SuperCom.Converters
     {
         public object Convert(object value, System.Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null) return Brushes.Black;
-            SolidColorBrush solidColorBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(value.ToString()));
+            if (value == null)
+                return Brushes.Black;
+            SolidColorBrush solidColorBrush =
+                new SolidColorBrush((Color)ColorConverter.ConvertFromString(value.ToString()));
             return solidColorBrush;
         }
 

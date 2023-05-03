@@ -7,24 +7,42 @@ using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.Framework.ORM.Wrapper;
 using SuperUtils.WPF.VieModel;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO.Ports;
 using System.Linq;
-using System;
+using static SuperCom.App;
 
 namespace SuperCom.ViewModel
 {
 
     public class VieModel_Main : ViewModelBase
     {
+        public const string DEFAULT_ADD_TEXT = "新增";
+
+        private const string DEFAULT_STATUS_TEXT = "就绪";
+
+
+
+
+        static VieModel_Main()
+        {
+
+        }
+
+        public VieModel_Main()
+        {
+            Init();
+        }
+
+
 
         public Action<List<PortTabItem>> OnBaudRatesChanged;
-        private static SqliteMapper<AdvancedSend> mapper { get; set; }
-        private static SqliteMapper<ComSettings> comMapper { get; set; }
-        private static SqliteMapper<ShortCutBinding> shortCutMapper { get; set; }
-        private static SqliteMapper<HighLightRule> ruleMapper { get; set; }
-        private static SqliteMapper<VarMonitor> monitorMapper { get; set; }
+        private static SqliteMapper<AdvancedSend> Mapper { get; set; }
+        private static SqliteMapper<ComSettings> ComMapper { get; set; }
+        private static SqliteMapper<ShortCutBinding> ShortCutMapper { get; set; }
+        private static SqliteMapper<HighLightRule> RuleMapper { get; set; }
+        private static SqliteMapper<VarMonitor> MonitorMapper { get; set; }
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
         public List<ShortCutBinding> ShortCutBindings { get; set; }
@@ -84,7 +102,7 @@ namespace SuperCom.ViewModel
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
-        private string _StatusText = "就绪";
+        private string _StatusText = DEFAULT_STATUS_TEXT;
         public string StatusText
         {
             get { return _StatusText; }
@@ -104,7 +122,7 @@ namespace SuperCom.ViewModel
 
 
 
-        private int _SendHistorySelectedIndex = 0;
+        private int _SendHistorySelectedIndex;
 
         public int SendHistorySelectedIndex
         {
@@ -202,16 +220,6 @@ namespace SuperCom.ViewModel
         public AdvancedSend CurrentAdvancedSend { get; set; }
 
 
-        static VieModel_Main()
-        {
-
-        }
-
-        public VieModel_Main()
-        {
-            Init();
-        }
-
         public void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
@@ -239,7 +247,7 @@ namespace SuperCom.ViewModel
             LoadShortCut();
             LoadHandshake();
             LoadHighLightRule();
-            comMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+            ComMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
 
 
         }
@@ -290,7 +298,7 @@ namespace SuperCom.ViewModel
             foreach (var item in PortTabItems)
             {
                 PortTabItem portTabItem = new PortTabItem(item.Name, item.Connected);
-                portTabItem.SerialPort = new CustomSerialPort(item.Name, item.SerialPort.BaudRate, item.SerialPort.Parity, item.SerialPort.DataBits, item.SerialPort.StopBits);
+                portTabItem.SerialPort = new SerialPortEx(item.Name, item.SerialPort.BaudRate, item.SerialPort.Parity, item.SerialPort.DataBits, item.SerialPort.StopBits);
                 beforePortTabItems.Add(portTabItem);
             }
 
@@ -313,15 +321,15 @@ namespace SuperCom.ViewModel
             }
             ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(BaudRates);
             ConfigManager.Main.Save();
-            BaudRates.Add("新增");
+            BaudRates.Add(DEFAULT_ADD_TEXT);
             OnBaudRatesChanged?.Invoke(beforePortTabItems);
         }
 
         public void LoadSendCommands()
         {
             SendCommandProjects = new ObservableCollection<AdvancedSend>();
-            if (mapper == null) mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
-            List<AdvancedSend> advancedSends = mapper.SelectList();
+            if (Mapper == null) Mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
+            List<AdvancedSend> advancedSends = Mapper.SelectList();
             foreach (var item in advancedSends)
             {
                 SendCommandProjects.Add(item);
@@ -331,10 +339,10 @@ namespace SuperCom.ViewModel
 
         public void UpdateProject(AdvancedSend send)
         {
-            int count = mapper.UpdateById(send);
+            int count = Mapper.UpdateById(send);
             if (count <= 0)
             {
-                Console.WriteLine($"插入 {send.ProjectName} 失败");
+                Logger.Error($"insert error: {send.ProjectName}");
             }
         }
 
@@ -351,17 +359,9 @@ namespace SuperCom.ViewModel
         }
 
 
-
-
-        public void SaveSendHistory()
-        {
-            //ConfigManager.Main.SendHistory = JsonUtils.TrySerializeObject(SendHistory);
-            //ConfigManager.Main.Save();
-        }
-
         public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime, bool desc = true)
         {
-            string[] ports = CustomSerialPort.GetAllPorts();
+            string[] ports = SerialPortEx.GetAllPorts();
 
             List<string> portNames = new List<string>();
             switch (sortType)
@@ -396,7 +396,7 @@ namespace SuperCom.ViewModel
             List<string> baudrates = new List<string>();
             for (int i = 0; i < BaudRates.Count; i++)
             {
-                if (!"新增".Equals(BaudRates[i]))
+                if (!DEFAULT_ADD_TEXT.Equals(BaudRates[i]))
                 {
                     baudrates.Add(BaudRates[i]);
                 }
@@ -417,16 +417,16 @@ namespace SuperCom.ViewModel
                 if (value <= 0) return;
                 portTabItem.SerialPort.BaudRate = value;
                 comSettings.PortSetting = portTabItem.SerialPort.PortSettingToJson();
-                comMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
+                ComMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
             }
         }
 
         public void LoadShortCut()
         {
-            if (shortCutMapper == null)
-                shortCutMapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
+            if (ShortCutMapper == null)
+                ShortCutMapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
             ShortCutBindings = new List<ShortCutBinding>();
-            List<ShortCutBinding> shortCutBindings = shortCutMapper.SelectList();
+            List<ShortCutBinding> shortCutBindings = ShortCutMapper.SelectList();
             foreach (var item in shortCutBindings)
             {
                 item.RefreshKeyList();
@@ -436,21 +436,21 @@ namespace SuperCom.ViewModel
         }
         public void LoadHighLightRule()
         {
-            if (ruleMapper == null)
-                ruleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
-            HighLightRule.AllRules = ruleMapper.SelectList();
+            if (RuleMapper == null)
+                RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
+            HighLightRule.AllRules = RuleMapper.SelectList();
         }
 
 
         #region "变量监视器"
         public List<VarMonitor> GetVarMonitorByPortName(string portName)
         {
-            if (monitorMapper == null)
-                monitorMapper = new SqliteMapper<VarMonitor>(ConfigManager.SQLITE_DATA_PATH);
+            if (MonitorMapper == null)
+                MonitorMapper = new SqliteMapper<VarMonitor>(ConfigManager.SQLITE_DATA_PATH);
             SelectWrapper<VarMonitor> wrapper = new SelectWrapper<VarMonitor>();
             wrapper.Eq("PortName", portName);
-            List<Dictionary<string, object>> data = monitorMapper.Select(wrapper);
-            List<VarMonitor> list = monitorMapper.ToEntity<VarMonitor>(data, typeof(VarMonitor).GetProperties());
+            List<Dictionary<string, object>> data = MonitorMapper.Select(wrapper);
+            List<VarMonitor> list = MonitorMapper.ToEntity<VarMonitor>(data, typeof(VarMonitor).GetProperties());
             return list.OrderBy(arg => arg.SortOrder).ToList();
         }
 
@@ -466,14 +466,14 @@ namespace SuperCom.ViewModel
             else
                 maxOrder++;
             VarMonitor varMonitor = new VarMonitor(maxOrder, portName);
-            monitorMapper.InsertAndGetID(varMonitor);
+            MonitorMapper.InsertAndGetID(varMonitor);
             portTabItem.VarMonitors.Add(varMonitor);
         }
         public void DeleteVarMonitor(PortTabItem portTabItem, long id)
         {
             if (portTabItem.VarMonitors == null || portTabItem.VarMonitors.Count == 0 || id <= 0)
                 return;
-            monitorMapper.DeleteById(id);
+            MonitorMapper.DeleteById(id);
 
             int idx = -1;
 
@@ -496,7 +496,7 @@ namespace SuperCom.ViewModel
 
             List<VarMonitor> toUpdate = new List<VarMonitor>();
 
-            List<VarMonitor> allData = monitorMapper.SelectList();
+            List<VarMonitor> allData = MonitorMapper.SelectList();
             foreach (var item in portTabItem.VarMonitors)
             {
                 VarMonitor varMonitor = allData.FirstOrDefault(arg => arg.MonitorID == item.MonitorID);
@@ -513,7 +513,7 @@ namespace SuperCom.ViewModel
             else
             {
                 foreach (var item in toUpdate)
-                    monitorMapper.UpdateById(item);
+                    MonitorMapper.UpdateById(item);
 
                 MessageNotify.Success("保存成功");
                 portTabItem.VarMonitors = new ObservableCollection<VarMonitor>();

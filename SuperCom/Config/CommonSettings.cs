@@ -11,7 +11,8 @@ namespace SuperCom.Config.WindowConfig
     public class CommonSettings : AbstractConfig
     {
 
-        public static string DEFAULT_LOGNAMEFORMAT = "[%C] %Y-%M-%D %h-%m-%s.%f";
+        public const string DEFAULT_LOGNAMEFORMAT = "[%C] %Y-%M-%D %h-%m-%s.%f";
+
         public static string DEFAULT_LOG_SAVE_DIR = System.IO.Path.Combine(Environment.CurrentDirectory, "logs", "%Y-%M-%D");
         public static List<string> SUPPORT_FORMAT = new List<string>()
         {

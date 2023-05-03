@@ -112,15 +112,15 @@ namespace SuperCom.Entity
             {
                 {
                     "short_cut",
-
                     "create table if not exists short_cut( " +
-                    "_ID INTEGER PRIMARY KEY autoincrement, " +
-                    "KeyID INTEGER, " +
-                    "KeyName VARCHAR(200), " +
-                    "Keys TEXT, " +
-                    "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
-                    "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime'))," +
-                    "unique(KeyID));"
+                        "_ID INTEGER PRIMARY KEY autoincrement, " +
+                        "KeyID INTEGER, " +
+                        "KeyName VARCHAR(200), " +
+                        "Keys TEXT, " +
+                        "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                        "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime'))," +
+                        "unique(KeyID)" +
+                    ");"
                 }
             };
 

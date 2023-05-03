@@ -1,34 +1,20 @@
 ﻿using SuperCom.Config;
+using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.IO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ICSharpCode.AvalonEdit;
-using SuperUtils.Time;
-using System;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows.Threading;
-using SuperUtils.IO;
-using SuperUtils.Common;
-using SuperUtils.WPF.VieModel;
 
 namespace SuperCom.Entity
 {
     [Table(tableName: "highlight_rule")]
     public class HighLightRule
     {
-        public static List<HighLightRule> AllRules = new List<HighLightRule>();
-        public static List<string> AllName = new List<string>();
-
-
-
+        public static List<HighLightRule> AllRules { get; set; }
+        public static List<string> AllName { get; set; }
 
         [TableId(IdType.AUTO)]
         public long RuleID { get; set; }
@@ -53,6 +39,19 @@ namespace SuperCom.Entity
         public HighLightRule()
         {
 
+        }
+
+        public HighLightRule(int RuleID, string RuleName, string FileName)
+        {
+            this.RuleID = RuleID;
+            this.RuleName = RuleName;
+            this.FileName = FileName;
+        }
+
+        static HighLightRule()
+        {
+            AllRules = new List<HighLightRule>();
+            AllName = new List<string>();
         }
 
         public void SetFileName()
@@ -124,12 +123,6 @@ namespace SuperCom.Entity
         }
 
 
-        public HighLightRule(int RuleID, string RuleName, string FileName)
-        {
-            this.RuleID = RuleID;
-            this.RuleName = RuleName;
-            this.FileName = FileName;
-        }
 
         public static class SqliteTable
         {
@@ -137,7 +130,16 @@ namespace SuperCom.Entity
             {
                 {
                     "highlight_rule",
-                    "create table if not exists highlight_rule( RuleID INTEGER PRIMARY KEY autoincrement, RuleName VARCHAR(200), FileName TEXT, RuleSetString TEXT,PreviewText TEXT,Extra TEXT, CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) );" }
+                    "create table if not exists highlight_rule( " +
+                        "RuleID INTEGER PRIMARY KEY autoincrement, " +
+                        "RuleName VARCHAR(200), " +
+                        "FileName TEXT, " +
+                        "RuleSetString TEXT," +
+                        "PreviewText TEXT," +
+                        "Extra TEXT, " +
+                        "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                        "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')) " +
+                    ");" }
             };
 
         }

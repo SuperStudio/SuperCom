@@ -4,7 +4,6 @@ using SuperControls.Style;
 using SuperControls.Style.Windows;
 using SuperUtils.IO;
 using SuperUtils.Windows.WindowRegistry;
-using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,38 +11,31 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SuperCom.Windows
 {
     /// <summary>
     /// Interaction logic for Window_VirtualPort.xaml
     /// </summary>
-    public partial class Window_VirtualPort : BaseWindow, INotifyPropertyChanged
+    public partial class Window_VirtualPort : BaseWindow
     {
+        private const string PORT_PREFIX_A = "CNCA";
+        private const string PORT_PREFIX_B = "CNCB";
+        private const string PORT_PREFIX = "COM";
+        private const int SHOW_NEW_PORT_INTERVAL = 100;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private static readonly string COM_0_COM_INSTALLED_PATH =
+            System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Installer", "setup.exe");
 
-        protected void RaisePropertyChanged([CallerMemberName] string name = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
         public Window_VirtualPort()
         {
             InitializeComponent();
             this.DataContext = this;
         }
-
-
 
         private bool _IsCom0ConInstalled = false;
         public bool IsCom0ConInstalled
@@ -153,9 +145,6 @@ namespace SuperCom.Windows
         }
 
 
-
-        private static string COM_0_COM_INSTALLED_PATH =
-            System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Installer", "setup.exe");
         private void InstallCom0Com(object sender, RoutedEventArgs e)
         {
             if (!File.Exists(COM_0_COM_INSTALLED_PATH))
@@ -164,7 +153,7 @@ namespace SuperCom.Windows
                 return;
             }
             FileHelper.TryOpenFile(COM_0_COM_INSTALLED_PATH);
-            bool success = (bool)new MsgBox("安装完成后重新打开虚拟串口").ShowDialog(this);
+            _ = (bool)new MsgBox("安装完成后重新打开虚拟串口").ShowDialog(this);
             this.Close();
         }
 
@@ -199,7 +188,7 @@ namespace SuperCom.Windows
                 string id = button.Tag.ToString();
                 if (string.IsNullOrEmpty(id))
                     return;
-                id = id.Replace("CNCA", "").Replace("CNCB", "");
+                id = id.Replace(PORT_PREFIX_A, "").Replace(PORT_PREFIX_B, "");
                 int.TryParse(id, out int n);
                 if (n >= 0)
                 {
@@ -360,11 +349,9 @@ namespace SuperCom.Windows
         private async void ShowNewVirtualPortGrid(object sender, RoutedEventArgs e)
         {
             newVirtualPortGrid.Visibility = Visibility.Visible;
-
-
-            portNameA.Text = "COM";
-            portNameB.Text = "COM";
-            await Task.Delay(100);
+            portNameA.Text = PORT_PREFIX;
+            portNameB.Text = PORT_PREFIX;
+            await Task.Delay(SHOW_NEW_PORT_INTERVAL);
             portNameA.SetFocus();
         }
 

@@ -4,9 +4,7 @@ using SuperControls.Style.Windows;
 using SuperUtils.Framework.Logger;
 using SuperUtils.IO;
 using System;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace SuperCom
 {
@@ -18,19 +16,19 @@ namespace SuperCom
     public partial class App : Application
     {
         public static AbstractLogger Logger = Log.Logger.Instance;
-        private static MemoryDog memoryDog { get; set; }
+        private static MemoryDog MemoryDog { get; set; }
 
         public static Action OnMemoryDog;
         public static Action<long> OnMemoryChanged;
 
         static App()
         {
-            memoryDog = new MemoryDog();
-            memoryDog.OnNotFeed += () =>
+            MemoryDog = new MemoryDog();
+            MemoryDog.OnNotFeed += () =>
             {
                 OnMemoryDog?.Invoke();
             };
-            memoryDog.OnMemoryChanged += (memory) =>
+            MemoryDog.OnMemoryChanged += (memory) =>
             {
                 OnMemoryChanged?.Invoke(memory);
             };
@@ -43,7 +41,7 @@ namespace SuperCom
             {
                 Logger.Error(str);
             };
-            Logger.Info("APP 初始化");
+            Logger.Info("app init");
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -63,7 +61,7 @@ namespace SuperCom
             Logger.Info("异常后处理启动");
 #endif
             // 看门狗
-            memoryDog.Watch();
+            MemoryDog.Watch();
             base.OnStartup(e);
         }
 

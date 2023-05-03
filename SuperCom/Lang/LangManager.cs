@@ -13,7 +13,7 @@ namespace SuperCom.Lang
         {
             if (!SuperControls.Style.LangManager.SupportLanguages.Contains(lang))
             {
-                Console.WriteLine("不支持的语言：" + lang);
+                App.Logger.Error($"Language not support: {lang}");
                 return false;
             }
 

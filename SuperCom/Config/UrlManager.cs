@@ -27,9 +27,11 @@ namespace SuperCom.Config
 
         private static string DonateJsonBasePath = "SuperSudio-Donate";
         private static string PluginBasePath = "SuperPlugins";
+        public const string GITHUB_URL = "https://github.com/SuperStudio/SuperCom";
         public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";
         public static string HelpUrl = "https://github.com/SuperStudio/SuperCom/wiki";
         public const string NOTICE_URL = "https://superstudio.github.io/SuperCom-Upgrade/notice.json";
+
 
         public static List<ReferenceData> REFERENCE_DATAS = new List<ReferenceData>()
         {

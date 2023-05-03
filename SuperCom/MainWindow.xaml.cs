@@ -141,8 +141,8 @@ namespace SuperCom
                 ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(item.Name)).FirstOrDefault();
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
-                    item.Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
-                    item.Hide = CustomSerialPort.GetHide(comSettings.PortSetting);
+                    item.Remark = SerialPortEx.GetRemark(comSettings.PortSetting);
+                    item.Hide = SerialPortEx.GetHide(comSettings.PortSetting);
                 }
             }
             //textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
@@ -435,8 +435,8 @@ namespace SuperCom
                 ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => portName.Equals(arg.PortName));
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
-                    vieModel.SideComPorts[i].Remark = CustomSerialPort.GetRemark(comSettings.PortSetting);
-                    vieModel.SideComPorts[i].Hide = CustomSerialPort.GetHide(comSettings.PortSetting);
+                    vieModel.SideComPorts[i].Remark = SerialPortEx.GetRemark(comSettings.PortSetting);
+                    vieModel.SideComPorts[i].Hide = SerialPortEx.GetHide(comSettings.PortSetting);
                 }
             }
         }
@@ -510,7 +510,7 @@ namespace SuperCom
             {
                 try
                 {
-                    CustomSerialPort serialPort = portTabItem.SerialPort;
+                    SerialPortEx serialPort = portTabItem.SerialPort;
                     if (!serialPort.IsOpen)
                     {
                         //serialPort.WriteTimeout = CustomSerialPort.WRITE_TIME_OUT;
@@ -604,7 +604,7 @@ namespace SuperCom
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (portTabItem == null)
                 return false;
-            CustomSerialPort serialPort = portTabItem.SerialPort;
+            SerialPortEx serialPort = portTabItem.SerialPort;
             if (serialPort != null)
             {
                 bool success = await AsynClosePort(serialPort);
@@ -626,7 +626,7 @@ namespace SuperCom
             }
         }
 
-        public async Task<bool> AsynClosePort(CustomSerialPort serialPort)
+        public async Task<bool> AsynClosePort(SerialPortEx serialPort)
         {
             try
             {
@@ -635,7 +635,7 @@ namespace SuperCom
                   serialPort.Close();
                   serialPort.Dispose();
                   return true;
-              }).TimeoutAfter(TimeSpan.FromSeconds(CustomSerialPort.CLOSE_TIME_OUT));
+              }).TimeoutAfter(TimeSpan.FromSeconds(PortSetting.CLOSE_TIME_OUT));
             }
             catch (TimeoutException ex)
             {
@@ -647,9 +647,6 @@ namespace SuperCom
             }
             return false;
         }
-
-
-        private Queue<byte> recievedData = new Queue<byte>();
 
         private bool SetPortConnectStatus(string portName, bool status)
         {
@@ -715,10 +712,10 @@ namespace SuperCom
                 PortTabItem portTabItem = new PortTabItem(portName, connect);
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
 
-                CustomSerialPort serialPort;
+                SerialPortEx serialPort;
                 if (portTabItem.SerialPort == null)
                 {
-                    serialPort = new CustomSerialPort(portName);
+                    serialPort = new SerialPortEx(portName);
 
                     portTabItem.SerialPort = serialPort;
                 }
@@ -777,16 +774,17 @@ namespace SuperCom
             Dialog_About about = new Dialog_About();
             string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             local = local.Substring(0, local.Length - ".0.0".Length);
-            about.AppName = "SuperCom";
-            about.AppSubName = "超级串口工具";
+            about.AppName = ConfigManager.APP_NAME;
+            about.AppSubName = ConfigManager.APP_SUB_NAME;
             about.Version = local;
             about.ReleaseDate = ConfigManager.RELEASE_DATE;
-            about.Author = "Chao";
-            about.License = "GPL-3.0";
-            about.GithubUrl = "https://github.com/SuperStudio/SuperCom";
-            about.WebUrl = "https://github.com/SuperStudio/SuperCom";
-            about.JoinGroupUrl = "https://github.com/SuperStudio/SuperCom";
-            about.Image = SuperUtils.Media.ImageHelper.ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.png");
+            about.Author = ConfigManager.AUTHOR;
+            about.License = ConfigManager.LICENSE;
+            about.GithubUrl = UrlManager.GITHUB_URL;
+            about.WebUrl = UrlManager.GITHUB_URL;
+            about.JoinGroupUrl = UrlManager.GITHUB_URL;
+            about.Image = SuperUtils.Media.ImageHelper
+                .ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.png");
             about.ShowDialog();
         }
 
@@ -797,8 +795,7 @@ namespace SuperCom
                 return;
             button.ContextMenu.IsOpen = true;
         }
-        private static double MAX_FONTSIZE = 25;
-        private static double MIN_FONTSIZE = 5;
+
 
         private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -815,30 +812,13 @@ namespace SuperCom
                 {
                     fontSize--;
                 }
-                if (fontSize > MAX_FONTSIZE) fontSize = MAX_FONTSIZE;
-                if (fontSize < MIN_FONTSIZE) fontSize = MIN_FONTSIZE;
+                if (fontSize > PortSetting.MAX_FONTSIZE) fontSize = PortSetting.MAX_FONTSIZE;
+                if (fontSize < PortSetting.MIN_FONTSIZE) fontSize = PortSetting.MIN_FONTSIZE;
 
                 textEditor.FontSize = fontSize;
                 e.Handled = true;
             }
 
-        }
-
-        private void SetTextBoxScroll(object sender, RoutedEventArgs e)
-        {
-            //ToggleButton toggleButton = sender as ToggleButton;
-            //bool fix = (bool)toggleButton.IsChecked;
-            //PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
-            //if (portTabItem != null && portTabItem.TextEditor != null)
-            //{
-            //    if (fix)
-            //        portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-            //    else
-            //    {
-            //        portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-            //        portTabItem.TextEditor.TextChanged += TextBox_TextChanged;
-            //    }
-            //}
         }
 
         private TextEditor FindTextBox(Grid rootGrid)
@@ -905,11 +885,6 @@ namespace SuperCom
                 }
             }
         }
-
-
-
-
-
 
         private void OpenPath(object sender, RoutedEventArgs e)
         {
@@ -979,9 +954,6 @@ namespace SuperCom
             ToggleButton toggleButton = (lastBorder.Child as StackPanel).Children.OfType<ToggleButton>().FirstOrDefault();
             return (toggleButton, firstBorder.Child as TextEditor);
         }
-
-
-
 
         public void SendCommand(string portName)
         {
@@ -1066,16 +1038,6 @@ namespace SuperCom
             }
         }
 
-        private void OnMaxCurrentWindow(object sender, MouseButtonEventArgs e)
-        {
-            //    //if (e.ClickCount > 1)
-            //    //{
-            //    //    MaxWindow(sender, new RoutedEventArgs());
-            //    //}
-            //    base.DragMoveWindow(sender, e);
-        }
-
-
         private string GetPortName(FrameworkElement element)
         {
             if (element == null) return null;
@@ -1107,20 +1069,6 @@ namespace SuperCom
             (sender as FrameworkElement).IsEnabled = true;
         }
 
-
-
-        private string GetPortName(ComboBox comboBox)
-        {
-            if (comboBox != null && comboBox.Tag != null)
-            {
-                return comboBox.Tag.ToString();
-            }
-            return null;
-        }
-
-
-
-
         private void ShowSettingsPopup(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
@@ -1132,11 +1080,6 @@ namespace SuperCom
                 contextMenu.IsOpen = true;
             }
             e.Handled = true;
-        }
-
-        private void ShowSplitPopup(object sender, RoutedEventArgs e)
-        {
-            //panelSplitPopup.IsOpen = true;
         }
 
         private void ShowContextMenu(object sender, MouseButtonEventArgs e)
@@ -1247,7 +1190,6 @@ namespace SuperCom
             {
                 App.Logger.Error(ex.Message);
             }
-
         }
 
 
@@ -1465,7 +1407,7 @@ namespace SuperCom
                 return;
             if (vieModel.PortTabItems != null &&
                 vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name)) is PortTabItem tabItem &&
-                tabItem.SerialPort is CustomSerialPort port)
+                tabItem.SerialPort is SerialPortEx port)
             {
                 port.RestoreDefault();
                 port.PrintSetting();
@@ -1513,11 +1455,6 @@ namespace SuperCom
             ReadXshdList();// 自定义语法高亮
             LoadDonateConfig();
             await BackupData(); // 备份文件
-                                //new Window_AdvancedSend().Show();
-                                //Window_Setting setting = new Window_Setting();
-                                //setting.Owner = this;
-                                //setting.ShowDialog();
-                                //OpenShortCut(null, null);
             LoadFontFamily();
             InitUpgrade();
             //CommonSettings.InitLogDir();
@@ -1624,7 +1561,7 @@ namespace SuperCom
 
         public void InitUpgrade()
         {
-            UpgradeHelper.Init(this);
+            UpgradeHelper.Init();
             UpgradeHelper.OnBeforeCopyFile += () =>
             {
                 CloseAllPorts(null, null);
@@ -1686,12 +1623,6 @@ namespace SuperCom
 
             ThemeSelectorDefault.InitThemes();
         }
-
-
-
-
-        public string longText = "";
-
 
         private async void OpenBeforePorts()
         {
@@ -1938,11 +1869,6 @@ namespace SuperCom
             //    window_AdvancedSend.BringIntoView();
             //}
         }
-
-
-        FoldingManager foldingManager;
-        object foldingStrategy;
-
 
         private void HideSide(object sender, RoutedEventArgs e)
         {
@@ -2345,7 +2271,7 @@ namespace SuperCom
             if (e.AddedItems == null || e.AddedItems.Count <= 0)
                 return;
             string text = e.AddedItems[0].ToString();
-            if ("新增".Equals(text))
+            if (VieModel_Main.DEFAULT_ADD_TEXT.Equals(text))
             {
                 // 记录原来的下标
                 int index = 0;
@@ -2361,7 +2287,7 @@ namespace SuperCom
                         }
                     }
                 }
-                DialogInput dialogInput = new DialogInput("请输入波特率");
+                DialogInput dialogInput = new DialogInput(Window_Setting.INPUT_NOTICE_TEXT);
                 bool success = false;
                 if ((bool)dialogInput.ShowDialog(this))
                 {
@@ -2372,7 +2298,7 @@ namespace SuperCom
 
                         vieModel.BaudRates.RemoveAt(vieModel.BaudRates.Count - 1);
                         vieModel.BaudRates.Add(baudrate.ToString());
-                        vieModel.BaudRates.Add("新增");
+                        vieModel.BaudRates.Add(VieModel_Main.DEFAULT_ADD_TEXT);
                         success = true;
                         (sender as ComboBox).SelectedIndex = vieModel.BaudRates.Count - 2;
                         // 保存当前项目
@@ -2978,17 +2904,6 @@ namespace SuperCom
             bool value = GetMenuItemCheckedStatus(sender);
             SetTextPropOption("ShowLineNumbers", value);
 
-        }
-
-        private void SetTextForeground(object sender, RoutedEventArgs e)
-        {
-            //StackPanel stackPanel = (sender as Button).Parent as StackPanel;
-            //ColorPicker colorPicker = stackPanel.Children.OfType<ColorPicker>().FirstOrDefault();
-            //SolidColorBrush brush = new SolidColorBrush(colorPicker.SelectedColor);
-            //SetTextPropOption("Foreground", brush);
-            //ConfigManager.Main.TextForeground = brush.ToString();
-            //if (stackPanel.Tag != null && stackPanel.Tag is ContextMenu contextMenu)
-            //    contextMenu.IsOpen = false;
         }
 
         private void colorPicker_SelectedColorChanged(object sender, EventArgs e)
@@ -3602,7 +3517,7 @@ namespace SuperCom
                 !string.IsNullOrEmpty(portName) &&
                 vieModel.PortTabItems != null &&
                 vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem &&
-                portTabItem.SerialPort is CustomSerialPort port)
+                portTabItem.SerialPort is SerialPortEx port)
             {
                 port.PrintSetting();
             };

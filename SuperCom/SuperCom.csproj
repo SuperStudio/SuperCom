@@ -125,7 +125,7 @@
     <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
     <Compile Include="Entity\AdvancedSend.cs" />
     <Compile Include="Entity\ComSettings.cs" />
-    <Compile Include="Entity\CustomSerialPort.cs">
+    <Compile Include="Entity\SerialPortEx.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Entity\FormatType.cs" />

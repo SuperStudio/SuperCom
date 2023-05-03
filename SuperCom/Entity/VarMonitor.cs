@@ -1,13 +1,9 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Mapper;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperCom.Entity
 {
@@ -109,18 +105,19 @@ namespace SuperCom.Entity
                     "var_monitor",
 
                     "BEGIN;" +
-                    "create table if not exists var_monitor( " +
-                    "MonitorID INTEGER PRIMARY KEY autoincrement, " +
-                    "PortName VARCHAR(20), " +
-                    "Enabled INT DEFAULT 1, " +
-                    "SortOrder INT DEFAULT 0, " +
-                    "VarType INT DEFAULT 0, " +
-                    "Name VARCHAR(50), " +
-                    "RegexPattern VARCHAR(200), " +
-                    "DataFileName VARCHAR(200), " +
-                    "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
-                    "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
-                    "unique(PortName,Name));" +
+                        "create table if not exists var_monitor( " +
+                            "MonitorID INTEGER PRIMARY KEY autoincrement, " +
+                            "PortName VARCHAR(20), " +
+                            "Enabled INT DEFAULT 1, " +
+                            "SortOrder INT DEFAULT 0, " +
+                            "VarType INT DEFAULT 0, " +
+                            "Name VARCHAR(50), " +
+                            "RegexPattern VARCHAR(200), " +
+                            "DataFileName VARCHAR(200), " +
+                            "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                            "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                            "unique(PortName,Name)" +
+                        ");" +
                     "CREATE INDEX var_monitor_idx_PortName ON var_monitor (PortName);" +
                     "CREATE INDEX var_monitor_idx_PortName_Name ON var_monitor (PortName,Name);" +
                     "COMMIT;"

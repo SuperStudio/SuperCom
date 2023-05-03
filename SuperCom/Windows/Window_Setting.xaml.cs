@@ -11,17 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static SuperCom.Entity.HighLightRule;
+using static SuperCom.App;
+using System.Data;
 
 namespace SuperCom
 {
@@ -32,6 +28,12 @@ namespace SuperCom
     {
 
         public const int HIGH_LIGHT_TAB_INDEX = 3;
+
+        public const string INPUT_NOTICE_TEXT = "请输入波特率";
+
+        public static string BASE_XSHD_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                        "AvalonEdit", "Higlighting");
+
         private MainWindow Main { get; set; }
         public VieModel_Setting vieModel { get; set; }
         public Window_Setting()
@@ -146,7 +148,7 @@ namespace SuperCom
 
         private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
         {
-            DialogInput input = new DialogInput("请输入波特率");
+            DialogInput input = new DialogInput(INPUT_NOTICE_TEXT);
             if ((bool)input.ShowDialog(this))
             {
                 string text = input.Text;
@@ -253,8 +255,7 @@ namespace SuperCom
             //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
             HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
             if (rule == null) return;
-            string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "AvalonEdit", "Higlighting", rule.FileName);
+            string xshdPath = Path.Combine(BASE_XSHD_PATH, rule.FileName);
             if (!File.Exists(xshdPath)) return;
 
             using (Stream s = File.OpenRead(xshdPath))
@@ -555,7 +556,8 @@ namespace SuperCom
 
         private void previewTextEditor_GotFocus(object sender, RoutedEventArgs e)
         {
-            ((sender as TextEditor).Parent as Border).BorderBrush = (Brush)FindResource("Button.Selected.BorderBrush"); ;
+            ((sender as TextEditor).Parent as Border).BorderBrush =
+                (Brush)FindResource("Button.Selected.BorderBrush"); ;
         }
 
         private void previewTextEditor_LostFocus(object sender, RoutedEventArgs e)

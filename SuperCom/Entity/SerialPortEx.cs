@@ -14,25 +14,23 @@ using static SuperCom.App;
 
 namespace SuperCom.Entity
 {
-    public class CustomSerialPort : SerialPort, INotifyPropertyChanged
+    public class SerialPortEx : SerialPort, INotifyPropertyChanged
     {
+        private const Parity defaultParity = Parity.None;
+        private static readonly string DEFAULT_STOPBITS = StopBits.One.ToString();
+        private static readonly string DEFAULT_PARITY = Parity.None.ToString();
 
-        public const int CLOSE_TIME_OUT = 5;
+        private const Handshake defaultHandshake = Handshake.None;
 
-        public static Encoding DEFAULT_ENCODING = System.Text.Encoding.UTF8;
+
+
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        private const int DEFAULT_WRITE_TIME_OUT = 1000;
-        private const int DEFAULT_READ_TIME_OUT = 2000;
-        private const int MIN_TIME_OUT = 0;
-        private const int MAX_TIME_OUT = 60 * 60 * 1000;
-
-        public bool HandledDataReceived { get; set; }
 
 
         public PortSetting _Setting = PortSetting.GetDefaultSetting();
@@ -41,21 +39,32 @@ namespace SuperCom.Entity
             get { return _Setting; }
             set { _Setting = value; }
         }
-        public CustomSerialPort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
-            : base(portName, baudRate, parity, dataBits, stopBits)
+
+
+        public SerialPortEx()
         {
+
         }
 
-        public static double DEFAULT_FONTSIZE = 15;
+        public SerialPortEx(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+            : base(portName, baudRate, parity, dataBits, stopBits)
+        {
+            Init();
+        }
 
-        public CustomSerialPort(string portName)
+        public SerialPortEx(string portName) : this()
         {
             this.PortName = portName;
             RefreshSetting();
         }
 
+        public void Init()
+        {
+            Remark = "";
+        }
+
         /// <summary>
-        /// 仅可以有 COM 加 数字
+        /// 仅有 COM[NUMBER]
         /// </summary>
         /// <returns></returns>
         public static string[] GetAllPorts()
@@ -64,7 +73,7 @@ namespace SuperCom.Entity
             string[] ports = GetPortNames();
             foreach (var item in ports)
             {
-                if (int.TryParse(item.ToUpper().Replace("COM", ""), out int portNumber))
+                if (int.TryParse(item.ToUpper().Replace("COM", ""), out _))
                     result.Add(item);
             }
             return result.ToArray();
@@ -102,9 +111,9 @@ namespace SuperCom.Entity
             return ports.ToArray();
         }
 
-        public string Remark = "";
-        public bool Pinned = false;
-        public bool Hide = false;
+        public string Remark { get; set; }
+        public bool Pinned { get; set; }
+        public bool Hide { get; set; }
 
         public void SaveRemark(string remark)
         {
@@ -125,8 +134,6 @@ namespace SuperCom.Entity
 
         public void SaveProperties()
         {
-            //this.BaudRate = Setting.BaudRate;
-            //this.DataBits = Setting.DataBits;
             this.Encoding = GetEncoding();
             this.StopBits = GetStopBits();
             this.Parity = GetParity();
@@ -149,14 +156,25 @@ namespace SuperCom.Entity
 
         public string PortSettingToJson()
         {
-            Dictionary<string, object> dic = new Dictionary<string, object>();
-            dic.Add("BaudRate", this.BaudRate);
-            dic.Add("DataBits", this.DataBits);
-            dic.Add("Encoding", this.Encoding.HeaderName);
-            dic.Add("StopBits", this.StopBitsString);
-            dic.Add("Parity", this.ParityString);
-            dic.Add("DTR", this.DtrEnable);
-            dic.Add("Handshake", this.Handshake);
+            Dictionary<string, object> dic =
+                new Dictionary<string, object>
+            {
+                { "BaudRate", this.BaudRate },
+                { "DataBits", this.DataBits },
+                { "Encoding", this.Encoding.HeaderName },
+                { "StopBits", this.StopBitsString },
+                { "Parity", this.ParityString },
+                { "DTR", this.DtrEnable },
+                { "Handshake", this.Handshake },
+                { "ReadTimeout", this.ReadTimeoutValue },
+                { "WriteTimeout", this.WriteTimeoutValue },
+                { "DiscardNull", this.DiscardNull },
+                { "Remark", this.Remark },
+                { "Pinned", this.Pinned },
+                { "Hide", this.Hide },
+                { "TextFontSize", this.TextFontSize },
+                { "HighLightIndex", this.HighLightIndex },
+            };
             if (this.Handshake == Handshake.RequestToSend || this.Handshake == Handshake.RequestToSendXOnXOff)
             {
                 // Handshake 设置为 RequestToSend 或 RequestToSendXOnXOff，则无法访问 RtsEnable
@@ -166,18 +184,6 @@ namespace SuperCom.Entity
                 dic.Add("RTS", this.RtsEnable);
             }
             //dic.Add("BreakState", this.BreakState);
-            dic.Add("ReadTimeout", this.ReadTimeoutValue);
-            dic.Add("WriteTimeout", this.WriteTimeoutValue);
-
-            dic.Add("DiscardNull", this.DiscardNull);
-
-
-
-            dic.Add("Remark", this.Remark);
-            dic.Add("Pinned", this.Pinned);
-            dic.Add("Hide", this.Hide);
-            dic.Add("TextFontSize", this.TextFontSize);
-            dic.Add("HighLightIndex", this.HighLightIndex);
             return JsonUtils.TrySerializeObject(dic);
         }
 
@@ -196,7 +202,7 @@ namespace SuperCom.Entity
 
                 if (dict.ContainsKey("TextFontSize"))
                 {
-                    double fontSize = CustomSerialPort.DEFAULT_FONTSIZE;
+                    double fontSize = PortSetting.DEFAULT_FONTSIZE;
                     double.TryParse(dict["TextFontSize"].ToString(), out fontSize);
                     this.TextFontSize = fontSize;
                 }
@@ -268,7 +274,7 @@ namespace SuperCom.Entity
                 if (dict.ContainsKey("Pinned"))
                     status = dict["Pinned"].ToString();
             }
-            return status.ToLower().Equals("true") ? true : false;
+            return status.ToLower().Equals("true");
         }
 
 
@@ -299,7 +305,7 @@ namespace SuperCom.Entity
             return result;
         }
 
-        private string _PortEncoding = "UTF8";
+        private string _PortEncoding = PortSetting.DEFAULT_ENCODING_STRING;
         public string PortEncoding
         {
             get { return _PortEncoding; }
@@ -310,7 +316,7 @@ namespace SuperCom.Entity
                 RefreshSetting();
             }
         }
-        private string _StopBitsString = "One";
+        private string _StopBitsString = DEFAULT_STOPBITS;
         public string StopBitsString
         {
             get { return _StopBitsString; }
@@ -321,7 +327,7 @@ namespace SuperCom.Entity
                 RefreshSetting();
             }
         }
-        private string _ParityString = "One";
+        private string _ParityString = DEFAULT_PARITY;
         public string ParityString
         {
             get { return _ParityString; }
@@ -332,7 +338,7 @@ namespace SuperCom.Entity
                 RefreshSetting();
             }
         }
-        private double _TextFontSize = DEFAULT_FONTSIZE;
+        private double _TextFontSize = PortSetting.DEFAULT_FONTSIZE;
         public double TextFontSize
         {
             get { return _TextFontSize; }
@@ -350,7 +356,7 @@ namespace SuperCom.Entity
             get { return _FilterSelectedIndex; }
             set { _FilterSelectedIndex = value; RaisePropertyChanged(); }
         }
-        private long _ReadTimeoutValue = DEFAULT_READ_TIME_OUT;
+        private long _ReadTimeoutValue = PortSetting.DEFAULT_READ_TIME_OUT;
         public long ReadTimeoutValue
         {
             get { return _ReadTimeoutValue; }
@@ -358,12 +364,12 @@ namespace SuperCom.Entity
             {
                 _ReadTimeoutValue = value;
                 RaisePropertyChanged();
-                if (value >= MIN_TIME_OUT && value <= MAX_TIME_OUT)
+                if (value >= PortSetting.MIN_TIME_OUT && value <= PortSetting.MAX_TIME_OUT)
                     this.ReadTimeout = (int)value;
 
             }
         }
-        private long _WriteTimeoutValue = DEFAULT_WRITE_TIME_OUT;
+        private long _WriteTimeoutValue = PortSetting.DEFAULT_WRITE_TIME_OUT;
         public long WriteTimeoutValue
         {
             get { return _WriteTimeoutValue; }
@@ -371,7 +377,7 @@ namespace SuperCom.Entity
             {
                 _WriteTimeoutValue = value;
                 RaisePropertyChanged();
-                if (value >= MIN_TIME_OUT && value <= MAX_TIME_OUT)
+                if (value >= PortSetting.MIN_TIME_OUT && value <= PortSetting.MAX_TIME_OUT)
                     this.WriteTimeout = (int)value;
             }
         }
@@ -385,7 +391,7 @@ namespace SuperCom.Entity
 
         public override bool Equals(object obj)
         {
-            if (obj != null && obj is CustomSerialPort serialPort)
+            if (obj != null && obj is SerialPortEx serialPort)
             {
                 return serialPort.PortName.Equals(PortName);
             }
@@ -399,15 +405,15 @@ namespace SuperCom.Entity
 
         public void RestoreDefault()
         {
-            this.DtrEnable = false;
-            this.RtsEnable = false;
-            this.DiscardNull = false;
-            this.ReadTimeout = DEFAULT_READ_TIME_OUT;
-            this.WriteTimeout = DEFAULT_WRITE_TIME_OUT;
-            this.Handshake = Handshake.None;
-            this.StopBits = StopBits.One;
-            this.Parity = Parity.None;
-            this.Encoding = DEFAULT_ENCODING;
+            this.DtrEnable = PortSetting.DEFAULT_DTR;
+            this.RtsEnable = PortSetting.DEFAULT_RTS;
+            this.DiscardNull = PortSetting.DEFAULT_DISCARDNULL;
+            this.ReadTimeout = PortSetting.DEFAULT_READ_TIME_OUT;
+            this.WriteTimeout = PortSetting.DEFAULT_WRITE_TIME_OUT;
+            this.Handshake = PortSetting.DEFAULT_HANDSHAKE;
+            this.StopBits = PortSetting.DEFAULT_STOPBITS;
+            this.Parity = PortSetting.DEFAULT_PARITY;
+            this.Encoding = PortSetting.DEFAULT_ENCODING;
         }
     }
 }

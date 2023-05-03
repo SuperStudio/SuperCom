@@ -3,55 +3,43 @@ using SuperCom.Entity;
 using SuperControls.Style;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
-using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SuperCom
 {
     /// <summary>
     /// Interaction logic for Window_ShortCut.xaml
     /// </summary>
-    public partial class Window_ShortCut : BaseWindow, INotifyPropertyChanged
+    public partial class Window_ShortCut : BaseWindow
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        private const string ADD_STRING = "+";
 
-        protected void RaisePropertyChanged([CallerMemberName] string name = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
-        SqliteMapper<ShortCutBinding> mapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
+        SqliteMapper<ShortCutBinding> Mapper =
+            new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
 
-        private MainWindow mainWindow { get; set; }
+        private MainWindow MainWindow { get; set; }
 
         public Window_ShortCut()
         {
             InitializeComponent();
             this.DataContext = this;
             Init();
-
         }
 
         public void Init()
         {
             dataGrid.ItemsSource = null;
             ShortCutBindings = new ObservableCollection<ShortCutBinding>();
-            List<ShortCutBinding> shortCutBindings = mapper.SelectList();
+            List<ShortCutBinding> shortCutBindings = Mapper.SelectList();
             foreach (var item in shortCutBindings)
             {
                 item.RefreshKeyList();
@@ -64,7 +52,7 @@ namespace SuperCom
             Window window = SuperUtils.WPF.VisualTools.WindowHelper.GetWindowByName("MainWindow", App.Current.Windows);
             if (window != null && window is MainWindow w)
             {
-                mainWindow = w;
+                MainWindow = w;
             }
 
         }
@@ -93,10 +81,6 @@ namespace SuperCom
 
         }
 
-        private void SearchBox_Search(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         public void DoSearch(string text)
         {
@@ -115,7 +99,7 @@ namespace SuperCom
             text = text.ToLower();
             List<string> searchList = text.Split(' ').ToList();
             bool searchKey = false;
-            if (text.IndexOf("+") > 0)
+            if (text.IndexOf(ADD_STRING) > 0)
             {
                 searchKey = true;
                 searchList = text.Split('+').ToList();
@@ -199,7 +183,7 @@ namespace SuperCom
                     if (allKey.Count > 0)
                     {
                         List<string> list = allKey.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
-                        keyInputTextBox.Text = string.Join("+", list).RemoveKeyDiff();
+                        keyInputTextBox.Text = string.Join(ADD_STRING, list).RemoveKeyDiff();
                         //Keyboard.Focus(keyInputTextBox);
 
                     }
@@ -265,7 +249,7 @@ namespace SuperCom
             allkey.AddRange(funcKeys);
             allkey.AddRange(normalKeys);
 
-            keyInputTextBox.Text = string.Join("+", keys).RemoveKeyDiff();
+            keyInputTextBox.Text = string.Join(ADD_STRING, keys).RemoveKeyDiff();
             hiddenTextBlock.Text = string.Join(",", allkey.Select(arg => (int)arg));
             ShortCutBinding shortCutBinding = ShortCutBindingList.Where(arg => arg.Keys.ToLower().Equals(hiddenTextBlock.Text.ToLower())).FirstOrDefault();
             if (shortCutBinding != null)
@@ -305,11 +289,11 @@ namespace SuperCom
             {
                 CurrentShortCutBinding.Keys = hiddenTextBlock.Text;
                 CurrentShortCutBinding.RefreshKeyList();
-                mapper.Update(CurrentShortCutBinding);
+                Mapper.Update(CurrentShortCutBinding);
                 Init();
                 SearchBox_TextChanged(null, null);
                 // 通知到其他应用
-                mainWindow.OnShortCutChanged();
+                MainWindow.OnShortCutChanged();
             }
 
             funcKeys.Clear();

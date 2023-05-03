@@ -9,6 +9,10 @@ namespace SuperCom.Config
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
 
         public const string RELEASE_DATE = "2023-04-23";
+        public const string LICENSE = "GPL-3.0";
+        public const string AUTHOR = "chao";
+        public const string APP_NAME = "SuperCom";
+        public const string APP_SUB_NAME = "超级串口工具";
         public static Main Main { get; set; }
         public static CommonSettings CommonSettings { get; set; }
         public static Settings Settings { get; set; }

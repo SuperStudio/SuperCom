@@ -5,23 +5,34 @@ using SuperCom.Entity;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
-using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO.Ports;
 using System.Linq;
 using System.Windows;
+using static SuperCom.App;
 
 namespace SuperCom.ViewModel
 {
 
     public class VieModel_AdvancedSend : ViewModelBase
     {
+        public MainWindow Main { get; set; }
+
+        private static SqliteMapper<AdvancedSend> Mapper { get; set; }
+
+        public VieModel_AdvancedSend()
+        {
+            Init();
+        }
+
+        static VieModel_AdvancedSend()
+        {
+            Mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
+        }
+
 
         public Action<bool> OnRunCommand { get; set; }
-        private static SqliteMapper<AdvancedSend> mapper { get; set; }
-
 
         public List<AdvancedSend> AllProjects { get; set; }
 
@@ -54,10 +65,6 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-
-
-
 
         private bool _ShowCurrentSendCommand;
 
@@ -162,17 +169,6 @@ namespace SuperCom.ViewModel
             }
         }
 
-        public MainWindow Main { get; set; }
-
-        public VieModel_AdvancedSend()
-        {
-            Init();
-        }
-
-        static VieModel_AdvancedSend()
-        {
-            mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
-        }
 
 
         private void Init()
@@ -181,9 +177,9 @@ namespace SuperCom.ViewModel
             SendCommands = new ObservableCollection<SendCommand>();
             AllProjects = new List<AdvancedSend>();
             // 从数据库中读取
-            if (mapper != null)
+            if (Mapper != null)
             {
-                AllProjects = mapper.SelectList();
+                AllProjects = Mapper.SelectList();
                 foreach (var item in AllProjects)
                 {
                     CurrentProjects.Add(item);
@@ -205,7 +201,7 @@ namespace SuperCom.ViewModel
             CurrentProjects = new ObservableCollection<AdvancedSend>();
             if (string.IsNullOrEmpty(name))
             {
-                AllProjects = mapper.SelectList();
+                AllProjects = Mapper.SelectList();
                 foreach (var item in AllProjects)
                     CurrentProjects.Add(item);
             }
@@ -221,7 +217,7 @@ namespace SuperCom.ViewModel
 
         public void LoadAllProject()
         {
-            AllProjects = mapper.SelectList();
+            AllProjects = Mapper.SelectList();
         }
 
 
@@ -245,28 +241,28 @@ namespace SuperCom.ViewModel
 
         public void UpdateProject(AdvancedSend send)
         {
-            int count = mapper.UpdateById(send);
+            int count = Mapper.UpdateById(send);
             if (count <= 0)
             {
-                Console.WriteLine($"插入 {send.ProjectName} 失败");
+                Logger.Error($"insert error: {send.ProjectName}");
             }
         }
 
         public void RenameProject(AdvancedSend send)
         {
-            bool result = mapper.UpdateFieldById("ProjectName", send.ProjectName, send.ProjectID);
+            bool result = Mapper.UpdateFieldById("ProjectName", send.ProjectName, send.ProjectID);
             if (!result)
             {
-                Console.WriteLine($"更新 {send.ProjectName} 失败");
+                Logger.Error($"update error {send.ProjectName}");
             }
         }
 
         public void DeleteProject(AdvancedSend send)
         {
-            int count = mapper.DeleteById(send.ProjectID);
+            int count = Mapper.DeleteById(send.ProjectID);
             if (count <= 0)
             {
-                Console.WriteLine($"删除 {send.ProjectName} 失败");
+                Logger.Error($"delete error {send.ProjectName}");
             }
             else
             {
@@ -279,18 +275,12 @@ namespace SuperCom.ViewModel
             if (string.IsNullOrEmpty(projectName)) return;
             AdvancedSend send = new AdvancedSend();
             send.ProjectName = projectName;
-            bool success = mapper.Insert(send);
+            bool success = Mapper.Insert(send);
             if (success)
             {
                 CurrentProjects.Add(send);
                 AllProjects.Add(send);
             }
         }
-
-        public void SetCurrentSendCommands()
-        {
-
-        }
-
     }
 }

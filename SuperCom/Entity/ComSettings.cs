@@ -58,12 +58,26 @@ namespace SuperCom.Entity
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()
             {
-                {"com_settings","create table if not exists com_settings( Id INTEGER PRIMARY KEY autoincrement, PortName VARCHAR(50), Connected INT DEFAULT 0, AddTimeStamp INT DEFAULT 0, AddNewLineWhenWrite INT DEFAULT 0, PortSetting VARCHAR(1000), WriteData VARCHAR(5000), CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), unique(PortName) );" }
+                {
+                    "com_settings",
+                    "create table if not exists com_settings( " +
+                        "Id INTEGER PRIMARY KEY autoincrement, " +
+                        "PortName VARCHAR(50), " +
+                        "Connected INT DEFAULT 0, " +
+                        "AddTimeStamp INT DEFAULT 0, " +
+                        "AddNewLineWhenWrite INT DEFAULT 0, " +
+                        "PortSetting VARCHAR(1000), " +
+                        "WriteData VARCHAR(5000), " +
+                        "CreateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                        "UpdateDate VARCHAR(30) DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW', 'localtime')), " +
+                        "unique(PortName) " +
+                    ");"
+                }
             };
 
         }
 
-        public static string[] SqlCommands = {
+        public static string[] SQL_EXTRA_CMDS = {
              "ALTER TABLE com_settings ADD COLUMN EnabledFilter INT DEFAULT 0;",
              "ALTER TABLE com_settings ADD COLUMN EnabledMonitor INT DEFAULT 0;",
              "ALTER TABLE com_settings ADD COLUMN SendHex INT DEFAULT 0;",
@@ -82,7 +96,7 @@ namespace SuperCom.Entity
             }
 
             // 新增列
-            foreach (string sql in SqlCommands)
+            foreach (string sql in SQL_EXTRA_CMDS)
             {
                 try
                 {

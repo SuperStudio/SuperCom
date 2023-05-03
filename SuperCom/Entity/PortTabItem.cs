@@ -1,11 +1,8 @@
 ﻿
 using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.Highlighting;
-using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperUtils.Common;
-using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
 using SuperUtils.Time;
 using SuperUtils.WPF.VieModel;
@@ -13,28 +10,36 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
 using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom.Entity
 {
     public class PortTabItem : ViewModelBase
     {
+        private const int MAX_READ_LENGTH = 10240;
+        private const int READ_INTERVAL = 50;
+        private const int NOT_RECV_HEX_SLEEP_INTERVAL = 2000;
 
+        private AutoResetEvent ResetEvent { get; set; }
 
+        public TextEditor TextEditor { get; set; }
 
+        public double CurrentCharSize { get; set; }
+
+        public bool RunningCommands { get; set; }
+
+        public Queue<ResultCheck> ResultChecks { get; set; }
+        public string SaveFileName { get; set; }
+
+        public int FragCount { get; set; }
 
         private string _Name;
         public string Name
@@ -53,26 +58,6 @@ namespace SuperCom.Entity
             }
         }
 
-
-        private EventWaitHandle WaitHandle { get; set; }
-
-
-
-
-
-        private bool _TaskRunning;
-        private bool TaskRunning
-        {
-            get { return _TaskRunning; }
-            set
-            {
-                _TaskRunning = value;
-                RaisePropertyChanged();
-                App.Logger?.Debug($"TaskRunning = {value}");
-            }
-        }
-
-
         private bool _Selected;
         public bool Selected
         {
@@ -87,6 +72,8 @@ namespace SuperCom.Entity
             get { return _Data; }
             set { _Data = value; RaisePropertyChanged(); }
         }
+
+
         private PortSetting _Setting;
         public PortSetting Setting
         {
@@ -97,18 +84,14 @@ namespace SuperCom.Entity
                 RaisePropertyChanged();
             }
         }
-        private CustomSerialPort _SerialPort;
-        public CustomSerialPort SerialPort
+
+        private SerialPortEx _SerialPort;
+        public SerialPortEx SerialPort
         {
             get { return _SerialPort; }
             set { _SerialPort = value; RaisePropertyChanged(); }
         }
-        private bool _ScrollToEnd;
-        public bool ScrollToEnd
-        {
-            get { return _ScrollToEnd; }
-            set { _ScrollToEnd = value; RaisePropertyChanged(); }
-        }
+
         private bool _AddNewLineWhenWrite = true;
         public bool AddNewLineWhenWrite
         {
@@ -120,6 +103,7 @@ namespace SuperCom.Entity
                 RefreshSendHexValue(WriteData);
             }
         }
+
         private bool _SendHex;
         public bool SendHex
         {
@@ -132,6 +116,7 @@ namespace SuperCom.Entity
                     RefreshSendHexValue(WriteData);
             }
         }
+
         private bool _RecvShowHex;
         public bool RecvShowHex
         {
@@ -161,7 +146,7 @@ namespace SuperCom.Entity
             }
         }
 
-        public TextEditor TextEditor { get; set; }
+
 
         private bool _AddTimeStamp = true;
         public bool AddTimeStamp
@@ -169,6 +154,8 @@ namespace SuperCom.Entity
             get { return _AddTimeStamp; }
             set { _AddTimeStamp = value; RaisePropertyChanged(); }
         }
+
+
         private bool _EnabledMonitor = true;
         public bool EnabledMonitor
         {
@@ -188,8 +175,6 @@ namespace SuperCom.Entity
         }
 
 
-        public double CurrentCharSize { get; set; }
-
         private long _RX = 0L;
         public long RX
         {
@@ -203,14 +188,18 @@ namespace SuperCom.Entity
             set { _TX = value; RaisePropertyChanged(); }
         }
 
-        // 备注
 
         private string _Remark = "";
+
+        /// <summary>
+        /// 备注
+        /// </summary>
         public string Remark
         {
             get { return _Remark; }
             set { _Remark = value; RaisePropertyChanged(); }
         }
+
         private bool _EnabledFilter;
         public bool EnabledFilter
         {
@@ -257,6 +246,7 @@ namespace SuperCom.Entity
             get { return _Pinned; }
             set { _Pinned = value; RaisePropertyChanged(); }
         }
+
         private bool _FixedText;
         public bool FixedText
         {
@@ -282,29 +272,19 @@ namespace SuperCom.Entity
             textEditor?.ScrollToEnd();
         }
 
-        public bool RunningCommands { get; set; }
-
-        public Queue<ResultCheck> ResultChecks { get; set; }
 
         public void ClearData()
         {
             FirstSaveData = true;
         }
 
-
-        public string SaveFileName { get; set; }
-
-
-        void ProcessLine(CustomSerialPort serialPort, string line)
+        void ProcessLine(SerialPortEx serialPort, string line)
         {
             if (string.IsNullOrEmpty(line))
                 return;
             string portName = serialPort.PortName;
-            //if (!line.EndsWith("\r\n"))
-            //    line += "\r\n";
             try
             {
-                // 异步存储
                 App.Current.Dispatcher.Invoke(() =>
                  {
                      SaveData(line);
@@ -313,7 +293,6 @@ namespace SuperCom.Entity
             catch (Exception ex)
             {
                 App.Logger.Error(ex.Message);
-
             }
         }
 
@@ -322,7 +301,7 @@ namespace SuperCom.Entity
         /// <para>参考：<see href="https://stackoverflow.com/a/13755084">stackoverflow</see></para>
         /// </summary>
         /// <param name="serialPort"></param>
-        private void HandleStrReceived(CustomSerialPort serialPort)
+        private void HandleStrReceived(SerialPortEx serialPort)
         {
             string line = "";
             try
@@ -338,17 +317,12 @@ namespace SuperCom.Entity
 
         private void OnRevievedStr(object sender, SerialDataReceivedEventArgs e)
         {
-            CustomSerialPort serialPort = sender as CustomSerialPort;
+            SerialPortEx serialPort = sender as SerialPortEx;
             HandleStrReceived(serialPort);
         }
 
         #region "HEX 收数据处理"
 
-
-        private AutoResetEvent ResetEvent { get; set; }
-
-        private const int MAX_READ_LENGTH = 10240;
-        private const int READ_INTERVAL = 50;
 
         private void OnRevievedHEX(object sender, SerialDataReceivedEventArgs e)
         {
@@ -364,7 +338,7 @@ namespace SuperCom.Entity
         /// <para>参考2：<see href="https://learn.microsoft.com/en-us/dotnet/api/system.io.ports.serialport.datareceived">microsoft</see></para>
         /// <para>参考3：<see href="https://stackoverflow.com/questions/46882774/how-to-deal-with-c-sharp-serialport-read-and-write-data-perfectly">deal-with-c-sharp-serialport-read</see></para>
         /// </summary>
-        public void ReadTask()
+        public void ReadHexTask()
         {
             ResetEvent.Reset();
             List<byte> allData = new List<byte>();
@@ -421,13 +395,10 @@ namespace SuperCom.Entity
                 SerialPort.DataReceived -= OnRevievedStr;
                 SerialPort.DataReceived -= OnRevievedHEX;
                 SerialPort.DataReceived += OnRevievedHEX;
-                //if (Connected)
-                //    StartHexRecvTask();
             }
             else
             {
                 // STR 模式
-                TaskRunning = false;
                 SerialPort.DataReceived -= OnRevievedHEX;
                 SerialPort.DataReceived -= OnRevievedStr;
                 SerialPort.DataReceived += OnRevievedStr;
@@ -562,9 +533,6 @@ namespace SuperCom.Entity
             return Path.Combine(logDir, name + ".log");
         }
 
-        public int FragCount { get; set; }
-
-        private StringBuilder Buffer = new StringBuilder();
 
         public void FilterLine(string value)
         {
@@ -592,7 +560,7 @@ namespace SuperCom.Entity
 
 
 
-        private ConcurrentQueue<string> FilterQueue = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<string> FilterQueue = new ConcurrentQueue<string>();
 
         private bool StopFilter = false;
         private bool FilterRunning = false;
@@ -902,7 +870,10 @@ namespace SuperCom.Entity
             {
                 while (true)
                 {
-                    ReadTask();
+                    if (RecvShowHex)
+                        ReadHexTask();
+                    else
+                        Thread.Sleep(NOT_RECV_HEX_SLEEP_INTERVAL);
                 }
             });
         }

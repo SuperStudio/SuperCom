@@ -13,29 +13,39 @@ namespace SuperCom.Upgrade
 {
     public static class UpgradeHelper
     {
-        public static Action OnBeforeCopyFile { get; set; }
         public static int AUTO_CHECK_UPGRADE_DELAY = 60 * 1000;
-        public static void Init(Window parent)
+
+        private const string DEFAULT_LANG = "zh-CN";
+        private const string DEFAULT_UPDATEFILEDIR = "TEMP";
+        private const string DEFAULT_APP_NAME = "SuperCom.exe";
+        private const int DEFAULT_BEFORE_UPDATE_DELAY = 5;
+        private const int DEFAULT_AFTER_UPDATE_DELAY = 1;
+        public static Action OnBeforeCopyFile { get; set; }
+        private static bool WindowClosed { get; set; }
+
+        private static SuperUpgrader Upgrader { get; set; }
+        private static Dialog_Upgrade Dialog_Upgrade { get; set; }
+
+        public static void Init()
         {
             Upgrader = new SuperUpgrader();
             Upgrader.UpgradeSourceDict = UrlManager.UpgradeSourceDict;
             Upgrader.UpgradeSourceIndex = UrlManager.GetRemoteIndex();
-            Upgrader.Language = "zh-CN";
+            Upgrader.Language = DEFAULT_LANG;
             Upgrader.Header = new CrawlerHeader(SuperWebProxy.SystemWebProxy).Default;
-            Upgrader.Logger = null;//todo
-            Upgrader.BeforeUpdateDelay = 5;
-            Upgrader.AfterUpdateDelay = 1;
-            Upgrader.UpDateFileDir = "TEMP";
-            Upgrader.AppName = "SuperCom.exe";
-            Window = parent;
+            Upgrader.Logger = null; // todo
+            Upgrader.BeforeUpdateDelay = DEFAULT_BEFORE_UPDATE_DELAY;
+            Upgrader.AfterUpdateDelay = DEFAULT_AFTER_UPDATE_DELAY;
+            Upgrader.UpDateFileDir = DEFAULT_UPDATEFILEDIR;
+            Upgrader.AppName = DEFAULT_APP_NAME;
             CreateDialog_Upgrade();
         }
 
         public static void CreateDialog_Upgrade()
         {
-            dialog_Upgrade = new Dialog_Upgrade(Upgrader);
-            dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            dialog_Upgrade.OnSourceChanged += (s, e) =>
+            Dialog_Upgrade = new Dialog_Upgrade(Upgrader);
+            Dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Dialog_Upgrade.OnSourceChanged += (s, e) =>
             {
                 // 保存当前选择的地址
                 int index = e.NewValue;
@@ -43,25 +53,24 @@ namespace SuperCom.Upgrade
                 ConfigManager.Settings.RemoteIndex = index;
                 ConfigManager.Settings.Save();
             };
-            dialog_Upgrade.Closed += (s, e) =>
+            Dialog_Upgrade.Closed += (s, e) =>
             {
                 WindowClosed = true;
             };
-            dialog_Upgrade.OnExitApp += () =>
+            Dialog_Upgrade.OnExitApp += () =>
             {
                 OnBeforeCopyFile?.Invoke();
             };
             WindowClosed = false;
         }
 
-        private static bool WindowClosed { get; set; }
-        private static Window Window { get; set; }
+
 
         public static void OpenWindow(Window window = null)
         {
             if (WindowClosed)
                 CreateDialog_Upgrade();
-            dialog_Upgrade?.ShowDialog(window);
+            Dialog_Upgrade?.ShowDialog(window);
 
         }
 
@@ -71,8 +80,6 @@ namespace SuperCom.Upgrade
             return await Upgrader.GetUpgardeInfo();
         }
 
-        private static SuperUpgrader Upgrader { get; set; }
-        private static Dialog_Upgrade dialog_Upgrade { get; set; }
 
     }
 }

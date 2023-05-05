@@ -315,7 +315,7 @@ namespace SuperCom.Entity
             }
         }
 
-        private void OnRevievedStr(object sender, SerialDataReceivedEventArgs e)
+        private void OnReceiveStr(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPortEx serialPort = sender as SerialPortEx;
             HandleStrReceived(serialPort);
@@ -324,7 +324,7 @@ namespace SuperCom.Entity
         #region "HEX 收数据处理"
 
 
-        private void OnRevievedHEX(object sender, SerialDataReceivedEventArgs e)
+        private void OnReceiveHEX(object sender, SerialDataReceivedEventArgs e)
         {
             ResetEvent.Set();
         }
@@ -392,16 +392,16 @@ namespace SuperCom.Entity
             if (RecvShowHex)
             {
                 // HEX 模式
-                SerialPort.DataReceived -= OnRevievedStr;
-                SerialPort.DataReceived -= OnRevievedHEX;
-                SerialPort.DataReceived += OnRevievedHEX;
+                SerialPort.DataReceived -= OnReceiveStr;
+                SerialPort.DataReceived -= OnReceiveHEX;
+                SerialPort.DataReceived += OnReceiveHEX;
             }
             else
             {
                 // STR 模式
-                SerialPort.DataReceived -= OnRevievedHEX;
-                SerialPort.DataReceived -= OnRevievedStr;
-                SerialPort.DataReceived += OnRevievedStr;
+                SerialPort.DataReceived -= OnReceiveHEX;
+                SerialPort.DataReceived -= OnReceiveStr;
+                SerialPort.DataReceived += OnReceiveStr;
             }
         }
 
@@ -415,8 +415,8 @@ namespace SuperCom.Entity
                     data += "\r\n";
 
                 byte[] bytes = TransformHelper.ParseHexString(data);
-                string printstr = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-                SendHexValue = $"将发送：{printstr}";
+                string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+                SendHexValue = $"将发送：{str}";
             }
         }
 
@@ -517,10 +517,10 @@ namespace SuperCom.Entity
         {
             string format = ConfigManager.CommonSettings.LogNameFormat;
             if (string.IsNullOrEmpty(format))
-                format = CommonSettings.DEFAULT_LOGNAMEFORMAT;
+                format = CommonSettings.DEFAULT_LOG_NAME_FORMAT;
             string name = GetFileNameByFormat(format);
             if (string.IsNullOrEmpty(name))
-                name = GetFileNameByFormat(CommonSettings.DEFAULT_LOGNAMEFORMAT);
+                name = GetFileNameByFormat(CommonSettings.DEFAULT_LOG_NAME_FORMAT);
 
             string dirName = ConfigManager.CommonSettings.LogSaveDir;
             if (string.IsNullOrEmpty(dirName))

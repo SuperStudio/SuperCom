@@ -407,7 +407,7 @@ namespace SuperCom.Entity
         {
             this.DtrEnable = PortSetting.DEFAULT_DTR;
             this.RtsEnable = PortSetting.DEFAULT_RTS;
-            this.DiscardNull = PortSetting.DEFAULT_DISCARDNULL;
+            this.DiscardNull = PortSetting.DEFAULT_DISCARD_NULL;
             this.ReadTimeout = PortSetting.DEFAULT_READ_TIME_OUT;
             this.WriteTimeout = PortSetting.DEFAULT_WRITE_TIME_OUT;
             this.Handshake = PortSetting.DEFAULT_HANDSHAKE;

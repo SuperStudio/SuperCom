@@ -25,7 +25,7 @@ namespace SuperCom.Config
 
         private static int RemoteIndex = (int)ConfigManager.Settings.RemoteIndex; // 用户切换源的时候存储起来
 
-        private static string DonateJsonBasePath = "SuperSudio-Donate";
+        private static string DonateJsonBasePath = "SuperStudio-Donate";
         private static string PluginBasePath = "SuperPlugins";
         public const string GITHUB_URL = "https://github.com/SuperStudio/SuperCom";
         public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";

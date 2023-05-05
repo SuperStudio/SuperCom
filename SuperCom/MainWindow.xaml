@@ -2662,7 +2662,7 @@
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
                                                     ItemsSource="{Binding DataContext.BaudRates, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                                    SelectionChanged="BuadRate_SelectionChanged"
+                                                    SelectionChanged="BaudRate_SelectionChanged"
                                                     Tag="{Binding Name}"
                                                     Text="{Binding SerialPort.BaudRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                                     <ComboBox.Style>

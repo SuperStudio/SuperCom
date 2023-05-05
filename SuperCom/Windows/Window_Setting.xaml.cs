@@ -290,7 +290,7 @@ namespace SuperCom
             ConfigManager.Main.Save();
             Main.vieModel.LoadBaudRates();
 
-            vieModel.LogNameFormat = CommonSettings.DEFAULT_LOGNAMEFORMAT;
+            vieModel.LogNameFormat = CommonSettings.DEFAULT_LOG_NAME_FORMAT;
             vieModel.LogSaveDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
             vieModel.FixedOnSearch = true;
             vieModel.CloseToBar = false;

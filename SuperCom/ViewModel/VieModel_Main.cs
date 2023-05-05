@@ -69,11 +69,11 @@ namespace SuperCom.ViewModel
             get { return _Encodings; }
             set { _Encodings = value; RaisePropertyChanged(); }
         }
-        private ObservableCollection<string> _Paritys;
-        public ObservableCollection<string> Paritys
+        private ObservableCollection<string> _Parities;
+        public ObservableCollection<string> Parities
         {
-            get { return _Paritys; }
-            set { _Paritys = value; RaisePropertyChanged(); }
+            get { return _Parities; }
+            set { _Parities = value; RaisePropertyChanged(); }
         }
         private ObservableCollection<string> _HandShakes;
         public ObservableCollection<string> HandShakes
@@ -242,7 +242,7 @@ namespace SuperCom.ViewModel
             LoadBaudRates();
             LoadDataBits();
             LoadEncodings();
-            LoadParitys();
+            LoadParities();
             LoadStopBits();
             LoadShortCut();
             LoadHandshake();
@@ -260,12 +260,12 @@ namespace SuperCom.ViewModel
                 StopBits.Add(item.ToString());
             }
         }
-        public void LoadParitys()
+        public void LoadParities()
         {
-            Paritys = new ObservableCollection<string>();
-            foreach (var item in PortSetting.DEFAULT_PARITYS)
+            Parities = new ObservableCollection<string>();
+            foreach (var item in PortSetting.DEFAULT_PARITIES)
             {
-                Paritys.Add(item.ToString());
+                Parities.Add(item.ToString());
             }
         }
         public void LoadEncodings()

@@ -16,7 +16,7 @@ namespace SuperCom.Upgrade
         public static int AUTO_CHECK_UPGRADE_DELAY = 60 * 1000;
 
         private const string DEFAULT_LANG = "zh-CN";
-        private const string DEFAULT_UPDATEFILEDIR = "TEMP";
+        private const string DEFAULT_UPDATE_FILE_DIR = "TEMP";
         private const string DEFAULT_APP_NAME = "SuperCom.exe";
         private const int DEFAULT_BEFORE_UPDATE_DELAY = 5;
         private const int DEFAULT_AFTER_UPDATE_DELAY = 1;
@@ -36,7 +36,7 @@ namespace SuperCom.Upgrade
             Upgrader.Logger = null; // todo
             Upgrader.BeforeUpdateDelay = DEFAULT_BEFORE_UPDATE_DELAY;
             Upgrader.AfterUpdateDelay = DEFAULT_AFTER_UPDATE_DELAY;
-            Upgrader.UpDateFileDir = DEFAULT_UPDATEFILEDIR;
+            Upgrader.UpDateFileDir = DEFAULT_UPDATE_FILE_DIR;
             Upgrader.AppName = DEFAULT_APP_NAME;
             CreateDialog_Upgrade();
         }
@@ -74,10 +74,10 @@ namespace SuperCom.Upgrade
 
         }
 
-        public static async Task<(string LatestVersion, string ReleaseDate, string ReleaseNote)> GetUpgardeInfo()
+        public static async Task<(string LatestVersion, string ReleaseDate, string ReleaseNote)> GetUpgradeInfo()
         {
             if (Upgrader == null) return (null, null, null);
-            return await Upgrader.GetUpgardeInfo();
+            return await Upgrader.GetUpgradeInfo();
         }
 
 

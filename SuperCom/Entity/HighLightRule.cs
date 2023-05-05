@@ -69,7 +69,7 @@ namespace SuperCom.Entity
         public static string GetDirName()
         {
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "AvalonEdit", "Higlighting");
+                "AvalonEdit", "Higlighting"); // todo 严重错误
         }
 
         public void WriteToXshd()

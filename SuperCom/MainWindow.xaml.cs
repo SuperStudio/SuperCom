@@ -241,14 +241,14 @@ namespace SuperCom
 
         private void SetPortSelected(object sender, MouseButtonEventArgs e)
         {
-            CanDrageTabItem = false;
+            CanDragTabItem = false;
             if (CurrentDragElement != null)
                 Mouse.Capture(CurrentDragElement, CaptureMode.None);
         }
         private FrameworkElement CurrentDragElement;
         private void BeginDragTabItem(object sender, MouseButtonEventArgs e)
         {
-            CanDrageTabItem = true;
+            CanDragTabItem = true;
             CurrentDragElement = sender as FrameworkElement;
             Mouse.Capture(CurrentDragElement, CaptureMode.Element);
 
@@ -262,7 +262,7 @@ namespace SuperCom
 
         private void Border_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (!CanDrageTabItem)
+            if (!CanDragTabItem)
                 return;
         }
 
@@ -608,7 +608,7 @@ namespace SuperCom
             SerialPortEx serialPort = portTabItem.SerialPort;
             if (serialPort != null)
             {
-                bool success = await AsynClosePort(serialPort);
+                bool success = await AsyncClosePort(serialPort);
                 if (success)
                 {
                     portTabItem.StopFilterTask();
@@ -627,7 +627,7 @@ namespace SuperCom
             }
         }
 
-        public async Task<bool> AsynClosePort(SerialPortEx serialPort)
+        public async Task<bool> AsyncClosePort(SerialPortEx serialPort)
         {
             try
             {
@@ -984,8 +984,8 @@ namespace SuperCom
             byte[] bytes = TransformHelper.ParseHexString(value);
             if (bytes == null || bytes.Length == 0)
                 return 0;
-            string printstr = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            portTabItem.SaveData($"SEND >>>>>>>>>> {printstr}\r\n");
+            string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+            portTabItem.SaveData($"SEND >>>>>>>>>> {str}\r\n");
             port.Write(bytes, 0, bytes.Length);
             return bytes.Length;
         }
@@ -2263,7 +2263,7 @@ namespace SuperCom
             MessageNotify.Info("开发中");
         }
 
-        private void BuadRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void BaudRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox comboBox = (ComboBox)sender;
             if (!comboBox.IsLoaded)
@@ -2378,7 +2378,7 @@ namespace SuperCom
             try
             {
                 await Task.Delay(UpgradeHelper.AUTO_CHECK_UPGRADE_DELAY);
-                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await UpgradeHelper.GetUpgardeInfo();
+                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await UpgradeHelper.GetUpgradeInfo();
                 string remote = result.LatestVersion;
                 string ReleaseDate = result.ReleaseDate;
                 if (!string.IsNullOrEmpty(remote))
@@ -3116,7 +3116,7 @@ namespace SuperCom
             }
         }
 
-        private bool CanDrageTabItem = false;
+        private bool CanDragTabItem = false;
 
 
         private string GetPortNameByMenuItem(object sender)

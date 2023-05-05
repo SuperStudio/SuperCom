@@ -26,7 +26,7 @@ namespace SuperCom.Entity
         public const int MAX_TIME_OUT = 60 * 60 * 1000;
         public const bool DEFAULT_DTR = false;
         public const bool DEFAULT_RTS = false;
-        public const bool DEFAULT_DISCARDNULL = false;
+        public const bool DEFAULT_DISCARD_NULL = false;
 
         public const double MAX_FONTSIZE = 25;
         public const double MIN_FONTSIZE = 5;
@@ -39,7 +39,7 @@ namespace SuperCom.Entity
 
         public static StopBits DEFAULT_STOPBITS = StopBits.One;
         public static Parity DEFAULT_PARITY = Parity.None;
-        public static FlowControls DEFAULT_FLOWCONTROLS = FlowControls.None;
+        public static FlowControls DEFAULT_FLOW_CONTROLS = FlowControls.None;
         public static Handshake DEFAULT_HANDSHAKE = Handshake.None;
         public static List<string> DEFAULT_HANDSHAKES = Enum.GetNames(typeof(System.IO.Ports.Handshake)).ToList();
 
@@ -63,7 +63,7 @@ namespace SuperCom.Entity
             "UTF8","US-ASCII","GB2312","ISO-8859-1"
         };
 
-        public static List<string> DEFAULT_PARITYS = new List<string>()
+        public static List<string> DEFAULT_PARITIES = new List<string>()
         {
             "None","Odd","Even","Mark","Space"
         };
@@ -110,7 +110,7 @@ namespace SuperCom.Entity
             portSetting.DataBits = DEFAULT_DATABITS;
             portSetting.StopBits = DEFAULT_STOPBITS;
             portSetting.Parity = DEFAULT_PARITY;
-            portSetting.FlowControls = DEFAULT_FLOWCONTROLS;
+            portSetting.FlowControls = DEFAULT_FLOW_CONTROLS;
             portSetting.Encoding = DEFAULT_ENCODING_STRING;
             return portSetting;
         }

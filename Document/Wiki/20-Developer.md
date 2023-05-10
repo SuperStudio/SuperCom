@@ -1,8 +1,8 @@
-﻿﻿# 开发者文档
+﻿﻿﻿# 开发者文档
 
 # 设计思想
 
-
+待添加
 
 # 编译运行
 
@@ -10,15 +10,13 @@
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/hitchao/Jvedio
+git clone https://github.com/SuperStudio/SuperCom
 ```
 
-3. 使用 Visual Studio 2022 打开 Jvedio-WPF 目录下的 Jvedio.sln
-4. 在Visual Studio 2022解决方案资源管理器中选择 Jvedio 解决方案，右键-管理解决方案的 Nuget 程序包，弹出一个提示框提示还原 Nuget 包，点击还原即可
+3. 使用 Visual Studio 2022 打开 SuperCom.sln
+4. 在Visual Studio 2022解决方案资源管理器，右键-管理解决方案的 Nuget 程序包，弹出一个提示框提示还原 Nuget 包，点击还原即可
 5. Nuget 包还原完成后，菜单栏中点击生成-重新生成解决方案
 6. 点击启动即可
-
-[<img src="https://s1.ax1x.com/2022/06/11/XcZvod.png" alt="XcZvod.png" style="zoom:80%;" />](https://imgtu.com/i/XcZvod)
 
 
 

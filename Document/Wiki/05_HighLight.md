@@ -6,13 +6,13 @@
 
 > SuperCom 默认集成语法高亮规则 ComLog
 
-<img src="Image/image-20230510231234882.png" alt="image-20230510231234882" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rm3IU.png" alt="image-20230510231234882" style="zoom:80%;" />
 
 # 新增规则
 
 按照如下新增规则
 
-<img src="Image/image-20230510231552820.png" alt="image-20230510231552820" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rmGiF.png" alt="image-20230510231552820" style="zoom:80%;" />
 
 常见规则高亮形式
 
@@ -25,7 +25,7 @@
 
 效果如下
 
-<img src="Image/image-20230510232228180.png" alt="image-20230510232228180" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rmYRJ.png" alt="image-20230510232228180" style="zoom:80%;" />
 
 
 

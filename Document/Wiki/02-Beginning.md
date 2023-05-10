@@ -31,19 +31,19 @@
 
 > 管理员模式打开则支持虚拟串口的模拟
 
-<img src="Image/image-20230510074204611.png" alt="image-20230510074204611" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reRET.png" alt="image-20230510074204611" style="zoom:80%;" />
 
 打开后，**主界面**如下显示
 
-<img src="Image/image-20230510074416835.png" alt="image-20230510074416835" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reWUU.png" alt="image-20230510074416835" style="zoom:80%;" />
 
 任意打开一个串口进行连接
 
-<img src="Image/image-20230510074510655.png" alt="image-20230510074510655" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9re58J.png" alt="image-20230510074510655" style="zoom:80%;" />
 
 关于**串口工作区**的功能及说明如下
 
-<img src="Image/image-20230510075328690.png" alt="image-20230510075328690" style="zoom: 80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reI29.png" alt="image-20230510075328690" style="zoom: 80%;" />
 
 | 功能         | 说明                                   |
 | ------------ | -------------------------------------- |
@@ -59,7 +59,7 @@
 
 关于**串口配置区**的功能及说明如下
 
-<img src="Image/image-20230510075343353.png" alt="image-20230510075343353" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reHDx.png" alt="image-20230510075343353" style="zoom:80%;" />
 
 | 功能       | 说明                                                         |
 | ---------- | ------------------------------------------------------------ |
@@ -78,7 +78,7 @@
 
 关于**串口发送区**的功能及说明如下
 
-<img src="Image/image-20230510075527916.png" alt="image-20230510075527916" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reLVK.png" alt="image-20230510075527916" style="zoom:80%;" />
 
 | 功能    | 说明                         |
 | ------- | ---------------------------- |
@@ -91,19 +91,19 @@ SuperCom 支持保存自定义的命令，点击自动发送指令，循环发�
 
 点击编辑命令按钮
 
-<img src="Image/image-20230510075721558.png" alt="image-20230510075721558" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reX5D.png" alt="image-20230510075721558" style="zoom:80%;" />
 
 显示窗口如下
 
-<img src="Image/image-20230510075856486.png" alt="image-20230510075856486" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9revPe.png" alt="image-20230510075856486" style="zoom:80%;" />
 
 说明
 
-<img src="Image/image-20230510075925207.png" alt="image-20230510075925207" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rex8H.png" alt="image-20230510075925207" style="zoom:80%;" />
 
 - 添加命令后，勾选要发送的串口号，点击上述的运行三角形按钮，可以**循环**的向对应的串口发送命令
 
-<img src="Image/image-20230510080028893.png" alt="image-20230510080028893" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rez2d.png" alt="image-20230510080028893" style="zoom:80%;" />
 
 - 状态：就绪 (灰)、运行中 (黄)、完成 (绿)
 - 顺序：决定运行的顺序，以及显示的顺序
@@ -115,7 +115,7 @@ SuperCom 支持保存自定义的命令，点击自动发送指令，循环发�
 
 我们打开串口，点击发送/接收，效果如下
 
-<img src="Image/image-20230510080625643.png" alt="image-20230510080625643" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rmSxA.png" alt="image-20230510080625643" style="zoom:80%;" />
 
 
 

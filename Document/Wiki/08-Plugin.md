@@ -118,7 +118,7 @@ git push origin master
 
 7. 点击 Create pull request，然后等待审核即可，审核后在 [SuperPlugins](https://github.com/SuperStudio/SuperPlugins) 会显示如下内容
 
-<img src="Image/image-20230510232855021.png" alt="image-20230510232855021" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9rmtz9.png" alt="image-20230510232855021" style="zoom:80%;" />
 
 8. 大概需要 3-5 分钟等待部署，部署成功后打开 SuperCom 即可显示刚才上传的皮肤
 

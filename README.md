@@ -28,9 +28,15 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 - 可发送各种 AT 指令
 - 具有各种特性
 
-## 创新特性
+# 使用文档
 
-**一、语法高亮**
+用户文档：[Wiki](https://github.com/SuperStudio/SuperCom/wiki)
+
+开发者文档：[Developer](https://github.com/SuperStudio/SuperCom/wiki/20_Developer)
+
+# 创新特性
+
+## 语法高亮
 
 <img src="https://s1.ax1x.com/2023/05/10/p9renHK.png" alt="image-20230109234347852" style="zoom:80%;" />
 
@@ -38,7 +44,7 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 <img src="https://s1.ax1x.com/2023/05/10/p9reQ4e.png" alt="image-20230109234412138" style="zoom:80%;" />
 
-**二、命令自动运行**
+## 命令自动运行
 
 <img src="Image/1.gif" alt="1" style="zoom:80%;" />
 
@@ -46,11 +52,11 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 <img src="Image/2.gif" alt="2" style="zoom:80%;" />
 
-**三、快捷键**
+## 快捷键
 
 <img src="https://s1.ax1x.com/2023/05/10/p9re33d.png" alt="image-20230109234634330" style="zoom:80%;" />
 
-**四、插件与皮肤**
+## 插件与皮肤
 
 <img src="Image/3.gif" alt="3" style="zoom:80%;" />
 
@@ -58,27 +64,21 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 <img src="Image/4.gif" alt="4" style="zoom:80%;" />
 
-五、在线升级
+## 在线升级
 
 <img src="Image/5.gif" alt="5" style="zoom:80%;" />
 
-六、支持 HEX 与字符串互转
+## HEX 与字符串互转
 
 <img src="Image/hex.gif" alt="hex" style="zoom:80%;" />
 
-七、支持时间戳与北京时间互转
+## 时间戳与北京时间互转
 
 <img src="Image/time.gif" alt="time" style="zoom:80%;" />
 
-八、格式化 JSON 与合并行
+## 格式化 JSON 与合并行
 
 <img src="Image/6.gif" alt="6" style="zoom:80%;" />
-
-# 文档
-
-用户文档：[Wiki](https://github.com/SuperStudio/SuperCom/wiki)
-
-开发者文档：
 
 # 分支说明
 
@@ -88,7 +88,7 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 | dev-chao         | 私人的开发分支，避免影响到他人拉取                     |
 | release_20220930 | 发布分支，用于各个项目引用，保证稳定的依赖关系         |
 
-每 3 个月更新一次 release 分支
+（理论）每 3 个月更新一次 release 分支
 
 
 # 关于虚拟化串口

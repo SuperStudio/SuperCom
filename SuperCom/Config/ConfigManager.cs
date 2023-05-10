@@ -6,7 +6,7 @@ namespace SuperCom.Config
 {
     public static class ConfigManager
     {
-        public const string RELEASE_DATE = "2023-05-03";
+        public const string RELEASE_DATE = "2023-05-10";
 
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
         public const string LICENSE = "GPL-3.0";

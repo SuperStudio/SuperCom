@@ -15,7 +15,7 @@ SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集�
 
 下载地址：[点此下载](https://github.com/SuperStudio/SuperCom/releases)
 
-<img src="Image/Snipaste_2023-04-11_08-24-53-16811737714532.png" alt="Snipaste_2023-04-11_08-24-53" style="zoom:80%;" />
+[![p9reenx.png](https://s1.ax1x.com/2023/05/10/p9reenx.png)](https://imgse.com/i/p9reenx)
 
 # 关于
 
@@ -32,11 +32,11 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 **一、语法高亮**
 
-<img src="Image/image-20230109234347852.png" alt="image-20230109234347852" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9renHK.png" alt="image-20230109234347852" style="zoom:80%;" />
 
 可自定义语法高亮
 
-<img src="Image/image-20230109234412138.png" alt="image-20230109234412138" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9reQ4e.png" alt="image-20230109234412138" style="zoom:80%;" />
 
 **二、命令自动运行**
 
@@ -48,7 +48,7 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 
 **三、快捷键**
 
-<img src="Image/image-20230109234634330.png" alt="image-20230109234634330" style="zoom:80%;" />
+<img src="https://s1.ax1x.com/2023/05/10/p9re33d.png" alt="image-20230109234634330" style="zoom:80%;" />
 
 **四、插件与皮肤**
 

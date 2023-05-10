@@ -134,6 +134,11 @@ namespace SuperCom
         {
             SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
             vieModel.ComSettingList = mapper.SelectList().ToHashSet();
+            if (vieModel.ComSettingList == null ||
+                vieModel.ComSettingList.Count == 0 ||
+                vieModel.SideComPorts == null ||
+                vieModel.SideComPorts.Count == 0)
+                return;
 
             // 设置配置
             foreach (var item in vieModel.SideComPorts)
@@ -142,8 +147,18 @@ namespace SuperCom
                     .FirstOrDefault();
                 if (comSettings != null && !string.IsNullOrEmpty(comSettings.PortSetting))
                 {
-                    item.Remark = SerialPortEx.GetRemark(comSettings.PortSetting);
-                    item.Hide = SerialPortEx.GetHide(comSettings.PortSetting);
+                    try
+                    {
+                        // 不知为啥，这里会弹出 System.NullReferenceException: 未将对象引用设置到对象的实例
+                        item.Remark = SerialPortEx.GetRemark(comSettings.PortSetting);
+                        item.Hide = SerialPortEx.GetHide(comSettings.PortSetting);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        continue;
+                    }
+
                 }
             }
             //textWrapMenuItem.IsChecked = vieModel.AutoTextWrap;
@@ -713,17 +728,8 @@ namespace SuperCom
                 PortTabItem portTabItem = new PortTabItem(portName, connect);
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
 
-                SerialPortEx serialPort;
                 if (portTabItem.SerialPort == null)
-                {
-                    serialPort = new SerialPortEx(portName);
-
-                    portTabItem.SerialPort = serialPort;
-                }
-                else
-                {
-                    serialPort = portTabItem.SerialPort;
-                }
+                    portTabItem.SerialPort = new SerialPortEx(portName);
 
                 // 从配置里读取
                 ComSettings comSettings = vieModel.ComSettingList.Where(arg => arg.PortName.Equals(portName)).FirstOrDefault();

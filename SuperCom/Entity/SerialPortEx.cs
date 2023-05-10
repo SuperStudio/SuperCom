@@ -111,7 +111,7 @@ namespace SuperCom.Entity
             return ports.ToArray();
         }
 
-        public string Remark { get; set; }
+        public string Remark { get; set; } = "";
         public bool Pinned { get; set; }
         public bool Hide { get; set; }
 
@@ -152,7 +152,7 @@ namespace SuperCom.Entity
             }
         }
 
-        public string SettingJson { get; set; }
+        public string SettingJson { get; set; } = "";
 
         public string PortSettingToJson()
         {
@@ -192,55 +192,27 @@ namespace SuperCom.Entity
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
             if (dict != null)
             {
-                int baudRate = PortSetting.DEFAULT_BAUDRATE;
-                int.TryParse(dict["BaudRate"].ToString(), out baudRate);
-                this.BaudRate = baudRate;
+                this.BaudRate = dict.GetInt("BaudRate", PortSetting.DEFAULT_BAUDRATE);
+                this.DataBits = dict.GetInt("DataBits", PortSetting.DEFAULT_DATABITS);
+                this.TextFontSize = dict.GetDouble("TextFontSize", PortSetting.DEFAULT_FONTSIZE);
+                this.HighLightIndex = dict.GetLong("TextFontSize", 0);
+                this.PortEncoding = dict.GetString("Encoding", PortSetting.DEFAULT_ENCODING.ToString());
+                this.ParityString = dict.GetString("Parity", PortSetting.DEFAULT_PARITY.ToString());
+                this.StopBitsString = dict.GetString("StopBits", PortSetting.DEFAULT_STOPBITS.ToString());
+                this.DtrEnable = dict.GetBool("DTR", PortSetting.DEFAULT_DTR);
+                this.RtsEnable = dict.GetBool("RTS", PortSetting.DEFAULT_RTS);
+                // this.BreakState = dict.GetBool("BreakState", false);
+                this.DiscardNull = dict.GetBool("DiscardNull", false);
 
-                int dataBits = PortSetting.DEFAULT_DATABITS;
-                int.TryParse(dict["DataBits"].ToString(), out dataBits);
-                this.DataBits = dataBits;
+                this.ReadTimeoutValue = dict.GetInt("ReadTimeout", PortSetting.DEFAULT_READ_TIME_OUT);
+                this.WriteTimeoutValue = dict.GetInt("WriteTimeout", PortSetting.DEFAULT_WRITE_TIME_OUT);
 
-                if (dict.ContainsKey("TextFontSize"))
-                {
-                    double fontSize = PortSetting.DEFAULT_FONTSIZE;
-                    double.TryParse(dict["TextFontSize"].ToString(), out fontSize);
-                    this.TextFontSize = fontSize;
-                }
-                if (dict.ContainsKey("HighLightIndex"))
-                {
-                    long.TryParse(dict["HighLightIndex"].ToString(), out long index);
-                    this.HighLightIndex = index;
-                }
-
-
-                this.PortEncoding = dict["Encoding"].ToString();
-                this.ParityString = dict["Parity"].ToString();
-                this.StopBitsString = dict["StopBits"].ToString();
-
-
-                if (dict.ContainsKey("DTR") && dict["DTR"] is bool dtr)
-                    this.DtrEnable = dtr;
-                if (dict.ContainsKey("RTS") && dict["RTS"] is bool rts)
-                    this.RtsEnable = rts;
-                //if (dict.ContainsKey("BreakState") && dict["BreakState"] is bool BreakState)
-                //    this.BreakState = BreakState;
-                if (dict.ContainsKey("DiscardNull") && dict["DiscardNull"] is bool DiscardNull)
-                    this.DiscardNull = DiscardNull;
-
-                if (dict.ContainsKey("ReadTimeout") && int.TryParse(dict["ReadTimeout"].ToString(), out int readTimeOut))
-                    this.ReadTimeoutValue = readTimeOut;
-                if (dict.ContainsKey("WriteTimeout") && int.TryParse(dict["WriteTimeout"].ToString(), out int writeTimeOut))
-                    this.WriteTimeoutValue = writeTimeOut;
                 if (dict.ContainsKey("Handshake") && Enum.TryParse(dict["Handshake"].ToString(), out Handshake Handshake))
                     this.Handshake = Handshake;
 
-                if (dict.ContainsKey("Remark"))
-                    this.Remark = dict["Remark"].ToString();
-                if (dict.ContainsKey("Pinned"))
-                    this.Pinned = dict["Pinned"].ToString().ToLower().Equals("true") ? true : false;
-                if (dict.ContainsKey("Hide"))
-                    this.Hide = dict["Hide"].ToString().ToLower().Equals("true") ? true : false;
-
+                this.Remark = dict.GetString("Remark", "");
+                this.Pinned = dict.GetBool("Pinned", false);
+                this.Hide = dict.GetBool("Hide", false);
             }
         }
 

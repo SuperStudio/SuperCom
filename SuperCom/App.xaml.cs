@@ -49,9 +49,6 @@ namespace SuperCom
         protected override void OnStartup(StartupEventArgs e)
         {
 
-#if DEBUG
-
-#else
             // UI线程未捕获异常处理事件
             this.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(Window_ErrorMsg.App_DispatcherUnhandledException);
 
@@ -61,7 +58,7 @@ namespace SuperCom
             // 非UI线程未捕获异常处理事件
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(Window_ErrorMsg.CurrentDomain_UnhandledException);
             Logger.Info("异常后处理启动");
-#endif
+
             // 看门狗
             MemoryDog.Watch();
             base.OnStartup(e);

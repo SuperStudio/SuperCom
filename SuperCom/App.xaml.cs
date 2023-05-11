@@ -3,9 +3,11 @@ using SuperCom.WatchDog;
 using SuperControls.Style.Windows;
 using SuperUtils.Framework.Logger;
 using SuperUtils.IO;
+using SuperUtils.Systems;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Navigation;
 using System.Windows.Threading;
 
 namespace SuperCom
@@ -64,7 +66,19 @@ namespace SuperCom
             base.OnStartup(e);
         }
 
+        public App()
+        {
 
+        }
+
+
+
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            SystemHelper.CancelPreventSleep(); // 取消系统休眠
+            base.OnExit(e);
+        }
 
 
     }

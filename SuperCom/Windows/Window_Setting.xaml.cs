@@ -18,6 +18,8 @@ using System.Windows.Media;
 using static SuperCom.Entity.HighLightRule;
 using static SuperCom.App;
 using System.Data;
+using Newtonsoft.Json.Linq;
+using SuperUtils.Systems;
 
 namespace SuperCom
 {
@@ -228,6 +230,9 @@ namespace SuperCom
             ConfigManager.CommonSettings.FixedOnSendCommand = vieModel.FixedOnSendCommand;
             ConfigManager.CommonSettings.ScrollOnSearchClosed = vieModel.ScrollOnSearchClosed;
             ConfigManager.CommonSettings.LogNameFormat = vieModel.LogNameFormat;
+
+
+
             if (FileHelper.IsProperDirName(vieModel.LogSaveDir))
             {
                 ConfigManager.CommonSettings.LogSaveDir = vieModel.LogSaveDir;
@@ -238,9 +243,12 @@ namespace SuperCom
                 return false;
             }
             ConfigManager.CommonSettings.Save();
-            ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
 
+            ConfigManager.Settings.CurrentLanguage = vieModel.CurrentLanguage;
+            ConfigManager.Settings.AvoidScreenClose = vieModel.AvoidScreenClose;
+            Main?.ApplyScreenStatus();
             ConfigManager.Settings.Save();
+
             vieModel.SaveAllRule();
             ApplyRule();
             Main?.ReadXshdList();
@@ -249,6 +257,8 @@ namespace SuperCom
             MessageNotify.Success("保存成功");
             return true;
         }
+
+
 
         private void ApplyRule()
         {
@@ -563,6 +573,16 @@ namespace SuperCom
         private void previewTextEditor_LostFocus(object sender, RoutedEventArgs e)
         {
             ((sender as TextEditor).Parent as Border).BorderBrush = Brushes.Transparent;
+        }
+
+        private void ShowHelp(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_SETTING);
+        }
+
+        private void ShowHighLightHelp(object sender, MouseButtonEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_HIGH_LIGHT);
         }
     }
 }

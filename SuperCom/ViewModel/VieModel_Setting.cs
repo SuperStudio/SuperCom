@@ -13,6 +13,7 @@ using System.Linq;
 using System.Windows.Media;
 using static SuperCom.Entity.HighLightRule;
 using static SuperCom.App;
+using SuperUtils.Systems;
 
 namespace SuperCom.ViewModel
 {
@@ -91,6 +92,19 @@ namespace SuperCom.ViewModel
             {
                 _CurrentLanguage = value;
                 RaisePropertyChanged();
+            }
+        }
+
+        private bool _AvoidScreenClose = ConfigManager.Settings.AvoidScreenClose;
+        public bool AvoidScreenClose
+        {
+            get { return _AvoidScreenClose; }
+
+            set
+            {
+                _AvoidScreenClose = value;
+                RaisePropertyChanged();
+
             }
         }
 

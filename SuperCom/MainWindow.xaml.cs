@@ -15,6 +15,7 @@ using SuperControls.Style.Windows;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
+using SuperUtils.Systems;
 using SuperUtils.Time;
 using SuperUtils.WPF.VisualTools;
 using System;
@@ -1468,6 +1469,20 @@ namespace SuperCom
             OpenBeforePorts();
             SetBaudRateAction();
             InitNotice();
+            ApplySettings();
+        }
+
+        public void ApplySettings()
+        {
+            ApplyScreenStatus();
+        }
+
+        public void ApplyScreenStatus()
+        {
+            if (ConfigManager.Settings.AvoidScreenClose)
+                SystemHelper.PreventSleep();
+            else
+                SystemHelper.CancelPreventSleep();
         }
 
         public void InitNotice()
@@ -3552,6 +3567,14 @@ namespace SuperCom
 
         }
 
+        private void OpenHFAQ(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_FAQ);
+        }
 
+        private void OpenDevelop(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_DEVELOP);
+        }
     }
 }

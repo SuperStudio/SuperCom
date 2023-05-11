@@ -54,6 +54,7 @@ namespace SuperCom.Config.WindowConfig
         public long MemoryLimit { get; set; }
         public bool HintWhenPin { get; set; }
         public bool FixedWhenFocus { get; set; }
+        public bool AvoidScreenClose { get; set; }
 
     }
 }

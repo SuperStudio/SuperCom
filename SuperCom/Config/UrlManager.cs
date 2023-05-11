@@ -42,6 +42,14 @@ namespace SuperCom.Config
                 "Microsoft","-","-"),
         };
 
+        #region WIKI
+        public const string WIKI_SETTING = "https://github.com/SuperStudio/SuperCom/wiki/03_Settings";
+        public const string WIKI_HIGH_LIGHT = "https://github.com/SuperStudio/SuperCom/wiki/05_HighLight";
+        public const string WIKI_FAQ = "https://github.com/SuperStudio/SuperCom/wiki/06_FAQ";
+        public const string WIKI_DEVELOP = "https://github.com/SuperStudio/SuperCom/wiki/20_Developer";
+
+        #endregion
+
         public static int GetRemoteIndex()
         {
             return RemoteIndex;

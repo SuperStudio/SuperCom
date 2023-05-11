@@ -214,6 +214,11 @@
                             Icon="/Resources/Pictures/about.png" />
                         <MenuItem Click="OpenFeedBack" Header="反馈" />
                         <MenuItem Click="OpenHelp" Header="帮助" />
+                        <MenuItem Click="OpenHFAQ" Header="常见问题" />
+                        <MenuItem
+                            Click="OpenDevelop"
+                            Header="参与开发"
+                            Icon="/Resources/Pictures/develop.png" />
 
                     </MenuItem>
 
@@ -2262,6 +2267,7 @@
                                     <Grid
                                         Name="advancedGrid"
                                         Grid.Row="0"
+                                        Height="250"
                                         Margin="250,0,0,0"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Bottom"

@@ -684,12 +684,14 @@
                     Visibility="{Binding Saving, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                 <Button
+                    Height="30"
                     MinWidth="100"
                     Click="SaveChanges"
                     Content="{DynamicResource Save}"
                     IsEnabled="{Binding Saving, Converter={StaticResource OppositeBooleanConverter}}"
                     Style="{StaticResource ButtonSuccess}" />
                 <Button
+                    Height="30"
                     MinWidth="100"
                     Click="ApplyChanges"
                     Content="{DynamicResource Apply}"

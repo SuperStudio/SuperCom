@@ -275,6 +275,7 @@
     <Resource Include="Resources\Ico\ICON.ico" />
     <Resource Include="Resources\Ico\ICON_256.png" />
     <Resource Include="Resources\Ico\ICON_32.png" />
+    <Resource Include="Resources\Pictures\develop.png" />
     <Content Include="Sql\advanced_send.sql" />
     <Content Include="Sql\com_settings.sql" />
   </ItemGroup>

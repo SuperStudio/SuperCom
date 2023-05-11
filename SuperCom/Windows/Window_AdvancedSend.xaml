@@ -775,11 +775,13 @@
                 HorizontalAlignment="Right"
                 Orientation="Horizontal">
                 <Button
+                    Height="30"
                     MinWidth="100"
                     Click="Save"
                     Content="{DynamicResource Save}"
                     Style="{StaticResource ButtonSuccess}" />
                 <Button
+                    Height="30"
                     MinWidth="100"
                     Click="Apply"
                     Content="{DynamicResource Apply}"

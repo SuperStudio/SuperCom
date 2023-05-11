@@ -11,5 +11,5 @@
 - [4 正则高亮](https://github.com/SuperStudio/SuperCom/wiki/05_HighLight)
 - [5 常见问题](https://github.com/SuperStudio/SuperCom/wiki/06_FAQ)
 - [6 日志说明](https://github.com/SuperStudio/SuperCom/wiki/07_Log)
-- [7 插件开发](https://github.com/SuperStudio/SuperCom/wiki/08_Plugin)
+- [7 插件开发](https://github.com/SuperStudio/SuperPlugins/wiki/10_UploadPlugin)
 - [8 开发者文档](https://github.com/SuperStudio/SuperCom/wiki/20_Developer)

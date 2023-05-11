@@ -1,5 +1,6 @@
 ﻿
 using SuperUtils.WPF.VieModel;
+using static SuperCom.App;
 
 namespace SuperCom.Entity
 {
@@ -39,7 +40,12 @@ namespace SuperCom.Entity
         public bool Hide
         {
             get { return _Hide; }
-            set { _Hide = value; RaisePropertyChanged(); }
+            set
+            {
+                _Hide = value;
+                RaisePropertyChanged();
+                Logger.Info($"set port[{Name}] hide: {value}");
+            }
         }
 
         public SideComPort(string name, bool connected)

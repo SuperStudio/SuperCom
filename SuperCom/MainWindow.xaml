@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:config="clr-namespace:SuperCom.Config"
+    Loaded="mainWindow_Loaded"
     xmlns:converter="clr-namespace:SuperCom.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
@@ -2337,7 +2338,7 @@
                                                         Width="120"
                                                         VerticalAlignment="Center"
                                                         FontSize="12"
-                                                        ItemsSource="{Binding DataContext.Paritys, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                        ItemsSource="{Binding DataContext.Parities, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
                                                         SelectionChanged="OnPortSettingChanged"
                                                         Text="{Binding SerialPort.ParityString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                                         <ComboBox.Style>

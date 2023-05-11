@@ -173,11 +173,16 @@ namespace SuperCom.ViewModel
             rule.FileName = "";
             RuleMapper.InsertAndGetID(rule);
             HighLightRules.Add(rule);
+
+            Logger.Info($"new rule, name: {ruleName}");
         }
 
 
         public bool DeleteRule(long id)
         {
+
+            Logger.Info($"delte rule, id: {id}");
+
             int count = RuleMapper.DeleteById(id);
             if (count <= 0)
             {
@@ -236,6 +241,8 @@ namespace SuperCom.ViewModel
                 rule.RuleSetString = JsonUtils.TrySerializeObject(rule.RuleSetList);
                 UpdateRule(rule);
                 RuleSets.Add(ruleSet);
+
+                Logger.Info("add new rule set");
             }
 
         }

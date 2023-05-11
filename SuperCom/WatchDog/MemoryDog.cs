@@ -31,7 +31,7 @@ namespace SuperCom.WatchDog
             using (Process proc = Process.GetCurrentProcess())
             {
                 long currentMemory = proc.PrivateMemorySize64;
-                Logger.Debug($"当前内存: {currentMemory.ToProperFileSize()}");
+                Logger.Debug($"current memory: {currentMemory.ToProperFileSize()}");
                 OnMemoryChanged?.Invoke(currentMemory);
                 if ((double)currentMemory / 1024 / 1024 >= ConfigManager.Settings.MemoryLimit)
                     return false;

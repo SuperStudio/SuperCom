@@ -383,6 +383,9 @@ namespace SuperCom.ViewModel
 
 
             }
+
+            Logger.Info($"get all ports: {string.Join(",", portNames)}");
+
             SideComPorts = new ObservableCollection<SideComPort>();
             foreach (string port in portNames)
             {

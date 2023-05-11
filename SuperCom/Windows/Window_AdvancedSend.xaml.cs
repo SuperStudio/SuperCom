@@ -3,6 +3,7 @@ using SuperCom.Config.WindowConfig;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
+using SuperControls.Style.Windows;
 using SuperUtils.Common;
 using SuperUtils.IO;
 using SuperUtils.Time;
@@ -102,6 +103,7 @@ namespace SuperCom
             // 保存
             vieModel.AddProject(DEFAULT_PROJECT_NAME);
             DataChanged();
+
         }
 
         private void DeleteProject(object sender, RoutedEventArgs e)
@@ -117,6 +119,9 @@ namespace SuperCom
 
         private void DeleteProjectByID(int projectID)
         {
+            if (!(bool)new MsgBox("确认删除？").ShowDialog(this))
+                return;
+
             int idx = -1;
             for (int i = 0; i < vieModel.CurrentProjects.Count; i++)
             {
@@ -128,10 +133,13 @@ namespace SuperCom
             }
             if (idx >= 0 && idx < vieModel.CurrentProjects.Count)
             {
+                string projectName = vieModel.CurrentProjects[idx].ProjectName;
                 vieModel.DeleteProject(vieModel.CurrentProjects[idx]);
                 vieModel.CurrentProjects.RemoveAt(idx);
                 vieModel.AllProjects.RemoveAll(arg => arg.ProjectID == projectID);
                 DataChanged();
+                Logger.Info($"delete project: {projectName}");
+
             }
 
         }
@@ -154,6 +162,7 @@ namespace SuperCom
             window?.RefreshSendCommands();
             CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
             window?.SetComboboxStatus();
+            Logger.Info("data changed");
         }
 
 
@@ -169,25 +178,27 @@ namespace SuperCom
 
         public void ShowProjectBySend(AdvancedSend advancedSend)
         {
-            if (advancedSend != null)
-            {
-                vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
-                List<SendCommand> sendCommands = new List<SendCommand>();
-                if (!string.IsNullOrEmpty(advancedSend.Commands))
-                    sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-                if (sendCommands.Count > 0)
-                {
-                    foreach (var item in sendCommands.OrderBy(arg => arg.Order))
-                    {
-                        vieModel.SendCommands.Add(item);
-                    }
+            if (advancedSend == null)
+                return;
 
+            vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
+            List<SendCommand> sendCommands = new List<SendCommand>();
+            if (!string.IsNullOrEmpty(advancedSend.Commands))
+                sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+            if (sendCommands != null && sendCommands.Count > 0)
+            {
+                foreach (var item in sendCommands.OrderBy(arg => arg.Order))
+                {
+                    vieModel.SendCommands.Add(item);
                 }
-                vieModel.CurrentProjectID = advancedSend.ProjectID;
-                vieModel.ShowCurrentSendCommand = true;
-                dataGrid.ItemsSource = null;
-                dataGrid.ItemsSource = vieModel.SendCommands;
+
             }
+            vieModel.CurrentProjectID = advancedSend.ProjectID;
+            vieModel.ShowCurrentSendCommand = true;
+            dataGrid.ItemsSource = null;
+            dataGrid.ItemsSource = vieModel.SendCommands;
+
+            Logger.Info($"show project: {advancedSend.ProjectName}");
         }
 
         private void AddNewSendCommand(object sender, RoutedEventArgs e)
@@ -218,6 +229,7 @@ namespace SuperCom
                 vieModel.SendCommands.Add(send);
                 DataChanged();
 
+                Logger.Info($"add new cmd, order: {send.Order}");
             }
 
         }
@@ -242,6 +254,8 @@ namespace SuperCom
                             advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                             vieModel.UpdateProject(advancedSend);
                             DataChanged();
+
+                            Logger.Info($"delete cmd, id: {commandID}");
                         }
                     }
                 }
@@ -270,7 +284,6 @@ namespace SuperCom
                     advancedSend.Commands = commands;
                     vieModel.UpdateProject(advancedSend);
                     DataChanged();
-
                 }
             }
         }
@@ -287,6 +300,8 @@ namespace SuperCom
                 textBox.SelectAll();
                 textBox.Focus();
                 DataChanged();
+
+
             }
         }
 
@@ -326,6 +341,7 @@ namespace SuperCom
                                 RemoveProjectById(projectID);
                         }
 
+                        Logger.Info($"rename project, before: {oldName}, after: {newName}");
                     }
                 }
             }
@@ -378,6 +394,9 @@ namespace SuperCom
                 return;
             }
 
+
+            Logger.Info("start send cmds");
+
             vieModel.RunningCommands = true;
             Task.Run(async () =>
             {
@@ -392,7 +411,15 @@ namespace SuperCom
                     foreach (var portName in portNames)
                     {
                         bool success = await AsyncSendCommand(idx, portName, command);
-                        if (!success) continue;
+
+                        Logger.Debug($"send cmd, port: {portName}, " +
+                            $"name: {command.Name}, " +
+                            $"order: {command.Order}, " +
+                            $"delay: {command.Delay}, " +
+                            $"cmd: {command.Command}");
+
+                        if (!success)
+                            continue;
                     }
 
                     vieModel.SendCommands[idx].Status = RunningStatus.WaitingDelay;
@@ -476,6 +503,7 @@ namespace SuperCom
 
         private void StopCommands(object sender, RoutedEventArgs e)
         {
+            Logger.Info("stop all cmd");
             vieModel.RunningCommands = false;
             foreach (var item in vieModel.SendCommands)
             {
@@ -535,20 +563,6 @@ namespace SuperCom
                     this.Width = ConfigManager.AdvancedSendSettings.Width;
                     this.Height = ConfigManager.AdvancedSendSettings.Height;
                 }
-
-
-                //baseWindowState = (BaseWindowState)ConfigManager.AdvancedSendSettings.WindowState;
-                //if (baseWindowState == BaseWindowState.FullScreen)
-                //{
-                //    this.WindowState = System.Windows.WindowState.Maximized;
-                //}
-                //else if (baseWindowState == BaseWindowState.None)
-                //{
-                //    baseWindowState = 0;
-                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                //}
-                //if (this.Width == SystemParameters.WorkArea.Width
-                //    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
             }
         }
 
@@ -562,15 +576,6 @@ namespace SuperCom
             ConfigManager.AdvancedSendSettings.Save();
         }
 
-        private void BaseWindow_Closed(object sender, EventArgs e)
-        {
-
-        }
-
-        private void BaseWindow_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-
-        }
 
         private void CommandTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -580,6 +585,7 @@ namespace SuperCom
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
             AdjustWindow();
+            Logger.Info("advanced send loaded");
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -680,5 +686,7 @@ namespace SuperCom
         {
             MessageNotify.Success("保存成功");
         }
+
+
     }
 }

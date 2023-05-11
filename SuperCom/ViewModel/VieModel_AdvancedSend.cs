@@ -280,6 +280,7 @@ namespace SuperCom.ViewModel
             {
                 CurrentProjects.Add(send);
                 AllProjects.Add(send);
+                Logger.Info($"new project: {projectName}");
             }
         }
     }

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using static SuperCom.Entity.HighLightRule;
+using static SuperCom.App;
 
 namespace SuperCom.Entity
 {
@@ -101,6 +102,7 @@ namespace SuperCom.Entity
                 _AddNewLineWhenWrite = value;
                 RaisePropertyChanged();
                 RefreshSendHexValue(WriteData);
+                Logger.Info($"set AddNewLineWhenWrite: {value}");
             }
         }
 
@@ -114,6 +116,8 @@ namespace SuperCom.Entity
                 RaisePropertyChanged();
                 if (value)
                     RefreshSendHexValue(WriteData);
+
+                Logger.Info($"set SendHex: {value}");
             }
         }
 
@@ -126,6 +130,7 @@ namespace SuperCom.Entity
                 _RecvShowHex = value;
                 RaisePropertyChanged();
                 SetDataReceivedType();
+                Logger.Info($"port: {Name}, RecvShowHex: {value}");
             }
         }
         private string _SendHexValue;
@@ -152,7 +157,12 @@ namespace SuperCom.Entity
         public bool AddTimeStamp
         {
             get { return _AddTimeStamp; }
-            set { _AddTimeStamp = value; RaisePropertyChanged(); }
+            set
+            {
+                _AddTimeStamp = value;
+                RaisePropertyChanged();
+                Logger.Info($"port: {Name}, AddTimeStamp: {value}");
+            }
         }
 
 
@@ -261,6 +271,7 @@ namespace SuperCom.Entity
                         TextEditor.TextChanged -= TextBox_TextChanged;
                     else
                         TextEditor.TextChanged += TextBox_TextChanged;
+                    Logger.Info($"fixed text: {value}");
                 }
             }
         }

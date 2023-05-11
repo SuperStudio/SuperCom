@@ -381,6 +381,10 @@ namespace SuperCom
 
         private void DeleteRule(object sender, RoutedEventArgs e)
         {
+
+            if (!(bool)new MsgBox("是否删除？").ShowDialog(this))
+                return;
+
             Button button = sender as Button;
             if (button != null && button.Tag != null)
             {
@@ -421,6 +425,8 @@ namespace SuperCom
                         vieModel.RenameRule(rule);
                         TextBlock textBlock = (textBox.Parent as Grid).Children.OfType<TextBlock>().FirstOrDefault();
                         textBlock.Text = newName;
+
+                        Logger.Info($"rename rule, before: {oldName}, after: {newName}");
 
                         // 重命名文件
                         string newFileName = rule.GetFullFileName();
@@ -480,6 +486,9 @@ namespace SuperCom
                 {
                     rule.RuleSetString = ruleSets;
                     vieModel.UpdateRule(rule);
+
+                    Logger.Info($"save rule set: {ruleSets}");
+
                 }
             }
         }

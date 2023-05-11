@@ -195,7 +195,7 @@ namespace SuperCom.Entity
                 this.BaudRate = dict.GetInt("BaudRate", PortSetting.DEFAULT_BAUDRATE);
                 this.DataBits = dict.GetInt("DataBits", PortSetting.DEFAULT_DATABITS);
                 this.TextFontSize = dict.GetDouble("TextFontSize", PortSetting.DEFAULT_FONTSIZE);
-                this.HighLightIndex = dict.GetLong("TextFontSize", 0);
+                this.HighLightIndex = dict.GetLong("HighLightIndex", 0);
                 this.PortEncoding = dict.GetString("Encoding", PortSetting.DEFAULT_ENCODING.ToString());
                 this.ParityString = dict.GetString("Parity", PortSetting.DEFAULT_PARITY.ToString());
                 this.StopBitsString = dict.GetString("StopBits", PortSetting.DEFAULT_STOPBITS.ToString());

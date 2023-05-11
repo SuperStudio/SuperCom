@@ -15,6 +15,7 @@
     Width="1000"
     Height="500"
     MinWidth="700"
+    AutomationProperties.AutomationId="MainWindow"
     Background="{DynamicResource Window.Background}"
     Closing="mainWindow_Closing"
     ContentRendered="mainWindow_ContentRendered"
@@ -198,10 +199,12 @@
                             IsCheckable="False" />
                     </MenuItem>
                     <MenuItem
+                        AutomationProperties.AutomationId="MenuItem_About"
                         Background="{DynamicResource Window.Title.Background}"
                         Header="关于"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem
+                            AutomationProperties.AutomationId="MenuItem_ShowUpgrade"
                             Click="ShowUpgradeWindow"
                             Header="检查更新"
                             Icon="/Resources/Pictures/update.png" />
@@ -2141,8 +2144,7 @@
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Center"
                                                     IsChecked="{Binding RecvShowHex, Mode=TwoWay}"
-                                                    Opacity="0.8"
-                                                    >
+                                                    Opacity="0.8">
                                                     <ToggleButton.Style>
                                                         <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
                                                             <Setter Property="Content" Value="STR" />

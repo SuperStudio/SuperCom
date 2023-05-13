@@ -1575,16 +1575,17 @@
                                                     PreviewMouseLeftButtonDown="PinTabItem"
                                                     Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Button
-                                                        Width="25"
-                                                        Height="25"
+                                                        Width="20"
+                                                        Height="20"
                                                         Margin="5"
                                                         HorizontalAlignment="Right"
+                                                        Background="Transparent"
                                                         Style="{StaticResource RoundNormalButton}"
                                                         Tag="{DynamicResource TabItem.Hover.Background}">
                                                         <Viewbox
-                                                            Width="12"
+                                                            Width="10"
                                                             Height="auto"
-                                                            Margin="-7.5,0"
+                                                            Margin="-2.5,2,0,0"
                                                             HorizontalAlignment="Left"
                                                             VerticalAlignment="Center">
                                                             <Path

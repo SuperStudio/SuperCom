@@ -584,7 +584,7 @@ namespace SuperCom
 
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            AdjustWindow();
+            //AdjustWindow();
             Logger.Info("advanced send loaded");
         }
 

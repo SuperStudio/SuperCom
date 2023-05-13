@@ -282,7 +282,7 @@ namespace SuperCom.ViewModel
                     item.WriteToXshd();
                     RuleMapper.UpdateById(item);
                 }
-                HighLightRule.AllRules = RuleMapper.SelectList();
+                AllRules = RuleMapper.SelectList();
             }
         }
 

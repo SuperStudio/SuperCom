@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
     xmlns:config="clr-namespace:SuperCom.Config"
-    Loaded="mainWindow_Loaded"
     xmlns:converter="clr-namespace:SuperCom.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
@@ -22,6 +21,7 @@
     ContentRendered="mainWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
     Icon="pack://application:,,,/Resources/Ico/ICON.ico"
+    Loaded="mainWindow_Loaded"
     MenuAlign="Left"
     MenuMargin="200 0 0 0"
     ShowThemeSelector="True"
@@ -113,6 +113,9 @@
                             Click="SaveLog"
                             Header="日志另存为"
                             Icon="/Resources/Pictures/save.png" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="ExportAllCmd" Header="导出配置" />
+                        <MenuItem Click="ImportAllCmd" Header="导入配置" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem Click="OpenAppDir" Header="打开软件目录" />
                     </MenuItem>

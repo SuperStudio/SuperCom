@@ -16,6 +16,7 @@ using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
 using SuperUtils.Systems;
 using SuperUtils.Time;
+using SuperUtils.Values;
 using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
@@ -3626,6 +3627,65 @@ namespace SuperCom
         private void mainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             Logger.Info("main window loaded");
+        }
+
+        private void ExportAllCmd(object sender, RoutedEventArgs e)
+        {
+            List<DataBaseInfo> dataBaseInfos = ConfigImport.GetCurrentDataBaseInfo();
+            if (dataBaseInfos == null || dataBaseInfos.Count == 0)
+                return;
+
+            Window_Import import = new Window_Import(dataBaseInfos, export: true);
+            if ((bool)import.ShowDialog(this))
+            {
+                if (import.CurrentBaseInfos == null)
+                    return;
+
+                string json = ConfigImport.ExportDataBaseInfo(import.CurrentBaseInfos.ToList());
+                if (string.IsNullOrEmpty(json))
+                {
+                    MessageCard.Error("导出失败");
+                    return;
+                }
+
+                string fileName = FileHelper.SaveFile(this, filter: ConstValues.FILTER_JSON);
+
+                FileHelper.TryWriteToFile(fileName, json, Encoding.UTF8);
+                MessageNotify.Success("导出成功");
+                FileHelper.TryOpenSelectPath(fileName);
+                Logger.Info($"export config to {fileName}");
+
+
+            }
+        }
+
+        private void ImportAllCmd(object sender, RoutedEventArgs e)
+        {
+            string filePath = FileHelper.SelectFile(this, filter: ConstValues.FILTER_JSON);
+            if (!File.Exists(filePath))
+                return;
+
+            string content = FileHelper.TryReadFile(filePath);
+            if (string.IsNullOrEmpty(content))
+                return;
+
+
+            List<DataBaseInfo> dataBaseInfos = ConfigImport.ParseInfo(content);
+
+            if (dataBaseInfos == null || dataBaseInfos.Count == 0)
+            {
+                MessageCard.Error("解析错误");
+                return;
+            }
+            Window_Import imoprt = new Window_Import(dataBaseInfos, export: false);
+            if ((bool)imoprt.ShowDialog(this))
+                if (ConfigImport.ImportDataBaseInfo(dataBaseInfos, content))
+                {
+                    RefreshSendCommands();
+                    SetComboboxStatus();
+                    MessageNotify.Success("全部导入成功");
+                    MessageCard.Info("导入正则高亮后，需打开设置-正则高亮-保存");
+                }
         }
     }
 }

@@ -6,11 +6,10 @@ namespace SuperCom.Config
 {
     public static class ConfigManager
     {
-        public const string RELEASE_DATE = "2023-05-10";
+        public const string RELEASE_DATE = "2023-05-14";
 
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
-        public const string LICENSE = "GPL-3.0";
-        public const string AUTHOR = "chao";
+
         public const string APP_NAME = "SuperCom";
         public const string APP_SUB_NAME = "超级串口工具";
         public static Main Main { get; set; }
@@ -19,6 +18,7 @@ namespace SuperCom.Config
         public static AdvancedSendSettings AdvancedSendSettings { get; set; }
         public static VarMonitorSetting VarMonitorSetting { get; set; }
         public static VirtualPortSettings VirtualPortSettings { get; set; }
+
 
 
         static ConfigManager()

@@ -27,10 +27,19 @@ namespace SuperCom.Config
 
         private static string DonateJsonBasePath = "SuperStudio-Donate";
         private static string PluginBasePath = "SuperPlugins";
-        public const string GITHUB_URL = "https://github.com/SuperStudio/SuperCom";
+
         public static string FeedbackUrl = "https://github.com/SuperStudio/SuperCom/issues";
         public static string HelpUrl = "https://github.com/SuperStudio/SuperCom/wiki";
         public const string NOTICE_URL = "https://superstudio.github.io/SuperCom-Upgrade/notice.json";
+
+
+        #region ABOUT
+        public static string GITHUB_URL { get; set; }
+        public static string WEB_URL { get; set; }
+        public static string JOIN_GROUP_URL { get; set; }
+        public static string AUTHOR { get; set; } = "chao";
+        public static string LICENSE { get; set; } = "GPL-3.0";
+        #endregion
 
 
         public static List<ReferenceData> REFERENCE_DATAS = new List<ReferenceData>()
@@ -76,7 +85,15 @@ namespace SuperCom.Config
 
         static UrlManager()
         {
-            Type t = typeof(UrlManager);
+            GITHUB_URL = FileHelper.TryReadConfigFromJson("GitHubUrl") as string;
+            WEB_URL = FileHelper.TryReadConfigFromJson("WebUrl") as string;
+            JOIN_GROUP_URL = FileHelper.TryReadConfigFromJson("JoinGroupUrl") as string;
+            if (FileHelper.TryReadConfigFromJson("Author") is string author && !string.IsNullOrEmpty(author))
+                AUTHOR = author;
+
+            if (FileHelper.TryReadConfigFromJson("License") is string license && !string.IsNullOrEmpty(license))
+                LICENSE = license;
+
             JArray array = FileHelper.TryReadConfigFromJson("UpgradeSources") as JArray;
             if (array == null || array.Count == 0) return;
             foreach (JObject obj in array)

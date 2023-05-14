@@ -47,6 +47,7 @@ namespace SuperCom
         private const int DEFAULT_PORT_OPEN_INTERVAL = 100;
 
         Window_Setting window_Setting { get; set; }
+        Window_Monitor window_Monitor { get; set; }
         public VieModel_Main vieModel { get; set; }
 
         public MainWindow()
@@ -511,12 +512,12 @@ namespace SuperCom
                 Logger.Debug($"set HighLightIndex = {idx}");
             }
             // 加载监视器
-            portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
-            foreach (var item in vieModel.GetVarMonitorByPortName(portName))
-            {
-                Logger.Debug($"add  var monitor: {item.Name}");
-                portTabItem.VarMonitors.Add(item);
-            }
+            //portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
+            //foreach (var item in vieModel.GetVarMonitorByPortName(portName))
+            //{
+            //    Logger.Debug($"add  var monitor: {item.Name}");
+            //    portTabItem.VarMonitors.Add(item);
+            //}
 
 
             // 搜索框
@@ -3080,95 +3081,11 @@ namespace SuperCom
             toggleButton.IsChecked = false;
         }
 
-        private void AddNewVarMonitor(object sender, RoutedEventArgs e)
-        {
-            // 新增监视变量
-            if (sender is Button button && button.Tag != null)
-            {
-                string name = button.Tag.ToString();
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
-                if (portTabItem != null)
-                {
-                    vieModel.NewVarMonitor(portTabItem, name);
-                }
-
-            }
 
 
-        }
-
-        private void DeleteVarMonitory(object sender, RoutedEventArgs e)
-        {
-            if (sender is FrameworkElement element && element.Tag != null &&
-                (element.Parent as FrameworkElement).Tag != null &&
-                (element.Parent as FrameworkElement).Tag is System.Windows.Controls.DataGrid dataGrid &&
-                dataGrid.Tag != null)
-            {
-                string name = dataGrid.Tag.ToString();
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
-                if (portTabItem != null && long.TryParse(element.Tag.ToString(), out long id))
-                    vieModel.DeleteVarMonitor(portTabItem, id);
-            }
-        }
-
-        private void OpenVarMonitorDataPath(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SetMonitorTabVisible(object sender, RoutedEventArgs e)
-        {
-            ToggleButton toggleButton = sender as ToggleButton;
 
 
-            if (toggleButton.Parent is StackPanel panel &&
-                panel.Parent is Grid grid && grid.Parent is Grid rootGrid)
-            {
-                Grid monitorGrid = rootGrid.FindName("monitorGrid") as Grid;
 
-                if (monitorGrid != null)
-                {
-                    monitorGrid.Visibility = (bool)toggleButton.IsChecked ? Visibility.Visible : Visibility.Collapsed;
-
-                }
-            }
-        }
-
-        private void RefreshVarMonitor(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag != null)
-            {
-                string name = button.Tag.ToString();
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
-                if (portTabItem != null)
-                {
-                    portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
-                    foreach (var item in vieModel.GetVarMonitorByPortName(name))
-                    {
-                        portTabItem.VarMonitors.Add(item);
-                    }
-                }
-            }
-
-        }
-
-        private void DrawMonitorPicture(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SaveVarMonitor(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag != null)
-            {
-                string name = button.Tag.ToString();
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
-                if (portTabItem != null)
-                {
-                    vieModel.SaveMonitor(portTabItem);
-                }
-            }
-        }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
@@ -3686,6 +3603,15 @@ namespace SuperCom
                     MessageNotify.Success("全部导入成功");
                     MessageCard.Info("导入正则高亮后，需打开设置-正则高亮-保存");
                 }
+        }
+
+        private void ShowVarMonitor(object sender, RoutedEventArgs e)
+        {
+            window_Monitor?.Close();
+            window_Monitor = new Window_Monitor();
+            window_Monitor.Show();
+            window_Monitor.Focus();
+            window_Monitor.BringIntoView();
         }
     }
 }

@@ -207,7 +207,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="挂机" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="系统" />
                         <StackPanel
                             Grid.Column="5"
                             Margin="5"
@@ -216,22 +216,6 @@
 
 
                                 <CheckBox Content="防止系统休眠" IsChecked="{Binding AvoidScreenClose, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <Border
-                                    Width="25"
-                                    Height="25"
-                                    Margin="0"
-                                    Padding="0"
-                                    VerticalAlignment="Stretch"
-                                    Background="Transparent"
-                                    ToolTip="发送 ScrolLock 按键事件，避免系统休眠">
-                                    <Viewbox Width="auto" Height="14">
-                                        <Path
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
-                                            Fill="{DynamicResource Window.Foreground}" />
-                                    </Viewbox>
-                                </Border>
                             </StackPanel>
                         </StackPanel>
                     </Grid>

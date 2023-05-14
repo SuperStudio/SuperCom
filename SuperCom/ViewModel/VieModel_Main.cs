@@ -42,7 +42,7 @@ namespace SuperCom.ViewModel
         private static SqliteMapper<ComSettings> ComMapper { get; set; }
         private static SqliteMapper<ShortCutBinding> ShortCutMapper { get; set; }
         private static SqliteMapper<HighLightRule> RuleMapper { get; set; }
-        private static SqliteMapper<VarMonitor> MonitorMapper { get; set; }
+
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
         public List<ShortCutBinding> ShortCutBindings { get; set; }
@@ -445,89 +445,5 @@ namespace SuperCom.ViewModel
         }
 
 
-        #region "变量监视器"
-        public List<VarMonitor> GetVarMonitorByPortName(string portName)
-        {
-            if (MonitorMapper == null)
-                MonitorMapper = new SqliteMapper<VarMonitor>(ConfigManager.SQLITE_DATA_PATH);
-            SelectWrapper<VarMonitor> wrapper = new SelectWrapper<VarMonitor>();
-            wrapper.Eq("PortName", portName);
-            List<Dictionary<string, object>> data = MonitorMapper.Select(wrapper);
-            List<VarMonitor> list = MonitorMapper.ToEntity<VarMonitor>(data, typeof(VarMonitor).GetProperties());
-            return list.OrderBy(arg => arg.SortOrder).ToList();
-        }
-
-        public void NewVarMonitor(PortTabItem portTabItem, string portName)
-        {
-            if (portTabItem.VarMonitors == null)
-                portTabItem.VarMonitors = new ObservableCollection<VarMonitor>();
-            int maxOrder = 0;
-            if (portTabItem.VarMonitors.Count > 0)
-                maxOrder = portTabItem.VarMonitors.Max(arg => arg.SortOrder);
-            if (maxOrder <= 0)
-                maxOrder = 1;
-            else
-                maxOrder++;
-            VarMonitor varMonitor = new VarMonitor(maxOrder, portName);
-            MonitorMapper.InsertAndGetID(varMonitor);
-            portTabItem.VarMonitors.Add(varMonitor);
-        }
-        public void DeleteVarMonitor(PortTabItem portTabItem, long id)
-        {
-            if (portTabItem.VarMonitors == null || portTabItem.VarMonitors.Count == 0 || id <= 0)
-                return;
-            MonitorMapper.DeleteById(id);
-
-            int idx = -1;
-
-            for (int i = 0; i < portTabItem.VarMonitors.Count; i++)
-            {
-                if (portTabItem.VarMonitors[i].MonitorID == id)
-                {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx >= 0 && idx < portTabItem.VarMonitors.Count)
-                portTabItem.VarMonitors.RemoveAt(idx);
-        }
-
-        public void SaveMonitor(PortTabItem portTabItem)
-        {
-            if (portTabItem.VarMonitors == null || portTabItem.VarMonitors.Count == 0)
-                return;
-
-            List<VarMonitor> toUpdate = new List<VarMonitor>();
-
-            List<VarMonitor> allData = MonitorMapper.SelectList();
-            foreach (var item in portTabItem.VarMonitors)
-            {
-                VarMonitor varMonitor = allData.FirstOrDefault(arg => arg.MonitorID == item.MonitorID);
-                if (varMonitor == null || !varMonitor.Equals(item))
-                    toUpdate.Add(item);
-            }
-
-
-            if (toUpdate.Count == 0)
-            {
-                MessageNotify.Info("无改变，无需保存");
-                return;
-            }
-            else
-            {
-                foreach (var item in toUpdate)
-                    MonitorMapper.UpdateById(item);
-
-                MessageNotify.Success("保存成功");
-                portTabItem.VarMonitors = new ObservableCollection<VarMonitor>();
-
-                foreach (var item in GetVarMonitorByPortName(portTabItem.Name))
-                    portTabItem.VarMonitors.Add(item);
-
-            }
-
-        }
-
-        #endregion
     }
 }

@@ -1,4 +1,8 @@
-﻿﻿﻿# 开发者文档
+﻿﻿﻿﻿# 开发者文档
+
+# 软件架构
+
+<img src="https://s1.ax1x.com/2023/05/13/p9cEtUK.png" alt="SuperCom软件设计架构" style="zoom:80%;" />
 
 # 设计思想
 

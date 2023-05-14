@@ -191,6 +191,7 @@
                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                         <MenuItem Click="ShowPluginWindow" Header="插件" />
                         <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="ShowVarMonitor" Visibility="Collapsed" Header="监视器" />
                         <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
@@ -1693,281 +1694,6 @@
                                                 WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>
 
-                                        <Grid
-                                            Grid.Row="0"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"
-                                            Visibility="Collapsed">
-                                            <!--  Visibility="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">  -->
-                                            <StackPanel
-                                                Grid.Column="1"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Stretch"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                Orientation="Vertical">
-                                                <Button
-                                                    Width="20"
-                                                    Height="20"
-                                                    Margin="0,5"
-                                                    Padding="0"
-                                                    VerticalAlignment="Stretch"
-                                                    super:CommonExt.CornerRadius="3"
-                                                    super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
-                                                    Click="OnShowRightPanel"
-                                                    Style="{StaticResource FlatButton}">
-                                                    <Viewbox
-                                                        Width="8"
-                                                        Height="auto"
-                                                        VerticalAlignment="Center">
-                                                        <Path
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                            Fill="{DynamicResource Window.Foreground}" />
-                                                    </Viewbox>
-                                                </Button>
-                                                <ToggleButton
-                                                    Margin="0"
-                                                    Click="SetMonitorTabVisible"
-                                                    IsChecked="False"
-                                                    Style="{StaticResource FlatToggleButton}">
-                                                    <StackPanel Orientation="Vertical">
-                                                        <TextBlock
-                                                            Margin="0"
-                                                            Style="{StaticResource BaseTextBlock}"
-                                                            Text="监" />
-                                                        <TextBlock
-                                                            Margin="0"
-                                                            Style="{StaticResource BaseTextBlock}"
-                                                            Text="视" />
-                                                        <TextBlock
-                                                            Margin="0"
-                                                            Style="{StaticResource BaseTextBlock}"
-                                                            Text="器" />
-                                                    </StackPanel>
-                                                </ToggleButton>
-                                            </StackPanel>
-
-
-                                        </Grid>
-
-                                        <Grid
-                                            Name="monitorGrid"
-                                            Grid.Row="0"
-                                            Grid.Column="0"
-                                            Width="700"
-                                            Margin="10,5"
-                                            HorizontalAlignment="Right"
-                                            Panel.ZIndex="5"
-                                            Visibility="Collapsed">
-                                            <Border Effect="{DynamicResource PopupDropShadowEffect}" Style="{StaticResource InfoBorder}" />
-                                            <TabControl
-                                                Name="sideTabControl"
-                                                Margin="5"
-                                                Background="{DynamicResource Window.Side.Background}"
-                                                ItemContainerStyle="{StaticResource FlatTabItem}"
-                                                Style="{StaticResource HeaderHideTabControlStyle}">
-                                                <TabItem Header="监视器">
-                                                    <Grid Margin="5">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="auto" />
-                                                            <RowDefinition Height="*" />
-                                                        </Grid.RowDefinitions>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Button
-                                                                Click="AddNewVarMonitor"
-                                                                Content="新增"
-                                                                Style="{StaticResource ButtonPrimary}"
-                                                                Tag="{Binding Name}" />
-                                                            <Button
-                                                                Click="SaveVarMonitor"
-                                                                Content="保存"
-                                                                Style="{StaticResource ButtonSuccess}"
-                                                                Tag="{Binding Name}" />
-                                                            <Button
-                                                                Margin="5,0"
-                                                                BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                                                                Click="RefreshVarMonitor"
-                                                                Content="刷新"
-                                                                Style="{StaticResource BorderButton}"
-                                                                Tag="{Binding Name}" />
-                                                            <super:Switch
-                                                                Height="20"
-                                                                Margin="5,0,0,0"
-                                                                Background="{DynamicResource Window.Title.Background}"
-                                                                IsChecked="{Binding EnabledMonitor, Mode=TwoWay}" />
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Style="{StaticResource BaseTextBlock}"
-                                                                Text="在当前串口启用监视器" />
-                                                        </StackPanel>
-                                                        <DataGrid
-                                                            Grid.Row="1"
-                                                            Margin="5,0"
-                                                            HorizontalContentAlignment="Left"
-                                                            CanUserResizeColumns="True"
-                                                            CanUserSortColumns="True"
-                                                            ItemsSource="{Binding VarMonitors}"
-                                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                            Style="{DynamicResource FlatDataGrid}"
-                                                            Tag="{Binding Name}">
-
-                                                            <DataGrid.Columns>
-                                                                <DataGridTemplateColumn
-                                                                    Width="auto"
-                                                                    MinWidth="40"
-                                                                    Header="操作"
-                                                                    SortMemberPath="MonitorID">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-
-
-                                                                            <Border
-                                                                                Grid.Column="1"
-                                                                                Background="Transparent"
-                                                                                BorderBrush="{StaticResource TabItem.Selected.Background}"
-                                                                                Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type DataGrid}}}">
-                                                                                <Button
-                                                                                    Width="20"
-                                                                                    Height="20"
-                                                                                    HorizontalAlignment="Right"
-                                                                                    super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
-                                                                                    Click="DeleteVarMonitory"
-                                                                                    Style="{StaticResource RoundNormalButton}"
-                                                                                    Tag="{Binding MonitorID, Mode=OneWay}"
-                                                                                    Visibility="Visible">
-                                                                                    <Viewbox
-                                                                                        Width="10"
-                                                                                        Height="auto"
-                                                                                        VerticalAlignment="Center">
-                                                                                        <Path
-                                                                                            HorizontalAlignment="Center"
-                                                                                            VerticalAlignment="Center"
-                                                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                                                                    </Viewbox>
-                                                                                </Button>
-                                                                            </Border>
-
-
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <DataGridTemplateColumn
-                                                                    Width="50"
-                                                                    Header="启用"
-                                                                    SortMemberPath="Enabled">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <CheckBox
-                                                                                Width="40"
-                                                                                IsChecked="{Binding Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                Style="{StaticResource NormalCheckBox}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-
-                                                                <DataGridTemplateColumn Header="顺序" SortMemberPath="SortOrder">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <super:SearchBox
-                                                                                Width="40"
-                                                                                Background="Transparent"
-                                                                                ShowClearButton="False"
-                                                                                ShowSearchButton="False"
-                                                                                Text="{Binding SortOrder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <DataGridTemplateColumn Header="名称" SortMemberPath="Name">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <super:SearchBox
-                                                                                Width="80"
-                                                                                Background="Transparent"
-                                                                                ShowClearButton="False"
-                                                                                ShowSearchButton="False"
-                                                                                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <DataGridTemplateColumn Header="类型" SortMemberPath="VarType">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <ComboBox
-                                                                                Width="80"
-                                                                                Margin="0"
-                                                                                VerticalAlignment="Center"
-                                                                                FontSize="12"
-                                                                                ItemContainerStyle="{StaticResource NormalListBoxItem}"
-                                                                                SelectedIndex="{Binding VarType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                                                Style="{StaticResource BorderComboBox}">
-                                                                                <ComboBoxItem Content="整数" />
-                                                                                <ComboBoxItem Content="小数" />
-                                                                                <ComboBoxItem Content="字符串" />
-                                                                            </ComboBox>
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-
-
-                                                                <DataGridTemplateColumn Header="正则表达式" SortMemberPath="RegexPattern">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <Grid>
-                                                                                <Border
-                                                                                    Width="150"
-                                                                                    Margin="0"
-                                                                                    Background="Transparent">
-                                                                                    <super:SearchBox
-                                                                                        Margin="0,5"
-                                                                                        PlaceHolder="请输入"
-                                                                                        Style="{StaticResource SearchTextBoxStyle}"
-                                                                                        Text="{Binding RegexPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                                                </Border>
-                                                                            </Grid>
-
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <DataGridTemplateColumn Header="数据" SortMemberPath="DataFileName">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <StackPanel Orientation="Horizontal">
-
-
-                                                                                <Button
-                                                                                    Margin="5,0"
-                                                                                    BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
-                                                                                    Click="OpenVarMonitorDataPath"
-                                                                                    Content="浏览"
-                                                                                    Style="{StaticResource BorderButton}" />
-                                                                                <Button
-                                                                                    Click="DrawMonitorPicture"
-                                                                                    Content="制图"
-                                                                                    Style="{StaticResource ButtonPrimary}"
-                                                                                    Visibility="{Binding CanDrawImage, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                                                            </StackPanel>
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-
-
-
-                                                            </DataGrid.Columns>
-
-
-                                                        </DataGrid>
-                                                    </Grid>
-                                                </TabItem>
-                                            </TabControl>
-                                        </Grid>
-
-
-
-
                                         <StackPanel
                                             Grid.Row="0"
                                             Margin="30,20"
@@ -2027,8 +1753,6 @@
                                                 </Viewbox>
                                             </Border>
                                         </StackPanel>
-
-
 
                                         <Border
                                             Grid.Row="1"
@@ -3169,17 +2893,16 @@
 
             <Grid
                 Grid.Row="1"
-                Height="30"
-                Background="{DynamicResource Window.StatusBar.Background}"
-                Visibility="Collapsed">
+                Height="25"
+                Background="{DynamicResource Window.StatusBar.Background}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock
+                <!--<TextBlock
                     Margin="5,0"
                     VerticalAlignment="Center"
-                    Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />
+                    Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />-->
             </Grid>
 
         </Grid>

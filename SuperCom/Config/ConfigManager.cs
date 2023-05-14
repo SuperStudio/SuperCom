@@ -17,6 +17,7 @@ namespace SuperCom.Config
         public static CommonSettings CommonSettings { get; set; }
         public static Settings Settings { get; set; }
         public static AdvancedSendSettings AdvancedSendSettings { get; set; }
+        public static VarMonitorSetting VarMonitorSetting { get; set; }
         public static VirtualPortSettings VirtualPortSettings { get; set; }
 
 
@@ -25,6 +26,7 @@ namespace SuperCom.Config
             Main = Main.CreateInstance();
             CommonSettings = CommonSettings.CreateInstance();
             AdvancedSendSettings = AdvancedSendSettings.CreateInstance();
+            VarMonitorSetting = VarMonitorSetting.CreateInstance();
             VirtualPortSettings = VirtualPortSettings.CreateInstance();
             Settings = Settings.CreateInstance();
         }

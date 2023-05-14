@@ -112,6 +112,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Comparers\ComPortComparer.cs" />
+    <Compile Include="Config\VarMonitorSetting.cs" />
     <Compile Include="Config\ConfigImport.cs" />
     <Compile Include="Config\MapperManager.cs" />
     <Compile Include="Config\PathManager.cs" />
@@ -151,6 +152,9 @@
     </Compile>
     <Compile Include="Windows\Window_Setting.xaml.cs">
       <DependentUpon>Window_Setting.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Window_Monitor.xaml.cs">
+      <DependentUpon>Window_Monitor.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Window_ShortCut.xaml.cs">
       <DependentUpon>Window_ShortCut.xaml</DependentUpon>
@@ -199,6 +203,10 @@
     <Page Include="Windows\Window_Setting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Window_Monitor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Window_ShortCut.xaml">
       <SubType>Designer</SubType>

@@ -239,16 +239,7 @@ namespace SuperCom.Entity
             }
         }
 
-        private ObservableCollection<VarMonitor> _VarMonitors;
-        public ObservableCollection<VarMonitor> VarMonitors
-        {
-            get { return _VarMonitors; }
-            set
-            {
-                _VarMonitors = value;
-                RaisePropertyChanged();
-            }
-        }
+
 
         private bool _Pinned;
         public bool Pinned
@@ -716,24 +707,24 @@ namespace SuperCom.Entity
 
         private void RecordMonitorValue(string line)
         {
-            if (VarMonitors == null || VarMonitors.Count == 0)
-                return;
-            foreach (VarMonitor monitor in VarMonitors.ToList())
-            {
-                if (!monitor.Enabled || string.IsNullOrEmpty(monitor.RegexPattern))
-                    continue;
-                Match match = Regex.Match(line, monitor.RegexPattern);
-                if (match != null && match.Success)
-                {
-                    // 写到文件中
-                    string toWrite = $"{{\"value\":\"{match.Value}\", " +
-                        $"\"line\":\"{line}\", " +
-                        $"\"pattern\":\"{monitor.RegexPattern}\"}}{Environment.NewLine}";
-                    Console.WriteLine($"成功捕获：{toWrite}");
-                    FileHelper.TryAppendToFile(monitor.DataFileName, toWrite);
-                    break;
-                }
-            }
+            //if (VarMonitors == null || VarMonitors.Count == 0)
+            //    return;
+            //foreach (VarMonitor monitor in VarMonitors.ToList())
+            //{
+            //    if (!monitor.Enabled || string.IsNullOrEmpty(monitor.RegexPattern))
+            //        continue;
+            //    Match match = Regex.Match(line, monitor.RegexPattern);
+            //    if (match != null && match.Success)
+            //    {
+            //        // 写到文件中
+            //        string toWrite = $"{{\"value\":\"{match.Value}\", " +
+            //            $"\"line\":\"{line}\", " +
+            //            $"\"pattern\":\"{monitor.RegexPattern}\"}}{Environment.NewLine}";
+            //        Console.WriteLine($"成功捕获：{toWrite}");
+            //        FileHelper.TryAppendToFile(monitor.DataFileName, toWrite);
+            //        break;
+            //    }
+            //}
         }
 
         public void StartMonitorTask()
@@ -808,10 +799,10 @@ namespace SuperCom.Entity
 
         public bool FirstSaveData;
         private StringBuilder builder = new StringBuilder();
-        public void SaveData(string line)
+        public void SaveData(string inputData)
         {
-            RX += Encoding.UTF8.GetByteCount(line);     // todo
-            string value = line.Replace("\0", "\\0");
+            RX += Encoding.UTF8.GetByteCount(inputData);     // todo
+            string value = inputData.Replace("\0", "\\0");
             if (AddTimeStamp)
             {
                 // 遍历字符串

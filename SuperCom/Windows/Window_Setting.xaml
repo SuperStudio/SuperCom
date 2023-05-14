@@ -215,7 +215,7 @@
                             <StackPanel Orientation="Horizontal">
 
 
-                                <CheckBox Content="防止系统休眠" IsChecked="{Binding AvoidScreenClose, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox Content="防止屏幕息屏及系统休眠" IsChecked="{Binding AvoidScreenClose, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>

@@ -482,12 +482,12 @@ namespace SuperCom
             button.IsEnabled = true;
         }
 
-        private async Task<bool> OpenPort(SideComPort sideComPort)
+        private async Task<bool> OpenPort(SideComPort sideComPort, bool connect = true)
         {
             if (sideComPort == null || string.IsNullOrEmpty(sideComPort.Name))
                 return false;
             string portName = sideComPort.Name;
-            await OpenPortTabItem(portName, true);
+            await OpenPortTabItem(portName, connect);
             if (vieModel.PortTabItems == null)
                 return false;
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
@@ -528,6 +528,8 @@ namespace SuperCom
             sideComPort.PortTabItem.FragCount = 0;
 
 
+            if (!connect)
+                return true;
 
             await Task.Run(() =>
             {
@@ -793,11 +795,11 @@ namespace SuperCom
             about.AppSubName = ConfigManager.APP_SUB_NAME;
             about.Version = local;
             about.ReleaseDate = ConfigManager.RELEASE_DATE;
-            about.Author = ConfigManager.AUTHOR;
-            about.License = ConfigManager.LICENSE;
+            about.Author = UrlManager.AUTHOR;
+            about.License = UrlManager.LICENSE;
             about.GithubUrl = UrlManager.GITHUB_URL;
-            about.WebUrl = UrlManager.GITHUB_URL;
-            about.JoinGroupUrl = UrlManager.GITHUB_URL;
+            about.WebUrl = UrlManager.WEB_URL;
+            about.JoinGroupUrl = UrlManager.JOIN_GROUP_URL;
             about.Image = SuperUtils.Media.ImageHelper
                 .ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.png");
             about.ShowDialog();
@@ -1689,7 +1691,8 @@ namespace SuperCom
                 else
                 {
                     // 这里不需要等待
-                    OpenPortTabItem(portName, false);
+                    //OpenPortTabItem(portName, false);
+                    OpenPort(sideComPort, false);
                 }
             }
             SetFontFamily(ConfigManager.Main.TextFontName);

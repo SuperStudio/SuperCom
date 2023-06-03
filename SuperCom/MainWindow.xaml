@@ -12,8 +12,8 @@
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Name="mainWindow"
     Title="SuperCom-超级串口工具"
-    Width="1000"
-    Height="500"
+    Width="1200"
+    Height="700"
     MinWidth="700"
     AutomationProperties.AutomationId="MainWindow"
     Background="{DynamicResource Window.Background}"
@@ -191,7 +191,10 @@
                         <MenuItem Click="OpenShortCut" Header="快捷键" />
                         <MenuItem Click="ShowPluginWindow" Header="插件" />
                         <Separator Margin="-20,5,10,5" />
-                        <MenuItem Click="ShowVarMonitor" Visibility="Collapsed" Header="监视器" />
+                        <MenuItem
+                            Click="ShowVarMonitor"
+                            Header="监视器"
+                            Visibility="Collapsed" />
                         <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
@@ -229,454 +232,7 @@
 
                 </Menu>
             </Grid>
-            <!--<Grid
-                x:Name="TitleBorder"
-                Grid.Row="0"
-                Background="{DynamicResource Window.Title.Background}">
-                <Grid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Click="MinWindow" Header="最小化" />
-                        <MenuItem
-                            Name="MaxMenuItem"
-                            Click="OnMaxWindow"
-                            Header="最大化" />
-                        <MenuItem
-                            super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
-                            Click="CloseWindow"
-                            Header="关闭" />
-                    </ContextMenu>
-                </Grid.ContextMenu>
-                <Grid
-                    HorizontalAlignment="Stretch"
-                    Panel.ZIndex="50"
-                    Background="Transparent"
-                    MouseLeftButtonDown="OnMaxCurrentWindow"
-                    MouseMove="OnMoveWindow">
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="auto" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel
-                            Grid.Column="0"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Orientation="Horizontal">
-                            <Image
-                                Height="20"
-                                Margin="5,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Source="/Resources/Ico/ICON_64.png" />
-                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="{Binding ElementName=mainWindow, Path=Title}" />
-
-                        </StackPanel>
-
-                    </Grid>
-
-
-
-
-                    <StackPanel
-                        Name="TitleStackPanel"
-                        Grid.Column="1"
-                        Height="30"
-                        HorizontalAlignment="Right"
-                        Orientation="Horizontal">
-
-                        <super:ThemeSelector x:Name="themeSelector" Width="40" />
-
-                        <Grid Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="auto" />
-                            </Grid.ColumnDefinitions>
-
-
-
-                            <Button
-                                Grid.Column="0"
-                                Width="40"
-                                VerticalAlignment="Stretch"
-                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                Click="SplitPanel"
-                                Style="{StaticResource FlatButton}">
-                                <Canvas>
-                                    <Rectangle
-                                        Canvas.Left="-11"
-                                        Canvas.Top="-7"
-                                        Width="8"
-                                        Height="15"
-                                        RadiusX="2"
-                                        RadiusY="2"
-                                        Stroke="{DynamicResource Window.Foreground}"
-                                        StrokeThickness="1.5" />
-
-                                    <Rectangle
-                                        Canvas.Left="-1"
-                                        Canvas.Top="-8"
-                                        Width="1"
-                                        Height="18"
-                                        Fill="{DynamicResource Window.Foreground}" />
-                                    <Rectangle
-                                        Canvas.Left="2"
-                                        Canvas.Top="-7"
-                                        Width="8"
-                                        Height="15"
-                                        RadiusX="2"
-                                        RadiusY="2"
-                                        Stroke="{DynamicResource Window.Foreground}"
-                                        StrokeThickness="1.5" />
-                                </Canvas>
-                            </Button>
-
-
-
-                            <Button
-                                Name="panelSplitBtn"
-                                Grid.Column="1"
-                                Width="15"
-                                Margin="0"
-                                Padding="0"
-                                VerticalAlignment="Stretch"
-                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                Click="ShowSplitPopup"
-                                Style="{StaticResource FlatButton}">
-                                <Viewbox
-                                    Width="8"
-                                    Height="auto"
-                                    VerticalAlignment="Center">
-                                    <Path
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Data="M585.246075 875.340272l408.227201-447.966132c57.440818-63.040395 12.824837-164.374669-72.613865-164.374669H104.224378c-85.25807 0-130.054683 101.334274-72.613865 164.374669l408.407832 447.7855c39.016405 42.809667 106.211325 42.809667 145.22773 0.180632z"
-                                        Fill="{DynamicResource Window.Foreground}" />
-                                </Viewbox>
-                            </Button>
-
-
-
-                            <Popup
-                                x:Name="panelSplitPopup"
-                                Width="auto"
-                                Height="60"
-                                AllowsTransparency="True"
-                                HorizontalOffset="-80"
-                                Placement="Bottom"
-                                PlacementTarget="{Binding ElementName=panelSplitBtn}"
-                                PopupAnimation="Fade"
-                                StaysOpen="False"
-                                VerticalOffset="0">
-                                <Grid Margin="5">
-                                    <Border
-                                        Margin="5"
-                                        Background="{DynamicResource Menu.Background}"
-                                        CornerRadius="5"
-                                        Effect="{StaticResource PopupDropShadowEffect}" />
-                                    <StackPanel Margin="5" Orientation="Horizontal">
-
-                                        <Button
-                                            Grid.Column="0"
-                                            Width="40"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                            Click="SplitPanel"
-                                            Style="{StaticResource FlatButton}">
-                                            <Canvas>
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="-9"
-                                                    Width="19"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="2"
-                                                    Width="19"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Width="19"
-                                                    Height="1"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-                                            </Canvas>
-                                        </Button>
-                                        <Button
-                                            Grid.Column="0"
-                                            Width="40"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                            Click="SplitPanel"
-                                            Style="{StaticResource FlatButton}">
-                                            <Canvas>
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="-9"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="2"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-1"
-                                                    Canvas.Top="-9"
-                                                    Width="1"
-                                                    Height="19"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Width="19"
-                                                    Height="1"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-                                                <Rectangle
-                                                    Canvas.Left="1"
-                                                    Canvas.Top="-9"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="1"
-                                                    Canvas.Top="2"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                            </Canvas>
-                                        </Button>
-                                        <Button
-                                            Grid.Column="0"
-                                            Width="40"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                            Click="SplitPanel"
-                                            Style="{StaticResource FlatButton}">
-                                            <Canvas>
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="-9"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="2"
-                                                    Width="19"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-1"
-                                                    Canvas.Top="-9"
-                                                    Width="1"
-                                                    Height="10"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Width="19"
-                                                    Height="1"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-                                                <Rectangle
-                                                    Canvas.Left="1"
-                                                    Canvas.Top="-9"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                            </Canvas>
-                                        </Button>
-                                        <Button
-                                            Grid.Column="0"
-                                            Width="40"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                            Click="SplitPanel"
-                                            Style="{StaticResource FlatButton}">
-                                            <Canvas>
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="-9"
-                                                    Width="19"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="2"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                                <Rectangle
-                                                    Canvas.Left="-1"
-                                                    Width="1"
-                                                    Height="10"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Width="19"
-                                                    Height="1"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-                                                <Rectangle
-                                                    Canvas.Left="1"
-                                                    Canvas.Top="2"
-                                                    Width="8"
-                                                    Height="8"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                            </Canvas>
-                                        </Button>
-                                        <Button
-                                            Grid.Column="0"
-                                            Width="40"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                                            Click="SplitPanel"
-                                            Style="{StaticResource FlatButton}">
-                                            <Canvas>
-                                                <Rectangle
-                                                    Canvas.Left="-10"
-                                                    Canvas.Top="-9"
-                                                    Width="19"
-                                                    Height="19"
-                                                    RadiusX="1"
-                                                    RadiusY="1"
-                                                    Stroke="{DynamicResource Window.Foreground}"
-                                                    StrokeThickness="1.5" />
-                                            </Canvas>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-
-
-
-                        <Button
-                            Name="themeButton"
-                            Width="40"
-                            Style="{StaticResource FlatButton}"
-                            Tag="{DynamicResource Window.Title.Hover.Background}"
-                            Visibility="Collapsed">
-                            <Viewbox
-                                Width="15"
-                                Height="auto"
-                                VerticalAlignment="Center">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M758.35 121.71H704.7c-14.19 0-27.88 6.14-37.04 17.11-27.48 32.81-106.09 54.05-155.61 54.05s-128.13-21.24-155.61-54.05c-9.26-10.98-22.85-17.11-37.04-17.11h-53.75c-13.08 0-25.57 5.23-34.83 14.7L52.56 317.69c-11.48 11.67-11.48 30.5 0 42.17l108.7 110.62c11.48 11.68 30 11.68 41.47 0l3.62-3.62c3.93-3.93 10.57-1.21 10.57 4.43V856.9c0 25.06 19.93 45.39 44.59 45.39h500.95c24.66 0 44.59-20.33 44.59-45.39V471.19c0-5.64 6.64-8.46 10.57-4.43l3.62 3.63c11.48 11.67 30 11.67 41.47 0l108.7-110.62c11.48-11.67 11.48-30.5 0-42.17L793.18 136.31c-9.26-9.36-21.84-14.6-34.83-14.6z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Button>
-
-
-                        <Button
-                            Width="40"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                            Click="MinWindow"
-                            Style="{StaticResource FlatButton}">
-                            <Viewbox
-                                Width="12"
-                                Height="auto"
-                                VerticalAlignment="Center">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M512 0h6144c307.2 0 512 204.8 512 512s-204.8 512-512 512H512c-307.2 0-512-204.8-512-512s204.8-512 512-512z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Button>
-                        <Button
-                            Name="ButtonMax"
-                            Width="40"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
-                            Click="OnMaxWindow"
-                            Style="{StaticResource FlatButton}">
-                            <Viewbox
-                                Width="12"
-                                Height="auto"
-                                VerticalAlignment="Center">
-                                <Path
-                                    x:Name="MaxPath"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M834.688 1024H189.312A189.568 189.568 0 0 1 0 834.688V189.312A189.568 189.568 0 0 1 189.312 0h645.376A189.568 189.568 0 0 1 1024 189.312v645.376A189.482667 189.482667 0 0 1 834.688 1024zM189.312 99.712a89.6 89.6 0 0 0-89.6 89.6v645.376a89.6 89.6 0 0 0 89.6 89.6h645.376a89.6 89.6 0 0 0 89.6-89.6V189.312a89.6 89.6 0 0 0-89.6-89.6z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Button>
-                        <Button
-                            Width="40"
-                            Margin="0"
-                            Padding="0"
-                            VerticalAlignment="Stretch"
-                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Deep.Background}"
-                            Click="CloseWindow"
-                            Style="{StaticResource FlatButton}">
-                            <Viewbox
-                                Width="12"
-                                Height="auto"
-                                VerticalAlignment="Center">
-                                <Path
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                    Fill="{DynamicResource Window.Foreground}" />
-                            </Viewbox>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Grid>-->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition
@@ -2515,6 +2071,7 @@
                                                         VerticalAlignment="Center"
                                                         Click="OpenSendPanel"
                                                         Content="编辑命令"
+                                                        IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
                                                         Tag="{Binding ElementName=commandsComboBox, Path=SelectedIndex}" />
 
                                                     <Button
@@ -2596,13 +2153,17 @@
                                                         MinWidth="50"
                                                         VerticalAlignment="Center"
                                                         DisplayMemberPath="ProjectName"
+                                                        IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
                                                         ItemsSource="{Binding Path=DataContext.SendCommandProjects, RelativeSource={RelativeSource AncestorType={x:Type super:BaseWindow}}}"
                                                         SelectedIndex="{Binding CommandsSelectIndex, Mode=OneWay}"
                                                         SelectedValuePath="ProjectID"
                                                         SelectionChanged="ComboBox_SelectionChanged"
                                                         Style="{StaticResource BorderComboBox}" />
                                                 </StackPanel>
-                                                <ItemsControl Grid.Column="3" Margin="5,0">
+                                                <ItemsControl
+                                                    Grid.Column="3"
+                                                    Margin="5,0"
+                                                    IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <WrapPanel VerticalAlignment="Center" Orientation="Horizontal" />
@@ -2899,10 +2460,23 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
-                <!--<TextBlock
+                <Border
                     Margin="5,0"
-                    VerticalAlignment="Center"
-                    Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />-->
+                    Padding="10,0"
+                    VerticalAlignment="Stretch"
+                    super:CommonExt.HoverBackground="{DynamicResource Button.Hover.Background}"
+                    CornerRadius="0"
+                    Style="{StaticResource HoverBorder}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />
+                        <TextBlock
+                            Margin="10,0"
+                            VerticalAlignment="Center"
+                            Text="{Binding CpuUsed, StringFormat={}CPU {0}\ %}" />
+                    </StackPanel>
+                </Border>
+
+
             </Grid>
 
         </Grid>

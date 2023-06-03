@@ -73,6 +73,11 @@ namespace SuperCom
                 vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
             };
 
+            App.OnCpuUsageChanged += (cpu) =>
+            {
+                vieModel.CpuUsed = cpu;
+            };
+
             App.OnMemoryDog += () =>
            {
                // 找到最大的，清空
@@ -1222,6 +1227,10 @@ namespace SuperCom
             {
                 App.Logger.Error(ex.Message);
             }
+
+            // 注意，只有启用防止系统休眠，关闭 App 后才取消该休眠
+            if (ConfigManager.Settings.AvoidScreenClose)
+                Win32Helper.CancelPreventSleep();
         }
 
 
@@ -1481,7 +1490,7 @@ namespace SuperCom
         {
             this.TopMenu = TopMenus;
 
-            AdjustWindow();
+            //AdjustWindow();
             if (ConfigManager.Main.FirstRun) ConfigManager.Main.FirstRun = false;
             InitThemeSelector();
             RefreshSetting();
@@ -1494,20 +1503,14 @@ namespace SuperCom
             OpenBeforePorts();
             SetBaudRateAction();
             InitNotice();
-            ApplySettings();
-        }
-
-        public void ApplySettings()
-        {
             ApplyScreenStatus();
         }
+
 
         public void ApplyScreenStatus()
         {
             if (ConfigManager.Settings.AvoidScreenClose)
-                SystemHelper.PreventSleep();
-            else
-                SystemHelper.CancelPreventSleep();
+                Win32Helper.PreventSleep();
         }
 
         public void InitNotice()
@@ -1710,19 +1713,19 @@ namespace SuperCom
             }
             else
             {
-                if (ConfigManager.Main.Height == SystemParameters.WorkArea.Height && ConfigManager.Main.Width < SystemParameters.WorkArea.Width)
-                {
-                    //baseWindowState = 0;
-                    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                    this.CanResize = true;
-                }
-                else
-                {
-                    this.Left = ConfigManager.Main.X;
-                    this.Top = ConfigManager.Main.Y;
-                    this.Width = ConfigManager.Main.Width;
-                    this.Height = ConfigManager.Main.Height;
-                }
+                //if (ConfigManager.Main.Height == SystemParameters.WorkArea.Height && ConfigManager.Main.Width < SystemParameters.WorkArea.Width)
+                //{
+                //    //baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //    this.CanResize = true;
+                //}
+                //else
+                //{
+                //    this.Left = ConfigManager.Main.X;
+                //    this.Top = ConfigManager.Main.Y;
+                //    this.Width = ConfigManager.Main.Width;
+                //    this.Height = ConfigManager.Main.Height;
+                //}
 
 
                 //baseWindowState = (BaseWindowState)ConfigManager.Main.WindowState;
@@ -2459,9 +2462,13 @@ namespace SuperCom
                     local = local.Substring(0, local.Length - ".0.0".Length);
                     if (local.CompareTo(remote) < 0)
                     {
-                        bool opened = (bool)new MsgBox($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog(this);
-                        if (opened)
+                        MessageCard.Info($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}", () =>
+                        {
                             UpgradeHelper.OpenWindow(this);
+                        }, targetWindow: this);
+                        //bool opened = (bool)new MsgBox($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog(this);
+                        //if (opened)
+                        //    UpgradeHelper.OpenWindow(this);
                     }
                 }
             }

@@ -210,6 +210,12 @@ namespace SuperCom.ViewModel
             get { return _MemoryUsed; }
             set { _MemoryUsed = value; RaisePropertyChanged(); }
         }
+        private double _CpuUsed;
+        public double CpuUsed
+        {
+            get { return _CpuUsed; }
+            set { _CpuUsed = value; RaisePropertyChanged(); }
+        }
         private bool _ShowSoft = true;
         public bool ShowSoft
         {

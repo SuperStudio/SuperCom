@@ -24,6 +24,7 @@ namespace SuperCom
 
         public static Action OnMemoryDog;
         public static Action<long> OnMemoryChanged;
+        public static Action<double> OnCpuUsageChanged;
 
         static App()
         {
@@ -39,6 +40,11 @@ namespace SuperCom
             MemoryDog.OnMemoryChanged += (memory) =>
             {
                 OnMemoryChanged?.Invoke(memory);
+            };
+
+            MemoryDog.OnCpuUsageChanged += (cpu) =>
+            {
+                OnCpuUsageChanged?.Invoke(cpu);
             };
 
             Window_ErrorMsg.OnFeedBack += () =>
@@ -80,7 +86,7 @@ namespace SuperCom
 
         protected override void OnExit(ExitEventArgs e)
         {
-            SystemHelper.CancelPreventSleep(); // 取消系统休眠
+            Win32Helper.CancelPreventSleep(); // 取消系统休眠
             base.OnExit(e);
         }
 

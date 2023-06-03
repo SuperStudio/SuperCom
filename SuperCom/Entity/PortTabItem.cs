@@ -35,7 +35,13 @@ namespace SuperCom.Entity
 
         public double CurrentCharSize { get; set; }
 
-        public bool RunningCommands { get; set; }
+
+        private bool _RunningCommands;
+        public bool RunningCommands
+        {
+            get { return _RunningCommands; }
+            set { _RunningCommands = value; RaisePropertyChanged(); }
+        }
 
         public Queue<ResultCheck> ResultChecks { get; set; }
         public string SaveFileName { get; set; }
@@ -174,13 +180,13 @@ namespace SuperCom.Entity
             {
                 _EnabledMonitor = value;
                 RaisePropertyChanged();
-                if (SerialPort != null && SerialPort.IsOpen)
-                {
-                    if (value)
-                        StartMonitorTask();
-                    else
-                        StopMonitorTask();
-                }
+                //if (SerialPort != null && SerialPort.IsOpen)
+                //{
+                //    if (value)
+                //        StartMonitorTask();
+                //    else
+                //        StopMonitorTask();
+                //}
             }
         }
 

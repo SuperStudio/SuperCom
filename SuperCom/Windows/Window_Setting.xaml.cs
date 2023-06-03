@@ -264,16 +264,27 @@ namespace SuperCom
         {
             //string xshdPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit", "Higlighting", "Default.xshd");
             HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
-            if (rule == null) return;
+            if (rule == null)
+                return;
             string xshdPath = Path.Combine(BASE_XSHD_PATH, rule.FileName);
-            if (!File.Exists(xshdPath)) return;
+            if (!File.Exists(xshdPath))
+                return;
 
             using (Stream s = File.OpenRead(xshdPath))
             {
                 using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s))
                 {
-                    previewTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
-                        (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                    try
+                    {
+                        previewTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
+                       (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageCard.Error("不合理的正则规则");
+                        Logger.Error(ex);
+                    }
+
                 }
             }
         }

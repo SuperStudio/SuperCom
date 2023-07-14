@@ -7,7 +7,6 @@ using SuperUtils.Systems;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Navigation;
 using System.Windows.Threading;
 
 namespace SuperCom
@@ -33,26 +32,21 @@ namespace SuperCom
             SuperControls.Style.Handler.LogHandler.Logger = Logger;
 
             MemoryDog = new MemoryDog();
-            MemoryDog.OnNotFeed += () =>
-            {
+            MemoryDog.OnNotFeed += () => {
                 OnMemoryDog?.Invoke();
             };
-            MemoryDog.OnMemoryChanged += (memory) =>
-            {
+            MemoryDog.OnMemoryChanged += (memory) => {
                 OnMemoryChanged?.Invoke(memory);
             };
 
-            MemoryDog.OnCpuUsageChanged += (cpu) =>
-            {
+            MemoryDog.OnCpuUsageChanged += (cpu) => {
                 OnCpuUsageChanged?.Invoke(cpu);
             };
 
-            Window_ErrorMsg.OnFeedBack += () =>
-            {
+            Window_ErrorMsg.OnFeedBack += () => {
                 FileHelper.TryOpenUrl(UrlManager.FeedbackUrl);
             };
-            Window_ErrorMsg.OnLog += (str) =>
-            {
+            Window_ErrorMsg.OnLog += (str) => {
                 Logger.Error(str);
             };
             Logger.Info("app init");

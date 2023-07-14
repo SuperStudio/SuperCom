@@ -134,19 +134,10 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <StackPanel IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}" Orientation="Horizontal">
-                    <Border
-                        Margin="5"
-                        MouseLeftButtonUp="AddNewProject"
-                        Style="{StaticResource RoundHoverBorder}"
-                        ToolTip="新增">
-                        <Viewbox Width="auto" Height="13">
-                            <Path
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Data="M925.696 384q19.456 0 37.376 7.68t30.72 20.48 20.48 30.72 7.68 37.376q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68l-287.744 0 0 287.744q0 20.48-7.68 37.888t-20.48 30.208-30.72 20.48-37.376 7.68q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888l0-287.744-287.744 0q-20.48 0-37.888-7.68t-30.208-20.48-20.48-30.208-7.68-37.888q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68l287.744 0 0-287.744q0-19.456 7.68-37.376t20.48-30.72 30.208-20.48 37.888-7.68q39.936 0 68.096 28.16t28.16 68.096l0 287.744 287.744 0z"
-                                Fill="{DynamicResource Window.Foreground}" />
-                        </Viewbox>
-                    </Border>
+                    <super:HoverPath
+                        Click="AddNewProject"
+                        Style="{StaticResource AddHoverPath}"
+                        ToolTip="新增" />
                 </StackPanel>
                 <!--  SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  -->
 
@@ -210,32 +201,17 @@
                                     Text="{Binding ProjectName, Mode=OneWay}"
                                     TextAlignment="Left"
                                     Visibility="Hidden" />
-                                <Border
+
+                                <super:HoverPath
                                     Grid.Column="1"
-                                    Background="Transparent"
-                                    BorderBrush="{StaticResource TabItem.Selected.Background}">
-                                    <Button
-                                        Width="20"
-                                        Height="20"
-                                        Margin="5"
-                                        HorizontalAlignment="Right"
-                                        super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
-                                        Click="DeleteProject"
-                                        Style="{StaticResource RoundNormalButton}"
-                                        Tag="{Binding ProjectID}"
-                                        Visibility="Visible">
-                                        <Viewbox
-                                            Width="10"
-                                            Height="auto"
-                                            VerticalAlignment="Center">
-                                            <Path
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                        </Viewbox>
-                                    </Button>
-                                </Border>
+                                    Width="20"
+                                    Height="20"
+                                    Margin="5"
+                                    HorizontalAlignment="Right"
+                                    Click="DeleteProject"
+                                    Style="{StaticResource CloseExHoverPath}"
+                                    Tag="{Binding ProjectID}" />
+
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -448,26 +424,16 @@
                                         Grid.Column="1"
                                         Background="Transparent"
                                         BorderBrush="{StaticResource TabItem.Selected.Background}">
-                                        <Button
+
+                                        <super:HoverPath
                                             Width="20"
                                             Height="20"
                                             HorizontalAlignment="Right"
-                                            super:CommonExt.HoverBackground="{DynamicResource TabItem.Hover.Background}"
                                             Click="DeleteCommand"
-                                            Style="{StaticResource RoundNormalButton}"
-                                            Tag="{Binding CommandID, Mode=OneWay}"
-                                            Visibility="Visible">
-                                            <Viewbox
-                                                Width="10"
-                                                Height="auto"
-                                                VerticalAlignment="Center">
-                                                <Path
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                    Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                            </Viewbox>
-                                        </Button>
+                                            Style="{StaticResource CloseExHoverPath}"
+                                            Tag="{Binding CommandID, Mode=OneWay}" />
+
+
                                     </Border>
 
 
@@ -599,25 +565,14 @@
                                             <ColumnDefinition Width="auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Button
+
+                                        <super:HoverPath
                                             Grid.Column="0"
-                                            Width="25"
-                                            Height="25"
                                             Margin="0,0,5,0"
-                                            Padding="0"
-                                            VerticalAlignment="Stretch"
-                                            super:CommonExt.CornerRadius="5"
-                                            super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                                             Click="CopyCommand"
-                                            Style="{StaticResource FlatButton}">
-                                            <Viewbox Width="auto" Height="14">
-                                                <Path
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    Data="M891.072 822.144V167.36a34.432 34.432 0 0 0-34.432-34.432H201.856C201.856 94.848 232.704 64 270.784 64h620.288C929.152 64 960 94.848 960 132.928v620.288c0 38.08-30.848 68.928-68.928 68.928z m-68.928-551.36v620.288c0 38.08-30.848 68.928-68.928 68.928H132.928A68.928 68.928 0 0 1 64 891.072V270.784c0-38.08 30.848-68.928 68.928-68.928h620.288c38.08 0 68.928 30.848 68.928 68.928z m-137.856 137.856H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z m0 206.72H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z"
-                                                    Fill="{DynamicResource Window.Foreground}" />
-                                            </Viewbox>
-                                        </Button>
+                                            Style="{StaticResource CopyHoverPath}" />
+
+
                                         <Border
                                             Grid.Column="1"
                                             Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-200}"

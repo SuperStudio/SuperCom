@@ -30,8 +30,7 @@ namespace SuperCom.WatchDog
 
         public override bool Feed()
         {
-            using (Process proc = Process.GetCurrentProcess())
-            {
+            using (Process proc = Process.GetCurrentProcess()) {
                 double cpu = Win32Helper.GetCpuUsage(proc);
                 OnCpuUsageChanged?.Invoke(cpu);
                 Logger.Debug($"current cpu: {cpu}%");

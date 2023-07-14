@@ -1,10 +1,6 @@
-﻿using SuperControls.Style;
-using SuperUtils.Framework.ORM.Config;
-using SuperUtils.IO;
+﻿using SuperUtils.Framework.ORM.Config;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Windows;
 
 namespace SuperCom.Config.WindowConfig
 {
@@ -33,7 +29,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static CommonSettings CreateInstance()
         {
-            if (_instance == null) _instance = new CommonSettings();
+            if (_instance == null)
+                _instance = new CommonSettings();
 
             return _instance;
         }

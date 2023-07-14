@@ -27,13 +27,23 @@ namespace SuperCom.Log
 #endif
         }
 
+
+        /// <summary>
+        /// 防止递归
+        /// </summary>
+        private bool writing = false;
+
         public override void LogPrint(string str)
         {
+            if (writing)
+                return;
+            writing = true;
             Console.Write(str);
             if (!Directory.Exists(LOG_DIR))
                 DirHelper.TryCreateDirectory(LOG_DIR);
             string filePath = Path.Combine(LOG_DIR, DateHelper.NowDate() + ".log");
             FileHelper.TryAppendToFile(filePath, str);
+            writing = false;
         }
     }
 }

@@ -9,17 +9,15 @@ using SuperUtils.Common;
 using SuperUtils.IO;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using static SuperCom.Entity.HighLightRule;
 using static SuperCom.App;
-using System.Data;
-using Newtonsoft.Json.Linq;
-using SuperUtils.Systems;
+using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom
 {
@@ -49,10 +47,8 @@ namespace SuperCom
             vieModel = new VieModel_Setting();
             DataContext = vieModel;
             dataGrid.ItemsSource = vieModel.RuleSets;
-            foreach (Window item in App.Current.Windows)
-            {
-                if (item.Name.Equals("mainWindow"))
-                {
+            foreach (Window item in App.Current.Windows) {
+                if (item.Name.Equals("mainWindow")) {
                     Main = (MainWindow)item;
                     break;
                 }
@@ -64,23 +60,18 @@ namespace SuperCom
         {
             // 设置语言
             int langIdx = 0;
-            if (!string.IsNullOrEmpty(ConfigManager.Settings.CurrentLanguage))
-            {
-                for (int i = 0; i < langComboBox.Items.Count; i++)
-                {
+            if (!string.IsNullOrEmpty(ConfigManager.Settings.CurrentLanguage)) {
+                for (int i = 0; i < langComboBox.Items.Count; i++) {
                     ComboBoxItem item = langComboBox.Items[i] as ComboBoxItem;
-                    if (item.Tag.ToString().Equals(ConfigManager.Settings.CurrentLanguage))
-                    {
+                    if (item.Tag.ToString().Equals(ConfigManager.Settings.CurrentLanguage)) {
                         langIdx = i;
                         break;
                     }
                 }
             }
             langComboBox.SelectedIndex = langIdx;
-            langComboBox.SelectionChanged += (s, ev) =>
-            {
-                if (ev.AddedItems?.Count > 0)
-                {
+            langComboBox.SelectionChanged += (s, ev) => {
+                if (ev.AddedItems?.Count > 0) {
                     ComboBoxItem comboBoxItem = ev.AddedItems[0] as ComboBoxItem;
                     string lang = comboBoxItem.Tag.ToString();
                     SuperControls.Style.LangManager.SetLang(lang);
@@ -94,24 +85,18 @@ namespace SuperCom
         public void AdjustWindow()
         {
 
-            if (ConfigManager.Settings.FirstRun)
-            {
+            if (ConfigManager.Settings.FirstRun) {
                 this.Width = SystemParameters.WorkArea.Width * 0.7;
                 this.Height = SystemParameters.WorkArea.Height * 0.7;
                 this.Left = SystemParameters.WorkArea.Width * 0.1;
                 this.Top = SystemParameters.WorkArea.Height * 0.1;
                 ConfigManager.Settings.FirstRun = false;
-            }
-            else
-            {
-                if (ConfigManager.Settings.Height == SystemParameters.WorkArea.Height && ConfigManager.Settings.Width < SystemParameters.WorkArea.Width)
-                {
+            } else {
+                if (ConfigManager.Settings.Height == SystemParameters.WorkArea.Height && ConfigManager.Settings.Width < SystemParameters.WorkArea.Width) {
                     //baseWindowState = 0;
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     this.CanResize = true;
-                }
-                else
-                {
+                } else {
                     this.Left = ConfigManager.Settings.X;
                     this.Top = ConfigManager.Settings.Y;
                     this.Width = ConfigManager.Settings.Width;
@@ -148,30 +133,14 @@ namespace SuperCom
 
 
 
-        private void AddNewBaudRate(object sender, MouseButtonEventArgs e)
-        {
-            DialogInput input = new DialogInput(INPUT_NOTICE_TEXT);
-            if ((bool)input.ShowDialog(this))
-            {
-                string text = input.Text;
-                bool success = int.TryParse(text, out int baudRate);
-                if (success && baudRate > 0 && !vieModel.BaudRates.Contains(baudRate.ToString()))
-                {
-                    vieModel.BaudRates.Add(baudRate.ToString());
-                    ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
-                    ConfigManager.Main.Save();
-                    Main.vieModel.LoadBaudRates();
-                }
-            }
-        }
+
 
         private bool IsPortRunning()
         {
-            if (Main != null && Main.vieModel.SideComPorts?.Count > 0)
-            {
-                foreach (var item in Main.vieModel.SideComPorts)
-                {
-                    if (item.Connected) return true;
+            if (Main != null && Main.vieModel.SideComPorts?.Count > 0) {
+                foreach (var item in Main.vieModel.SideComPorts) {
+                    if (item.Connected)
+                        return true;
                 }
             }
             return false;
@@ -179,31 +148,25 @@ namespace SuperCom
 
         private void DeleteBaudRate(object sender, RoutedEventArgs e)
         {
-            if (IsPortRunning())
-            {
+            if (IsPortRunning()) {
                 MessageNotify.Error("请关闭所有串口后再试");
                 return;
             }
-            if (vieModel.BaudRates?.Count <= 1)
-            {
+            if (vieModel.BaudRates?.Count <= 1) {
                 MessageNotify.Error("至少保留一个");
                 return;
             }
-            Button button = sender as Button;
-            if (button != null && button.Tag != null)
-            {
-                string value = button.Tag.ToString();
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Tag != null) {
+                string value = ele.Tag.ToString();
                 int idx = -1;
-                for (int i = 0; i < vieModel.BaudRates.Count; i++)
-                {
-                    if (value.Equals(vieModel.BaudRates[i].ToString()))
-                    {
+                for (int i = 0; i < vieModel.BaudRates.Count; i++) {
+                    if (value.Equals(vieModel.BaudRates[i].ToString())) {
                         idx = i;
                         break;
                     }
                 }
-                if (idx >= 0 && idx < vieModel.BaudRates.Count)
-                {
+                if (idx >= 0 && idx < vieModel.BaudRates.Count) {
                     vieModel.BaudRates.RemoveAt(idx);
                     ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
                     ConfigManager.Main.Save();
@@ -233,12 +196,9 @@ namespace SuperCom
 
 
 
-            if (FileHelper.IsProperDirName(vieModel.LogSaveDir))
-            {
+            if (FileHelper.IsProperDirName(vieModel.LogSaveDir)) {
                 ConfigManager.CommonSettings.LogSaveDir = vieModel.LogSaveDir;
-            }
-            else
-            {
+            } else {
                 MessageNotify.Error("错误的日志保存路径");
                 return false;
             }
@@ -270,17 +230,12 @@ namespace SuperCom
             if (!File.Exists(xshdPath))
                 return;
 
-            using (Stream s = File.OpenRead(xshdPath))
-            {
-                using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s))
-                {
-                    try
-                    {
+            using (Stream s = File.OpenRead(xshdPath)) {
+                using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(s)) {
+                    try {
                         previewTextEditor.SyntaxHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load
                        (reader, ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
-                    }
-                    catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         MessageCard.Error("不合理的正则规则");
                         Logger.Error(ex);
                     }
@@ -291,20 +246,17 @@ namespace SuperCom
 
         private void RestoreSettings(object sender, RoutedEventArgs e)
         {
-            if (IsPortRunning())
-            {
+            if (IsPortRunning()) {
                 MessageNotify.Error("请关闭所有串口后再试");
                 return;
             }
 
-            if (new MsgBox("将删除所有自定义串口设置，是否继续？").ShowDialog(this) == false)
-            {
+            if (new MsgBox("将删除所有自定义串口设置，是否继续？").ShowDialog(this) == false) {
                 return;
             }
 
             vieModel.BaudRates = new System.Collections.ObjectModel.ObservableCollection<string>();
-            foreach (var item in PortSetting.DEFAULT_BAUDRATES)
-            {
+            foreach (var item in PortSetting.DEFAULT_BAUDRATES) {
                 vieModel.BaudRates.Add(item.ToString());
             }
             ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
@@ -324,10 +276,8 @@ namespace SuperCom
         private void searchBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             List<char> list = System.IO.Path.GetInvalidFileNameChars().ToList();
-            foreach (var item in e.Text.ToCharArray())
-            {
-                if (list.Contains(item))
-                {
+            foreach (var item in e.Text.ToCharArray()) {
+                if (list.Contains(item)) {
                     MessageCard.Error("非法文件名：\\ / : * ? \" < > | ");
                     e.Handled = true;
                     break;
@@ -342,16 +292,13 @@ namespace SuperCom
 
         public void ShowRuleSetByRule(HighLightRule rule)
         {
-            if (rule != null)
-            {
+            if (rule != null) {
                 vieModel.RuleSets = new System.Collections.ObjectModel.ObservableCollection<RuleSet>();
                 List<RuleSet> ruleSets = new List<RuleSet>();
                 if (!string.IsNullOrEmpty(rule.RuleSetString))
                     ruleSets = JsonUtils.TryDeserializeObject<List<RuleSet>>(rule.RuleSetString);
-                if (ruleSets.Count > 0)
-                {
-                    foreach (var item in ruleSets)
-                    {
+                if (ruleSets.Count > 0) {
+                    foreach (var item in ruleSets) {
                         vieModel.RuleSets.Add(item);
                     }
 
@@ -380,8 +327,7 @@ namespace SuperCom
             ContextMenu contextMenu = menuItem.Parent as ContextMenu;
             Grid grid = contextMenu.PlacementTarget as Grid;
             TextBox textBox = grid.Children.OfType<TextBox>().FirstOrDefault();
-            if (textBox != null)
-            {
+            if (textBox != null) {
                 textBox.Visibility = Visibility.Visible;
                 textBox.SelectAll();
                 textBox.Focus();
@@ -396,14 +342,12 @@ namespace SuperCom
             if (!(bool)new MsgBox("是否删除？").ShowDialog(this))
                 return;
 
-            Button button = sender as Button;
-            if (button != null && button.Tag != null)
-            {
-                long.TryParse(button.Tag.ToString(), out long id);
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Tag != null) {
+                long.TryParse(ele.Tag.ToString(), out long id);
                 if (!vieModel.DeleteRule(id))
                     MessageNotify.Error("删除失败");
-                else
-                {
+                else {
                     Main?.ReadXshdList();
                 }
 
@@ -416,21 +360,17 @@ namespace SuperCom
 
             textBox.Visibility = Visibility.Hidden;
             string newName = textBox.Text;
-            if (textBox.Tag != null)
-            {
+            if (textBox.Tag != null) {
                 string ruleID = textBox.Tag.ToString();
-                if (!string.IsNullOrEmpty(ruleID))
-                {
+                if (!string.IsNullOrEmpty(ruleID)) {
                     HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID.ToString().Equals(ruleID)).FirstOrDefault();
                     string oldName = rule.RuleName;
-                    if (string.IsNullOrEmpty(newName))
-                    {
+                    if (string.IsNullOrEmpty(newName)) {
                         textBox.Text = oldName;
                         return;
                     }
 
-                    if (rule != null && !oldName.Equals(newName))
-                    {
+                    if (rule != null && !oldName.Equals(newName)) {
                         string oldFileName = rule.GetFullFileName();
                         rule.RuleName = newName;
                         vieModel.RenameRule(rule);
@@ -451,8 +391,7 @@ namespace SuperCom
 
         private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter || e.Key == Key.Escape)
-            {
+            if (e.Key == Key.Enter || e.Key == Key.Escape) {
                 RenameTextBoxLostFocus(sender, e);
             }
         }
@@ -464,19 +403,15 @@ namespace SuperCom
 
         private void DeleteRuleSet(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            if (button != null && button.Tag != null)
-            {
-                string ruleSetID = button.Tag.ToString();
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Tag != null) {
+                string ruleSetID = ele.Tag.ToString();
                 RuleSet ruleSet = vieModel.RuleSets.Where(arg => arg.RuleSetID.ToString().Equals(ruleSetID)).FirstOrDefault();
-                if (ruleSet != null)
-                {
+                if (ruleSet != null) {
                     vieModel.RuleSets.Remove(ruleSet);
                     HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
-                    if (rule != null)
-                    {
-                        if (!string.IsNullOrEmpty(rule.RuleSetString))
-                        {
+                    if (rule != null) {
+                        if (!string.IsNullOrEmpty(rule.RuleSetString)) {
                             rule.RuleSetList = JsonUtils.TryDeserializeObject<List<RuleSet>>(rule.RuleSetString);
                             rule.RuleSetList.RemoveAll(arg => arg.RuleSetID.ToString().Equals(ruleSetID));
                             rule.RuleSetString = JsonUtils.TrySerializeObject(rule.RuleSetList);
@@ -491,10 +426,8 @@ namespace SuperCom
         {
             string ruleSets = JsonUtils.TrySerializeObject(vieModel.RuleSets.ToList());
             HighLightRule rule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
-            if (rule != null && !string.IsNullOrEmpty(ruleSets))
-            {
-                if (!ruleSets.Equals(rule.RuleSetString))
-                {
+            if (rule != null && !string.IsNullOrEmpty(ruleSets)) {
+                if (!ruleSets.Equals(rule.RuleSetString)) {
                     rule.RuleSetString = ruleSets;
                     vieModel.UpdateRule(rule);
 
@@ -506,7 +439,8 @@ namespace SuperCom
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems == null || e.AddedItems.Count == 0) return;
+            if (e.AddedItems == null || e.AddedItems.Count == 0)
+                return;
             SaveRuleSet(null, null);
         }
 
@@ -542,8 +476,7 @@ namespace SuperCom
         private void previewTextEditor_TextChanged(object sender, EventArgs e)
         {
             HighLightRule highLightRule = vieModel.HighLightRules.Where(arg => arg.RuleID == vieModel.CurrentRuleID).FirstOrDefault();
-            if (highLightRule != null)
-            {
+            if (highLightRule != null) {
                 highLightRule.PreviewText = (sender as TextEditor).Text;
             }
         }
@@ -555,7 +488,7 @@ namespace SuperCom
 
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            AdjustWindow();
+            //AdjustWindow();
         }
 
         private void OpenBackUpFolder(object sender, RoutedEventArgs e)
@@ -573,11 +506,10 @@ namespace SuperCom
 
         private void CopyCommand(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            Border border = (button.Parent as Grid).Children.OfType<Border>().LastOrDefault();
+            FrameworkElement ele = sender as FrameworkElement;
+            Border border = (ele.Parent as Grid).Children.OfType<Border>().LastOrDefault();
             SearchBox searchBox = border.Child as SearchBox;
-            if (!string.IsNullOrEmpty(searchBox.Text))
-            {
+            if (!string.IsNullOrEmpty(searchBox.Text)) {
                 bool v = ClipBoard.TrySetDataObject(searchBox.Text);
                 if (v)
                     MessageNotify.Success("已复制");
@@ -587,7 +519,8 @@ namespace SuperCom
         private void previewTextEditor_GotFocus(object sender, RoutedEventArgs e)
         {
             ((sender as TextEditor).Parent as Border).BorderBrush =
-                (Brush)FindResource("Button.Selected.BorderBrush"); ;
+                (Brush)FindResource("Button.Selected.BorderBrush");
+            ;
         }
 
         private void previewTextEditor_LostFocus(object sender, RoutedEventArgs e)
@@ -600,7 +533,24 @@ namespace SuperCom
             FileHelper.TryOpenUrl(UrlManager.WIKI_SETTING);
         }
 
-        private void ShowHighLightHelp(object sender, MouseButtonEventArgs e)
+
+
+        private void AddNewBaudRate(object sender, RoutedEventArgs e)
+        {
+            DialogInput input = new DialogInput(INPUT_NOTICE_TEXT);
+            if ((bool)input.ShowDialog(this)) {
+                string text = input.Text;
+                bool success = int.TryParse(text, out int baudRate);
+                if (success && baudRate > 0 && !vieModel.BaudRates.Contains(baudRate.ToString())) {
+                    vieModel.BaudRates.Add(baudRate.ToString());
+                    ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
+                    ConfigManager.Main.Save();
+                    Main.vieModel.LoadBaudRates();
+                }
+            }
+        }
+
+        private void ShowHighLightHelp(object sender, RoutedEventArgs e)
         {
             FileHelper.TryOpenUrl(UrlManager.WIKI_HIGH_LIGHT);
         }

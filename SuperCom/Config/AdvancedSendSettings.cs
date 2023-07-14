@@ -1,5 +1,4 @@
 ﻿using SuperUtils.Framework.ORM.Config;
-using System.Collections.Generic;
 using System.Windows;
 
 namespace SuperCom.Config.WindowConfig
@@ -21,7 +20,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static AdvancedSendSettings CreateInstance()
         {
-            if (_instance == null) _instance = new AdvancedSendSettings();
+            if (_instance == null)
+                _instance = new AdvancedSendSettings();
 
             return _instance;
         }

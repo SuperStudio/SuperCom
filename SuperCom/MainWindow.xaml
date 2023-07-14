@@ -279,55 +279,29 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="auto" />
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
 
-                            </Grid.ColumnDefinitions>
-                            <Border
+
+                            <super:HoverPath
                                 Margin="5"
-                                MouseLeftButtonUp="RefreshPortsStatus"
-                                Style="{StaticResource RoundHoverBorder}">
-                                <Viewbox Width="auto" Height="14">
-                                    <Path
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Data="M848.738462 608.137846c-8.467692 178.097231-155.963077 319.881846-336.659693 319.881846-186.171077 0-337.132308-150.449231-337.132307-336.068923 0-180.145231 142.178462-327.168 320.787692-335.675077v159.82277l353.122461-192.039385L495.734154 0v160.098462C263.995077 168.684308 78.769231 358.754462 78.769231 591.872 78.769231 830.542769 272.777846 1024 512.157538 1024 746.062769 1024 936.644923 839.286154 945.230769 608.137846h-96.492307z"
-                                        Fill="{DynamicResource Window.Foreground}" />
-                                </Viewbox>
-                            </Border>
-
-                            <Border
-                                Grid.Column="1"
-                                MouseUp="ShowContextMenu"
-                                Style="{StaticResource RoundHoverBorder}">
-                                <Border.ContextMenu>
+                                Click="RefreshPortsStatus"
+                                Style="{StaticResource RefreshHoverPath}" />
+                            <super:HoverPath
+                                Margin="5"
+                                MenuOnLeftClick="True"
+                                Style="{StaticResource ToolsHoverPath}">
+                                <super:HoverPath.ContextMenu>
                                     <ContextMenu HorizontalOffset="-50">
 
                                         <MenuItem Click="OpenAllPort" Header="打开所有串口" />
                                         <MenuItem Click="CloseAllPort" Header="关闭所有串口" />
                                         <MenuItem Click="ShowAllHidePort" Header="显示隐藏的串口" />
                                     </ContextMenu>
-                                </Border.ContextMenu>
-                                <Viewbox
-                                    Width="auto"
-                                    Height="14"
-                                    Margin="-2,-2,0,0">
-                                    <Path
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Data="M464 144H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16z m-52 268H212V212h200v200z m452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16z m-52 268H612V212h200v200zM464 544H160c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16z m-52 268H212V612h200v200z m452-268H560c-8.8 0-16 7.2-16 16v304c0 8.8 7.2 16 16 16h304c8.8 0 16-7.2 16-16V560c0-8.8-7.2-16-16-16z m-52 268H612V612h200v200z"
-                                        Fill="{DynamicResource Window.Foreground}" />
-                                </Viewbox>
-                            </Border>
-                            <Border
-                                Grid.Column="2"
-                                MouseUp="ShowContextMenu"
-                                Style="{StaticResource RoundHoverBorder}"
-                                ToolTip="排序">
-                                <Border.ContextMenu>
+                                </super:HoverPath.ContextMenu>
+                            </super:HoverPath>
+
+                            <super:HoverPath Style="{StaticResource SortHoverPath}">
+                                <super:HoverPath.ContextMenu>
                                     <ContextMenu HorizontalOffset="-50">
 
                                         <MenuItem
@@ -343,15 +317,9 @@
                                             Style="{StaticResource SortMenuItemStyle}"
                                             Tag="PortName" />
                                     </ContextMenu>
-                                </Border.ContextMenu>
-                                <Viewbox Width="auto" Height="14">
-                                    <Path
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Data="M768 362.666667a21.333333 21.333333 0 0 1 21.333333 21.333333v387.648l61.418667-61.397333a21.333333 21.333333 0 0 1 30.165333 0l30.165334 30.165333a21.333333 21.333333 0 0 1 0 30.165333l-116.053334 116.053334a53.333333 53.333333 0 0 1-90.922666-34.218667L704 848.917333V384a21.333333 21.333333 0 0 1 21.333333-21.333333h42.666667zM554.666667 789.333333a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334v-42.666666a21.333333 21.333333 0 0 1 21.333333-21.333334h426.666667z m0-320a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334v-42.666666a21.333333 21.333333 0 0 1 21.333333-21.333334h426.666667zM896 149.333333a21.333333 21.333333 0 0 1 21.333333 21.333334v42.666666a21.333333 21.333333 0 0 1-21.333333 21.333334H128a21.333333 21.333333 0 0 1-21.333333-21.333334V170.666667a21.333333 21.333333 0 0 1 21.333333-21.333334h768z"
-                                        Fill="{DynamicResource Window.Foreground}" />
-                                </Viewbox>
-                            </Border>
+                                </super:HoverPath.ContextMenu>
+                            </super:HoverPath>
+
 
                             <!--<Image
                                 Grid.Column="0"
@@ -363,7 +331,7 @@
                                 Stretch="UniformToFill" />-->
 
 
-                        </Grid>
+                        </StackPanel>
                         <ListBox
                             Grid.Row="1"
                             HorizontalContentAlignment="Stretch"
@@ -499,17 +467,17 @@
                                 FontWeight="Bold"
                                 Foreground="Gold"
                                 Text="SuperCom" />
-                            <Border
+
+
+                            <super:HoverPath
                                 Grid.Column="1"
                                 Width="30"
                                 Height="30"
                                 Margin="5"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
-                                CornerRadius="5"
-                                MouseUp="ShowSettingsPopup"
-                                Style="{StaticResource HoverBorder}">
-                                <Border.ContextMenu>
+                                Style="{StaticResource SettingHoverPath}">
+                                <super:HoverPath.ContextMenu>
                                     <ContextMenu HorizontalOffset="-40">
                                         <MenuItem
                                             Click="OpenSetting"
@@ -525,14 +493,10 @@
                                             Header="关于"
                                             Icon="/Resources/Pictures/about.png" />
                                     </ContextMenu>
-                                </Border.ContextMenu>
-                                <Viewbox
-                                    Width="20"
-                                    Height="auto"
-                                    VerticalAlignment="Center">
-                                    <Path Data="M940 596l-76-57.6c0.8-8 1.6-16.8 1.6-26.4s-0.8-18.4-1.6-26.4l76-57.6c20.8-16 26.4-44 12.8-68l-84.8-143.2c-9.6-16.8-28-27.2-47.2-27.2-6.4 0-12 0.8-18.4 3.2L712 228c-15.2-10.4-31.2-19.2-47.2-26.4l-13.6-92c-4-26.4-26.4-45.6-53.6-45.6H426.4c-27.2 0-49.6 19.2-53.6 44.8L360 201.6c-16 7.2-31.2 16-47.2 26.4l-90.4-35.2c-6.4-2.4-12.8-3.2-19.2-3.2-19.2 0-37.6 9.6-46.4 26.4L71.2 360c-13.6 22.4-8 52 12.8 68l76 57.6c-0.8 9.6-1.6 18.4-1.6 26.4s0 16.8 1.6 26.4l-76 57.6c-20.8 16-26.4 44-12.8 68l84.8 143.2c9.6 16.8 28 27.2 47.2 27.2 6.4 0 12-0.8 18.4-3.2L312 796c15.2 10.4 31.2 19.2 47.2 26.4l13.6 92c3.2 25.6 26.4 45.6 53.6 45.6h171.2c27.2 0 49.6-19.2 53.6-44.8l13.6-92.8c16-7.2 31.2-16 47.2-26.4l90.4 35.2c6.4 2.4 12.8 3.2 19.2 3.2 19.2 0 37.6-9.6 46.4-26.4l85.6-144.8c12.8-23.2 7.2-51.2-13.6-67.2zM704 512c0 105.6-86.4 192-192 192S320 617.6 320 512s86.4-192 192-192 192 86.4 192 192z" Fill="{DynamicResource Window.Foreground}" />
-                                </Viewbox>
-                            </Border>
+                                </super:HoverPath.ContextMenu>
+                            </super:HoverPath>
+
+
                         </Grid>
                     </Grid>
                 </Border>
@@ -616,25 +580,13 @@
                                         Style="{StaticResource BaseTextBlock}"
                                         Text="命令" />
 
-                                    <Button
+                                    <super:HoverPath
                                         Grid.Column="0"
-                                        Width="25"
-                                        Height="25"
                                         Margin="0,0,5,0"
-                                        Padding="0"
-                                        VerticalAlignment="Stretch"
-                                        super:CommonExt.CornerRadius="5"
-                                        super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
                                         Click="CopyCommand"
-                                        Style="{StaticResource FlatButton}">
-                                        <Viewbox Width="auto" Height="14">
-                                            <Path
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Data="M891.072 822.144V167.36a34.432 34.432 0 0 0-34.432-34.432H201.856C201.856 94.848 232.704 64 270.784 64h620.288C929.152 64 960 94.848 960 132.928v620.288c0 38.08-30.848 68.928-68.928 68.928z m-68.928-551.36v620.288c0 38.08-30.848 68.928-68.928 68.928H132.928A68.928 68.928 0 0 1 64 891.072V270.784c0-38.08 30.848-68.928 68.928-68.928h620.288c38.08 0 68.928 30.848 68.928 68.928z m-137.856 137.856H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z m0 206.72H201.856a34.432 34.432 0 0 0 0 68.864h482.432a34.432 34.432 0 0 0 0-68.864z"
-                                                Fill="{DynamicResource Window.Foreground}" />
-                                        </Viewbox>
-                                    </Button>
+                                        Style="{StaticResource CopyHoverPath}" />
+
+
                                 </StackPanel>
                                 <Border
                                     Margin="15,5,5,5"
@@ -1125,59 +1077,26 @@
                                                 TextWrapping="WrapWithOverflow" />
 
                                             <Grid Grid.Column="3">
-                                                <Border
+                                                <super:HoverPath
+                                                    Width="20"
+                                                    Height="20"
+                                                    Margin="5"
+                                                    VerticalAlignment="Center"
                                                     Panel.ZIndex="2"
-                                                    Background="Transparent"
-                                                    BorderBrush="{StaticResource TabItem.Selected.Background}"
                                                     PreviewMouseLeftButtonDown="PinTabItem"
-                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <Button
-                                                        Width="20"
-                                                        Height="20"
-                                                        Margin="5"
-                                                        HorizontalAlignment="Right"
-                                                        Background="Transparent"
-                                                        Style="{StaticResource RoundNormalButton}"
-                                                        Tag="{DynamicResource TabItem.Hover.Background}">
-                                                        <Viewbox
-                                                            Width="10"
-                                                            Height="auto"
-                                                            Margin="-2.5,2,0,0"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center">
-                                                            <Path
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Data="M393.846154 64.174932l117.454119 0.399843H512.499805l117.454119-0.399843-10.395939 10.395939c-18.89262 18.89262-28.488872 44.982429-26.28973 71.472081l20.292073 250.502148c2.998829 36.68567 18.092932 72.171808 42.483405 99.661069l34.186646 38.684889-122.252245-0.899648-55.478329-0.399844h-0.99961l-55.478329 0.399844-122.452167 0.799687 34.186646-38.684888c24.390472-27.589223 39.484576-62.9754 42.483405-99.66107l20.292074-250.402187c2.199141-26.589613-7.397111-52.679422-26.289731-71.472081l-10.395939-10.395939m281.889887-64.174932h-0.199922L512.399844 0.599766h-0.799688L348.36392 0h-0.199922c-20.891839 0-39.684498 13.494729-45.582194 33.58688-4.098399 13.994533-1.899258 30.887934 17.79305 47.581414l38.584927 38.584927c5.597813 5.597813 8.39672 13.294807 7.796955 21.091761L346.464662 391.247169c-1.899258 23.190941-11.195627 45.08239-26.589613 62.475596l-61.87583 69.872706c-8.696603 9.796173-13.894572 22.291292-14.394377 35.386177-0.299883 8.996486 1.599375 18.89262 8.596642 27.28934 6.897306 8.296759 17.293245 12.894963 27.989067 12.894963h0.299882l175.931277-1.199532 55.178446 422.834831 0.399844 3.098789 0.399844-3.098789 55.178446-422.834831 175.931277 1.199532h0.299882c10.795783 0 21.191722-4.598204 27.989067-12.894963 6.897306-8.39672 8.796564-18.292854 8.596642-27.28934-0.399844-13.094885-5.697774-25.590004-14.394377-35.386177l-61.87583-69.872706c-15.393987-17.393206-24.690355-39.284654-26.589613-62.475596l-20.292074-250.402187c-0.599766-7.796954 2.199141-15.593909 7.796955-21.091761l38.584927-38.584927c19.692308-16.693479 21.891449-33.58688 17.79305-47.581414-5.997657-19.992191-24.790316-33.58688-45.682155-33.58688z"
-                                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                                        </Viewbox>
-                                                    </Button>
-                                                </Border>
-                                                <Border
-                                                    x:Name="border"
-                                                    Background="Transparent"
-                                                    BorderBrush="{StaticResource TabItem.Selected.Background}"
+                                                    Style="{StaticResource PinHoverPath}"
+                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+
+                                                <super:HoverPath
+                                                    Width="20"
+                                                    Height="20"
+                                                    Margin="5"
+                                                    VerticalAlignment="Center"
                                                     PreviewMouseLeftButtonDown="CloseTabItem"
-                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToOppositeVisibilityConverter}}">
-                                                    <Button
-                                                        Width="20"
-                                                        Height="20"
-                                                        Margin="5"
-                                                        HorizontalAlignment="Right"
-                                                        Style="{StaticResource RoundNormalButton}"
-                                                        Tag="{DynamicResource TabItem.Hover.Background}">
-                                                        <Viewbox
-                                                            Width="10"
-                                                            Height="auto"
-                                                            VerticalAlignment="Center">
-                                                            <Path
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                                Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                                        </Viewbox>
-                                                    </Button>
-                                                </Border>
+                                                    Style="{StaticResource CloseExHoverPath}"
+                                                    Visibility="{Binding Pinned, Converter={StaticResource BoolToOppositeVisibilityConverter}}" />
+
                                             </Grid>
 
 
@@ -1250,65 +1169,14 @@
                                                 WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>
 
-                                        <StackPanel
+                                        <super:GoToTop
                                             Grid.Row="0"
                                             Margin="30,20"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Bottom"
                                             Panel.ZIndex="99"
-                                            Orientation="Vertical">
-
-                                            <Border
-                                                Width="25"
-                                                Height="25"
-                                                CornerRadius="5 5 0 0"
-                                                MouseLeftButtonUp="GotoTop"
-                                                Style="{StaticResource BgHoverBorder}"
-                                                ToolTip="去到顶部">
-
-                                                <Viewbox
-                                                    Width="15"
-                                                    Height="auto"
-                                                    VerticalAlignment="Center">
-                                                    <Path
-                                                        Data="M854.016 739.328l-313.344-309.248-313.344 309.248q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504q-29.696-28.672-29.696-68.608t29.696-68.608l376.832-373.76q14.336-14.336 34.304-22.528t40.448-9.216 39.424 5.12 31.232 20.48l382.976 379.904q28.672 28.672 28.672 68.608t-28.672 68.608q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504z"
-                                                        Fill="{DynamicResource Window.Foreground}"
-                                                        RenderTransformOrigin="0.5,0.5">
-                                                        <Path.RenderTransform>
-                                                            <TransformGroup>
-                                                                <RotateTransform Angle="0" />
-                                                            </TransformGroup>
-                                                        </Path.RenderTransform>
-                                                    </Path>
-                                                </Viewbox>
-                                            </Border>
-                                            <Border
-                                                Width="25"
-                                                Height="25"
-                                                Padding="3,8,0,0"
-                                                Panel.ZIndex="99"
-                                                CornerRadius="0 0 5 5"
-                                                MouseLeftButtonUp="GotoBottom"
-                                                Style="{StaticResource BgHoverBorder}"
-                                                ToolTip="去到底部">
-
-                                                <Viewbox
-                                                    Width="15"
-                                                    Height="auto"
-                                                    VerticalAlignment="Center">
-                                                    <Path
-                                                        Data="M854.016 739.328l-313.344-309.248-313.344 309.248q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504q-29.696-28.672-29.696-68.608t29.696-68.608l376.832-373.76q14.336-14.336 34.304-22.528t40.448-9.216 39.424 5.12 31.232 20.48l382.976 379.904q28.672 28.672 28.672 68.608t-28.672 68.608q-14.336 14.336-32.768 21.504t-37.376 7.168-36.864-7.168-32.256-21.504z"
-                                                        Fill="{DynamicResource Window.Foreground}"
-                                                        RenderTransformOrigin="0.5,0.5">
-                                                        <Path.RenderTransform>
-                                                            <TransformGroup>
-                                                                <RotateTransform Angle="180" />
-                                                            </TransformGroup>
-                                                        </Path.RenderTransform>
-                                                    </Path>
-                                                </Viewbox>
-                                            </Border>
-                                        </StackPanel>
+                                            OnGoToBottom="GotoBottom"
+                                            OnGoToTop="GotoTop" />
 
                                         <Border
                                             Grid.Row="1"
@@ -1361,8 +1229,8 @@
                                                     ToolTip="清空窗口" />
                                                 <ToggleButton
                                                     Name="pinToggleButton"
-                                                    Width="auto"
-                                                    Height="auto"
+                                                    Width="25"
+                                                    Height="25"
                                                     Margin="5,0"
                                                     Padding="2,2,4,2"
                                                     HorizontalAlignment="Right"
@@ -1373,51 +1241,21 @@
                                                     Style="{StaticResource FlatToggleButton}"
                                                     ToolTip="固定/滚屏">
                                                     <Viewbox
-                                                        Width="20"
+                                                        Width="16"
                                                         Height="auto"
                                                         VerticalAlignment="Center">
                                                         <Path Data="M187.690667 874.709333h-0.277334a37.504 37.504 0 0 1-26.602666-11.264 37.845333 37.845333 0 0 1-3.904-49.877333l166.762666-229.76-125.013333-125.056a38.229333 38.229333 0 0 1-6.058667-46.336 140.8 140.8 0 0 1 53.504-45.674667 154.24 154.24 0 0 1 67.84-15.552 161.792 161.792 0 0 1 51.84 8.533334l6.4 0.661333c5.781333 0.405333 10.901333 0.981333 15.701334 1.749333a161.877333 161.877333 0 0 0 104.277333-47.253333 144.874667 144.874667 0 0 0 58.474667-90.346667c0-5.802667 0-11.904-0.234667-17.664a80.576 80.576 0 0 1 15.658667-74.858666A84.949333 84.949333 0 0 1 626.858667 106.666667a85.525333 85.525333 0 0 1 54.08 19.328l1.962666 1.941333c18.88 18.432 207.253333 206.933333 209.066667 208.746667A85.930667 85.930667 0 0 1 917.333333 397.888a85.973333 85.973333 0 0 1-25.6 61.205333 67.456 67.456 0 0 1-46.549333 16.874667 199.210667 199.210667 0 0 1-30.229333-3.008 226.176 226.176 0 0 0-15.701334-0.362667h-1.493333a115.605333 115.605333 0 0 0-77.930667 45.205334 210.752 210.752 0 0 0-59.456 118.976c0.917333 7.850667 2.56 21.333333 2.858667 23.125333a144.298667 144.298667 0 0 1-57.258667 165.056 38.229333 38.229333 0 0 1-20.138666 5.717333 38.058667 38.058667 0 0 1-27.093334-11.2l-123.562666-123.733333L209.92 866.986667a36.266667 36.266667 0 0 1-22.229333 7.722666z" Fill="{DynamicResource Window.Foreground}" />
                                                     </Viewbox>
                                                 </ToggleButton>
 
-
-                                                <Button
-                                                    Width="27"
-                                                    Height="27"
-                                                    Margin="5,0"
+                                                <super:HoverPath
                                                     Click="OpenPath"
-                                                    Style="{StaticResource RoundNormalButton}"
-                                                    ToolTip="打开当前日志所在文件夹">
-                                                    <Viewbox
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center">
-                                                        <Path
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Data="M183.232 128c0 0-52.544 0 37.184 0 80.448 0 164.288 0 250.368 0 58.368 0 58.24 128.832 140.864 128.832 50.88 0 228.992 0 228.992 0C906.56 256.832 960 310.272 960 376.128l0 398.656c0 65.856-53.44 119.232-119.296 119.232L183.232 894.016C117.44 894.08 64 840.704 64 774.784L64 247.296C64 181.376 117.44 128 183.232 128z"
-                                                            Fill="{DynamicResource Window.Foreground}" />
-                                                    </Viewbox>
-                                                </Button>
-                                                <Button
-                                                    Width="27"
-                                                    Height="27"
-                                                    Margin="5,0"
+                                                    Style="{StaticResource FolderHoverPath}"
+                                                    ToolTip="打开当前日志所在文件夹" />
+                                                <super:HoverPath
                                                     Click="OpenByDefaultApp"
-                                                    Style="{StaticResource RoundNormalButton}"
-                                                    ToolTip="用默认应用打开当前日志">
-                                                    <Viewbox
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center">
-                                                        <Path
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"
-                                                            Data="M565.8 887.6h-345v-751h361.6v187.1c0 19.9 16.1 36 36 36h187.4v115c0 19.9 16.1 36 36 36s36-16.1 36-36v-151c0-9.6-3.8-18.7-10.6-25.5L643.9 75.1c-0.6-0.6-1.2-1.1-1.8-1.6l-0.4-0.4-1.8-1.5s-0.1-0.1-0.2-0.1l-1.8-1.2-0.6-0.3c-0.6-0.4-1.3-0.8-2-1.1-0.1 0-0.2-0.1-0.2-0.1-0.6-0.3-1.2-0.6-1.9-0.9l-0.6-0.3c-0.7-0.3-1.4-0.6-2.1-0.8-0.1 0-0.1 0-0.2-0.1-0.7-0.2-1.4-0.5-2.1-0.7-0.2-0.1-0.4-0.1-0.6-0.2-0.7-0.2-1.5-0.4-2.3-0.5-0.7-0.1-1.5-0.3-2.3-0.4-0.2 0-0.4-0.1-0.6-0.1-0.7-0.1-1.4-0.2-2.2-0.2H202.1c-29.4 0-53.3 23.9-53.3 53.3v788.4c0 29.4 23.9 53.3 53.3 53.3h363.7c19.9 0 36-16.1 36-36s-16.1-36-36-36z m88.7-599.9V187.5l100.2 100.2H654.5z M921.6 870.7l-80.8-80.8c18.3-27.4 29-60.3 29-95.7 0-95-77-172.1-172.1-172.1-95 0-172.1 77-172.1 172.1 0 95 77 172.1 172.1 172.1 33.6 0 64.9-9.6 91.4-26.3l81.5 81.5c7 7 16.2 10.5 25.5 10.5s18.4-3.5 25.5-10.5c14.1-13.9 14.1-36.7 0-50.8zM597.7 694.3c0-55.2 44.9-100.1 100.1-100.1s100.1 44.9 100.1 100.1S753 794.4 697.8 794.4s-100.1-44.9-100.1-100.1z"
-                                                            Fill="{DynamicResource Window.Foreground}" />
-                                                    </Viewbox>
-                                                </Button>
-
+                                                    Style="{StaticResource OpenTextHoverPath}"
+                                                    ToolTip="用默认应用打开当前日志" />
 
                                                 <CheckBox
                                                     Margin="10"
@@ -1687,22 +1525,9 @@
                                                         Background="{DynamicResource Window.Title.Background}"
                                                         Click="OnPortSettingChanged"
                                                         IsChecked="{Binding SerialPort.DtrEnable, Mode=TwoWay}" />
-                                                    <Border
-                                                        Width="25"
-                                                        Height="25"
-                                                        Margin="0"
-                                                        Padding="0"
-                                                        VerticalAlignment="Stretch"
-                                                        Background="Transparent"
-                                                        ToolTip="Data Terminal Ready, 通信控制信号&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial">
-                                                        <Viewbox Width="auto" Height="14">
-                                                            <Path
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
-                                                                Fill="{DynamicResource Window.Foreground}" />
-                                                        </Viewbox>
-                                                    </Border>
+
+                                                    <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="Data Terminal Ready, 通信控制信号&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial" />
+
                                                 </StackPanel>
                                                 <StackPanel
                                                     Margin="5"
@@ -1733,22 +1558,8 @@
                                                             </Style>
                                                         </super:Switch.Style>-->
                                                     </super:Switch>
-                                                    <Border
-                                                        Width="25"
-                                                        Height="25"
-                                                        Margin="0"
-                                                        Padding="0"
-                                                        VerticalAlignment="Stretch"
-                                                        Background="Transparent"
-                                                        ToolTip="Request to Send， 流量控制机制&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial">
-                                                        <Viewbox Width="auto" Height="14">
-                                                            <Path
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
-                                                                Fill="{DynamicResource Window.Foreground}" />
-                                                        </Viewbox>
-                                                    </Border>
+                                                    <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="Request to Send， 流量控制机制&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial" />
+
                                                 </StackPanel>
 
                                                 <StackPanel
@@ -1768,22 +1579,8 @@
                                                         Background="{DynamicResource Window.Title.Background}"
                                                         Click="OnPortSettingChanged"
                                                         IsEnabled="{Binding Connected}" />
-                                                    <Border
-                                                        Width="25"
-                                                        Height="25"
-                                                        Margin="0"
-                                                        Padding="0"
-                                                        VerticalAlignment="Stretch"
-                                                        Background="Transparent"
-                                                        ToolTip="中断信号状态发生在传输暂停时，线路处于中断状态（全低，无停止位）直到被释放">
-                                                        <Viewbox Width="auto" Height="14">
-                                                            <Path
-                                                                HorizontalAlignment="Center"
-                                                                VerticalAlignment="Center"
-                                                                Data="M512 128c212 0 384 172 384 384s-172 384-384 384-384-172-384-384 172-384 384-384m0-64C264.8 64 64 264.8 64 512s200.8 448 448 448 448-200.8 448-448S759.2 64 512 64z m32 192h-64v64h64v-64z m0 448V384h-32.8L384 418.4l16.8 61.6 79.2-21.6V704H384v64h256v-64H544z"
-                                                                Fill="{DynamicResource Window.Foreground}" />
-                                                        </Viewbox>
-                                                    </Border>
+
+                                                    <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="中断信号状态发生在传输暂停时，线路处于中断状态（全低，无停止位）直到被释放" />
                                                 </StackPanel>
 
                                             </StackPanel>
@@ -2211,28 +2008,6 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0" Margin="6">
                                                 <ToggleButton
-                                                    Margin="0"
-                                                    Padding="5"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Bottom"
-                                                    Click="ToggleButton_Click"
-                                                    Opacity="0.8"
-                                                    Style="{StaticResource FlatToggleButton}"
-                                                    ToolTip="文本框过长时换行显示"
-                                                    Visibility="Collapsed">
-                                                    <Viewbox
-                                                        Width="15"
-                                                        Height="auto"
-                                                        VerticalAlignment="Center">
-                                                        <Viewbox
-                                                            Width="15"
-                                                            Height="auto"
-                                                            VerticalAlignment="Center">
-                                                            <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
-                                                        </Viewbox>
-                                                    </Viewbox>
-                                                </ToggleButton>
-                                                <ToggleButton
                                                     MinWidth="40"
                                                     Margin="5"
                                                     Padding="5"
@@ -2246,12 +2021,8 @@
                                                         Width="15"
                                                         Height="auto"
                                                         VerticalAlignment="Center">
-                                                        <Viewbox
-                                                            Width="15"
-                                                            Height="auto"
-                                                            VerticalAlignment="Center">
-                                                            <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
-                                                        </Viewbox>
+                                                        <Path Data="M896 160C896 177.664 881.664 192 864 192l-768 0C78.336 192 64 177.664 64 160l0 0C64 142.336 78.336 128 96 128l768 0C881.664 128 896 142.336 896 160L896 160zM896 352C896 334.336 881.664 320 864 320l-768 0C78.336 320 64 334.336 64 352l0 0C64 369.664 78.336 384 96 384l768 0C881.664 384 896 369.664 896 352L896 352zM384 736C384 718.336 369.664 704 352 704l-256 0C78.336 704 64 718.336 64 736l0 0C64 753.664 78.336 768 96 768l256 0C369.664 768 384 753.664 384 736L384 736zM735.168 512 732.8 512 599.232 512 96 512C78.336 512 64 526.336 64 544S78.336 576 96 576l503.232 0 133.568 0 2.368 0c52.928 0 96 43.072 96 96s-43.072 96-96 96L568.96 768l0-2.112L568.576 765.888l64.128-64.128c12.8-12.8 12.8-33.664 0-46.528-12.864-12.864-33.6-12.864-46.528 0l-120.192 120.192c-6.208 6.208-9.6 14.592-9.6 23.296 0 8.704 3.456 17.024 9.6 23.232l120.192 120.128c12.864 12.736 33.6 12.736 46.528 0 12.864-12.864 12.864-33.6 0-46.592L569.024 832l166.208 0c88.256 0 160-71.744 160-160S823.424 512 735.168 512z" Fill="{DynamicResource Window.Foreground}" />
+
                                                     </Viewbox>
                                                 </ToggleButton>
                                                 <ToggleButton
@@ -2394,26 +2165,15 @@
                                                                                 Background="Transparent"
                                                                                 BorderBrush="{StaticResource TabItem.Selected.Background}"
                                                                                 Tag="{Binding Path=.}">
-                                                                                <Button
+
+                                                                                <super:HoverPath
                                                                                     Width="20"
                                                                                     Height="20"
                                                                                     Margin="5"
                                                                                     HorizontalAlignment="Right"
                                                                                     Click="DeleteSendHistory"
-                                                                                    Style="{StaticResource RoundNormalButton}"
-                                                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}}"
-                                                                                    Visibility="Visible">
-                                                                                    <Viewbox
-                                                                                        Width="10"
-                                                                                        Height="auto"
-                                                                                        VerticalAlignment="Center">
-                                                                                        <Path
-                                                                                            HorizontalAlignment="Center"
-                                                                                            VerticalAlignment="Center"
-                                                                                            Data="M610.218667 505.6l398.08-387.413333a49.664 49.664 0 0 0 0-71.338667l-2.133334-2.133333a52.992 52.992 0 0 0-73.301333 0L534.784 432.64 136.704 44.373333a52.992 52.992 0 0 0-73.386667 0L61.269333 46.592a48.810667 48.810667 0 0 0 0 71.338667l398.165334 387.669333-398.165334 387.498667a49.664 49.664 0 0 0 0 71.253333l2.218667 2.133333c20.48 19.626667 52.821333 19.626667 73.301333 0l398.08-387.413333 398.08 387.413333c20.48 19.626667 52.906667 19.626667 73.386667 0l2.048-2.133333a49.664 49.664 0 0 0 0-71.253333l-398.08-387.413334z"
-                                                                                            Fill="{DynamicResource TabItem.Hover.Foreground}" />
-                                                                                    </Viewbox>
-                                                                                </Button>
+                                                                                    Style="{StaticResource CloseHoverPath}"
+                                                                                    Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Popup}}}" />
                                                                             </Border>
                                                                         </Grid>
                                                                     </Border>

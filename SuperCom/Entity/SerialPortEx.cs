@@ -34,8 +34,7 @@ namespace SuperCom.Entity
 
 
         public PortSetting _Setting = PortSetting.GetDefaultSetting();
-        public PortSetting Setting
-        {
+        public PortSetting Setting {
             get { return _Setting; }
             set { _Setting = value; }
         }
@@ -71,8 +70,7 @@ namespace SuperCom.Entity
         {
             List<string> result = new List<string>();
             string[] ports = GetPortNames();
-            foreach (var item in ports)
-            {
+            foreach (var item in ports) {
                 if (int.TryParse(item.ToUpper().Replace("COM", ""), out _))
                     result.Add(item);
             }
@@ -87,20 +85,15 @@ namespace SuperCom.Entity
             List<string> ports = new List<string>();
 
             RegistryKey k1 = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\services\usbser\Enum");
-            if (k1 == null)
-            {
+            if (k1 == null) {
                 Debug.Fail("Unable to open Enum key");
-            }
-            else
-            {
+            } else {
                 int count = (int)k1.GetValue("Count");
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     object deviceID = k1.GetValue(i.ToString("D", CultureInfo.InvariantCulture));
                     Debug.Assert(deviceID != null && deviceID is string);
                     RegistryKey k2 = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Enum\" + (string)deviceID + @"\Device Parameters");
-                    if (k2 == null)
-                    {
+                    if (k2 == null) {
                         continue;
                     }
                     object portName = k2.GetValue("PortName");
@@ -141,13 +134,10 @@ namespace SuperCom.Entity
 
         public void RefreshSetting()
         {
-            try
-            {
+            try {
                 SaveProperties();
                 SettingJson = PortSettingToJson(); // 保存
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 MessageCard.Error(ex.Message);
             }
         }
@@ -175,12 +165,9 @@ namespace SuperCom.Entity
                 { "TextFontSize", this.TextFontSize },
                 { "HighLightIndex", this.HighLightIndex },
             };
-            if (this.Handshake == Handshake.RequestToSend || this.Handshake == Handshake.RequestToSendXOnXOff)
-            {
+            if (this.Handshake == Handshake.RequestToSend || this.Handshake == Handshake.RequestToSendXOnXOff) {
                 // Handshake 设置为 RequestToSend 或 RequestToSendXOnXOff，则无法访问 RtsEnable
-            }
-            else
-            {
+            } else {
                 dic.Add("RTS", this.RtsEnable);
             }
             //dic.Add("BreakState", this.BreakState);
@@ -190,8 +177,7 @@ namespace SuperCom.Entity
         public void SetPortSettingByJson(string json)
         {
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
-            if (dict != null)
-            {
+            if (dict != null) {
                 this.BaudRate = dict.GetInt("BaudRate", PortSetting.DEFAULT_BAUDRATE);
                 this.DataBits = dict.GetInt("DataBits", PortSetting.DEFAULT_DATABITS);
                 this.TextFontSize = dict.GetDouble("TextFontSize", PortSetting.DEFAULT_FONTSIZE);
@@ -219,8 +205,7 @@ namespace SuperCom.Entity
         public static string GetRemark(string json)
         {
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
-            if (dict != null)
-            {
+            if (dict != null) {
                 if (dict.ContainsKey("Remark") && dict.Get("Remark", "") is object remark)
                     return remark.ToString();
             }
@@ -230,8 +215,7 @@ namespace SuperCom.Entity
         {
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
             string status = "";
-            if (dict != null)
-            {
+            if (dict != null) {
                 if (dict.ContainsKey("Hide"))
                     status = dict["Hide"].ToString();
             }
@@ -241,8 +225,7 @@ namespace SuperCom.Entity
         {
             Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(json);
             string status = "";
-            if (dict != null)
-            {
+            if (dict != null) {
                 if (dict.ContainsKey("Pinned"))
                     status = dict["Pinned"].ToString();
             }
@@ -253,14 +236,12 @@ namespace SuperCom.Entity
 
         public Encoding GetEncoding()
         {
-            try
-            {
-                if (PortEncoding.ToUpper().Equals("UTF8")) return System.Text.Encoding.UTF8;
+            try {
+                if (PortEncoding.ToUpper().Equals("UTF8"))
+                    return System.Text.Encoding.UTF8;
                 Encoding encoding = System.Text.Encoding.GetEncoding(PortEncoding);
                 return encoding;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 MessageCard.Error(ex.Message);
                 return System.Text.Encoding.UTF8;
             }
@@ -278,62 +259,51 @@ namespace SuperCom.Entity
         }
 
         private string _PortEncoding = PortSetting.DEFAULT_ENCODING_STRING;
-        public string PortEncoding
-        {
+        public string PortEncoding {
             get { return _PortEncoding; }
-            set
-            {
+            set {
                 _PortEncoding = value;
                 RaisePropertyChanged();
                 RefreshSetting();
             }
         }
         private string _StopBitsString = DEFAULT_STOPBITS;
-        public string StopBitsString
-        {
+        public string StopBitsString {
             get { return _StopBitsString; }
-            set
-            {
+            set {
                 _StopBitsString = value;
                 RaisePropertyChanged();
                 RefreshSetting();
             }
         }
         private string _ParityString = DEFAULT_PARITY;
-        public string ParityString
-        {
+        public string ParityString {
             get { return _ParityString; }
-            set
-            {
+            set {
                 _ParityString = value;
                 RaisePropertyChanged();
                 RefreshSetting();
             }
         }
         private double _TextFontSize = PortSetting.DEFAULT_FONTSIZE;
-        public double TextFontSize
-        {
+        public double TextFontSize {
             get { return _TextFontSize; }
             set { _TextFontSize = value; RaisePropertyChanged(); }
         }
         private long _HighLightIndex = 0;
-        public long HighLightIndex
-        {
+        public long HighLightIndex {
             get { return _HighLightIndex; }
             set { _HighLightIndex = value; RaisePropertyChanged(); }
         }
         private long _FilterSelectedIndex = 0;
-        public long FilterSelectedIndex
-        {
+        public long FilterSelectedIndex {
             get { return _FilterSelectedIndex; }
             set { _FilterSelectedIndex = value; RaisePropertyChanged(); }
         }
         private long _ReadTimeoutValue = PortSetting.DEFAULT_READ_TIME_OUT;
-        public long ReadTimeoutValue
-        {
+        public long ReadTimeoutValue {
             get { return _ReadTimeoutValue; }
-            set
-            {
+            set {
                 _ReadTimeoutValue = value;
                 RaisePropertyChanged();
                 if (value >= PortSetting.MIN_TIME_OUT && value <= PortSetting.MAX_TIME_OUT)
@@ -342,11 +312,9 @@ namespace SuperCom.Entity
             }
         }
         private long _WriteTimeoutValue = PortSetting.DEFAULT_WRITE_TIME_OUT;
-        public long WriteTimeoutValue
-        {
+        public long WriteTimeoutValue {
             get { return _WriteTimeoutValue; }
-            set
-            {
+            set {
                 _WriteTimeoutValue = value;
                 RaisePropertyChanged();
                 if (value >= PortSetting.MIN_TIME_OUT && value <= PortSetting.MAX_TIME_OUT)
@@ -363,8 +331,7 @@ namespace SuperCom.Entity
 
         public override bool Equals(object obj)
         {
-            if (obj != null && obj is SerialPortEx serialPort)
-            {
+            if (obj != null && obj is SerialPortEx serialPort) {
                 return serialPort.PortName.Equals(PortName);
             }
             return false;

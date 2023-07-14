@@ -29,7 +29,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static Settings CreateInstance()
         {
-            if (_instance == null) _instance = new Settings();
+            if (_instance == null)
+                _instance = new Settings();
 
             return _instance;
         }

@@ -1,12 +1,9 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
-using SuperUtils.Sql;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperCom.Entity
 {
@@ -39,9 +36,9 @@ namespace SuperCom.Entity
 
         public override bool Equals(object obj)
         {
-            if (obj is ComSettings com)
-            {
-                if (PortName == null && com.PortName == null) return true;
+            if (obj is ComSettings com) {
+                if (PortName == null && com.PortName == null)
+                    return true;
                 else if (PortName != null)
                     return PortName.Equals(com.PortName);
             }
@@ -87,23 +84,17 @@ namespace SuperCom.Entity
         public static void InitSqlite()
         {
             SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in ComSettings.SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
+            foreach (var item in ComSettings.SqliteTable.Table.Keys) {
+                if (!mapper.IsTableExists(item)) {
                     mapper.CreateTable(item, ComSettings.SqliteTable.Table[item]);
                 }
             }
 
             // 新增列
-            foreach (string sql in SQL_EXTRA_CMDS)
-            {
-                try
-                {
+            foreach (string sql in SQL_EXTRA_CMDS) {
+                try {
                     mapper.ExecuteNonQuery(sql);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     App.Logger.Error(ex.Message);
                 }
             }

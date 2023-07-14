@@ -1,11 +1,7 @@
 ﻿using SuperCom.Entity;
 using SuperUtils.IO;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperCom.Config
 {
@@ -17,11 +13,9 @@ namespace SuperCom.Config
 
         public static void Init()
         {
-            foreach (string dir in BASE_DIR)
-            {
+            foreach (string dir in BASE_DIR) {
                 string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dir);
-                if (!Directory.Exists(path))
-                {
+                if (!Directory.Exists(path)) {
                     DirHelper.TryCreateDirectory(path);
                 }
             }

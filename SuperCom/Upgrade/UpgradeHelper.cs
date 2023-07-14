@@ -3,8 +3,6 @@ using SuperCom.Config;
 using SuperControls.Style.Upgrade;
 using SuperUtils.NetWork;
 using SuperUtils.NetWork.Crawler;
-using SuperUtils.WPF.VieModel;
-using SuperUtils.WPF.VisualTools;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -45,20 +43,17 @@ namespace SuperCom.Upgrade
         {
             Dialog_Upgrade = new Dialog_Upgrade(Upgrader);
             Dialog_Upgrade.LocalVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            Dialog_Upgrade.OnSourceChanged += (s, e) =>
-            {
+            Dialog_Upgrade.OnSourceChanged += (s, e) => {
                 // 保存当前选择的地址
                 int index = e.NewValue;
                 UrlManager.SetRemoteIndex(index);
                 ConfigManager.Settings.RemoteIndex = index;
                 ConfigManager.Settings.Save();
             };
-            Dialog_Upgrade.Closed += (s, e) =>
-            {
+            Dialog_Upgrade.Closed += (s, e) => {
                 WindowClosed = true;
             };
-            Dialog_Upgrade.OnExitApp += () =>
-            {
+            Dialog_Upgrade.OnExitApp += () => {
                 OnBeforeCopyFile?.Invoke();
             };
             WindowClosed = false;
@@ -76,7 +71,8 @@ namespace SuperCom.Upgrade
 
         public static async Task<(string LatestVersion, string ReleaseDate, string ReleaseNote)> GetUpgradeInfo()
         {
-            if (Upgrader == null) return (null, null, null);
+            if (Upgrader == null)
+                return (null, null, null);
             return await Upgrader.GetUpgradeInfo();
         }
 

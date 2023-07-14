@@ -11,9 +11,8 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Media;
-using static SuperCom.Entity.HighLightRule;
 using static SuperCom.App;
-using SuperUtils.Systems;
+using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom.ViewModel
 {
@@ -30,53 +29,44 @@ namespace SuperCom.ViewModel
 
 
         private ObservableCollection<string> _BaudRates;
-        public ObservableCollection<string> BaudRates
-        {
+        public ObservableCollection<string> BaudRates {
             get { return _BaudRates; }
             set { _BaudRates = value; RaisePropertyChanged(); }
         }
         private bool _FixedOnSearch = ConfigManager.CommonSettings.FixedOnSearch;
-        public bool FixedOnSearch
-        {
+        public bool FixedOnSearch {
             get { return _FixedOnSearch; }
             set { _FixedOnSearch = value; RaisePropertyChanged(); }
         }
         private bool _CloseToBar = ConfigManager.CommonSettings.CloseToBar;
-        public bool CloseToBar
-        {
+        public bool CloseToBar {
             get { return _CloseToBar; }
             set { _CloseToBar = value; RaisePropertyChanged(); }
         }
         private bool _FixedOnSendCommand = ConfigManager.CommonSettings.FixedOnSendCommand;
-        public bool FixedOnSendCommand
-        {
+        public bool FixedOnSendCommand {
             get { return _FixedOnSendCommand; }
             set { _FixedOnSendCommand = value; RaisePropertyChanged(); }
         }
         private bool _ScrollOnSearchClosed = ConfigManager.CommonSettings.ScrollOnSearchClosed;
-        public bool ScrollOnSearchClosed
-        {
+        public bool ScrollOnSearchClosed {
             get { return _ScrollOnSearchClosed; }
             set { _ScrollOnSearchClosed = value; RaisePropertyChanged(); }
         }
         private string _LogNameFormat = ConfigManager.CommonSettings.LogNameFormat;
-        public string LogNameFormat
-        {
+        public string LogNameFormat {
             get { return _LogNameFormat; }
             set { _LogNameFormat = value; RaisePropertyChanged(); }
         }
         private string _LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
-        public string LogSaveDir
-        {
+        public string LogSaveDir {
             get { return _LogSaveDir; }
             set { _LogSaveDir = value; RaisePropertyChanged(); }
         }
         private int _TabSelectedIndex = (int)ConfigManager.CommonSettings.TabSelectedIndex;
-        public int TabSelectedIndex
-        {
+        public int TabSelectedIndex {
             get { return _TabSelectedIndex; }
-            set
-            {
+            set {
                 _TabSelectedIndex = value;
                 RaisePropertyChanged();
                 SaveValue();
@@ -84,24 +74,20 @@ namespace SuperCom.ViewModel
         }
 
         private string _CurrentLanguage = ConfigManager.Settings.CurrentLanguage;
-        public string CurrentLanguage
-        {
+        public string CurrentLanguage {
             get { return _CurrentLanguage; }
 
-            set
-            {
+            set {
                 _CurrentLanguage = value;
                 RaisePropertyChanged();
             }
         }
 
         private bool _AvoidScreenClose = ConfigManager.Settings.AvoidScreenClose;
-        public bool AvoidScreenClose
-        {
+        public bool AvoidScreenClose {
             get { return _AvoidScreenClose; }
 
-            set
-            {
+            set {
                 _AvoidScreenClose = value;
                 RaisePropertyChanged();
 
@@ -121,46 +107,39 @@ namespace SuperCom.ViewModel
 
 
         private ObservableCollection<HighLightRule> _HighLightRules;
-        public ObservableCollection<HighLightRule> HighLightRules
-        {
+        public ObservableCollection<HighLightRule> HighLightRules {
             get { return _HighLightRules; }
-            set
-            {
+            set {
                 _HighLightRules = value;
-                RaisePropertyChanged(); SaveValue();
+                RaisePropertyChanged();
+                SaveValue();
             }
         }
         private int _HighLightSideIndex = (int)ConfigManager.CommonSettings.HighLightSideIndex;
-        public int HighLightSideIndex
-        {
+        public int HighLightSideIndex {
             get { return _HighLightSideIndex; }
             set { _HighLightSideIndex = value; RaisePropertyChanged(); }
         }
         private bool _ShowCurrentRule = false;
-        public bool ShowCurrentRule
-        {
+        public bool ShowCurrentRule {
             get { return _ShowCurrentRule; }
             set { _ShowCurrentRule = value; RaisePropertyChanged(); }
         }
 
         private ObservableCollection<RuleSet> _RuleSets;
 
-        public ObservableCollection<RuleSet> RuleSets
-        {
+        public ObservableCollection<RuleSet> RuleSets {
             get { return _RuleSets; }
-            set
-            {
+            set {
                 _RuleSets = value;
                 RaisePropertyChanged();
             }
         }
         private long _CurrentRuleID;
 
-        public long CurrentRuleID
-        {
+        public long CurrentRuleID {
             get { return _CurrentRuleID; }
-            set
-            {
+            set {
                 _CurrentRuleID = value;
                 RaisePropertyChanged();
             }
@@ -184,21 +163,17 @@ namespace SuperCom.ViewModel
             Logger.Info($"delte rule, id: {id}");
 
             int count = RuleMapper.DeleteById(id);
-            if (count <= 0)
-            {
+            if (count <= 0) {
                 return false;
             }
             int idx = -1;
-            for (int i = 0; i < HighLightRules.Count; i++)
-            {
-                if (HighLightRules[i].RuleID == id)
-                {
+            for (int i = 0; i < HighLightRules.Count; i++) {
+                if (HighLightRules[i].RuleID == id) {
                     idx = i;
                     break;
                 }
             }
-            if (idx >= 0 && idx < HighLightRules.Count)
-            {
+            if (idx >= 0 && idx < HighLightRules.Count) {
                 FileHelper.TryMoveToRecycleBin(HighLightRules[idx].GetFullFileName());
                 HighLightRules.RemoveAt(idx);
             }
@@ -215,7 +190,8 @@ namespace SuperCom.ViewModel
 
         public void NewRuleSet()
         {
-            if (RuleSets == null) RuleSets = new System.Collections.ObjectModel.ObservableCollection<RuleSet>();
+            if (RuleSets == null)
+                RuleSets = new System.Collections.ObjectModel.ObservableCollection<RuleSet>();
 
             RuleSet ruleSet = new RuleSet();
             ruleSet.RuleSetID = RuleSet.GenerateID(RuleSets.Select(arg => arg.RuleSetID).ToList());
@@ -227,12 +203,10 @@ namespace SuperCom.ViewModel
 
 
             HighLightRule rule = HighLightRules.Where(arg => arg.RuleID == CurrentRuleID).FirstOrDefault();
-            if (rule != null)
-            {
+            if (rule != null) {
                 if (rule.RuleSetList == null)
                     rule.RuleSetList = new List<RuleSet>();
-                if (!string.IsNullOrEmpty(rule.RuleSetString))
-                {
+                if (!string.IsNullOrEmpty(rule.RuleSetString)) {
                     rule.RuleSetList = JsonUtils.TryDeserializeObject<List<RuleSet>>(rule.RuleSetString);
                 }
 
@@ -249,10 +223,8 @@ namespace SuperCom.ViewModel
 
         public void SetRuleSetColor(Color color, long id)
         {
-            for (int i = 0; i < RuleSets.Count; i++)
-            {
-                if (RuleSets[i].RuleSetID == id)
-                {
+            for (int i = 0; i < RuleSets.Count; i++) {
+                if (RuleSets[i].RuleSetID == id) {
                     RuleSets[i].Foreground = color.ToString();
                     break;
                 }
@@ -264,8 +236,7 @@ namespace SuperCom.ViewModel
         {
 
             int count = RuleMapper.UpdateById(rule);
-            if (count <= 0)
-            {
+            if (count <= 0) {
                 Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
 
@@ -274,10 +245,8 @@ namespace SuperCom.ViewModel
         public void SaveAllRule()
         {
             HighLightRule.AllRules = new List<HighLightRule>();
-            if (HighLightRules.Count > 0)
-            {
-                foreach (var item in HighLightRules)
-                {
+            if (HighLightRules.Count > 0) {
+                foreach (var item in HighLightRules) {
                     item.SetFileName();
                     item.WriteToXshd();
                     RuleMapper.UpdateById(item);
@@ -289,8 +258,7 @@ namespace SuperCom.ViewModel
         public void RenameRule(HighLightRule rule)
         {
             bool result = RuleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
-            if (!result)
-            {
+            if (!result) {
                 Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
 
@@ -304,12 +272,10 @@ namespace SuperCom.ViewModel
 
         private bool _AutoBackup = ConfigManager.Settings.AutoBackup;
 
-        public bool AutoBackup
-        {
+        public bool AutoBackup {
             get { return _AutoBackup; }
 
-            set
-            {
+            set {
                 _AutoBackup = value;
                 RaisePropertyChanged();
             }
@@ -317,12 +283,10 @@ namespace SuperCom.ViewModel
 
         private int _AutoBackupPeriodIndex = (int)ConfigManager.Settings.AutoBackupPeriodIndex;
 
-        public int AutoBackupPeriodIndex
-        {
+        public int AutoBackupPeriodIndex {
             get { return _AutoBackupPeriodIndex; }
 
-            set
-            {
+            set {
                 _AutoBackupPeriodIndex = value;
                 RaisePropertyChanged();
             }
@@ -343,8 +307,7 @@ namespace SuperCom.ViewModel
         {
             List<HighLightRule> highLightRules = RuleMapper.SelectList();
             HighLightRules = new ObservableCollection<HighLightRule>();
-            foreach (var item in highLightRules)
-            {
+            foreach (var item in highLightRules) {
                 HighLightRules.Add(item);
             }
         }
@@ -353,16 +316,13 @@ namespace SuperCom.ViewModel
         {
             BaudRates = new ObservableCollection<string>();
             List<string> baudrates = PortSetting.GetAllBaudRates();
-            foreach (var item in baudrates)
-            {
+            foreach (var item in baudrates) {
                 BaudRates.Add(item);
             }
             string value = ConfigManager.Main.CustomBaudRates;
-            if (!string.IsNullOrEmpty(value))
-            {
+            if (!string.IsNullOrEmpty(value)) {
                 List<string> list = JsonUtils.TryDeserializeObject<List<string>>(value);
-                if (list?.Count > 0)
-                {
+                if (list?.Count > 0) {
                     foreach (var item in list)
                         BaudRates.Add(item);
                 }

@@ -1,20 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
-using SuperCom.Config;
+﻿using SuperCom.Config;
 using SuperCom.Entity;
 using SuperControls.Style;
-using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.Framework.ORM.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using static SuperCom.Config.MapperManager;
 
 namespace SuperCom
@@ -28,21 +23,17 @@ namespace SuperCom
         public string CurrentPortName { get; set; }
 
         private ObservableCollection<string> _CurrentPortNames;
-        public ObservableCollection<string> CurrentPortNames
-        {
+        public ObservableCollection<string> CurrentPortNames {
             get { return _CurrentPortNames; }
-            set
-            {
+            set {
                 _CurrentPortNames = value;
                 RaisePropertyChanged();
             }
         }
         private int _SideIndex = (int)ConfigManager.VarMonitorSetting.SideIndex;
-        public int SideIndex
-        {
+        public int SideIndex {
             get { return _SideIndex; }
-            set
-            {
+            set {
                 _SideIndex = value;
                 RaisePropertyChanged();
                 SetCurrentPortName();
@@ -50,11 +41,9 @@ namespace SuperCom
         }
 
         private ObservableCollection<VarMonitor> _CurrentVarMonitors;
-        public ObservableCollection<VarMonitor> CurrentVarMonitors
-        {
+        public ObservableCollection<VarMonitor> CurrentVarMonitors {
             get { return _CurrentVarMonitors; }
-            set
-            {
+            set {
                 _CurrentVarMonitors = value;
                 RaisePropertyChanged();
             }
@@ -74,8 +63,7 @@ namespace SuperCom
             CurrentPortNames = new ObservableCollection<string>();
             string[] ports = SerialPortEx.GetAllPorts();
 
-            if (ports != null && ports.Length > 0)
-            {
+            if (ports != null && ports.Length > 0) {
                 foreach (var item in ports)
                     CurrentPortNames.Add(item);
             }
@@ -125,8 +113,7 @@ namespace SuperCom
 
         private void SaveVarMonitor(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag != null)
-            {
+            if (sender is Button button && button.Tag != null) {
                 string name = button.Tag.ToString();
                 SaveMonitor(name);
             }
@@ -137,8 +124,7 @@ namespace SuperCom
             if (sender is FrameworkElement element && element.Tag != null &&
                 (element.Parent as FrameworkElement).Tag != null &&
                 (element.Parent as FrameworkElement).Tag is System.Windows.Controls.DataGrid dataGrid &&
-                dataGrid.Tag != null)
-            {
+                dataGrid.Tag != null) {
                 if (long.TryParse(element.Tag.ToString(), out long id))
                     DeleteVarMonitor(id);
             }
@@ -155,12 +141,10 @@ namespace SuperCom
 
 
             if (toggleButton.Parent is StackPanel panel &&
-                panel.Parent is Grid grid && grid.Parent is Grid rootGrid)
-            {
+                panel.Parent is Grid grid && grid.Parent is Grid rootGrid) {
                 Grid monitorGrid = rootGrid.FindName("monitorGrid") as Grid;
 
-                if (monitorGrid != null)
-                {
+                if (monitorGrid != null) {
                     monitorGrid.Visibility = (bool)toggleButton.IsChecked ? Visibility.Visible : Visibility.Collapsed;
 
                 }
@@ -169,8 +153,7 @@ namespace SuperCom
 
         private void RefreshVarMonitor(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag != null)
-            {
+            if (sender is Button button && button.Tag != null) {
                 //string name = button.Tag.ToString();
                 //PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name));
                 //if (portTabItem != null)
@@ -229,10 +212,8 @@ namespace SuperCom
 
             int idx = -1;
 
-            for (int i = 0; i < CurrentVarMonitors.Count; i++)
-            {
-                if (CurrentVarMonitors[i].MonitorID == id)
-                {
+            for (int i = 0; i < CurrentVarMonitors.Count; i++) {
+                if (CurrentVarMonitors[i].MonitorID == id) {
                     idx = i;
                     break;
                 }
@@ -249,21 +230,17 @@ namespace SuperCom
             List<VarMonitor> toUpdate = new List<VarMonitor>();
 
             List<VarMonitor> allData = MonitorMapper.SelectList();
-            foreach (var item in CurrentVarMonitors)
-            {
+            foreach (var item in CurrentVarMonitors) {
                 VarMonitor varMonitor = allData.FirstOrDefault(arg => arg.MonitorID == item.MonitorID);
                 if (varMonitor == null || !varMonitor.Equals(item))
                     toUpdate.Add(item);
             }
 
 
-            if (toUpdate.Count == 0)
-            {
+            if (toUpdate.Count == 0) {
                 MessageNotify.Info("无改变，无需保存");
                 return;
-            }
-            else
-            {
+            } else {
                 foreach (var item in toUpdate)
                     MonitorMapper.UpdateById(item);
 

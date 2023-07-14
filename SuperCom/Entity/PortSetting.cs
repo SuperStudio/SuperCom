@@ -89,10 +89,8 @@ namespace SuperCom.Entity
         public static List<string> GetAllBaudRates()
         {
             List<string> list = new List<string>();
-            if (ConfigManager.Main.UseDefaultBaudRate)
-            {
-                foreach (var item in DEFAULT_BAUDRATES)
-                {
+            if (ConfigManager.Main.UseDefaultBaudRate) {
+                foreach (var item in DEFAULT_BAUDRATES) {
                     list.Add(item.ToString());
                 }
                 ConfigManager.Main.UseDefaultBaudRate = false;

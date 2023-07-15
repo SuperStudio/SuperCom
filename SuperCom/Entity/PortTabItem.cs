@@ -9,6 +9,7 @@ using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -251,19 +252,23 @@ namespace SuperCom.Entity
             FirstSaveData = true;
         }
 
-        void ProcessLine(SerialPortEx serialPort, string line)
+        void ProcessLine(SerialPortEx serialPort, string line, string now)
         {
             if (string.IsNullOrEmpty(line))
                 return;
             string portName = serialPort.PortName;
             try {
                 App.Current.Dispatcher.Invoke(() => {
-                    SaveData(line);
+                    SaveData(line, now);
                 });
             } catch (Exception ex) {
                 App.Logger.Error(ex.Message);
             }
         }
+
+
+        private string line = "";
+        private string now = "";
 
         /// <summary>
         /// 处理收到的 COM 数据
@@ -272,10 +277,16 @@ namespace SuperCom.Entity
         /// <param name="serialPort"></param>
         private void HandleStrReceived(SerialPortEx serialPort)
         {
-            string line = "";
             try {
                 line = serialPort.ReadExisting();
-                ProcessLine(serialPort, line);
+                if (string.IsNullOrEmpty(line))
+                    return;
+
+                // 记录此刻的时间
+                if (AddTimeStamp)
+                    now = DateHelper.Now();
+
+                ProcessLine(serialPort, line, now);
             } catch (Exception ex) {
                 App.Logger.Error(ex.Message);
             }
@@ -295,6 +306,8 @@ namespace SuperCom.Entity
             ResetEvent.Set();
         }
 
+
+        private DateTime hexNow;
 
 
         /// <summary>
@@ -316,6 +329,7 @@ namespace SuperCom.Entity
                     if (len == 0)
                         break;
                     byte[] buffer = new byte[len];
+                    hexNow = DateTime.Now;
                     SerialPort.Read(buffer, 0, len);
                     if (buffer.Length == 0)
                         break;
@@ -332,7 +346,7 @@ namespace SuperCom.Entity
             }
             if (allData.Count > 0) {
                 Application.Current.Dispatcher.Invoke(() => {
-                    SaveHex(allData.ToArray());
+                    SaveHex(allData.ToArray(), hexNow.ToLocalDate());
                 });
             }
         }
@@ -717,14 +731,14 @@ namespace SuperCom.Entity
         }
 
         public bool FirstSaveData;
-        private StringBuilder builder = new StringBuilder();
-        public void SaveData(string inputData)
+        private StringBuilder Builder = new StringBuilder();
+        public void SaveData(string inputData, string now)
         {
             RX += Encoding.UTF8.GetByteCount(inputData);     // todo
             string value = inputData.Replace("\0", "\\0");
             if (AddTimeStamp) {
                 // 遍历字符串
-                builder.Clear();
+                Builder.Clear();
                 // 一次遍历效率最高，使用 indexof 还额外多遍历几次
                 char c;
                 for (int i = 0; i < value.Length; i++) {
@@ -732,20 +746,20 @@ namespace SuperCom.Entity
                     if (c == '\r' && i < value.Length - 1 && value[i + 1] == '\n') {
                         continue;
                     } else if (c == '\r' || c == '\n') {
-                        builder.Append(c);
-                        builder.Append($"[{DateHelper.Now()}] ");
+                        Builder.Append(c);
+                        Builder.Append($"[{now}] ");
                     } else {
-                        builder.Append(c);
+                        Builder.Append(c);
                     }
                 }
                 if (FirstSaveData) {
-                    builder.Insert(0, $"[{DateHelper.Now()}] ");
+                    Builder.Insert(0, $"[{now}] ");
                     FirstSaveData = false;
                 }
-                value = builder.ToString();
+                value = Builder.ToString();
             }
             CurrentCharSize += Encoding.UTF8.GetByteCount(value);
-            MonitorLine(value);
+            //MonitorLine(value);
             FilterLine(value);  // 过滤器
             SepFile();
             // 保存到本地
@@ -758,14 +772,14 @@ namespace SuperCom.Entity
         }
 
 
-        public void SaveHex(byte[] bytes)
+        public void SaveHex(byte[] bytes, string now)
         {
             if (bytes == null || bytes.Length == 0)
                 return;
             App.Logger.Debug($"存数据：{bytes.Length} B");
             string value =
                 TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            SaveData(value + Environment.NewLine);
+            SaveData(value + Environment.NewLine, now);
         }
 
 

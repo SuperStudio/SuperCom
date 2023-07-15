@@ -73,10 +73,6 @@ namespace SuperCom
                 vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
             };
 
-            App.OnCpuUsageChanged += (cpu) => {
-                vieModel.CpuUsed = cpu;
-            };
-
             App.OnMemoryDog += () => {
                 // 找到最大的，清空
                 App.Current.Dispatcher.Invoke(() => {
@@ -904,7 +900,7 @@ namespace SuperCom
             if (bytes == null || bytes.Length == 0)
                 return 0;
             string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            portTabItem.SaveData($"SEND >>>>>>>>>> {str}\r\n");
+            portTabItem.SaveData($"SEND >>>>>>>>>> {str}\r\n", DateHelper.Now());
             port.Write(bytes, 0, bytes.Length);
             Logger.Info($"send data, port name: {portTabItem.Name}, hex: {portTabItem.SendHex}, TX: {portTabItem.TX + bytes.Length}, value: {str}");
             return bytes.Length;
@@ -935,7 +931,7 @@ namespace SuperCom
                     portTabItem.TX += len;
                 } else {
                     port.Write(value);
-                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}\r\n");
+                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}\r\n", DateHelper.Now());
                     portTabItem.TX += Encoding.UTF8.GetByteCount(value);
                     Logger.Info($"send data, port name: {portTabItem.Name}, hex: {portTabItem.SendHex}, TX: {portTabItem.TX}, value: {value}");
 
@@ -1423,7 +1419,7 @@ namespace SuperCom
 
                 };
                 FontMenuItem.Items.Add(menuItem);
-                Logger.Info($"[{idx++}/{count}]load font: {fontName}");
+                //Logger.Info($"[{idx++}/{count}]load font: {fontName}");
             }
         }
 

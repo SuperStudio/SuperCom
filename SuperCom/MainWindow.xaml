@@ -812,7 +812,7 @@
 
                                 <ComboBox
                                     Name="TimeComboBox"
-                                    Width="100"
+                                    MinWidth="100"
                                     Margin="20,0"
                                     FontSize="10"
                                     SelectedIndex="0"
@@ -1390,7 +1390,7 @@
                                     <Grid
                                         Name="advancedGrid"
                                         Grid.Row="0"
-                                        Height="250"
+                                        Height="260"
                                         Margin="250,0,0,0"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Bottom"
@@ -1426,7 +1426,7 @@
                                                         Text="编码"
                                                         TextAlignment="Right" />
                                                     <ComboBox
-                                                        Width="120"
+                                                        MinWidth="120"
                                                         VerticalAlignment="Center"
                                                         FontSize="12"
                                                         ItemsSource="{Binding DataContext.Encodings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
@@ -1457,7 +1457,7 @@
                                                         Text="Parity"
                                                         TextAlignment="Right" />
                                                     <ComboBox
-                                                        Width="120"
+                                                        MinWidth="120"
                                                         VerticalAlignment="Center"
                                                         FontSize="12"
                                                         ItemsSource="{Binding DataContext.Parities, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
@@ -1488,7 +1488,7 @@
                                                         Text="StopBits"
                                                         TextAlignment="Right" />
                                                     <ComboBox
-                                                        Width="120"
+                                                        MinWidth="120"
                                                         VerticalAlignment="Center"
                                                         FontSize="12"
                                                         ItemsSource="{Binding DataContext.StopBits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
@@ -1657,7 +1657,7 @@
                                                         Text="握手"
                                                         TextAlignment="Right" />
                                                     <ComboBox
-                                                        Width="120"
+                                                        MinWidth="120"
                                                         VerticalAlignment="Center"
                                                         FontSize="12"
                                                         ItemsSource="{Binding DataContext.HandShakes, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
@@ -1809,7 +1809,7 @@
 
                                                 <ComboBox
                                                     Name="highlightingComboBox"
-                                                    Width="130"
+                                                    MinWidth="130"
                                                     Margin="5,0"
                                                     VerticalAlignment="Center"
                                                     FontSize="12"
@@ -2220,23 +2220,8 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
-                <Border
-                    Margin="5,0"
-                    Padding="10,0"
-                    VerticalAlignment="Stretch"
-                    super:CommonExt.HoverBackground="{DynamicResource Button.Hover.Background}"
-                    CornerRadius="0"
-                    Style="{StaticResource HoverBorder}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" Text="{Binding MemoryUsed, StringFormat={}内存 {0}\ MB}" />
-                        <TextBlock
-                            Margin="10,0"
-                            VerticalAlignment="Center"
-                            Text="{Binding CpuUsed, StringFormat={}CPU {0}\ %}" />
-                    </StackPanel>
-                </Border>
 
-
+                <super:SysInfo Grid.Column="0" />
             </Grid>
 
         </Grid>

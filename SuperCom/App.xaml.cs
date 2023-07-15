@@ -39,17 +39,26 @@ namespace SuperCom
                 OnMemoryChanged?.Invoke(memory);
             };
 
-            MemoryDog.OnCpuUsageChanged += (cpu) => {
-                OnCpuUsageChanged?.Invoke(cpu);
-            };
-
             Window_ErrorMsg.OnFeedBack += () => {
                 FileHelper.TryOpenUrl(UrlManager.FeedbackUrl);
             };
             Window_ErrorMsg.OnLog += (str) => {
                 Logger.Error(str);
             };
-            Logger.Info("app init");
+
+            string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            Logger.Info(Environment.NewLine);
+            Logger.Info("███████╗██╗   ██╗██████╗ ███████╗██████╗  ██████╗ ██████╗ ███╗   ███╗");
+            Logger.Info("██╔════╝██║   ██║██╔══██╗██╔════╝██╔══██╗██╔════╝██╔═══██╗████╗ ████║");
+            Logger.Info("███████╗██║   ██║██████╔╝█████╗  ██████╔╝██║     ██║   ██║██╔████╔██║");
+            Logger.Info("╚════██║██║   ██║██╔═══╝ ██╔══╝  ██╔══██╗██║     ██║   ██║██║╚██╔╝██║");
+            Logger.Info("███████║╚██████╔╝██║     ███████╗██║  ██║╚██████╗╚██████╔╝██║ ╚═╝ ██║");
+            Logger.Info("╚══════╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝");
+            Logger.Info(Environment.NewLine);
+
+            Logger.Info($"app init, version: {local}");
+            Logger.Info($"release date: {ConfigManager.RELEASE_DATE}");
         }
 
         protected override void OnStartup(StartupEventArgs e)

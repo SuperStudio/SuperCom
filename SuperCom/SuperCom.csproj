@@ -111,6 +111,35 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AvalonEdit\Colorizers\AnsiColorizer.cs" />
+    <Compile Include="AvalonEdit\Colorizers\Colorizer.cs" />
+    <Compile Include="AvalonEdit\Colorizers\ColorMap.cs" />
+    <Compile Include="AvalonEdit\Colors\AnsiColor.cs" />
+    <Compile Include="AvalonEdit\Colors\AnsiColors.cs" />
+    <Compile Include="AvalonEdit\Colors\Black.cs" />
+    <Compile Include="AvalonEdit\Colors\Blue.cs" />
+    <Compile Include="AvalonEdit\Colors\Brown.cs" />
+    <Compile Include="AvalonEdit\Colors\Clear.cs" />
+    <Compile Include="AvalonEdit\Colors\Cyan.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkBlue.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkCyan.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkGray.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkGreen.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkPurple.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkRed.cs" />
+    <Compile Include="AvalonEdit\Colors\DarkYellow.cs" />
+    <Compile Include="AvalonEdit\Colors\Default.cs" />
+    <Compile Include="AvalonEdit\Colors\Green.cs" />
+    <Compile Include="AvalonEdit\Colors\LightGray.cs" />
+    <Compile Include="AvalonEdit\Colors\Magenta.cs" />
+    <Compile Include="AvalonEdit\Colors\Orange.cs" />
+    <Compile Include="AvalonEdit\Colors\Pink.cs" />
+    <Compile Include="AvalonEdit\Colors\Purple.cs" />
+    <Compile Include="AvalonEdit\Colors\Red.cs" />
+    <Compile Include="AvalonEdit\Colors\Reverse.cs" />
+    <Compile Include="AvalonEdit\Colors\Underline.cs" />
+    <Compile Include="AvalonEdit\Colors\White.cs" />
+    <Compile Include="AvalonEdit\Colors\Yellow.cs" />
     <Compile Include="Comparers\ComPortComparer.cs" />
     <Compile Include="Config\VarMonitorSetting.cs" />
     <Compile Include="Config\ConfigImport.cs" />

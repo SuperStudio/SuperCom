@@ -491,7 +491,8 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="auto" MinHeight="200" />
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <Button
@@ -501,7 +502,6 @@
                                     Content="添加规则" />
 
                             </StackPanel>
-
 
                             <Popup
                                 x:Name="colorPickerPopup"
@@ -547,8 +547,6 @@
 
                                 </Grid>
                             </Popup>
-
-
 
                             <DataGrid
                                 Name="dataGrid"
@@ -717,10 +715,21 @@
 
 
                             </DataGrid>
-                            <Grid Grid.Row="2">
+                            <GridSplitter
+                                Grid.Row="2"
+                                Height="4"
+                                HorizontalAlignment="Stretch"
+                                Panel.ZIndex="10"
+                                Style="{StaticResource HoverSpliter}" />
+                            <Rectangle
+                                Grid.Row="2"
+                                Height="1"
+                                Margin="10,0"
+                                Fill="{DynamicResource Window.Sub.Foreground}" />
+                            <Grid Grid.Row="3">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
-                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <TextBlock
                                     Grid.Row="0"
@@ -730,9 +739,10 @@
                                     Text="预览效果" />
                                 <Border
                                     Grid.Row="1"
-                                    Height="150"
+                                    MinHeight="150"
                                     Margin="10,5"
                                     Padding="10"
+                                    VerticalAlignment="Stretch"
                                     Background="{DynamicResource TabItem.Background}"
                                     BorderThickness="1"
                                     CornerRadius="5">

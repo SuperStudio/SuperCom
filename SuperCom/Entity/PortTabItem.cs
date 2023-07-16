@@ -736,14 +736,15 @@ namespace SuperCom.Entity
         {
             RX += Encoding.UTF8.GetByteCount(inputData);     // todo
             string value = inputData.Replace("\0", "\\0");
+            int valueLen = value.Length;
             if (AddTimeStamp) {
                 // 遍历字符串
                 Builder.Clear();
                 // 一次遍历效率最高，使用 indexof 还额外多遍历几次
                 char c;
-                for (int i = 0; i < value.Length; i++) {
+                for (int i = 0; i < valueLen; i++) {
                     c = value[i];
-                    if (c == '\r' && i < value.Length - 1 && value[i + 1] == '\n') {
+                    if (c == '\r' && i < valueLen - 1 && value[i + 1] == '\n') {
                         continue;
                     } else if (c == '\r' || c == '\n') {
                         Builder.Append(c);

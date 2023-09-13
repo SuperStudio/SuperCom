@@ -11,11 +11,14 @@
 [![Star](https://img.shields.io/github/stars/SuperStudio/SuperCom?label=Star%20this%20repo)](https://github.com/SuperStudio/SuperCom)
 [![Fork](https://img.shields.io/github/forks/SuperStudio/SuperCom?label=Fork%20this%20repo)](https://github.com/SuperStudio/SuperCom/fork)
 
-SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集、存储、可视化等功能。**免费开源！**
+SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集、存储、可视化等功能
 
 下载地址：[点此下载](https://github.com/SuperStudio/SuperCom/releases)
 
 [![p9reenx.png](https://s1.ax1x.com/2023/05/10/p9reenx.png)](https://imgse.com/i/p9reenx)
+
+[![star-history](https://api.star-history.com/svg?repos=SuperStudio/SuperCom&type=Date)
+
 
 # 关于
 
@@ -27,6 +30,13 @@ SuperCom 是一款**美观**、**流畅**、**功能丰富**、**高效**的串�
 - 可以设置波特率、位大小等串口设置
 - 可发送各种 AT 指令
 - 具有各种特性
+
+# 贡献者
+
+<a href="https://github.com/itldg" target="_blank"><img style="border-radius:50%!important" width="64px" alt="itldg" src="https://avatars.githubusercontent.com/u/13432299?s=64&v=4"></a>
+
+
+
 
 # 使用文档
 

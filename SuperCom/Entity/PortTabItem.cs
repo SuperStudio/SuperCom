@@ -2,25 +2,19 @@
 using ICSharpCode.AvalonEdit;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
-using SuperCom.Entity.Enums;
 using SuperUtils.Common;
 using SuperUtils.IO;
 using SuperUtils.Time;
 using SuperUtils.WPF.VieModel;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.IO;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using static SuperCom.App;
-using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom.Entity
 {

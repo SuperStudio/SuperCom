@@ -1,13 +1,10 @@
-﻿using ICSharpCode.AvalonEdit;
+﻿using SuperCom.Entity;
 using SuperCom.Entity.Enums;
-using SuperCom.Entity;
 using SuperUtils.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO.Ports;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static SuperCom.Entity.HighLightRule;

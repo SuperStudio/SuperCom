@@ -1,7 +1,6 @@
 ﻿using SuperCom.Entity.Enums;
 using System;
 using System.Windows.Data;
-using static SuperCom.Entity.HighLightRule;
 
 namespace SuperCom.Converters
 {

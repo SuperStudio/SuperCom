@@ -2,7 +2,6 @@
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
-using SuperCom.AvalonEdit.Colorizers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;

@@ -1,6 +1,4 @@
 ﻿using SuperUtils.Framework.ORM.Config;
-using System.Collections.Generic;
-using System.Windows;
 
 namespace SuperCom.Config.WindowConfig
 {
@@ -16,7 +14,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static VirtualPortSettings CreateInstance()
         {
-            if (_instance == null) _instance = new VirtualPortSettings();
+            if (_instance == null)
+                _instance = new VirtualPortSettings();
 
             return _instance;
         }

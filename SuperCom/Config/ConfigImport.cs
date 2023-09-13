@@ -19,8 +19,7 @@ namespace SuperCom.Config
             List<DataBaseInfo> result = new List<DataBaseInfo>();
             int num = 0;
             int count = ALL_TABLE.Count;
-            foreach (var item in ALL_TABLE)
-            {
+            foreach (var item in ALL_TABLE) {
                 string tableName = item.Key;
                 string name = item.Value.Name;
                 DataBaseInfo info = new DataBaseInfo();
@@ -51,8 +50,7 @@ namespace SuperCom.Config
 
             bool result = true;
 
-            foreach (var item in dataBaseInfos)
-            {
+            foreach (var item in dataBaseInfos) {
                 if (!item.Enabled || string.IsNullOrEmpty(item.TableName))
                     continue;
 
@@ -76,8 +74,7 @@ namespace SuperCom.Config
             Dictionary<string, object> dict = new Dictionary<string, object>();
 
 
-            foreach (var item in dataBaseInfo)
-            {
+            foreach (var item in dataBaseInfo) {
 
                 if (!item.Enabled)
                     continue;
@@ -113,8 +110,7 @@ namespace SuperCom.Config
 
             List<DataBaseInfo> result = new List<DataBaseInfo>();
 
-            foreach (var item in dict)
-            {
+            foreach (var item in dict) {
                 if (!ALL_TABLE.ContainsKey(item.Key))
                     continue;
 

@@ -7,13 +7,10 @@ using SuperUtils.Windows.WindowRegistry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SuperCom.Windows
@@ -38,71 +35,57 @@ namespace SuperCom.Windows
         }
 
         private bool _IsCom0ConInstalled = false;
-        public bool IsCom0ConInstalled
-        {
+        public bool IsCom0ConInstalled {
             get { return _IsCom0ConInstalled; }
-            set
-            {
+            set {
                 _IsCom0ConInstalled = value;
                 RaisePropertyChanged();
             }
         }
         private bool _IsCom0ConExeExists = false;
-        public bool IsCom0ConExeExists
-        {
+        public bool IsCom0ConExeExists {
             get { return _IsCom0ConExeExists; }
-            set
-            {
+            set {
                 _IsCom0ConExeExists = value;
                 RaisePropertyChanged();
             }
         }
         private bool _Saving = false;
-        public bool Saving
-        {
+        public bool Saving {
             get { return _Saving; }
-            set
-            {
+            set {
                 _Saving = value;
                 RaisePropertyChanged();
             }
         }
         private bool _AddingPort = false;
-        public bool AddingPort
-        {
+        public bool AddingPort {
             get { return _AddingPort; }
-            set
-            {
+            set {
                 _AddingPort = value;
                 RaisePropertyChanged();
             }
         }
         private bool _DeletingPort = false;
-        public bool DeletingPort
-        {
+        public bool DeletingPort {
             get { return _DeletingPort; }
-            set
-            {
+            set {
                 _DeletingPort = value;
                 RaisePropertyChanged();
             }
         }
         private bool _ListingPort = false;
-        public bool ListingPort
-        {
+        public bool ListingPort {
             get { return _ListingPort; }
-            set
-            {
+            set {
                 _ListingPort = value;
                 RaisePropertyChanged();
             }
         }
         private string _Com0ConInstalledPath = ConfigManager.VirtualPortSettings.Com0ConInstalledPath;
-        public string Com0ConInstalledPath
-        {
+        public string Com0ConInstalledPath {
             get { return _Com0ConInstalledPath; }
-            set
-            {
+            set {
                 _Com0ConInstalledPath = value;
                 RaisePropertyChanged();
                 ConfigManager.VirtualPortSettings.Com0ConInstalledPath = value;
@@ -110,11 +93,9 @@ namespace SuperCom.Windows
             }
         }
         private ObservableCollection<VirtualPort> _CurrentVirtualPorts;
-        public ObservableCollection<VirtualPort> CurrentVirtualPorts
-        {
+        public ObservableCollection<VirtualPort> CurrentVirtualPorts {
             get { return _CurrentVirtualPorts; }
-            set
-            {
+            set {
                 _CurrentVirtualPorts = value;
                 RaisePropertyChanged();
             }
@@ -124,8 +105,7 @@ namespace SuperCom.Windows
         {
             CurrentVirtualPorts = new ObservableCollection<VirtualPort>();
             InstalledApp app = RegistryHelper.GetInstalledApp(VirtualPortManager.COM_0_COM_PROGRAM_NAME);
-            if (app != null)
-            {
+            if (app != null) {
                 IsCom0ConInstalled = true;
                 string path = System.IO.Path.Combine(app.InstallLocation,
                     VirtualPortManager.COM_0_COM_PROGRAM_EXE_NAME);
@@ -135,8 +115,7 @@ namespace SuperCom.Windows
                 IsCom0ConExeExists = File.Exists(Com0ConInstalledPath);
                 VirtualPortManager.Init(Com0ConInstalledPath);
                 List<VirtualPort> virtualPorts = await VirtualPortManager.ListAllPort();
-                foreach (var item in virtualPorts)
-                {
+                foreach (var item in virtualPorts) {
                     CurrentVirtualPorts.Add(item);
                 }
                 await Task.Delay(100);
@@ -147,8 +126,7 @@ namespace SuperCom.Windows
 
         private void InstallCom0Com(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists(COM_0_COM_INSTALLED_PATH))
-            {
+            if (!File.Exists(COM_0_COM_INSTALLED_PATH)) {
                 MessageCard.Error($"不存在：{COM_0_COM_INSTALLED_PATH}");
                 return;
             }
@@ -166,13 +144,11 @@ namespace SuperCom.Windows
         private void SelectPath(object sender, RoutedEventArgs e)
         {
             string filePath = FileHelper.SelectFile(this, "setupc.exe|*.exe");
-            if (File.Exists(filePath) && filePath.EndsWith("setupc.exe"))
-            {
+            if (File.Exists(filePath) && filePath.EndsWith("setupc.exe")) {
                 Com0ConInstalledPath = filePath;
                 MessageNotify.Success("设置成功");
                 Init();
-            }
-            else
+            } else
                 MessageNotify.Error("必须是 setupc.exe");
 
         }
@@ -183,37 +159,30 @@ namespace SuperCom.Windows
                 return;
 
             bool deleted = false;
-            if (sender is Button button && button.Tag != null)
-            {
-                string id = button.Tag.ToString();
+            if (sender is FrameworkElement ele && ele.Tag != null) {
+                string id = ele.Tag.ToString();
                 if (string.IsNullOrEmpty(id))
                     return;
                 id = id.Replace(PORT_PREFIX_A, "").Replace(PORT_PREFIX_B, "");
                 int.TryParse(id, out int n);
-                if (n >= 0)
-                {
+                if (n >= 0) {
                     DeletingPort = true;
                     deleted = await VirtualPortManager.DeletePort(n);
                 }
             }
 
 
-            if (deleted && CurrentVirtualPorts != null && CurrentVirtualPorts.Count > 1)
-            {
+            if (deleted && CurrentVirtualPorts != null && CurrentVirtualPorts.Count > 1) {
                 int selectedIndex = dataGrid.SelectedIndex;
                 int small = -1, large = -1;
-                if (selectedIndex % 2 == 0)
-                {
+                if (selectedIndex % 2 == 0) {
                     large = selectedIndex + 1;
                     small = selectedIndex;
-                }
-                else
-                {
+                } else {
                     small = selectedIndex - 1;
                     large = selectedIndex;
                 }
-                if (small >= 0 && large < CurrentVirtualPorts.Count)
-                {
+                if (small >= 0 && large < CurrentVirtualPorts.Count) {
                     CurrentVirtualPorts.RemoveAt(large);
                     CurrentVirtualPorts.RemoveAt(small);
                 }
@@ -243,20 +212,16 @@ namespace SuperCom.Windows
         {
             // 检查是否输入
 
-            foreach (var item in CurrentVirtualPorts)
-            {
-                if (string.IsNullOrEmpty(item.PortName))
-                {
+            foreach (var item in CurrentVirtualPorts) {
+                if (string.IsNullOrEmpty(item.PortName)) {
                     MessageNotify.Error("存在未填写的串口号");
                     return false;
                 }
-                if (!VirtualPort.IsProperPortName(item.PortName))
-                {
+                if (!VirtualPort.IsProperPortName(item.PortName)) {
                     MessageNotify.Error("串口号填写错误");
                     return false;
                 }
-                if (!VirtualPort.IsProperNumber(item))
-                {
+                if (!VirtualPort.IsProperNumber(item)) {
                     MessageNotify.Error("数值填写有误");
                     return false;
                 }
@@ -264,8 +229,7 @@ namespace SuperCom.Windows
             }
 
             long count = CurrentVirtualPorts.Select(arg => arg.PortName).ToHashSet().Count();
-            if (count != CurrentVirtualPorts.Count)
-            {
+            if (count != CurrentVirtualPorts.Count) {
                 MessageNotify.Error("存在重复串口号");
                 return false;
             }
@@ -275,22 +239,19 @@ namespace SuperCom.Windows
             Saving = true;
             // 更新
             List<VirtualPort> toChange = new List<VirtualPort>();
-            foreach (var item in CurrentPorts)
-            {
+            foreach (var item in CurrentPorts) {
                 VirtualPort virtualPort = AllPorts.FirstOrDefault(arg => arg.PortName.Equals(item.PortName));
                 if (!item.Equals(virtualPort))
                     toChange.Add(item);
             }
-            if (toChange.Count == 0)
-            {
+            if (toChange.Count == 0) {
                 Saving = false;
                 MessageNotify.Info("无改动项");
                 return false;
             }
             bool success = await VirtualPortManager.UpdatePorts(toChange);
             Saving = false;
-            if (success)
-            {
+            if (success) {
                 MessageNotify.Success("成功");
                 Init();
                 return true;
@@ -306,8 +267,7 @@ namespace SuperCom.Windows
             string nameB = portNameB.Text;
 
             if (!VirtualPort.IsProperPortName(nameA) ||
-                !VirtualPort.IsProperPortName(nameB))
-            {
+                !VirtualPort.IsProperPortName(nameB)) {
                 MessageNotify.Error("串口号填写错误");
                 return;
             }
@@ -317,8 +277,7 @@ namespace SuperCom.Windows
             // 检查是否存在相同的
             List<VirtualPort> virtualPorts = await VirtualPortManager.ListAllPort();
             List<string> list = virtualPorts.Select(arg => arg.PortName).ToList();
-            if (list.Contains(nameA) || list.Contains(nameB))
-            {
+            if (list.Contains(nameA) || list.Contains(nameB)) {
                 MessageNotify.Error("已存在串口");
                 return;
             }
@@ -328,8 +287,7 @@ namespace SuperCom.Windows
             VirtualPort portB = new VirtualPort(nameB);
             AddingPort = true;
             bool success = await VirtualPortManager.InsertPort(portA, portB);
-            if (!success)
-            {
+            if (!success) {
                 MessageNotify.Error("添加失败");
                 AddingPort = false;
                 return;
@@ -357,13 +315,10 @@ namespace SuperCom.Windows
 
         private void portNameA_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Tab)
-            {
+            if (e.Key == Key.Tab) {
                 portNameB.SetFocus();
                 e.Handled = true;
-            }
-            else if (e.Key == Key.Enter)
-            {
+            } else if (e.Key == Key.Enter) {
                 AddNewVirtualPort(null, null);
             }
 
@@ -372,13 +327,10 @@ namespace SuperCom.Windows
 
         private void portNameB_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Tab)
-            {
+            if (e.Key == Key.Tab) {
                 portNameA.SetFocus();
                 e.Handled = true;
-            }
-            else if (e.Key == Key.Enter)
-            {
+            } else if (e.Key == Key.Enter) {
                 AddNewVirtualPort(null, null);
             }
 

@@ -28,7 +28,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static Main CreateInstance()
         {
-            if (_instance == null) _instance = new Main();
+            if (_instance == null)
+                _instance = new Main();
 
             return _instance;
         }
@@ -50,11 +51,9 @@ namespace SuperCom.Config.WindowConfig
         public long CommandsSelectIndex { get; set; }
 
         private bool _ShowRightPanel = true;
-        public bool ShowRightPanel
-        {
+        public bool ShowRightPanel {
             get { return _ShowRightPanel; }
-            set
-            {
+            set {
                 _ShowRightPanel = value;
                 RaisePropertyChanged();
             }
@@ -65,32 +64,26 @@ namespace SuperCom.Config.WindowConfig
 
 
         private bool _AutoWrap = false;
-        public bool AutoWrap
-        {
+        public bool AutoWrap {
             get { return _AutoWrap; }
-            set
-            {
+            set {
                 _AutoWrap = value;
                 RaisePropertyChanged();
             }
         }
         private bool _ShowEndOfLine = false;
-        public bool ShowEndOfLine
-        {
+        public bool ShowEndOfLine {
             get { return _ShowEndOfLine; }
-            set
-            {
+            set {
                 _ShowEndOfLine = value;
                 RaisePropertyChanged();
             }
         }
 
         private bool _ShowSpaces = false;
-        public bool ShowSpaces
-        {
+        public bool ShowSpaces {
             get { return _ShowSpaces; }
-            set
-            {
+            set {
                 _ShowSpaces = value;
                 RaisePropertyChanged();
             }
@@ -98,11 +91,9 @@ namespace SuperCom.Config.WindowConfig
 
 
         private bool _ShowTabs = false;
-        public bool ShowTabs
-        {
+        public bool ShowTabs {
             get { return _ShowTabs; }
-            set
-            {
+            set {
                 _ShowTabs = value;
                 RaisePropertyChanged();
             }
@@ -110,11 +101,9 @@ namespace SuperCom.Config.WindowConfig
 
 
         private bool _HighlightCurrentLine = true;
-        public bool HighlightCurrentLine
-        {
+        public bool HighlightCurrentLine {
             get { return _HighlightCurrentLine; }
-            set
-            {
+            set {
                 _HighlightCurrentLine = value;
                 RaisePropertyChanged();
             }
@@ -122,11 +111,9 @@ namespace SuperCom.Config.WindowConfig
 
 
         private bool _ShowLineNumbers = true;
-        public bool ShowLineNumbers
-        {
+        public bool ShowLineNumbers {
             get { return _ShowLineNumbers; }
-            set
-            {
+            set {
                 _ShowLineNumbers = value;
                 RaisePropertyChanged();
             }
@@ -134,21 +121,17 @@ namespace SuperCom.Config.WindowConfig
 
 
         private string _TextFontName = "微软雅黑";
-        public string TextFontName
-        {
+        public string TextFontName {
             get { return _TextFontName; }
-            set
-            {
+            set {
                 _TextFontName = value;
                 RaisePropertyChanged();
             }
         }
         private string _TextForeground = "";
-        public string TextForeground
-        {
+        public string TextForeground {
             get { return _TextForeground; }
-            set
-            {
+            set {
                 _TextForeground = value;
                 RaisePropertyChanged();
             }

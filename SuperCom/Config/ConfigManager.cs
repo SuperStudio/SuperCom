@@ -34,8 +34,7 @@ namespace SuperCom.Config
         public static void InitConfig()
         {
             System.Reflection.PropertyInfo[] propertyInfos = typeof(ConfigManager).GetProperties();
-            foreach (var item in propertyInfos)
-            {
+            foreach (var item in propertyInfos) {
                 AbstractConfig config = item.GetValue(null) as AbstractConfig;
                 if (config == null)
                     throw new Exception("无法识别的 AbstractConfig");

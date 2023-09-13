@@ -37,30 +37,25 @@ namespace SuperCom.ViewModel
         public List<AdvancedSend> AllProjects { get; set; }
 
         private ObservableCollection<AdvancedSend> _CurrentProjects;
-        public ObservableCollection<AdvancedSend> CurrentProjects
-        {
+        public ObservableCollection<AdvancedSend> CurrentProjects {
             get { return _CurrentProjects; }
             set { _CurrentProjects = value; RaisePropertyChanged(); }
         }
 
         private ObservableCollection<SendCommand> _SendCommands;
 
-        public ObservableCollection<SendCommand> SendCommands
-        {
+        public ObservableCollection<SendCommand> SendCommands {
             get { return _SendCommands; }
-            set
-            {
+            set {
                 _SendCommands = value;
                 RaisePropertyChanged();
             }
         }
         private long _CurrentProjectID;
 
-        public long CurrentProjectID
-        {
+        public long CurrentProjectID {
             get { return _CurrentProjectID; }
-            set
-            {
+            set {
                 _CurrentProjectID = value;
                 RaisePropertyChanged();
             }
@@ -68,33 +63,27 @@ namespace SuperCom.ViewModel
 
         private bool _ShowCurrentSendCommand;
 
-        public bool ShowCurrentSendCommand
-        {
+        public bool ShowCurrentSendCommand {
             get { return _ShowCurrentSendCommand; }
-            set
-            {
+            set {
                 _ShowCurrentSendCommand = value;
                 RaisePropertyChanged();
             }
         }
 
         private bool _RunningCommands;
-        public bool RunningCommands
-        {
+        public bool RunningCommands {
             get { return _RunningCommands; }
-            set
-            {
+            set {
                 _RunningCommands = value;
                 RaisePropertyChanged();
                 OnRunCommand?.Invoke(value);
             }
         }
         private double _WindowOpacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
-        public double WindowOpacity
-        {
+        public double WindowOpacity {
             get { return _WindowOpacity; }
-            set
-            {
+            set {
                 _WindowOpacity = value;
                 RaisePropertyChanged();
             }
@@ -103,17 +92,14 @@ namespace SuperCom.ViewModel
         public Dictionary<SideComPort, bool> SideComPortSelected { get; set; }
 
         private ObservableCollection<SideComPort> _SideComPorts;
-        public ObservableCollection<SideComPort> SideComPorts
-        {
+        public ObservableCollection<SideComPort> SideComPorts {
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
         private int _SideIndex = (int)ConfigManager.AdvancedSendSettings.SideIndex;
-        public int SideIndex
-        {
+        public int SideIndex {
             get { return _SideIndex; }
-            set
-            {
+            set {
                 _SideIndex = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.SideIndex = value;
@@ -121,11 +107,9 @@ namespace SuperCom.ViewModel
             }
         }
         private int _ComPortSelectedIndex = (int)ConfigManager.AdvancedSendSettings.ComPortSelectedIndex;
-        public int ComPortSelectedIndex
-        {
+        public int ComPortSelectedIndex {
             get { return _ComPortSelectedIndex; }
-            set
-            {
+            set {
                 _ComPortSelectedIndex = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.ComPortSelectedIndex = value;
@@ -133,11 +117,9 @@ namespace SuperCom.ViewModel
             }
         }
         private bool _ShowLogGrid = ConfigManager.AdvancedSendSettings.ShowLogGrid;
-        public bool ShowLogGrid
-        {
+        public bool ShowLogGrid {
             get { return _ShowLogGrid; }
-            set
-            {
+            set {
                 _ShowLogGrid = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.ShowLogGrid = value;
@@ -145,11 +127,9 @@ namespace SuperCom.ViewModel
             }
         }
         private bool _LogAutoWrap = ConfigManager.AdvancedSendSettings.LogAutoWrap;
-        public bool LogAutoWrap
-        {
+        public bool LogAutoWrap {
             get { return _LogAutoWrap; }
-            set
-            {
+            set {
                 _LogAutoWrap = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.LogAutoWrap = value;
@@ -157,11 +137,9 @@ namespace SuperCom.ViewModel
             }
         }
         private double _LogOpacity = ConfigManager.AdvancedSendSettings.LogOpacity;
-        public double LogOpacity
-        {
+        public double LogOpacity {
             get { return _LogOpacity; }
-            set
-            {
+            set {
                 _LogOpacity = value;
                 RaisePropertyChanged();
                 ConfigManager.AdvancedSendSettings.LogOpacity = value;
@@ -171,24 +149,20 @@ namespace SuperCom.ViewModel
 
 
 
-        private void Init()
+        public override void Init()
         {
             CurrentProjects = new ObservableCollection<AdvancedSend>();
             SendCommands = new ObservableCollection<SendCommand>();
             AllProjects = new List<AdvancedSend>();
             // 从数据库中读取
-            if (Mapper != null)
-            {
+            if (Mapper != null) {
                 AllProjects = Mapper.SelectList();
-                foreach (var item in AllProjects)
-                {
+                foreach (var item in AllProjects) {
                     CurrentProjects.Add(item);
                 }
             }
-            foreach (Window window in App.Current.Windows)
-            {
-                if (window.Name.Equals("mainWindow"))
-                {
+            foreach (Window window in App.Current.Windows) {
+                if (window.Name.Equals("mainWindow")) {
                     Main = (MainWindow)window;
                     break;
                 }
@@ -199,17 +173,13 @@ namespace SuperCom.ViewModel
         public void SearchProject(string name)
         {
             CurrentProjects = new ObservableCollection<AdvancedSend>();
-            if (string.IsNullOrEmpty(name))
-            {
+            if (string.IsNullOrEmpty(name)) {
                 AllProjects = Mapper.SelectList();
                 foreach (var item in AllProjects)
                     CurrentProjects.Add(item);
-            }
-            else
-            {
+            } else {
                 foreach (var item in AllProjects.Where(arg => arg.ProjectName
-                    .ToLower().IndexOf(name.ToLower()) >= 0))
-                {
+                    .ToLower().IndexOf(name.ToLower()) >= 0)) {
                     CurrentProjects.Add(item);
                 }
             }
@@ -228,8 +198,7 @@ namespace SuperCom.ViewModel
             SideComPorts = new ObservableCollection<SideComPort>();
             SideComPortSelected = new Dictionary<SideComPort, bool>();
             Dictionary<string, bool> dict = JsonUtils.TryDeserializeObject<Dictionary<string, bool>>(ConfigManager.AdvancedSendSettings.SelectedPortNamesJson);
-            foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer()))
-            {
+            foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer())) {
                 SideComPorts.Add(item);
                 bool isChecked = false;
                 // 设置选中
@@ -242,8 +211,7 @@ namespace SuperCom.ViewModel
         public void UpdateProject(AdvancedSend send)
         {
             int count = Mapper.UpdateById(send);
-            if (count <= 0)
-            {
+            if (count <= 0) {
                 Logger.Error($"insert error: {send.ProjectName}");
             }
         }
@@ -251,8 +219,7 @@ namespace SuperCom.ViewModel
         public void RenameProject(AdvancedSend send)
         {
             bool result = Mapper.UpdateFieldById("ProjectName", send.ProjectName, send.ProjectID);
-            if (!result)
-            {
+            if (!result) {
                 Logger.Error($"update error {send.ProjectName}");
             }
         }
@@ -260,24 +227,21 @@ namespace SuperCom.ViewModel
         public void DeleteProject(AdvancedSend send)
         {
             int count = Mapper.DeleteById(send.ProjectID);
-            if (count <= 0)
-            {
+            if (count <= 0) {
                 Logger.Error($"delete error {send.ProjectName}");
-            }
-            else
-            {
+            } else {
                 ShowCurrentSendCommand = false;
             }
         }
 
         public void AddProject(string projectName)
         {
-            if (string.IsNullOrEmpty(projectName)) return;
+            if (string.IsNullOrEmpty(projectName))
+                return;
             AdvancedSend send = new AdvancedSend();
             send.ProjectName = projectName;
             bool success = Mapper.Insert(send);
-            if (success)
-            {
+            if (success) {
                 CurrentProjects.Add(send);
                 AllProjects.Add(send);
                 Logger.Info($"new project: {projectName}");

@@ -1,5 +1,6 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
 using System.Collections.Generic;
@@ -37,8 +38,7 @@ namespace SuperCom.Entity
         public string Name { get; set; }
 
         private int _Order;
-        public int Order
-        {
+        public int Order {
             get { return _Order; }
             set { _Order = value; RaisePropertyChanged(); }
         }
@@ -46,48 +46,48 @@ namespace SuperCom.Entity
         public int Delay { get; set; }
         public bool Running { get; set; }
         private RunningStatus _Status = RunningStatus.WaitingToRun;
-        public RunningStatus Status
-        {
+        public RunningStatus Status {
             get { return _Status; }
-            set
-            {
-                _Status = value; RaisePropertyChanged();
+            set {
+                _Status = value;
+                RaisePropertyChanged();
                 StatusText = RUN_STATUS_TABLE[value];
             }
         }
         private string _StatusText = "就绪";
-        public string StatusText
-        {
+        public string StatusText {
             get { return _StatusText; }
             set { _StatusText = value; RaisePropertyChanged(); }
         }
         private string _RecvResult = "";
-        public string RecvResult
-        {
+        public string RecvResult {
             get { return _RecvResult; }
             set { _RecvResult = value; RaisePropertyChanged(); }
         }
         private int _RecvTimeOut = DEFAULT_TIMEOUT;
-        public int RecvTimeOut
-        {
+        public int RecvTimeOut {
             get { return _RecvTimeOut; }
             set { _RecvTimeOut = value; RaisePropertyChanged(); }
         }
         private bool _IsResultCheck = false;
-        public bool IsResultCheck
-        {
+        public bool IsResultCheck {
             get { return _IsResultCheck; }
             set { _IsResultCheck = value; RaisePropertyChanged(); }
         }
 
         public static long GenerateID(List<long> id_list)
         {
-            for (long i = 0; i <= id_list.Count; i++)
-            {
-                if (id_list.Contains(i)) continue;
+            for (long i = 0; i <= id_list.Count; i++) {
+                if (id_list.Contains(i))
+                    continue;
                 return i;
             }
             return 0;
+        }
+
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
         }
     }
 
@@ -139,10 +139,8 @@ namespace SuperCom.Entity
         public static void InitSqlite()
         {
             SqliteMapper<AdvancedSend> mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in AdvancedSend.SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
+            foreach (var item in AdvancedSend.SqliteTable.Table.Keys) {
+                if (!mapper.IsTableExists(item)) {
                     mapper.CreateTable(item, AdvancedSend.SqliteTable.Table[item]);
                 }
             }

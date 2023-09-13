@@ -37,29 +37,22 @@ namespace SuperCom
             this.DataContext = vieModel;
             dataGrid.ItemsSource = vieModel.SendCommands;
 
-            foreach (Window window in App.Current.Windows)
-            {
-                if (window.Name.Equals("mainWindow"))
-                {
+            foreach (Window window in App.Current.Windows) {
+                if (window.Name.Equals("mainWindow")) {
                     Main = (MainWindow)window;
                     break;
                 }
             }
 
-            vieModel.OnRunCommand += (running) =>
-            {
-                if (running)
-                {
+            vieModel.OnRunCommand += (running) => {
+                if (running) {
                     this.Owner = Main;
-                    if (ConfigManager.AdvancedSendSettings.WindowOpacity < AdvancedSendSettings.DEFAULT_WINDOW_OPACITY)
-                    {
+                    if (ConfigManager.AdvancedSendSettings.WindowOpacity < AdvancedSendSettings.DEFAULT_WINDOW_OPACITY) {
                         ConfigManager.AdvancedSendSettings.WindowOpacity = AdvancedSendSettings.DEFAULT_WINDOW_OPACITY;
                         ConfigManager.AdvancedSendSettings.Save();
                     }
                     //this.Opacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
-                }
-                else
-                {
+                } else {
                     this.Owner = null;
                     //this.Opacity = 1;
                 }
@@ -72,12 +65,9 @@ namespace SuperCom
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
 
-            if (Main != null && Main.vieModel != null && Main?.vieModel.HighlightingDefinitions?.Count > 0)
-            {
-                foreach (var item in Main?.vieModel.HighlightingDefinitions)
-                {
-                    if (item.Name.Equals("ComLog"))
-                    {
+            if (Main != null && Main.vieModel != null && Main?.vieModel.HighlightingDefinitions?.Count > 0) {
+                foreach (var item in Main?.vieModel.HighlightingDefinitions) {
+                    if (item.Name.Equals("ComLog")) {
                         logTextBox.SyntaxHighlighting = item;
                         break;
                     }
@@ -86,8 +76,7 @@ namespace SuperCom
 
 
             }
-            if (Main != null && Main.vieModel != null && vieModel.CurrentProjects?.Count > 0)
-            {
+            if (Main != null && Main.vieModel != null && vieModel.CurrentProjects?.Count > 0) {
                 if (SideSelectedIndex < 0 || SideSelectedIndex > vieModel.CurrentProjects.Count)
                     SideSelectedIndex = 0;
                 sideListBox.SelectedIndex = SideSelectedIndex;
@@ -98,20 +87,13 @@ namespace SuperCom
 
         }
 
-        private void AddNewProject(object sender, MouseButtonEventArgs e)
-        {
-            // 保存
-            vieModel.AddProject(DEFAULT_PROJECT_NAME);
-            DataChanged();
 
-        }
 
         private void DeleteProject(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            if (button.Tag != null)
-            {
-                int.TryParse(button.Tag.ToString(), out int projectID);
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele.Tag != null) {
+                int.TryParse(ele.Tag.ToString(), out int projectID);
                 DeleteProjectByID(projectID);
 
             }
@@ -123,16 +105,13 @@ namespace SuperCom
                 return;
 
             int idx = -1;
-            for (int i = 0; i < vieModel.CurrentProjects.Count; i++)
-            {
-                if (vieModel.CurrentProjects[i].ProjectID == projectID)
-                {
+            for (int i = 0; i < vieModel.CurrentProjects.Count; i++) {
+                if (vieModel.CurrentProjects[i].ProjectID == projectID) {
                     idx = i;
                     break;
                 }
             }
-            if (idx >= 0 && idx < vieModel.CurrentProjects.Count)
-            {
+            if (idx >= 0 && idx < vieModel.CurrentProjects.Count) {
                 string projectName = vieModel.CurrentProjects[idx].ProjectName;
                 vieModel.DeleteProject(vieModel.CurrentProjects[idx]);
                 vieModel.CurrentProjects.RemoveAt(idx);
@@ -147,8 +126,7 @@ namespace SuperCom
         private void DeleteProjectInMenuItem(object sender, RoutedEventArgs e)
         {
             MenuItem menuItem = sender as MenuItem;
-            if (menuItem.Tag != null)
-            {
+            if (menuItem.Tag != null) {
                 int.TryParse(menuItem.Tag.ToString(), out int projectID);
                 DeleteProjectByID(projectID);
             }
@@ -169,8 +147,7 @@ namespace SuperCom
 
         public void ShowProjectById(string projectID)
         {
-            if (!string.IsNullOrEmpty(projectID))
-            {
+            if (!string.IsNullOrEmpty(projectID)) {
                 AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
                 ShowProjectBySend(advancedSend);
             }
@@ -185,10 +162,8 @@ namespace SuperCom
             List<SendCommand> sendCommands = new List<SendCommand>();
             if (!string.IsNullOrEmpty(advancedSend.Commands))
                 sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
-            if (sendCommands != null && sendCommands.Count > 0)
-            {
-                foreach (var item in sendCommands.OrderBy(arg => arg.Order))
-                {
+            if (sendCommands != null && sendCommands.Count > 0) {
+                foreach (var item in sendCommands.OrderBy(arg => arg.Order)) {
                     vieModel.SendCommands.Add(item);
                 }
 
@@ -203,7 +178,8 @@ namespace SuperCom
 
         private void AddNewSendCommand(object sender, RoutedEventArgs e)
         {
-            if (vieModel.SendCommands == null) vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
+            if (vieModel.SendCommands == null)
+                vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
             SendCommand send = new SendCommand();
             send.CommandID = SendCommand.GenerateID(vieModel.SendCommands.Select(arg => arg.CommandID).ToList());
             send.Delay = SendCommand.DEFAULT_DELAY;
@@ -213,12 +189,10 @@ namespace SuperCom
                 send.Order = 1;
             send.Command = "";
             AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
-            if (advancedSend != null)
-            {
+            if (advancedSend != null) {
                 if (advancedSend.CommandList == null)
                     advancedSend.CommandList = new List<SendCommand>();
-                if (!string.IsNullOrEmpty(advancedSend.Commands))
-                {
+                if (!string.IsNullOrEmpty(advancedSend.Commands)) {
                     advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
                 }
 
@@ -236,19 +210,15 @@ namespace SuperCom
 
         private void DeleteCommand(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            if (button != null && button.Tag != null)
-            {
-                string commandID = button.Tag.ToString();
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Tag != null) {
+                string commandID = ele.Tag.ToString();
                 SendCommand sendCommand = vieModel.SendCommands.Where(arg => arg.CommandID.ToString().Equals(commandID)).FirstOrDefault();
-                if (sendCommand != null)
-                {
+                if (sendCommand != null) {
                     vieModel.SendCommands.Remove(sendCommand);
                     AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
-                    if (advancedSend != null)
-                    {
-                        if (!string.IsNullOrEmpty(advancedSend.Commands))
-                        {
+                    if (advancedSend != null) {
+                        if (!string.IsNullOrEmpty(advancedSend.Commands)) {
                             advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
                             advancedSend.CommandList.RemoveAll(arg => arg.CommandID == sendCommand.CommandID);
                             advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
@@ -264,9 +234,9 @@ namespace SuperCom
 
         private Window GetWindowByName(string name)
         {
-            foreach (Window item in App.Current.Windows)
-            {
-                if (item.Name.Equals(name)) return item;
+            foreach (Window item in App.Current.Windows) {
+                if (item.Name.Equals(name))
+                    return item;
             }
             return null;
         }
@@ -277,10 +247,8 @@ namespace SuperCom
         {
             string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
             AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
-            if (advancedSend != null && !string.IsNullOrEmpty(commands))
-            {
-                if (!commands.Equals(advancedSend.Commands))
-                {
+            if (advancedSend != null && !string.IsNullOrEmpty(commands)) {
+                if (!commands.Equals(advancedSend.Commands)) {
                     advancedSend.Commands = commands;
                     vieModel.UpdateProject(advancedSend);
                     DataChanged();
@@ -294,8 +262,7 @@ namespace SuperCom
             ContextMenu contextMenu = menuItem.Parent as ContextMenu;
             Grid grid = contextMenu.PlacementTarget as Grid;
             TextBox textBox = grid.Children.OfType<TextBox>().FirstOrDefault();
-            if (textBox != null)
-            {
+            if (textBox != null) {
                 textBox.Visibility = Visibility.Visible;
                 textBox.SelectAll();
                 textBox.Focus();
@@ -314,29 +281,25 @@ namespace SuperCom
 
 
 
-            if (textBox.Tag != null)
-            {
+            if (textBox.Tag != null) {
                 string projectID = textBox.Tag.ToString();
-                if (!string.IsNullOrEmpty(projectID))
-                {
+                if (!string.IsNullOrEmpty(projectID)) {
                     AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID.ToString().Equals(projectID)).FirstOrDefault();
-                    if (advancedSend == null) return;
+                    if (advancedSend == null)
+                        return;
                     string oldName = advancedSend.ProjectName;
-                    if (string.IsNullOrEmpty(newName))
-                    {
+                    if (string.IsNullOrEmpty(newName)) {
                         textBox.Text = oldName;
                         return;
                     }
 
-                    if (advancedSend != null && !oldName.Equals(newName))
-                    {
+                    if (advancedSend != null && !oldName.Equals(newName)) {
                         advancedSend.ProjectName = newName;
                         vieModel.RenameProject(advancedSend);
                         TextBlock textBlock = (textBox.Parent as Grid).Children.OfType<TextBlock>().FirstOrDefault();
                         textBlock.Text = newName;
                         DataChanged();
-                        if (!string.IsNullOrEmpty(projectSearchBox.Text))
-                        {
+                        if (!string.IsNullOrEmpty(projectSearchBox.Text)) {
                             if (newName.ToLower().IndexOf(projectSearchBox.Text) < 0)
                                 RemoveProjectById(projectID);
                         }
@@ -350,10 +313,8 @@ namespace SuperCom
         private void RemoveProjectById(string id)
         {
             int idx = -1;
-            for (int i = 0; i < vieModel.CurrentProjects.Count; i++)
-            {
-                if (vieModel.CurrentProjects[i].ProjectID.ToString().Equals(id))
-                {
+            for (int i = 0; i < vieModel.CurrentProjects.Count; i++) {
+                if (vieModel.CurrentProjects[i].ProjectID.ToString().Equals(id)) {
                     idx = i;
                     break;
                 }
@@ -365,8 +326,7 @@ namespace SuperCom
 
         private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter || e.Key == Key.Escape)
-            {
+            if (e.Key == Key.Enter || e.Key == Key.Escape) {
                 RenameTextBoxLostFocus(sender, e);
             }
         }
@@ -376,20 +336,18 @@ namespace SuperCom
 
         private void StartCommands(object sender, RoutedEventArgs e)
         {
-            if (vieModel.SideComPortSelected?.Count == 0) return;
-            foreach (var item in vieModel.SendCommands)
-            {
+            if (vieModel.SideComPortSelected?.Count == 0)
+                return;
+            foreach (var item in vieModel.SendCommands) {
                 item.Status = RunningStatus.WaitingToRun;
             }
             CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
             List<string> portNames = new List<string>();
-            foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
-            {
+            foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
                 if (vieModel.SideComPortSelected[key])
                     portNames.Add(key.Name);
             }
-            if (portNames.Count == 0)
-            {
+            if (portNames.Count == 0) {
                 LogToTextBox("未选择任何串口");
                 return;
             }
@@ -398,18 +356,15 @@ namespace SuperCom
             Logger.Info("start send cmds");
 
             vieModel.RunningCommands = true;
-            Task.Run(async () =>
-            {
+            Task.Run(async () => {
                 int idx = 0;
-                while (vieModel.RunningCommands)
-                {
+                while (vieModel.RunningCommands) {
 
                     SendCommand command = CurrentSendCommands[idx];
                     if (idx < vieModel.SendCommands.Count)
                         vieModel.SendCommands[idx].Status = RunningStatus.Running;
 
-                    foreach (var portName in portNames)
-                    {
+                    foreach (var portName in portNames) {
                         bool success = await AsyncSendCommand(idx, portName, command);
 
                         Logger.Debug($"send cmd, port: {portName}, " +
@@ -425,8 +380,7 @@ namespace SuperCom
                     vieModel.SendCommands[idx].Status = RunningStatus.WaitingDelay;
                     LogToTextBox($"等待 {command.Delay} ms");
                     int delay = 10;
-                    for (int i = 1; i <= command.Delay; i += delay)
-                    {
+                    for (int i = 1; i <= command.Delay; i += delay) {
                         if (!vieModel.RunningCommands)
                             break;
                         await Task.Delay(delay);
@@ -435,19 +389,16 @@ namespace SuperCom
                     vieModel.SendCommands[idx].StatusText = $"0 ms";
                     vieModel.SendCommands[idx].Status = RunningStatus.WaitingToRun;
                     idx++;
-                    if (idx >= CurrentSendCommands.Count)
-                    {
+                    if (idx >= CurrentSendCommands.Count) {
                         idx = 0;
                         CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
                         // 更新选择的串口
                         portNames.Clear();
-                        foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
-                        {
+                        foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
                             if (vieModel.SideComPortSelected[key])
                                 portNames.Add(key.Name);
                         }
-                        if (portNames.Count == 0)
-                        {
+                        if (portNames.Count == 0) {
                             LogToTextBox("未选择任何串口");
                             vieModel.RunningCommands = false;
                             return;
@@ -460,11 +411,9 @@ namespace SuperCom
         public async Task<bool> AsyncSendCommand(int idx, string portName, SendCommand command)
         {
             bool success = false;
-            await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate
-            {
+            await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
                 SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null)
-                {
+                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null) {
                     LogToTextBox($"[E] 连接串口 {portName} 失败！");
                     success = false;
                     return;
@@ -472,11 +421,9 @@ namespace SuperCom
                 SerialPort port = serialComPort.PortTabItem.SerialPort;
                 PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 string value = command.Command;
-                if (port != null)
-                {
+                if (port != null) {
                     success = vieModel.Main.SendCommand(port, portTabItem, value);
-                    if (!success)
-                    {
+                    if (!success) {
                         LogToTextBox($"[E] 向串口 {portName} 发送命令失败  {value} ");
                         success = false;
                         return;
@@ -493,8 +440,7 @@ namespace SuperCom
 
         public void LogToTextBox(string text)
         {
-            Dispatcher.Invoke(() =>
-            {
+            Dispatcher.Invoke(() => {
                 logTextBox.AppendText($"[{DateHelper.Now()}] {text}{Environment.NewLine}");
                 // 保存到文件？
                 logTextBox.ScrollToEnd();
@@ -505,8 +451,7 @@ namespace SuperCom
         {
             Logger.Info("stop all cmd");
             vieModel.RunningCommands = false;
-            foreach (var item in vieModel.SendCommands)
-            {
+            foreach (var item in vieModel.SendCommands) {
                 item.Status = RunningStatus.WaitingToRun;
             }
         }
@@ -516,8 +461,7 @@ namespace SuperCom
             Button button = sender as Button;
             Grid grid = button.Parent as Grid;
             Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
-            if (popup != null)
-            {
+            if (popup != null) {
                 popup.IsOpen = true;
             }
         }
@@ -540,24 +484,18 @@ namespace SuperCom
         public void AdjustWindow()
         {
 
-            if (ConfigManager.AdvancedSendSettings.FirstRun)
-            {
+            if (ConfigManager.AdvancedSendSettings.FirstRun) {
                 this.Width = SystemParameters.WorkArea.Width * 0.7;
                 this.Height = SystemParameters.WorkArea.Height * 0.7;
                 this.Left = SystemParameters.WorkArea.Width * 0.1;
                 this.Top = SystemParameters.WorkArea.Height * 0.1;
                 ConfigManager.AdvancedSendSettings.FirstRun = false;
-            }
-            else
-            {
-                if (ConfigManager.AdvancedSendSettings.Height == SystemParameters.WorkArea.Height && ConfigManager.AdvancedSendSettings.Width < SystemParameters.WorkArea.Width)
-                {
+            } else {
+                if (ConfigManager.AdvancedSendSettings.Height == SystemParameters.WorkArea.Height && ConfigManager.AdvancedSendSettings.Width < SystemParameters.WorkArea.Width) {
                     //baseWindowState = 0;
                     this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     this.CanResize = true;
-                }
-                else
-                {
+                } else {
                     this.Left = ConfigManager.AdvancedSendSettings.X;
                     this.Top = ConfigManager.AdvancedSendSettings.Y;
                     this.Width = ConfigManager.AdvancedSendSettings.Width;
@@ -599,7 +537,8 @@ namespace SuperCom
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (vieModel.SideComPortSelected?.Count == 0) return;
+            if (vieModel.SideComPortSelected?.Count == 0)
+                return;
             CheckBox checkBox = sender as CheckBox;
             string portName = checkBox.Content.ToString();
             SetCheckedStatus(portName, true);
@@ -607,12 +546,9 @@ namespace SuperCom
 
         private void SetCheckedStatus(string portName, bool status)
         {
-            if (!string.IsNullOrEmpty(portName))
-            {
-                foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
-                {
-                    if (key.Name.Equals(portName))
-                    {
+            if (!string.IsNullOrEmpty(portName)) {
+                foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
+                    if (key.Name.Equals(portName)) {
                         vieModel.SideComPortSelected[key] = status;
                         break;
                     }
@@ -620,8 +556,7 @@ namespace SuperCom
             }
             // 保存状态
             Dictionary<string, bool> dict = new Dictionary<string, bool>();
-            foreach (SideComPort key in vieModel.SideComPortSelected.Keys)
-            {
+            foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
                 dict.Add(key.Name, vieModel.SideComPortSelected[key]);
             }
             ConfigManager.AdvancedSendSettings.SelectedPortNamesJson = JsonUtils.TrySerializeObject(dict);
@@ -630,7 +565,8 @@ namespace SuperCom
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (vieModel.SideComPortSelected?.Count == 0) return;
+            if (vieModel.SideComPortSelected?.Count == 0)
+                return;
             CheckBox checkBox = sender as CheckBox;
             string portName = checkBox.Content.ToString();
             SetCheckedStatus(portName, false);
@@ -648,11 +584,10 @@ namespace SuperCom
 
         private void CopyCommand(object sender, RoutedEventArgs e)
         {
-            Button button = sender as Button;
-            Border border = (button.Parent as Grid).Children.OfType<Border>().LastOrDefault();
+            FrameworkElement ele = sender as FrameworkElement;
+            Border border = (ele.Parent as Grid).Children.OfType<Border>().LastOrDefault();
             SearchBox searchBox = border.Child as SearchBox;
-            if (!string.IsNullOrEmpty(searchBox.Text))
-            {
+            if (!string.IsNullOrEmpty(searchBox.Text)) {
                 bool v = ClipBoard.TrySetDataObject(searchBox.Text);
                 if (v)
                     MessageNotify.Success("已复制");
@@ -687,6 +622,11 @@ namespace SuperCom
             MessageNotify.Success("保存成功");
         }
 
-
+        private void AddNewProject(object sender, RoutedEventArgs e)
+        {
+            // 保存
+            vieModel.AddProject(DEFAULT_PROJECT_NAME);
+            DataChanged();
+        }
     }
 }

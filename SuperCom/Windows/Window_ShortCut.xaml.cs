@@ -6,9 +6,7 @@ using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,8 +38,7 @@ namespace SuperCom
             dataGrid.ItemsSource = null;
             ShortCutBindings = new ObservableCollection<ShortCutBinding>();
             List<ShortCutBinding> shortCutBindings = Mapper.SelectList();
-            foreach (var item in shortCutBindings)
-            {
+            foreach (var item in shortCutBindings) {
                 item.RefreshKeyList();
                 ShortCutBindings.Add(item);
 
@@ -50,8 +47,7 @@ namespace SuperCom
             dataGrid.ItemsSource = ShortCutBindings;
 
             Window window = SuperUtils.WPF.VisualTools.WindowHelper.GetWindowByName("MainWindow", App.Current.Windows);
-            if (window != null && window is MainWindow w)
-            {
+            if (window != null && window is MainWindow w) {
                 MainWindow = w;
             }
 
@@ -60,8 +56,7 @@ namespace SuperCom
         private List<ShortCutBinding> ShortCutBindingList;
 
         private ObservableCollection<ShortCutBinding> _ShortCutBindings;
-        public ObservableCollection<ShortCutBinding> ShortCutBindings
-        {
+        public ObservableCollection<ShortCutBinding> ShortCutBindings {
             get { return _ShortCutBindings; }
             set { _ShortCutBindings = value; RaisePropertyChanged(); }
         }
@@ -85,10 +80,8 @@ namespace SuperCom
         public void DoSearch(string text)
         {
             ShortCutBindings = new ObservableCollection<ShortCutBinding>();
-            if (string.IsNullOrEmpty(text))
-            {
-                foreach (var item in ShortCutBindingList)
-                {
+            if (string.IsNullOrEmpty(text)) {
+                foreach (var item in ShortCutBindingList) {
                     ShortCutBindings.Add(item);
                 }
                 dataGrid.ItemsSource = null;
@@ -99,47 +92,36 @@ namespace SuperCom
             text = text.ToLower();
             List<string> searchList = text.Split(' ').ToList();
             bool searchKey = false;
-            if (text.IndexOf(ADD_STRING) > 0)
-            {
+            if (text.IndexOf(ADD_STRING) > 0) {
                 searchKey = true;
                 searchList = text.Split('+').ToList();
-            }
-
-            else
+            } else
                 searchList.Add(text);
 
             List<ShortCutBinding> found = new List<ShortCutBinding>();
 
             searchList.RemoveAll(arg => string.IsNullOrEmpty(arg));
 
-            if (searchKey)
-            {
+            if (searchKey) {
                 // 全量匹配
-                foreach (var item in ShortCutBindingList)
-                {
+                foreach (var item in ShortCutBindingList) {
                     List<string> keyList = item.KeyStringList.Select(arg => arg.ToLower()).ToList();
                     bool allInKeyList = !searchList.Except(keyList).Any();
                     if (allInKeyList)
                         found.Add(item);
                 }
-            }
-            else
-            {
+            } else {
                 // 搜索文字
-                foreach (ShortCutBinding item in ShortCutBindingList)
-                {
-                    foreach (var search in searchList)
-                    {
-                        if (item.KeyName.ToLower().IndexOf(search) >= 0 || item.KeyStringList.Any(arg => arg.ToLower().IndexOf(search) >= 0))
-                        {
+                foreach (ShortCutBinding item in ShortCutBindingList) {
+                    foreach (var search in searchList) {
+                        if (item.KeyName.ToLower().IndexOf(search) >= 0 || item.KeyStringList.Any(arg => arg.ToLower().IndexOf(search) >= 0)) {
                             found.Add(item);
                             break;
                         }
                     }
                 }
             }
-            foreach (ShortCutBinding binding in found)
-            {
+            foreach (ShortCutBinding binding in found) {
                 ShortCutBindings.Add(binding);
             }
             dataGrid.ItemsSource = null;
@@ -162,17 +144,14 @@ namespace SuperCom
             sameTextBlock.Visibility = Visibility.Collapsed;
             warningTextBlock.Visibility = Visibility.Collapsed;
             DataGridRow row = (DataGridRow)sender;
-            if (row != null)
-            {
+            if (row != null) {
                 int idx = row.GetIndex();
-                if (idx >= 0 && idx < dataGrid.Items.Count)
-                {
+                if (idx >= 0 && idx < dataGrid.Items.Count) {
                     ShortCutBinding shortcut = dataGrid.Items[idx] as ShortCutBinding;
                     List<int> keyCodeList = shortcut.KeyCodeList;
                     // 提取 funcKey
                     List<Key> allKey = new List<Key>();
-                    foreach (int keyCode in keyCodeList)
-                    {
+                    foreach (int keyCode in keyCodeList) {
                         Key key = (Key)keyCode;
                         if (KeyBoardHelper.IsFuncKey(key))
                             allKey.Insert(0, key);
@@ -180,8 +159,7 @@ namespace SuperCom
                             allKey.Add(key);
                     }
 
-                    if (allKey.Count > 0)
-                    {
+                    if (allKey.Count > 0) {
                         List<string> list = allKey.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
                         keyInputTextBox.Text = string.Join(ADD_STRING, list).RemoveKeyDiff();
                         //Keyboard.Focus(keyInputTextBox);
@@ -206,18 +184,13 @@ namespace SuperCom
         {
             Key currentKey = e.Key == Key.System ? e.SystemKey : e.Key;
 
-            if (currentKey == Key.Escape)
-            {
+            if (currentKey == Key.Escape) {
                 inputKeyPopup.IsOpen = false;
                 return;
-            }
-            else if (currentKey == Key.Back)
-            {
+            } else if (currentKey == Key.Back) {
                 keyInputTextBox.Text = "";
                 return;
-            }
-            else if (currentKey == Key.Enter)
-            {
+            } else if (currentKey == Key.Enter) {
                 // 保存该快捷方式
                 SaveKey();
                 inputKeyPopup.IsOpen = false;
@@ -225,18 +198,13 @@ namespace SuperCom
             }
 
 
-            if (KeyBoardHelper.IsFuncKey(currentKey))
-            {
+            if (KeyBoardHelper.IsFuncKey(currentKey)) {
                 if (!funcKeys.Contains(currentKey))
                     funcKeys.Add(currentKey);
-            }
-            else if (KeyBoardHelper.IsSupportFastKey(currentKey))
-            {
+            } else if (KeyBoardHelper.IsSupportFastKey(currentKey)) {
                 if (!normalKeys.Contains(currentKey))
                     normalKeys.Add(currentKey);
-            }
-            else
-            {
+            } else {
                 warningTextBlock.Visibility = Visibility.Visible;
                 return;
             }
@@ -252,13 +220,10 @@ namespace SuperCom
             keyInputTextBox.Text = string.Join(ADD_STRING, keys).RemoveKeyDiff();
             hiddenTextBlock.Text = string.Join(",", allkey.Select(arg => (int)arg));
             ShortCutBinding shortCutBinding = ShortCutBindingList.Where(arg => arg.Keys.ToLower().Equals(hiddenTextBlock.Text.ToLower())).FirstOrDefault();
-            if (shortCutBinding != null)
-            {
+            if (shortCutBinding != null) {
                 sameTextBlock.Text = $"存在冲突的快捷键：{shortCutBinding.KeyName}";
                 sameTextBlock.Visibility = Visibility.Visible;
-            }
-            else
-            {
+            } else {
                 sameTextBlock.Visibility = Visibility.Collapsed;
             }
 
@@ -271,12 +236,9 @@ namespace SuperCom
                 funcKeys.Contains(Key.RightShift) ||
                 KeyBoardHelper.IsFKey(currentKey);
 
-            if (!containsFunKey || currentKey == Key.None)
-            {
+            if (!containsFunKey || currentKey == Key.None) {
                 warningTextBlock.Visibility = Visibility.Visible;
-            }
-            else
-            {
+            } else {
                 warningTextBlock.Visibility = Visibility.Hidden;
             }
             e.Handled = true;
@@ -285,8 +247,7 @@ namespace SuperCom
 
         private void SaveKey()
         {
-            if (CurrentShortCutBinding != null && warningTextBlock.Visibility == Visibility.Hidden)
-            {
+            if (CurrentShortCutBinding != null && warningTextBlock.Visibility == Visibility.Hidden) {
                 CurrentShortCutBinding.Keys = hiddenTextBlock.Text;
                 CurrentShortCutBinding.RefreshKeyList();
                 Mapper.Update(CurrentShortCutBinding);
@@ -305,15 +266,12 @@ namespace SuperCom
             // 清除
             Key currentKey = e.Key == Key.System ? e.SystemKey : e.Key;
 
-            if (KeyBoardHelper.IsFuncKey(currentKey))
-            {
+            if (KeyBoardHelper.IsFuncKey(currentKey)) {
                 if (funcKeys.Contains(currentKey))
                     funcKeys.Remove(currentKey);
                 if (!fastKeys.Contains(currentKey))
                     fastKeys.Insert(0, currentKey);
-            }
-            else if (KeyBoardHelper.IsSupportFastKey(currentKey))
-            {
+            } else if (KeyBoardHelper.IsSupportFastKey(currentKey)) {
                 if (normalKeys.Contains(currentKey))
                     normalKeys.Remove(currentKey);
                 if (!fastKeys.Contains(currentKey))

@@ -34,13 +34,10 @@ namespace SuperCom.WatchDog
             if (Init)
                 return;
             Init = true;
-            Task.Run(async () =>
-            {
-                while (true)
-                {
+            Task.Run(async () => {
+                while (true) {
                     //Logger.Debug($"看门狗每 {WatchInterval / 1000} s 看一下门");
-                    if (!Feed())
-                    {
+                    if (!Feed()) {
                         // 通知程序
                         Logger.Debug("看门狗发飙了！");
                         OnNotFeed?.Invoke();

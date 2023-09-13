@@ -1,15 +1,11 @@
-﻿using SuperUtils.IO;
-using System;
+﻿using SuperUtils.Windows.WindowCmd;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Shapes;
-using System.IO;
-using SuperUtils.Windows.WindowCmd;
 
 namespace SuperCom.Entity
 {
@@ -41,12 +37,10 @@ namespace SuperCom.Entity
             VirtualPort result = new VirtualPort();
             result.ID = name;
             List<string> list = data.Split(' ')[1].Split(',').ToList();
-            if (list.Count > 0)
-            {
+            if (list.Count > 0) {
                 List<System.Reflection.PropertyInfo> propertyInfos = result.GetType().GetProperties().ToList();
                 List<string> names = propertyInfos.Select(arg => arg.Name).ToList();
-                foreach (var item in list)
-                {
+                foreach (var item in list) {
                     if (item.IndexOf("=") <= 0)
                         continue;
                     string key = item.Split('=')[0];
@@ -55,28 +49,20 @@ namespace SuperCom.Entity
                         continue;
                     key = key.Trim();
                     value = value.Trim();
-                    if (names.Contains(key))
-                    {
+                    if (names.Contains(key)) {
                         System.Reflection.PropertyInfo propertyInfo = propertyInfos.FirstOrDefault(arg => arg.Name.Equals(key));
-                        if (propertyInfo.PropertyType == typeof(bool))
-                        {
+                        if (propertyInfo.PropertyType == typeof(bool)) {
                             if (value.ToLower().Equals("yes"))
                                 propertyInfo.SetValue(result, true);
                             else
                                 propertyInfo.SetValue(result, false);
-                        }
-                        else if (propertyInfo.PropertyType == typeof(long))
-                        {
+                        } else if (propertyInfo.PropertyType == typeof(long)) {
                             long.TryParse(value, out long longValue);
                             propertyInfo.SetValue(result, longValue);
-                        }
-                        else if (propertyInfo.PropertyType == typeof(double))
-                        {
+                        } else if (propertyInfo.PropertyType == typeof(double)) {
                             double.TryParse(value, out double doubleValue);
                             propertyInfo.SetValue(result, doubleValue);
-                        }
-                        else if (propertyInfo.PropertyType == typeof(string))
-                        {
+                        } else if (propertyInfo.PropertyType == typeof(string)) {
                             propertyInfo.SetValue(result, value);
                         }
                     }
@@ -94,35 +80,29 @@ namespace SuperCom.Entity
                 return result;
             string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe list";
             bool completed = false;
-            await Task.Run(() =>
-            {
-                CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
-                {
+            await Task.Run(() => {
+                CmdHelper.Run($"cmd.exe", cmdParam, (output) => {
                     VirtualPort port = ParseVirtualPort(output);
                     if (port != null)
                         result.Add(port);
-                }, null, (ex) =>
-                {
+                }, null, (ex) => {
                     App.Logger.Error(ex.Message);
-                }, () =>
-                {
+                }, () => {
                     completed = true;
                 });
             });
 
             // 超时
-            await Task.Run(async () =>
-               {
-                   int time = 0;
-                   while (!completed)
-                   {
-                       await Task.Delay(100);
-                       time += 100;
-                       if (time > CMD_RUN_TIME_OUT)
-                           return false;
-                   }
-                   return completed;
-               });
+            await Task.Run(async () => {
+                int time = 0;
+                while (!completed) {
+                    await Task.Delay(100);
+                    time += 100;
+                    if (time > CMD_RUN_TIME_OUT)
+                        return false;
+                }
+                return completed;
+            });
             return result;
         }
 
@@ -136,25 +116,20 @@ namespace SuperCom.Entity
             string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe install PortName={portA.PortName} PortName={portB.PortName}";
             bool completed = false;
             int count = 0;
-            await Task.Run(() =>
-            {
-                CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
-                {
+            await Task.Run(() => {
+                CmdHelper.Run($"cmd.exe", cmdParam, (output) => {
                     App.Logger.Info(output);
                     if (output.IndexOf("logged as \"in use\"") >= 0)
                         count++;
                     completed = count == 2;
-                }, null, (ex) =>
-                {
+                }, null, (ex) => {
                     App.Logger.Error(ex.Message);
                 });
             });
             // 超时
-            return await Task.Run(async () =>
-            {
+            return await Task.Run(async () => {
                 int time = 0;
-                while (!completed)
-                {
+                while (!completed) {
                     await Task.Delay(100);
                     time += 100;
                     if (time > CMD_RUN_TIME_OUT)
@@ -173,28 +148,23 @@ namespace SuperCom.Entity
             string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe remove {n}";
             bool completed = false;
             int count = 0;
-            await Task.Run(() =>
-            {
-                CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
-                {
+            await Task.Run(() => {
+                CmdHelper.Run($"cmd.exe", cmdParam, (output) => {
                     App.Logger.Info(output);
                     if (output.IndexOf($"Removed CNCA{n}") >= 0 ||
                         output.IndexOf($"Removed CNCB{n}") >= 0)
                         count++;
                     completed = count == 2;
-                }, null, (ex) =>
-                {
+                }, null, (ex) => {
                     App.Logger.Error(ex.Message);
                     completed = true;
                 });
             });
 
             // 超时
-            return await Task.Run(async () =>
-            {
+            return await Task.Run(async () => {
                 int time = 0;
-                while (!completed)
-                {
+                while (!completed) {
                     await Task.Delay(100);
                     time += 100;
                     if (time > CMD_RUN_TIME_OUT)
@@ -206,16 +176,14 @@ namespace SuperCom.Entity
 
         public static async Task<bool> UpdatePorts(List<VirtualPort> ports)
         {
-            if (!File.Exists(AppPath) || ports == null || ports.Count == 0) return false;
+            if (!File.Exists(AppPath) || ports == null || ports.Count == 0)
+                return false;
             bool completed = false;
-            foreach (VirtualPort port in ports)
-            {
+            foreach (VirtualPort port in ports) {
                 string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe change {port.ID} {port.ToUpdateString()}";
                 App.Logger.Info($"执行命令：{cmdParam}");
-                await Task.Run(() =>
-                {
-                    CmdHelper.Run($"cmd.exe", cmdParam, (output) =>
-                    {
+                await Task.Run(() => {
+                    CmdHelper.Run($"cmd.exe", cmdParam, (output) => {
                         App.Logger.Info(output);
                         if (output.IndexOf($"Restarted {port.ID}") >= 0)
                             completed = true;
@@ -223,11 +191,9 @@ namespace SuperCom.Entity
                 });
 
                 // 超时
-                bool success = await Task.Run(async () =>
-                {
+                bool success = await Task.Run(async () => {
                     int time = 0;
-                    while (!completed)
-                    {
+                    while (!completed) {
                         await Task.Delay(100);
                         time += 100;
                         if (time > CMD_RUN_TIME_OUT)
@@ -289,7 +255,8 @@ namespace SuperCom.Entity
 
         public static bool IsProperNumber(VirtualPort port)
         {
-            if (port == null) return false;
+            if (port == null)
+                return false;
             if (port.AddRITO < 0 || port.AddRITO > MAX_MS_VALUE)
                 return false;
             if (port.AddRTTO < 0 || port.AddRTTO > MAX_MS_VALUE)
@@ -375,10 +342,8 @@ namespace SuperCom.Entity
                 return false;
             VirtualPort port = obj as VirtualPort;
             System.Reflection.PropertyInfo[] propertyInfos = port.GetType().GetProperties();
-            foreach (var item in propertyInfos)
-            {
-                if (item.GetValue(port) == null && item.GetValue(this) == null)
-                {
+            foreach (var item in propertyInfos) {
+                if (item.GetValue(port) == null && item.GetValue(this) == null) {
                     continue;
                 }
 
@@ -393,8 +358,7 @@ namespace SuperCom.Entity
         {
             int result = int.MinValue;
             System.Reflection.PropertyInfo[] propertyInfos = this.GetType().GetProperties();
-            foreach (var item in propertyInfos)
-            {
+            foreach (var item in propertyInfos) {
                 result += item.GetHashCode();
             }
             return result;
@@ -404,12 +368,12 @@ namespace SuperCom.Entity
         {
             StringBuilder builder = new StringBuilder();
             System.Reflection.PropertyInfo[] propertyInfos = this.GetType().GetProperties();
-            foreach (var item in propertyInfos)
-            {
+            foreach (var item in propertyInfos) {
                 if (item.Name.Equals("ID"))
                     continue;
                 object v = item.GetValue(this);
-                if (v == null) continue;
+                if (v == null)
+                    continue;
                 string str = v.ToString();
                 if (item.PropertyType == typeof(bool))
                     str = str.ToLower().Equals("true") ? "yes" : "no";

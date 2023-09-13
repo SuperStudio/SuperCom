@@ -3,12 +3,8 @@ using SuperControls.Style;
 using SuperControls.Style.Upgrade;
 using SuperUtils.Common;
 using SuperUtils.IO;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperCom.Config
 {
@@ -95,14 +91,15 @@ namespace SuperCom.Config
                 LICENSE = license;
 
             JArray array = FileHelper.TryReadConfigFromJson("UpgradeSources") as JArray;
-            if (array == null || array.Count == 0) return;
-            foreach (JObject obj in array)
-            {
-                if (obj == null) continue;
+            if (array == null || array.Count == 0)
+                return;
+            foreach (JObject obj in array) {
+                if (obj == null)
+                    continue;
                 Dictionary<string, string> dict = obj.ToObject<Dictionary<string, string>>();
-                if (dict == null) continue;
-                if (dict.ContainsKey("Name") && !string.IsNullOrEmpty(dict["Name"]))
-                {
+                if (dict == null)
+                    continue;
+                if (dict.ContainsKey("Name") && !string.IsNullOrEmpty(dict["Name"])) {
                     string value = dict["Name"];
 
                     PluginBasePath = dict.Get("PluginPath", PluginBasePath);
@@ -111,8 +108,7 @@ namespace SuperCom.Config
                     string UpgradeSource = dict.Get("UpgradeSource", "");
                     string UpdatePath = dict.Get("UpdatePath", "");
                     string ReleaseUrl = dict.Get("ReleaseUrl", "");
-                    if (UpgradeSourceDict.ContainsKey(value))
-                    {
+                    if (UpgradeSourceDict.ContainsKey(value)) {
                         UpgradeSource source = UpgradeSourceDict[value];
                         if (!string.IsNullOrEmpty(UpgradeSource))
                             source.BaseUrl = UpgradeSource;
@@ -121,9 +117,7 @@ namespace SuperCom.Config
                         if (!string.IsNullOrEmpty(ReleaseUrl))
                             source.ReleaseUrl = ReleaseUrl;
                         UpgradeSourceDict[value] = source;
-                    }
-                    else
-                    {
+                    } else {
                         UpgradeSource source = new UpgradeSource(UpgradeSource, ReleaseUrl, UpdatePath);
                         UpgradeSourceDict.Add(value, source);
                     }

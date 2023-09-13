@@ -1,6 +1,7 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
 using System;
@@ -80,13 +81,10 @@ namespace SuperCom.Entity
             builder.AppendLine($"<SyntaxDefinition name=\"{RuleName}\" xmlns=\"http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008\">");
             builder.AppendLine("    <RuleSet >");
 
-            if (!string.IsNullOrEmpty(RuleSetString))
-            {
+            if (!string.IsNullOrEmpty(RuleSetString)) {
                 RuleSetList = JsonUtils.TryDeserializeObject<List<RuleSet>>(RuleSetString);
-                if (RuleSetList != null && RuleSetList.Count > 0)
-                {
-                    foreach (RuleSet rule in RuleSetList)
-                    {
+                if (RuleSetList != null && RuleSetList.Count > 0) {
+                    foreach (RuleSet rule in RuleSetList) {
                         string ruleString = GetRuleString(rule);
                         if (!string.IsNullOrEmpty(ruleString))
                             builder.AppendLine(ruleString);
@@ -103,20 +101,18 @@ namespace SuperCom.Entity
         private string GetRuleString(RuleSet rule)
         {
             StringBuilder builder = new StringBuilder();
-            if (rule == null || string.IsNullOrEmpty(rule.RuleValue)) return null;
+            if (rule == null || string.IsNullOrEmpty(rule.RuleValue))
+                return null;
 
             string fontWeight = rule.Bold ? " fontWeight=\"bold\"" : "";
             string fontStyle = rule.Italic ? " fontStyle=\"italic\"" : "";
 
 
-            if (rule.RuleType == RuleType.KeyWord)
-            {
+            if (rule.RuleType == RuleType.KeyWord) {
                 builder.AppendLine($"       <Keywords{fontWeight}{fontStyle} foreground=\"{rule.Foreground}\">");
                 builder.AppendLine($"           <Word>{rule.RuleValue}</Word>");
                 builder.AppendLine("        </Keywords>");
-            }
-            else if (rule.RuleType == RuleType.Regex)
-            {
+            } else if (rule.RuleType == RuleType.Regex) {
                 builder.Append($"       <Rule{fontWeight}{fontStyle} foreground=\"{rule.Foreground}\">{rule.RuleValue}</Rule>");
             }
             return builder.ToString();
@@ -147,10 +143,8 @@ namespace SuperCom.Entity
         public static void InitSqlite()
         {
             SqliteMapper<HighLightRule> mapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
+            foreach (var item in SqliteTable.Table.Keys) {
+                if (!mapper.IsTableExists(item)) {
                     mapper.CreateTable(item, SqliteTable.Table[item]);
                 }
             }
@@ -184,9 +178,9 @@ namespace SuperCom.Entity
 
             public static long GenerateID(List<long> id_list)
             {
-                for (long i = 0; i <= id_list.Count; i++)
-                {
-                    if (id_list.Contains(i)) continue;
+                for (long i = 0; i <= id_list.Count; i++) {
+                    if (id_list.Contains(i))
+                        continue;
                     return i;
                 }
                 return 0;

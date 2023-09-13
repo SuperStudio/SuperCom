@@ -1,6 +1,4 @@
 ﻿using SuperUtils.Framework.ORM.Config;
-using System.Collections.Generic;
-using System.Windows;
 
 namespace SuperCom.Config.WindowConfig
 {
@@ -15,7 +13,8 @@ namespace SuperCom.Config.WindowConfig
 
         public static VarMonitorSetting CreateInstance()
         {
-            if (_instance == null) _instance = new VarMonitorSetting();
+            if (_instance == null)
+                _instance = new VarMonitorSetting();
 
             return _instance;
         }

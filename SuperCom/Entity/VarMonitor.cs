@@ -1,5 +1,6 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,11 +39,9 @@ namespace SuperCom.Entity
         public bool Enabled { get; set; }
         public int SortOrder { get; set; }
         private int _VarType;
-        public int VarType
-        {
+        public int VarType {
             get { return _VarType; }
-            set
-            {
+            set {
                 _VarType = value;
                 if (value <= 1)
                     CanDrawImage = true;
@@ -70,11 +69,9 @@ namespace SuperCom.Entity
 
         private bool _CanDrawImage = false;
         [TableField(exist: false)]
-        public bool CanDrawImage
-        {
+        public bool CanDrawImage {
             get { return _CanDrawImage; }
-            set
-            {
+            set {
                 _CanDrawImage = value;
                 RaisePropertyChanged();
             }
@@ -130,10 +127,8 @@ namespace SuperCom.Entity
         public static void InitSqlite()
         {
             SqliteMapper<VarMonitor> mapper = new SqliteMapper<VarMonitor>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
+            foreach (var item in SqliteTable.Table.Keys) {
+                if (!mapper.IsTableExists(item)) {
                     mapper.CreateTable(item, SqliteTable.Table[item]);
                 }
             }
@@ -145,10 +140,8 @@ namespace SuperCom.Entity
                 return false;
             VarMonitor monitor = obj as VarMonitor;
             System.Reflection.PropertyInfo[] propertyInfos = monitor.GetType().GetProperties();
-            foreach (var item in propertyInfos)
-            {
-                if (item.GetValue(monitor) == null && item.GetValue(this) == null)
-                {
+            foreach (var item in propertyInfos) {
+                if (item.GetValue(monitor) == null && item.GetValue(this) == null) {
                     continue;
                 }
 
@@ -163,8 +156,7 @@ namespace SuperCom.Entity
         {
             int result = int.MinValue;
             System.Reflection.PropertyInfo[] propertyInfos = this.GetType().GetProperties();
-            foreach (var item in propertyInfos)
-            {
+            foreach (var item in propertyInfos) {
                 result += item.GetHashCode();
             }
             return result;

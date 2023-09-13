@@ -1,14 +1,12 @@
 ﻿using SuperCom.Config;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
+using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SuperCom.Entity
@@ -60,13 +58,10 @@ namespace SuperCom.Entity
         {
             KeyCodeList = new List<int>();
             KeyStringList = new ObservableCollection<string>();
-            if (!string.IsNullOrEmpty(this.Keys))
-            {
-                foreach (var item in this.Keys.Split(','))
-                {
+            if (!string.IsNullOrEmpty(this.Keys)) {
+                foreach (var item in this.Keys.Split(',')) {
                     bool s = int.TryParse(item, out int key);
-                    if (s)
-                    {
+                    if (s) {
                         KeyCodeList.Add(key);
                         Key k = (Key)key;
                         KeyStringList.Add(KeyBoardHelper.KeyToString(k).RemoveKeyDiff());
@@ -90,12 +85,10 @@ namespace SuperCom.Entity
             this.KeyID = id;
             this.KeyName = name;
             this.KeyList = new List<Key>();
-            if (keyList != null)
-            {
+            if (keyList != null) {
                 this.KeyCodeList = new List<int>();
                 this.KeyStringList = new ObservableCollection<string>();
-                foreach (var key in keyList)
-                {
+                foreach (var key in keyList) {
                     this.KeyCodeList.Add((int)key);
                     this.KeyStringList.Add(KeyBoardHelper.KeyToString(key).RemoveKeyDiff());
                 }
@@ -129,20 +122,16 @@ namespace SuperCom.Entity
         public static void InitSqlite()
         {
             SqliteMapper<ShortCutBinding> mapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
-            foreach (var item in SqliteTable.Table.Keys)
-            {
-                if (!mapper.IsTableExists(item))
-                {
+            foreach (var item in SqliteTable.Table.Keys) {
+                if (!mapper.IsTableExists(item)) {
                     mapper.CreateTable(item, SqliteTable.Table[item]);
                 }
             }
             // 插入数据
             List<ShortCutBinding> shotCutBindings = mapper.SelectList();
             List<long> list = shotCutBindings.Select(arg => arg.KeyID).ToList();
-            foreach (var item in SHORT_CUT_BINDINGS)
-            {
-                if (!list.Contains(item.KeyID))
-                {
+            foreach (var item in SHORT_CUT_BINDINGS) {
+                if (!list.Contains(item.KeyID)) {
                     mapper.Insert(item);
                 }
             }
@@ -150,8 +139,7 @@ namespace SuperCom.Entity
 
         public override bool Equals(object obj)
         {
-            if (obj != null && obj is ShortCutBinding)
-            {
+            if (obj != null && obj is ShortCutBinding) {
                 return this.Equals((obj as ShortCutBinding).KeyID);
             }
             return false;
@@ -160,6 +148,11 @@ namespace SuperCom.Entity
         public override int GetHashCode()
         {
             return this.KeyID.GetHashCode();
+        }
+
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
         }
     }
 

@@ -16,8 +16,13 @@ namespace SuperCom.Entity
         Custom
     }
 
+
+    /// <summary>
+    /// 串口设置
+    /// </summary>
     public class PortSetting
     {
+        #region "常量"
         public const int CLOSE_TIME_OUT = 5;
         public const double DEFAULT_FONTSIZE = 15;
         public const int DEFAULT_WRITE_TIME_OUT = 1000;
@@ -35,6 +40,10 @@ namespace SuperCom.Entity
         public const int DEFAULT_BAUDRATE = 115200;
         public const int DEFAULT_DATABITS = 8;
         public const string DEFAULT_ENCODING_STRING = "UTF8";
+
+        #endregion
+
+        #region "静态属性"
         public static Encoding DEFAULT_ENCODING = System.Text.Encoding.UTF8;
 
         public static StopBits DEFAULT_STOPBITS = StopBits.One;
@@ -52,7 +61,6 @@ namespace SuperCom.Entity
         {
             5,6,7,8
         };
-
 
         /// <summary>
         /// 更多编码支持参考：
@@ -74,7 +82,9 @@ namespace SuperCom.Entity
         };
 
 
+        #endregion
 
+        #region "属性"
 
         public int BaudRate { get; set; }
         public int DataBits { get; set; }
@@ -84,6 +94,7 @@ namespace SuperCom.Entity
         public FlowControls FlowControls { get; set; }
         public string Encoding { get; set; }
 
+        #endregion
 
 
         public static List<string> GetAllBaudRates()

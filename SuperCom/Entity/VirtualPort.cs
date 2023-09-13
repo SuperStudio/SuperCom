@@ -217,6 +217,8 @@ namespace SuperCom.Entity
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        private const double MAX_EMUNOISE = 0.99999999;
+        private const double MAX_MS_VALUE = int.MaxValue;
 
         /*
          * 常用命令
@@ -249,9 +251,6 @@ namespace SuperCom.Entity
             return success && portNumber > 0 && portNumber < int.MaxValue;
 
         }
-
-        private const double MAX_EMUNOISE = 0.99999999;
-        private const double MAX_MS_VALUE = int.MaxValue;
 
         public static bool IsProperNumber(VirtualPort port)
         {

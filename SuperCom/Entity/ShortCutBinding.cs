@@ -39,8 +39,6 @@ namespace SuperCom.Entity
         public ObservableCollection<string> KeyStringList { get; set; }
 
 
-
-
         public static List<ShortCutBinding> SHORT_CUT_BINDINGS = new List<ShortCutBinding>()
         {
             new ShortCutBinding(1,"关闭/打开当前串口",new List<Key>(){ Key.LeftCtrl,Key.Q }),

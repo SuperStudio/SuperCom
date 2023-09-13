@@ -159,6 +159,10 @@
     <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
     <Compile Include="Entity\AdvancedSend.cs" />
     <Compile Include="Entity\ComSettings.cs" />
+    <Compile Include="Entity\Enums\ComPortSortType.cs" />
+    <Compile Include="Entity\Enums\RuleType.cs" />
+    <Compile Include="Entity\Enums\RunningStatus.cs" />
+    <Compile Include="Entity\Enums\VarDataType.cs" />
     <Compile Include="Entity\SerialPortEx.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -166,12 +170,14 @@
     <Compile Include="Entity\HighLightRule.cs" />
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />
-    <Compile Include="Entity\SplitPanelType.cs" />
+    <Compile Include="Entity\Enums\SplitPanelType.cs" />
     <Compile Include="Entity\VarMonitor.cs" />
     <Compile Include="Entity\VirtualPort.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
+    <Compile Include="Utils\FilterManager.cs" />
+    <Compile Include="Utils\MonitorManager.cs" />
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />

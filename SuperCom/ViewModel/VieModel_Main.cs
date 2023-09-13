@@ -2,12 +2,14 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
+using SuperCom.Entity.Enums;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using static SuperCom.App;
 
@@ -16,10 +18,11 @@ namespace SuperCom.ViewModel
 
     public class VieModel_Main : ViewModelBase
     {
+        #region "常量"
         public const string DEFAULT_ADD_TEXT = "新增";
 
         private const string DEFAULT_STATUS_TEXT = "就绪";
-
+        #endregion
 
 
 
@@ -33,13 +36,20 @@ namespace SuperCom.ViewModel
             Init();
         }
 
-
-
-        public Action<List<PortTabItem>> OnBaudRatesChanged;
+        #region "静态属性"
         private static SqliteMapper<AdvancedSend> Mapper { get; set; }
         private static SqliteMapper<ComSettings> ComMapper { get; set; }
         private static SqliteMapper<ShortCutBinding> ShortCutMapper { get; set; }
         private static SqliteMapper<HighLightRule> RuleMapper { get; set; }
+
+
+        #endregion
+
+        #region "属性"
+
+        public AdvancedSend CurrentAdvancedSend { get; set; }
+
+        public Action<List<PortTabItem>> OnBaudRatesChanged { get; set; }
 
         public HashSet<string> SendHistory { get; set; }
         public HashSet<ComSettings> ComSettingList { get; set; }
@@ -59,21 +69,25 @@ namespace SuperCom.ViewModel
             get { return _DataBits; }
             set { _DataBits = value; RaisePropertyChanged(); }
         }
+
         private ObservableCollection<string> _Encodings;
         public ObservableCollection<string> Encodings {
             get { return _Encodings; }
             set { _Encodings = value; RaisePropertyChanged(); }
         }
+
         private ObservableCollection<string> _Parities;
         public ObservableCollection<string> Parities {
             get { return _Parities; }
             set { _Parities = value; RaisePropertyChanged(); }
         }
+
         private ObservableCollection<string> _HandShakes;
         public ObservableCollection<string> HandShakes {
             get { return _HandShakes; }
             set { _HandShakes = value; RaisePropertyChanged(); }
         }
+
         private ObservableCollection<string> _StopBits;
         public ObservableCollection<string> StopBits {
             get { return _StopBits; }
@@ -92,11 +106,13 @@ namespace SuperCom.ViewModel
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
+
         private string _StatusText = DEFAULT_STATUS_TEXT;
         public string StatusText {
             get { return _StatusText; }
             set { _StatusText = value; RaisePropertyChanged(); }
         }
+
         private double _SideGridWidth = ConfigManager.Main.SideGridWidth;
 
         public double SideGridWidth {
@@ -107,8 +123,6 @@ namespace SuperCom.ViewModel
             }
         }
 
-
-
         private int _SendHistorySelectedIndex;
 
         public int SendHistorySelectedIndex {
@@ -118,8 +132,8 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private string _SendHistorySelectedValue = "";
 
+        private string _SendHistorySelectedValue = "";
         public string SendHistorySelectedValue {
             get { return _SendHistorySelectedValue; }
             set {
@@ -127,6 +141,7 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
+
         private int _CommandsSelectIndex = (int)ConfigManager.Main.CommandsSelectIndex;
 
         public int CommandsSelectIndex {
@@ -136,8 +151,6 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-
 
         private string _TextFontName = ConfigManager.Main.TextFontName;
 
@@ -156,7 +169,6 @@ namespace SuperCom.ViewModel
         }
 
 
-
         private ObservableCollection<IHighlightingDefinition> _HighlightingDefinitions;
         public ObservableCollection<IHighlightingDefinition> HighlightingDefinitions {
             get { return _HighlightingDefinitions; }
@@ -168,16 +180,19 @@ namespace SuperCom.ViewModel
             get { return _ShowDonate; }
             set { _ShowDonate = value; RaisePropertyChanged(); }
         }
+
         private bool _DoingLongWork;
         public bool DoingLongWork {
             get { return _DoingLongWork; }
             set { _DoingLongWork = value; RaisePropertyChanged(); }
         }
+
         private string _DoingWorkMsg;
         public string DoingWorkMsg {
             get { return _DoingWorkMsg; }
             set { _DoingWorkMsg = value; RaisePropertyChanged(); }
         }
+
         private double _MemoryUsed;
         public double MemoryUsed {
             get { return _MemoryUsed; }
@@ -190,27 +205,19 @@ namespace SuperCom.ViewModel
             set { _ShowSoft = value; RaisePropertyChanged(); }
         }
 
-        public AdvancedSend CurrentAdvancedSend { get; set; }
+
+        #endregion
+
 
 
         public override void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
-            PortTabItems.CollectionChanged += (s, e) => {
-                if (PortTabItems != null && PortTabItems.Count > 0)
-                    ShowSoft = false;
-                else
-                    ShowSoft = true;
-            };
+            PortTabItems.CollectionChanged += OnPortTabItemsCollectionChanged;
+
             InitPortData();
-            if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory)) {
-                SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
-            }
-            if (SendHistory == null)
-                SendHistory = new HashSet<string>();
-
+            InitSendHistory();
             LoadSendCommands();
-
             LoadBaudRates();
             LoadDataBits();
             LoadEncodings();
@@ -220,8 +227,24 @@ namespace SuperCom.ViewModel
             LoadHandshake();
             LoadHighLightRule();
             ComMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
+        }
 
+        private void InitSendHistory()
+        {
+            if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory)) {
+                SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
+            }
+            if (SendHistory == null)
+                SendHistory = new HashSet<string>();
 
+        }
+
+        private void OnPortTabItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (PortTabItems != null && PortTabItems.Count > 0)
+                ShowSoft = false;
+            else
+                ShowSoft = true;
         }
 
         public void LoadStopBits()

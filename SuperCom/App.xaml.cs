@@ -18,12 +18,14 @@ namespace SuperCom
 
     public partial class App : Application
     {
+        #region "静态属性"
         public static AbstractLogger Logger { get; set; } = Log.Logger.Instance;
         private static MemoryDog MemoryDog { get; set; }
 
-        public static Action OnMemoryDog;
-        public static Action<long> OnMemoryChanged;
-        public static Action<double> OnCpuUsageChanged;
+        public static Action OnMemoryDog { get; set; }
+        public static Action<long> OnMemoryChanged { get; set; }
+
+        #endregion
 
         static App()
         {

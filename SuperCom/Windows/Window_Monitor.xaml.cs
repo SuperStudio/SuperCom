@@ -19,7 +19,7 @@ namespace SuperCom
     /// </summary>
     public partial class Window_Monitor : BaseWindow
     {
-
+        #region "属性"
         public string CurrentPortName { get; set; }
 
         private ObservableCollection<string> _CurrentPortNames;
@@ -49,7 +49,7 @@ namespace SuperCom
             }
         }
 
-        private MainWindow MainWindow { get; set; }
+        #endregion
 
         public Window_Monitor()
         {

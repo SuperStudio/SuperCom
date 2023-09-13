@@ -5,33 +5,34 @@ using static SuperCom.App;
 namespace SuperCom.Entity
 {
 
-    public enum ComPortSortType
-    {
-        AddTime,
-        PortName
-    }
     public class SideComPort : ViewModelBase
     {
+
+        #region "属性"
         private string _Name;
         public string Name {
             get { return _Name; }
             set { _Name = value; RaisePropertyChanged(); }
         }
+
         private bool _Connected;
         public bool Connected {
             get { return _Connected; }
             set { _Connected = value; RaisePropertyChanged(); }
         }
+
         private PortTabItem _PortTabItem;
         public PortTabItem PortTabItem {
             get { return _PortTabItem; }
             set { _PortTabItem = value; RaisePropertyChanged(); }
         }
+
         private string _Remark;
         public string Remark {
             get { return _Remark; }
             set { _Remark = value; RaisePropertyChanged(); }
         }
+
         private bool _Hide;
         public bool Hide {
             get { return _Hide; }
@@ -41,6 +42,8 @@ namespace SuperCom.Entity
                 Logger.Info($"set port[{Name}] hide: {value}");
             }
         }
+
+        #endregion
 
         public SideComPort(string name, bool connected)
         {

@@ -1,4 +1,5 @@
 ﻿using SuperCom.Config;
+using SuperCom.Entity.Enums;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
@@ -14,8 +15,13 @@ namespace SuperCom.Entity
     [Table(tableName: "highlight_rule")]
     public class HighLightRule
     {
+        #region "静态属性"
         public static List<HighLightRule> AllRules { get; set; }
         public static List<string> AllName { get; set; }
+
+        #endregion
+
+        #region "属性"
 
         [TableId(IdType.AUTO)]
         public long RuleID { get; set; }
@@ -34,7 +40,7 @@ namespace SuperCom.Entity
         [TableField(exist: false)]
         public List<RuleSet> RuleSetList { get; set; }
 
-
+        #endregion
 
         // 必须要有无参构造器
         public HighLightRule()
@@ -70,7 +76,7 @@ namespace SuperCom.Entity
         public static string GetDirName()
         {
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "AvalonEdit", "Higlighting"); // todo 严重错误
+                "AvalonEdit", "Higlighting"); // 字母打错，且由于版本兼容性原因无法修改
         }
 
         public void WriteToXshd()
@@ -160,11 +166,7 @@ namespace SuperCom.Entity
         };
 
 
-        public enum RuleType
-        {
-            Regex,
-            KeyWord
-        }
+
 
         public class RuleSet
         {

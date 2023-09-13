@@ -5,6 +5,7 @@ using ICSharpCode.AvalonEdit.Search;
 using SuperCom.AvalonEdit.Colorizers;
 using SuperCom.Config;
 using SuperCom.Entity;
+using SuperCom.Entity.Enums;
 using SuperCom.Upgrade;
 using SuperCom.ViewModel;
 using SuperCom.Windows;
@@ -48,6 +49,7 @@ namespace SuperCom
         private const double DEFAULT_SEND_PANEL_HEIGHT = 186;
         private const int DEFAULT_PORT_OPEN_INTERVAL = 100;
 
+        #region "属性"
         Window_Setting window_Setting { get; set; }
         Window_Monitor window_Monitor { get; set; }
         public VieModel_Main vieModel { get; set; }
@@ -55,11 +57,19 @@ namespace SuperCom
         /// <summary>
         /// 最后使用的串口排序类型
         /// </summary>
-        ComPortSortType LastSortType= ComPortSortType.AddTime;
+        ComPortSortType LastSortType { get; set; } = ComPortSortType.AddTime;
         /// <summary>
         /// 最后使用的串口排序方式
         /// </summary>
-        bool LastSortDesc = false;
+        bool LastSortDesc { get; set; } = false;
+
+
+        /// <summary>
+        /// 支持标签栏拖拽
+        /// </summary>
+        private FrameworkElement CurrentDragElement { get; set; }
+
+        #endregion
 
         public MainWindow()
         {
@@ -70,68 +80,88 @@ namespace SuperCom
         public void Init()
         {
             InitSqlite();
-            ConfigManager.InitConfig(); // 读取配置
+            ConfigManager.InitConfig();
             vieModel = new VieModel_Main();
             this.DataContext = vieModel;
-            SetLang();      // 设置语言
-            ReadConfig();   // 读取设置列表
+            SetLang();
+            ReadConfig();
             PathManager.Init();
 
             // 看门狗
-
             App.OnMemoryChanged += (memory) => {
                 vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
             };
 
-            App.OnMemoryDog += () => {
-                // 找到最大的，清空
-                App.Current.Dispatcher.Invoke(() => {
-                    if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
-                        PortTabItem port = null;
-                        long maxLength = 0;
-                        foreach (var item in vieModel.PortTabItems) {
-                            if (item.TextEditor == null || !item.Connected)
-                                continue;
-                            if (item.TextEditor.Text.Length > maxLength) {
-                                maxLength = item.TextEditor.Text.Length;
-                                port = item;
-                            }
-                        }
-                        if (port != null && maxLength > 0) {
-                            TextEditor oldTextEditor = port.TextEditor;
-                            Border border = oldTextEditor.Parent as Border;
-                            TextEditor newTextEditor = new TextEditor();
-                            SetTextEditorConfig(ref newTextEditor, true);
-
-                            IHighlightingDefinition syntaxHighlighting = oldTextEditor.SyntaxHighlighting;
-                            double FontSize = oldTextEditor.FontSize;
-
-                            newTextEditor.SyntaxHighlighting = syntaxHighlighting;
-                            newTextEditor.FontSize = FontSize;
-                            newTextEditor.Options = oldTextEditor.Options;
-                            newTextEditor.ShowLineNumbers = oldTextEditor.ShowLineNumbers;
-                            newTextEditor.Language = oldTextEditor.Language;
-                            newTextEditor.FontFamily = oldTextEditor.FontFamily;
-                            newTextEditor.Foreground = oldTextEditor.Foreground;
-
-
-                            if (port.FixedText)
-                                newTextEditor.TextChanged -= port.TextBox_TextChanged;
-                            else
-                                newTextEditor.TextChanged += port.TextBox_TextChanged;
-                            port.TextEditor = newTextEditor;
-                            border.Child = newTextEditor;
-                            MessageCard.Warning($"内存限制，清空 {port.Name} 的日志（本地日志保留）");
-                        }
-                    }
-                });
-            };
+            App.OnMemoryDog += OnMemeoryDog;
 
             colorPicker.SelectedColorChanged += (s, e) => {
                 Logger.Info($"color picker set color: {colorPicker.SelectedColor}");
             };
 
             Logger.Info("main window init");
+        }
+
+        private async void mainWindow_ContentRendered(object sender, EventArgs e)
+        {
+            this.TopMenu = TopMenus;
+            //AdjustWindow();
+            if (ConfigManager.Main.FirstRun)
+                ConfigManager.Main.FirstRun = false;
+            InitThemeSelector();
+            RefreshSetting();
+            ReadXshdList();
+            LoadDonateConfig();
+            await BackupData();
+            LoadFontFamily();
+            InitUpgrade();
+            OpenBeforePorts();
+            SetBaudRateAction();
+            InitNotice();
+            ApplyScreenStatus();
+        }
+
+        private void OnMemeoryDog()
+        {
+            App.Current.Dispatcher.Invoke(() => {
+                if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
+                    PortTabItem port = null;
+                    long maxLength = 0;
+                    foreach (var item in vieModel.PortTabItems) {
+                        if (item.TextEditor == null || !item.Connected)
+                            continue;
+                        if (item.TextEditor.Text.Length > maxLength) {
+                            maxLength = item.TextEditor.Text.Length;
+                            port = item;
+                        }
+                    }
+                    if (port != null && maxLength > 0) {
+                        TextEditor oldTextEditor = port.TextEditor;
+                        Border border = oldTextEditor.Parent as Border;
+                        TextEditor newTextEditor = new TextEditor();
+                        SetTextEditorConfig(ref newTextEditor, true);
+
+                        IHighlightingDefinition syntaxHighlighting = oldTextEditor.SyntaxHighlighting;
+                        double FontSize = oldTextEditor.FontSize;
+
+                        newTextEditor.SyntaxHighlighting = syntaxHighlighting;
+                        newTextEditor.FontSize = FontSize;
+                        newTextEditor.Options = oldTextEditor.Options;
+                        newTextEditor.ShowLineNumbers = oldTextEditor.ShowLineNumbers;
+                        newTextEditor.Language = oldTextEditor.Language;
+                        newTextEditor.FontFamily = oldTextEditor.FontFamily;
+                        newTextEditor.Foreground = oldTextEditor.Foreground;
+
+
+                        if (port.FixedText)
+                            newTextEditor.TextChanged -= port.TextBox_TextChanged;
+                        else
+                            newTextEditor.TextChanged += port.TextBox_TextChanged;
+                        port.TextEditor = newTextEditor;
+                        border.Child = newTextEditor;
+                        MessageCard.Warning($"内存限制，清空 {port.Name} 的日志（本地日志保留）");
+                    }
+                }
+            });
         }
 
 
@@ -181,6 +211,9 @@ namespace SuperCom
             this.CloseToTaskBar = ConfigManager.CommonSettings.CloseToBar;
         }
 
+        /// <summary>
+        /// 读取自定义语法高亮
+        /// </summary>
         public void ReadXshdList()
         {
             // 记录先前选定的
@@ -251,7 +284,7 @@ namespace SuperCom
             if (CurrentDragElement != null)
                 Mouse.Capture(CurrentDragElement, CaptureMode.None);
         }
-        private FrameworkElement CurrentDragElement;
+
         private void BeginDragTabItem(object sender, MouseButtonEventArgs e)
         {
             CanDragTabItem = true;
@@ -514,8 +547,8 @@ namespace SuperCom
                         serialPort.Open();
                         portTabItem.FirstSaveData = true;
                         // 打开后启动对应的过滤器线程
-                        portTabItem.StartFilterTask();
-                        portTabItem.StartMonitorTask();
+                        //portTabItem.StartFilterTask();
+                        //portTabItem.StartMonitorTask();
                         portTabItem.ConnectTime = DateTime.Now;
                         SetPortConnectStatus(portName, true);
                     }
@@ -599,8 +632,8 @@ namespace SuperCom
                 bool success = await AsyncClosePort(serialPort);
                 Logger.Info($"close port：{portName} ret: {success}");
                 if (success) {
-                    portTabItem.StopFilterTask();
-                    portTabItem.StopMonitorTask();
+                    //portTabItem.StopFilterTask();
+                    //portTabItem.StopMonitorTask();
                     return SetPortConnectStatus(portName, false);
                 } else {
                     MessageNotify.Error($"{serialPort.PortName} 关闭串口超时");
@@ -1331,29 +1364,6 @@ namespace SuperCom
                 }
 
             }
-        }
-
-
-
-        private async void mainWindow_ContentRendered(object sender, EventArgs e)
-        {
-            this.TopMenu = TopMenus;
-
-            //AdjustWindow();
-            if (ConfigManager.Main.FirstRun)
-                ConfigManager.Main.FirstRun = false;
-            InitThemeSelector();
-            RefreshSetting();
-            ReadXshdList();// 自定义语法高亮
-            LoadDonateConfig();
-            await BackupData(); // 备份文件
-            LoadFontFamily();
-            InitUpgrade();
-            //CommonSettings.InitLogDir();
-            OpenBeforePorts();
-            SetBaudRateAction();
-            InitNotice();
-            ApplyScreenStatus();
         }
 
 
@@ -3297,7 +3307,7 @@ namespace SuperCom
         private void RefreshPortsStatus(object sender, RoutedEventArgs e)
         {
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
-            vieModel.InitPortData(LastSortType,LastSortDesc);
+            vieModel.InitPortData(LastSortType, LastSortDesc);
             RetainSidePortValue(sideComPorts);
         }
 

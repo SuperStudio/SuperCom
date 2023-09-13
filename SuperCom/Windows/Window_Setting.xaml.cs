@@ -31,11 +31,16 @@ namespace SuperCom
 
         public const string INPUT_NOTICE_TEXT = "请输入波特率";
 
+        #region "属性"
+
         public static string BASE_XSHD_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                         "AvalonEdit", "Higlighting");
 
         private MainWindow Main { get; set; }
         public VieModel_Setting vieModel { get; set; }
+
+        #endregion
+
         public Window_Setting()
         {
             InitializeComponent();

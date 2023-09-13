@@ -28,11 +28,7 @@ namespace SuperCom.Windows
         private static readonly string COM_0_COM_INSTALLED_PATH =
             System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Installer", "setup.exe");
 
-        public Window_VirtualPort()
-        {
-            InitializeComponent();
-            this.DataContext = this;
-        }
+        #region "属性"
 
         private bool _IsCom0ConInstalled = false;
         public bool IsCom0ConInstalled {
@@ -99,6 +95,15 @@ namespace SuperCom.Windows
                 _CurrentVirtualPorts = value;
                 RaisePropertyChanged();
             }
+        }
+
+        #endregion
+
+
+        public Window_VirtualPort()
+        {
+            InitializeComponent();
+            this.DataContext = this;
         }
 
         public async void Init()

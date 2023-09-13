@@ -1,6 +1,7 @@
 
 using SuperCom.Config;
 using SuperCom.Entity;
+using SuperCom.Entity.Enums;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
@@ -24,45 +25,51 @@ namespace SuperCom.ViewModel
             Init();
         }
 
-
-        SqliteMapper<HighLightRule> RuleMapper { get; set; }
-
+        #region "属性"
+        private SqliteMapper<HighLightRule> RuleMapper { get; set; }
 
         private ObservableCollection<string> _BaudRates;
         public ObservableCollection<string> BaudRates {
             get { return _BaudRates; }
             set { _BaudRates = value; RaisePropertyChanged(); }
         }
+
         private bool _FixedOnSearch = ConfigManager.CommonSettings.FixedOnSearch;
         public bool FixedOnSearch {
             get { return _FixedOnSearch; }
             set { _FixedOnSearch = value; RaisePropertyChanged(); }
         }
+
         private bool _CloseToBar = ConfigManager.CommonSettings.CloseToBar;
         public bool CloseToBar {
             get { return _CloseToBar; }
             set { _CloseToBar = value; RaisePropertyChanged(); }
         }
+
         private bool _FixedOnSendCommand = ConfigManager.CommonSettings.FixedOnSendCommand;
         public bool FixedOnSendCommand {
             get { return _FixedOnSendCommand; }
             set { _FixedOnSendCommand = value; RaisePropertyChanged(); }
         }
+
         private bool _ScrollOnSearchClosed = ConfigManager.CommonSettings.ScrollOnSearchClosed;
         public bool ScrollOnSearchClosed {
             get { return _ScrollOnSearchClosed; }
             set { _ScrollOnSearchClosed = value; RaisePropertyChanged(); }
         }
+
         private string _LogNameFormat = ConfigManager.CommonSettings.LogNameFormat;
         public string LogNameFormat {
             get { return _LogNameFormat; }
             set { _LogNameFormat = value; RaisePropertyChanged(); }
         }
+
         private string _LogSaveDir = ConfigManager.CommonSettings.LogSaveDir;
         public string LogSaveDir {
             get { return _LogSaveDir; }
             set { _LogSaveDir = value; RaisePropertyChanged(); }
         }
+
         private int _TabSelectedIndex = (int)ConfigManager.CommonSettings.TabSelectedIndex;
         public int TabSelectedIndex {
             get { return _TabSelectedIndex; }
@@ -95,13 +102,32 @@ namespace SuperCom.ViewModel
         }
 
 
-        public void SaveValue()
-        {
-            ConfigManager.CommonSettings.TabSelectedIndex = TabSelectedIndex;
-            ConfigManager.CommonSettings.HighLightSideIndex = HighLightSideIndex;
-            ConfigManager.CommonSettings.Save();
+
+        private bool _AutoBackup = ConfigManager.Settings.AutoBackup;
+
+        public bool AutoBackup {
+            get { return _AutoBackup; }
+
+            set {
+                _AutoBackup = value;
+                RaisePropertyChanged();
+            }
         }
 
+        private int _AutoBackupPeriodIndex = (int)ConfigManager.Settings.AutoBackupPeriodIndex;
+
+        public int AutoBackupPeriodIndex {
+            get { return _AutoBackupPeriodIndex; }
+
+            set {
+                _AutoBackupPeriodIndex = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
+
+        #endregion
 
         #region "语法高亮"
 
@@ -268,33 +294,6 @@ namespace SuperCom.ViewModel
 
         #endregion
 
-
-
-        private bool _AutoBackup = ConfigManager.Settings.AutoBackup;
-
-        public bool AutoBackup {
-            get { return _AutoBackup; }
-
-            set {
-                _AutoBackup = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int _AutoBackupPeriodIndex = (int)ConfigManager.Settings.AutoBackupPeriodIndex;
-
-        public int AutoBackupPeriodIndex {
-            get { return _AutoBackupPeriodIndex; }
-
-            set {
-                _AutoBackupPeriodIndex = value;
-                RaisePropertyChanged();
-            }
-        }
-
-
-
-
         public override void Init()
         {
             RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
@@ -302,6 +301,15 @@ namespace SuperCom.ViewModel
             LoadHighLightRules();
             RuleSets = new ObservableCollection<RuleSet>();
         }
+
+
+        public void SaveValue()
+        {
+            ConfigManager.CommonSettings.TabSelectedIndex = TabSelectedIndex;
+            ConfigManager.CommonSettings.HighLightSideIndex = HighLightSideIndex;
+            ConfigManager.CommonSettings.Save();
+        }
+
 
         public void LoadHighLightRules()
         {

@@ -1,6 +1,7 @@
 ﻿using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperCom.Entity;
+using SuperCom.Entity.Enums;
 using SuperCom.ViewModel;
 using SuperControls.Style;
 using SuperControls.Style.Windows;
@@ -27,8 +28,17 @@ namespace SuperCom
     public partial class Window_AdvancedSend : BaseWindow
     {
         private const string DEFAULT_PROJECT_NAME = "我的项目";
+
+        #region "属性"
+
         public VieModel_AdvancedSend vieModel { get; set; }
         public MainWindow Main { get; set; }
+
+        public int SideSelectedIndex { get; set; }
+
+        private List<SendCommand> CurrentSendCommands { get; set; }
+
+        #endregion
 
         public Window_AdvancedSend()
         {
@@ -60,8 +70,6 @@ namespace SuperCom
         }
 
 
-        public int SideSelectedIndex { get; set; }
-
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
 
@@ -81,13 +89,7 @@ namespace SuperCom
                     SideSelectedIndex = 0;
                 sideListBox.SelectedIndex = SideSelectedIndex;
             }
-
-
-
-
         }
-
-
 
         private void DeleteProject(object sender, RoutedEventArgs e)
         {
@@ -241,8 +243,6 @@ namespace SuperCom
             return null;
         }
 
-
-        //private bool textChanged = false;
         private void SaveSendCommands(object sender, RoutedEventArgs e)
         {
             string commands = JsonUtils.TrySerializeObject(vieModel.SendCommands.ToList());
@@ -330,9 +330,6 @@ namespace SuperCom
                 RenameTextBoxLostFocus(sender, e);
             }
         }
-
-
-        private List<SendCommand> CurrentSendCommands { get; set; }
 
         private void StartCommands(object sender, RoutedEventArgs e)
         {

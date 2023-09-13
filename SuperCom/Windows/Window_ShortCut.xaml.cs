@@ -20,11 +20,37 @@ namespace SuperCom
     {
         private const string ADD_STRING = "+";
 
+        #region "静态属性"
 
-        SqliteMapper<ShortCutBinding> Mapper =
-            new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
+        /// <summary>
+        /// 功能键 [1,3] 个
+        /// </summary>
+        public static List<Key> FuncKeys { get; set; } = new List<Key>();
+
+        /// <summary>
+        /// 基础键 [1,3] 个
+        /// </summary>
+        public static List<Key> NormalKeys { get; set; } = new List<Key>();
+        public static List<Key> FastKeys { get; set; } = new List<Key>();
+
+        #endregion
+
+        #region "属性"
+        private SqliteMapper<ShortCutBinding> Mapper { get; set; } =
+             new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
 
         private MainWindow MainWindow { get; set; }
+
+
+        private List<ShortCutBinding> ShortCutBindingList { get; set; }
+
+        private ObservableCollection<ShortCutBinding> _ShortCutBindings;
+        public ObservableCollection<ShortCutBinding> ShortCutBindings {
+            get { return _ShortCutBindings; }
+            set { _ShortCutBindings = value; RaisePropertyChanged(); }
+        }
+
+        #endregion
 
         public Window_ShortCut()
         {
@@ -53,13 +79,6 @@ namespace SuperCom
 
         }
 
-        private List<ShortCutBinding> ShortCutBindingList;
-
-        private ObservableCollection<ShortCutBinding> _ShortCutBindings;
-        public ObservableCollection<ShortCutBinding> ShortCutBindings {
-            get { return _ShortCutBindings; }
-            set { _ShortCutBindings = value; RaisePropertyChanged(); }
-        }
 
         private void BaseWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -177,9 +196,6 @@ namespace SuperCom
 
 
 
-        public static List<Key> funcKeys = new List<Key>();     // 功能键 [1,3] 个
-        public static List<Key> normalKeys = new List<Key>();   // 基础键 [1,3] 个
-        public static List<Key> fastKeys = new List<Key>();
         private void TextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             Key currentKey = e.Key == Key.System ? e.SystemKey : e.Key;
@@ -199,23 +215,23 @@ namespace SuperCom
 
 
             if (KeyBoardHelper.IsFuncKey(currentKey)) {
-                if (!funcKeys.Contains(currentKey))
-                    funcKeys.Add(currentKey);
+                if (!FuncKeys.Contains(currentKey))
+                    FuncKeys.Add(currentKey);
             } else if (KeyBoardHelper.IsSupportFastKey(currentKey)) {
-                if (!normalKeys.Contains(currentKey))
-                    normalKeys.Add(currentKey);
+                if (!NormalKeys.Contains(currentKey))
+                    NormalKeys.Add(currentKey);
             } else {
                 warningTextBlock.Visibility = Visibility.Visible;
                 return;
             }
 
-            List<string> keys = funcKeys.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
-            List<string> normals = normalKeys.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
+            List<string> keys = FuncKeys.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
+            List<string> normals = NormalKeys.Select(arg => KeyBoardHelper.KeyToString(arg).RemoveKeyDiff()).ToList();
             keys.AddRange(normals);
 
             List<Key> allkey = new List<Key>();
-            allkey.AddRange(funcKeys);
-            allkey.AddRange(normalKeys);
+            allkey.AddRange(FuncKeys);
+            allkey.AddRange(NormalKeys);
 
             keyInputTextBox.Text = string.Join(ADD_STRING, keys).RemoveKeyDiff();
             hiddenTextBlock.Text = string.Join(",", allkey.Select(arg => (int)arg));
@@ -228,12 +244,12 @@ namespace SuperCom
             }
 
             bool containsFunKey =
-                funcKeys.Contains(Key.LeftAlt) ||
-                funcKeys.Contains(Key.LeftCtrl) ||
-                funcKeys.Contains(Key.LeftShift) ||
-                funcKeys.Contains(Key.RightAlt) ||
-                funcKeys.Contains(Key.RightCtrl) ||
-                funcKeys.Contains(Key.RightShift) ||
+                FuncKeys.Contains(Key.LeftAlt) ||
+                FuncKeys.Contains(Key.LeftCtrl) ||
+                FuncKeys.Contains(Key.LeftShift) ||
+                FuncKeys.Contains(Key.RightAlt) ||
+                FuncKeys.Contains(Key.RightCtrl) ||
+                FuncKeys.Contains(Key.RightShift) ||
                 KeyBoardHelper.IsFKey(currentKey);
 
             if (!containsFunKey || currentKey == Key.None) {
@@ -257,8 +273,8 @@ namespace SuperCom
                 MainWindow.OnShortCutChanged();
             }
 
-            funcKeys.Clear();
-            funcKeys.Clear();
+            FuncKeys.Clear();
+            FuncKeys.Clear();
         }
 
         private void TextBox_PreviewKeyUp(object sender, KeyEventArgs e)
@@ -267,23 +283,23 @@ namespace SuperCom
             Key currentKey = e.Key == Key.System ? e.SystemKey : e.Key;
 
             if (KeyBoardHelper.IsFuncKey(currentKey)) {
-                if (funcKeys.Contains(currentKey))
-                    funcKeys.Remove(currentKey);
-                if (!fastKeys.Contains(currentKey))
-                    fastKeys.Insert(0, currentKey);
+                if (FuncKeys.Contains(currentKey))
+                    FuncKeys.Remove(currentKey);
+                if (!FastKeys.Contains(currentKey))
+                    FastKeys.Insert(0, currentKey);
             } else if (KeyBoardHelper.IsSupportFastKey(currentKey)) {
-                if (normalKeys.Contains(currentKey))
-                    normalKeys.Remove(currentKey);
-                if (!fastKeys.Contains(currentKey))
-                    fastKeys.Add(currentKey);
+                if (NormalKeys.Contains(currentKey))
+                    NormalKeys.Remove(currentKey);
+                if (!FastKeys.Contains(currentKey))
+                    FastKeys.Add(currentKey);
             }
         }
 
         private void inputKeyPopup_Closed(object sender, EventArgs e)
         {
-            funcKeys.Clear();
-            normalKeys.Clear();
-            fastKeys.Clear();
+            FuncKeys.Clear();
+            NormalKeys.Clear();
+            FastKeys.Clear();
         }
     }
 }

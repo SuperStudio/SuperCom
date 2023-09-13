@@ -8,7 +8,15 @@ namespace SuperCom.WatchDog
     {
         private const int DEFAULT_WATCH_INTERVAL = 10 * 1000;
 
+        #region "属性"
         public Action OnNotFeed { get; set; }
+
+        private int WatchInterval { get; set; }
+
+        private bool Init { get; set; }
+
+        #endregion
+
         public virtual bool Feed()
         {
             throw new NotImplementedException();
@@ -24,10 +32,6 @@ namespace SuperCom.WatchDog
             WatchInterval = watchInterval;
         }
 
-
-        private int WatchInterval { get; set; }
-
-        private bool Init { get; set; }
 
         public void Watch()
         {

@@ -1,4 +1,5 @@
 ﻿using SuperCom.Config;
+using SuperCom.Entity.Enums;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
@@ -7,21 +8,12 @@ using System.Collections.Generic;
 
 namespace SuperCom.Entity
 {
-
-    public enum RunningStatus
-    {
-        WaitingToRun,
-        Running,
-        AlreadySend,
-        WaitingDelay,
-        Success,
-        Failed
-    }
-
     public class SendCommand : ViewModelBase
     {
         public const int DEFAULT_DELAY = 200;
         public const int DEFAULT_TIMEOUT = 5000;
+
+        #region "静态属性"
 
         private static readonly Dictionary<RunningStatus, string> RUN_STATUS_TABLE =
             new Dictionary<RunningStatus, string>() {
@@ -33,18 +25,33 @@ namespace SuperCom.Entity
             { RunningStatus.Failed,"失败" },
         };
 
+        #endregion
+
+        #region "属性"
+
 
         public long CommandID { get; set; }
-        public string Name { get; set; }
+
+        private string _Name;
+        public string Name {
+            get { return _Name; }
+            set { _Name = value; RaisePropertyChanged(); }
+        }
 
         private int _Order;
         public int Order {
             get { return _Order; }
             set { _Order = value; RaisePropertyChanged(); }
         }
+
+
         public string Command { get; set; }
+
         public int Delay { get; set; }
+
         public bool Running { get; set; }
+
+
         private RunningStatus _Status = RunningStatus.WaitingToRun;
         public RunningStatus Status {
             get { return _Status; }
@@ -54,26 +61,33 @@ namespace SuperCom.Entity
                 StatusText = RUN_STATUS_TABLE[value];
             }
         }
+
         private string _StatusText = "就绪";
         public string StatusText {
             get { return _StatusText; }
             set { _StatusText = value; RaisePropertyChanged(); }
         }
+
         private string _RecvResult = "";
         public string RecvResult {
             get { return _RecvResult; }
             set { _RecvResult = value; RaisePropertyChanged(); }
         }
+
         private int _RecvTimeOut = DEFAULT_TIMEOUT;
         public int RecvTimeOut {
             get { return _RecvTimeOut; }
             set { _RecvTimeOut = value; RaisePropertyChanged(); }
         }
+
         private bool _IsResultCheck = false;
         public bool IsResultCheck {
             get { return _IsResultCheck; }
             set { _IsResultCheck = value; RaisePropertyChanged(); }
         }
+
+        #endregion
+
 
         public static long GenerateID(List<long> id_list)
         {

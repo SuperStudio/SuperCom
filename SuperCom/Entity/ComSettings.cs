@@ -21,7 +21,11 @@ namespace SuperCom.Entity
         public bool RecvShowHex { get; set; }
         public bool EnabledFilter { get; set; }
         public bool EnabledMonitor { get; set; }
-        public string PortSetting { get; set; } // json 格式
+
+        /// <summary>
+        /// JSON 格式
+        /// </summary>
+        public string PortSetting { get; set; }
         public string WriteData { get; set; }
 
         public string CreateDate { get; set; }
@@ -50,7 +54,9 @@ namespace SuperCom.Entity
             return this.PortName.GetHashCode();
         }
 
-        // SQLite 中建表语句
+        /// <summary>
+        /// SQLite 中建表语句
+        /// </summary>
         public static class SqliteTable
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()

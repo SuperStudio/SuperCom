@@ -1,4 +1,4 @@
-﻿namespace SuperCom.Entity
+﻿namespace SuperCom.Entity.Enums
 {
     public enum SplitPanelType
     {

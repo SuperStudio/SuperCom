@@ -11,18 +11,25 @@ namespace SuperCom.Upgrade
 {
     public static class UpgradeHelper
     {
-        public static int AUTO_CHECK_UPGRADE_DELAY = 60 * 1000;
+        #region "常量"
 
+        public const int AUTO_CHECK_UPGRADE_DELAY = 60 * 1000;
         private const string DEFAULT_LANG = "zh-CN";
         private const string DEFAULT_UPDATE_FILE_DIR = "TEMP";
         private const string DEFAULT_APP_NAME = "SuperCom.exe";
         private const int DEFAULT_BEFORE_UPDATE_DELAY = 5;
         private const int DEFAULT_AFTER_UPDATE_DELAY = 1;
+
+        #endregion
+
+        #region "静态属性"
         public static Action OnBeforeCopyFile { get; set; }
         private static bool WindowClosed { get; set; }
 
         private static SuperUpgrader Upgrader { get; set; }
         private static Dialog_Upgrade Dialog_Upgrade { get; set; }
+
+        #endregion
 
         public static void Init()
         {

@@ -1,7 +1,9 @@
 ﻿using SuperCom.Config;
+using SuperCom.Entity.Enums;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
+using SuperUtils.WPF.VieModel;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -9,23 +11,10 @@ using System.Runtime.CompilerServices;
 namespace SuperCom.Entity
 {
 
-    public enum VarDataType
-    {
-        整数,
-        小数,
-        字符串,
-    }
-
     [Table(tableName: "var_monitor")]
 
-    public class VarMonitor : INotifyPropertyChanged
+    public class VarMonitor : ViewModelBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged([CallerMemberName] string name = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         public const string DATA_DIR = "monitor_data";
 
@@ -160,6 +149,11 @@ namespace SuperCom.Entity
                 result += item.GetHashCode();
             }
             return result;
+        }
+
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

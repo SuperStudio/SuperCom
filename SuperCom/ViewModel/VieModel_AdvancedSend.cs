@@ -17,9 +17,6 @@ namespace SuperCom.ViewModel
 
     public class VieModel_AdvancedSend : ViewModelBase
     {
-        public MainWindow Main { get; set; }
-
-        private static SqliteMapper<AdvancedSend> Mapper { get; set; }
 
         public VieModel_AdvancedSend()
         {
@@ -32,9 +29,23 @@ namespace SuperCom.ViewModel
         }
 
 
+
+        #region "静态属性"
+
+        private static SqliteMapper<AdvancedSend> Mapper { get; set; }
+
+
+        #endregion
+
+        #region "属性"
+        public MainWindow Main { get; set; }
+
         public Action<bool> OnRunCommand { get; set; }
 
         public List<AdvancedSend> AllProjects { get; set; }
+
+        public Dictionary<SideComPort, bool> SideComPortSelected { get; set; }
+
 
         private ObservableCollection<AdvancedSend> _CurrentProjects;
         public ObservableCollection<AdvancedSend> CurrentProjects {
@@ -51,8 +62,8 @@ namespace SuperCom.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private long _CurrentProjectID;
 
+        private long _CurrentProjectID;
         public long CurrentProjectID {
             get { return _CurrentProjectID; }
             set {
@@ -62,7 +73,6 @@ namespace SuperCom.ViewModel
         }
 
         private bool _ShowCurrentSendCommand;
-
         public bool ShowCurrentSendCommand {
             get { return _ShowCurrentSendCommand; }
             set {
@@ -80,6 +90,7 @@ namespace SuperCom.ViewModel
                 OnRunCommand?.Invoke(value);
             }
         }
+
         private double _WindowOpacity = ConfigManager.AdvancedSendSettings.WindowOpacity;
         public double WindowOpacity {
             get { return _WindowOpacity; }
@@ -89,13 +100,12 @@ namespace SuperCom.ViewModel
             }
         }
 
-        public Dictionary<SideComPort, bool> SideComPortSelected { get; set; }
-
         private ObservableCollection<SideComPort> _SideComPorts;
         public ObservableCollection<SideComPort> SideComPorts {
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
+
         private int _SideIndex = (int)ConfigManager.AdvancedSendSettings.SideIndex;
         public int SideIndex {
             get { return _SideIndex; }
@@ -106,6 +116,7 @@ namespace SuperCom.ViewModel
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
+
         private int _ComPortSelectedIndex = (int)ConfigManager.AdvancedSendSettings.ComPortSelectedIndex;
         public int ComPortSelectedIndex {
             get { return _ComPortSelectedIndex; }
@@ -116,6 +127,7 @@ namespace SuperCom.ViewModel
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
+
         private bool _ShowLogGrid = ConfigManager.AdvancedSendSettings.ShowLogGrid;
         public bool ShowLogGrid {
             get { return _ShowLogGrid; }
@@ -126,6 +138,7 @@ namespace SuperCom.ViewModel
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
+
         private bool _LogAutoWrap = ConfigManager.AdvancedSendSettings.LogAutoWrap;
         public bool LogAutoWrap {
             get { return _LogAutoWrap; }
@@ -136,6 +149,7 @@ namespace SuperCom.ViewModel
                 ConfigManager.AdvancedSendSettings.Save();
             }
         }
+
         private double _LogOpacity = ConfigManager.AdvancedSendSettings.LogOpacity;
         public double LogOpacity {
             get { return _LogOpacity; }
@@ -147,7 +161,7 @@ namespace SuperCom.ViewModel
             }
         }
 
-
+        #endregion
 
         public override void Init()
         {
@@ -189,9 +203,6 @@ namespace SuperCom.ViewModel
         {
             AllProjects = Mapper.SelectList();
         }
-
-
-
 
         private void LoadSideComports()
         {

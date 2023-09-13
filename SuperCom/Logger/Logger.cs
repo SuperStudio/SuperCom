@@ -8,14 +8,20 @@ namespace SuperCom.Log
 {
     public class Logger : AbstractLogger
     {
-        public static string LOG_DIR = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_logs");
+        public static string LOG_DIR { get; set; } =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_logs");
+
+        public static Logger Instance { get; private set; }
+
+
+        /// <summary>
+        /// 防止递归
+        /// </summary>
+        private bool Writing { get; set; } = false;
+
         private Logger()
         {
         }
-
-        public static Logger Instance { get; }
-
-
 
         static Logger()
         {
@@ -28,22 +34,17 @@ namespace SuperCom.Log
         }
 
 
-        /// <summary>
-        /// 防止递归
-        /// </summary>
-        private bool writing = false;
-
         public override void LogPrint(string str)
         {
-            if (writing)
+            if (Writing)
                 return;
-            writing = true;
+            Writing = true;
             Console.Write(str);
             if (!Directory.Exists(LOG_DIR))
                 DirHelper.TryCreateDirectory(LOG_DIR);
             string filePath = Path.Combine(LOG_DIR, DateHelper.NowDate() + ".log");
             FileHelper.TryAppendToFile(filePath, str);
-            writing = false;
+            Writing = false;
         }
     }
 }

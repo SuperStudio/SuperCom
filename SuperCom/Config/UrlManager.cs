@@ -33,7 +33,7 @@ namespace SuperCom.Config
         public static string GITHUB_URL { get; set; }
         public static string WEB_URL { get; set; }
         public static string JOIN_GROUP_URL { get; set; }
-        public static string AUTHOR { get; set; } = "chao";
+        public static string AUTHOR { get; set; } = "chao, itldg 老大哥";
         public static string LICENSE { get; set; } = "GPL-3.0";
         #endregion
 

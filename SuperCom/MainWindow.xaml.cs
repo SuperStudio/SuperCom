@@ -2,6 +2,7 @@
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
+using SuperCom.AvalonEdit.Colorizers;
 using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Upgrade;
@@ -92,6 +93,7 @@ namespace SuperCom
                             Border border = oldTextEditor.Parent as Border;
                             TextEditor newTextEditor = new TextEditor();
                             SetTextEditorConfig(ref newTextEditor, true);
+
                             IHighlightingDefinition syntaxHighlighting = oldTextEditor.SyntaxHighlighting;
                             double FontSize = oldTextEditor.FontSize;
 
@@ -462,6 +464,10 @@ namespace SuperCom
             if (textEditor == null) {
                 textEditor = FindTextBoxByPortName(portName);
                 SetTextEditorConfig(ref textEditor);
+
+                //textEditor.TextArea.TextView.LineTransformers.Add(new AnsiColorizer());
+                //textEditor.TextArea.TextView.LineTransformers.Add(new AnsiOctalColorizer());
+
                 textEditor.TextChanged += portTabItem.TextBox_TextChanged;
                 portTabItem.TextEditor = textEditor;
                 // 设置语法高亮

@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Rendering;
 using SuperCom.AvalonEdit.Colors;
+using SuperCom.AvalonEdit.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using static System.MemoryExtensions;
 
 namespace SuperCom.AvalonEdit.Colorizers
 {
@@ -17,7 +17,7 @@ namespace SuperCom.AvalonEdit.Colorizers
         protected override void ColorizeLine(DocumentLine line)
         {
             // Instead of allocating a string here we're going to use a Span and work from it.
-            var text = CurrentContext.Document.GetText(line).AsSpan();
+            var text = CurrentContext.Document.GetText(line);
 
             // There are no ANSI codes on this line, no need to further process.
             if (text.IndexOf('\x1B') == -1) {
@@ -27,9 +27,9 @@ namespace SuperCom.AvalonEdit.Colorizers
             foreach (var color in Colorizer.ColorMap) {
                 int start = 0;
                 int index;
-                int ansiLength = color.AnsiColor.AnsiCode.AsSpan().Length;
+                int ansiLength = color.AnsiColor.AnsiCode.Length;
 
-                while ((index = text.IndexOf(color.AnsiColor.AnsiCode.AsSpan(), start)) >= 0) {
+                while ((index = text.IndexOf(color.AnsiColor.AnsiCode, start)) >= 0) {
                     // This should look for the index of the next color code EXCEPT when it's a style code.
                     int endMarker = text.IndexOfNextColorCode(index + 1);
 
@@ -59,11 +59,11 @@ namespace SuperCom.AvalonEdit.Colorizers
             foreach (var color in Colorizer.StyleMap) {
                 int start = 0;
                 int index;
-                int ansiLength = color.AnsiColor.AnsiCode.AsSpan().Length;
+                int ansiLength = color.AnsiColor.AnsiCode.Length;
 
-                while ((index = text.IndexOf(color.AnsiColor.AnsiCode.AsSpan(), start)) >= 0) {
+                while ((index = text.IndexOf(color.AnsiColor.AnsiCode, start)) >= 0) {
                     // Find the clear color code if it exists.
-                    int endMarker = text.IndexOf(AnsiColors.Clear.AnsiCode.AsSpan(), index + 1);
+                    int endMarker = text.IndexOf(AnsiColors.Clear.AnsiCode, index + 1);
 
                     // If the end marker isn't found on this line then it goes to the end of the line
                     if (endMarker == -1) {

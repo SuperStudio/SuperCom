@@ -7,6 +7,8 @@
  * @license           : MIT
  */
 
+using System.Collections.Generic;
+
 namespace SuperCom.AvalonEdit.Colors
 {
     public static class AnsiColors
@@ -41,7 +43,7 @@ namespace SuperCom.AvalonEdit.Colors
         /// </summary>
         public static List<AnsiColor> ToList()
         {
-            return new()
+            return new List<AnsiColor>()
             {
                 new Clear(),
                 new Green(),

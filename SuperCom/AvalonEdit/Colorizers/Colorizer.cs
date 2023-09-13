@@ -1,4 +1,5 @@
 ﻿using SuperCom.AvalonEdit.Colors;
+using SuperCom.AvalonEdit.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace SuperCom.AvalonEdit.Colorizers
                 new ColorMap { AnsiColor = AnsiColors.Pink, Brush = Brushes.HotPink },
                 new ColorMap { AnsiColor = AnsiColors.Brown, Brush = Brushes.Brown },
                 new ColorMap { AnsiColor = AnsiColors.Magenta, Brush = Brushes.MediumPurple }
-            };
+        };
 
         /// <summary>
         /// Static list of styles we support that allows for translation between the different formats.  These will generally
@@ -86,7 +87,7 @@ namespace SuperCom.AvalonEdit.Colorizers
         {
             // If there are ANSI codes don't bother RegEx matching, return the provided
             // value back to the caller.
-            if (buf.IndexOf('\x1B') == -1) {
+            if (!buf.IsAnsiString()) {
                 return buf;
             }
 
@@ -100,7 +101,7 @@ namespace SuperCom.AvalonEdit.Colorizers
         public static void RemoveAllAnsiCodes(StringBuilder sb)
         {
             // If there are ANSI codes don't bother RegEx matching.
-            if (sb.IndexOf('\x1B') == -1) {
+            if (!sb.IsAnsiString()) {
                 return;
             }
 
@@ -112,17 +113,11 @@ namespace SuperCom.AvalonEdit.Colorizers
             }
         }
 
-        /// <summary>
-        /// Creates a <see cref="Utf16ValueStringBuilder"/> and appends the specified text
-        /// without any ANSI codes that are included with it.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <remarks>Caller should call Dispose when they are done with this method.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Utf16ValueStringBuilder CreateStringBuilder(string text)
+
+        public static StringBuilder CreateStringBuilder(string text)
         {
-            var sb = ZString.CreateStringBuilder();
-            var span = text.AsSpan();
+            StringBuilder sb = new StringBuilder();
+            var span = text;
             int length = span.Length;
 
             int startIndex = 0;
@@ -133,7 +128,7 @@ namespace SuperCom.AvalonEdit.Colorizers
                 }
 
                 // Append string before ANSI code
-                sb.Append(span.Slice(startIndex, i - startIndex));
+                sb.Append(span.Substring(startIndex, i - startIndex));
                 startIndex = i;
 
                 // Look for end of ANSI code
@@ -150,7 +145,7 @@ namespace SuperCom.AvalonEdit.Colorizers
 
             // Append remainder of string after last ANSI code
             if (startIndex < text.Length) {
-                sb.Append(span[startIndex..]);
+                sb.Append(span.Substring(startIndex));
             }
 
             return sb;
@@ -163,7 +158,7 @@ namespace SuperCom.AvalonEdit.Colorizers
         public static void AnsiToMudColorCodes(StringBuilder sb)
         {
             // If there are no mud color codes don't bother loop through looking for them.
-            if (sb.IndexOf('\x1B') == -1) {
+            if (!sb.IsAnsiString()) {
                 return;
             }
 
@@ -176,12 +171,12 @@ namespace SuperCom.AvalonEdit.Colorizers
         /// Converts ANSI color codes into mud color codes.  Note: This updates the StringBuilder directly.
         /// </summary>
         /// <param name="sb"></param>
-        public static void AnsiToMudColorCodes(ref Utf16ValueStringBuilder sb)
+        public static void AnsiToMudColorCodes(ref StringBuilder sb)
         {
-            var span = sb.AsSpan();
+            var span = sb.ToString();
 
             // If there are no color codes don't bother loop through the replacements.
-            if (!span.Contains('\x1B')) {
+            if (!span.IsAnsiString()) {
                 return;
             }
 
@@ -216,9 +211,9 @@ namespace SuperCom.AvalonEdit.Colorizers
         /// Converts mud color codes into ANSI color codes.  Note: This updates the StringBuilder directly.
         /// </summary>
         /// <param name="sb"></param>
-        public static void MudToAnsiColorCodes(ref Utf16ValueStringBuilder sb)
+        public static void MudToAnsiColorCodes(ref StringBuilder sb)
         {
-            var span = sb.AsSpan();
+            var span = sb.ToString();
 
             // If there are no color codes don't bother loop through the replacements.
             if (!span.Contains('{')) {

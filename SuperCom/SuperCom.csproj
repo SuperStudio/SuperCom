@@ -111,6 +111,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AvalonEdit\Colorizers\AnsiOctalColorizer.cs" />
     <Compile Include="AvalonEdit\Colorizers\AnsiColorizer.cs" />
     <Compile Include="AvalonEdit\Colorizers\Colorizer.cs" />
     <Compile Include="AvalonEdit\Colorizers\ColorMap.cs" />
@@ -140,6 +141,7 @@
     <Compile Include="AvalonEdit\Colors\Underline.cs" />
     <Compile Include="AvalonEdit\Colors\White.cs" />
     <Compile Include="AvalonEdit\Colors\Yellow.cs" />
+    <Compile Include="AvalonEdit\Extensions\ExtensionMethods.cs" />
     <Compile Include="Comparers\ComPortComparer.cs" />
     <Compile Include="Config\VarMonitorSetting.cs" />
     <Compile Include="Config\ConfigImport.cs" />

@@ -52,6 +52,15 @@ namespace SuperCom
         Window_Monitor window_Monitor { get; set; }
         public VieModel_Main vieModel { get; set; }
 
+        /// <summary>
+        /// 最后使用的串口排序类型
+        /// </summary>
+        ComPortSortType LastSortType= ComPortSortType.AddTime;
+        /// <summary>
+        /// 最后使用的串口排序方式
+        /// </summary>
+        bool LastSortDesc = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -397,7 +406,6 @@ namespace SuperCom
             }
             return true;
         }
-
 
         /// <summary>
         /// 恢复侧边栏串口的配置信息
@@ -2164,16 +2172,16 @@ namespace SuperCom
             if (menuItem != null && menuItem.Tag != null) {
                 SetAllMenuItemSortable(menuItem);
                 MenuItemExt.SetSortable(menuItem, true);
-                bool desc = MenuItemExt.GetDesc(menuItem);
+                LastSortDesc = MenuItemExt.GetDesc(menuItem);
                 List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
                 string value = menuItem.Tag.ToString();
-                Enum.TryParse(value, out ComPortSortType sortType);
-                vieModel.InitPortData(sortType, desc);
+                Enum.TryParse(value, out ComPortSortType LastSortType);
+                vieModel.InitPortData(LastSortType, LastSortDesc);
 
-                Logger.Info($"sort port, type: {sortType}, desc: {desc}");
+                Logger.Info($"sort port, type: {LastSortType}, desc: {LastSortDesc}");
 
                 RetainSidePortValue(sideComPorts);
-                MenuItemExt.SetDesc(menuItem, !desc);
+                MenuItemExt.SetDesc(menuItem, !LastSortDesc);
             }
         }
 
@@ -3289,7 +3297,7 @@ namespace SuperCom
         private void RefreshPortsStatus(object sender, RoutedEventArgs e)
         {
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
-            vieModel.InitPortData();
+            vieModel.InitPortData(LastSortType,LastSortDesc);
             RetainSidePortValue(sideComPorts);
         }
 

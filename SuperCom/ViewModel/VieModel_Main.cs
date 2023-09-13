@@ -193,7 +193,7 @@ namespace SuperCom.ViewModel
         public AdvancedSend CurrentAdvancedSend { get; set; }
 
 
-        public void Init()
+        public override void Init()
         {
             PortTabItems = new ObservableCollection<PortTabItem>();
             PortTabItems.CollectionChanged += (s, e) => {
@@ -400,7 +400,5 @@ namespace SuperCom.ViewModel
                 RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
             HighLightRule.AllRules = RuleMapper.SelectList();
         }
-
-
     }
 }

@@ -149,6 +149,11 @@ namespace SuperCom.Entity
         {
             return this.KeyID.GetHashCode();
         }
+
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 

@@ -84,6 +84,11 @@ namespace SuperCom.Entity
             }
             return 0;
         }
+
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 

@@ -783,7 +783,10 @@ namespace SuperCom.Entity
             SaveData(value + Environment.NewLine, now);
         }
 
-
+        public override void Init()
+        {
+            throw new NotImplementedException();
+        }
 
         public PortTabItem(string name, bool connected)
         {

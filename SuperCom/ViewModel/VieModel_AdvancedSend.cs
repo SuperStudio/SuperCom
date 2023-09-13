@@ -149,7 +149,7 @@ namespace SuperCom.ViewModel
 
 
 
-        private void Init()
+        public override void Init()
         {
             CurrentProjects = new ObservableCollection<AdvancedSend>();
             SendCommands = new ObservableCollection<SendCommand>();

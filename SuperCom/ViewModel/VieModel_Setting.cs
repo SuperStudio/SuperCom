@@ -295,7 +295,7 @@ namespace SuperCom.ViewModel
 
 
 
-        public void Init()
+        public override void Init()
         {
             RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
             LoadBaudRates();

@@ -60,5 +60,9 @@ namespace SuperCom.Entity
             return Name.GetHashCode();
         }
 
+        public override void Init()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

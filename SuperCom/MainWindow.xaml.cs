@@ -544,7 +544,6 @@ namespace SuperCom
                         //serialPort.ReadTimeout = CustomSerialPort.READ_TIME_OUT;
                         serialPort.PrintSetting();
                         serialPort.Open();
-                        portTabItem.FirstSaveData = true;
                         // 打开后启动对应的过滤器线程
                         //portTabItem.StartFilterTask();
                         //portTabItem.StartMonitorTask();
@@ -946,7 +945,7 @@ namespace SuperCom
             if (bytes == null || bytes.Length == 0)
                 return 0;
             string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            portTabItem.SaveData($"SEND >>>>>>>>>> {str}\r\n", DateHelper.Now());
+            portTabItem.SaveData($"SEND >>>>>>>>>> {str}", DateHelper.Now());
             port.Write(bytes, 0, bytes.Length);
             Logger.Info($"send data, port name: {portTabItem.Name}, hex: {portTabItem.SendHex}, TX: {portTabItem.TX + bytes.Length}, value: {str}");
             return bytes.Length;
@@ -977,7 +976,7 @@ namespace SuperCom
                     portTabItem.TX += len;
                 } else {
                     port.Write(value);
-                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}\r\n", DateHelper.Now());
+                    portTabItem.SaveData($"SEND >>>>>>>>>> {value}", DateHelper.Now());
                     portTabItem.TX += Encoding.UTF8.GetByteCount(value);
                     Logger.Info($"send data, port name: {portTabItem.Name}, hex: {portTabItem.SendHex}, TX: {portTabItem.TX}, value: {value}");
 

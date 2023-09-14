@@ -31,12 +31,6 @@ namespace SuperCom.Entity
 
         #region "属性"
 
-
-        /// <summary>
-        /// 是否是第一次收到数据
-        /// </summary>
-        public bool FirstSaveData { get; set; }
-
         /// <summary>
         /// 保存收到数据并处理
         /// </summary>
@@ -265,7 +259,7 @@ namespace SuperCom.Entity
 
         public void ClearData()
         {
-            FirstSaveData = true;
+
         }
 
         void ProcessLine(SerialPortEx serialPort, string line, string now)
@@ -580,25 +574,20 @@ namespace SuperCom.Entity
             if (AddTimeStamp) {
                 // 遍历字符串
                 RecvBuffer.Clear();
+                RecvBuffer.Append($"[{now}] ");
                 // 一次遍历效率最高，使用 indexof 还额外多遍历几次
                 char c;
                 for (int i = 0; i < valueLen; i++) {
                     c = value[i];
                     if (c == '\r' && i < valueLen - 1 && value[i + 1] == '\n') {
                         continue;
-                    } else if (c == '\r' || c == '\n') {
-                        RecvBuffer.Append(c);
-                        RecvBuffer.Append($"[{now}] ");
                     } else {
                         RecvBuffer.Append(c);
                     }
                 }
-                if (FirstSaveData) {
-                    RecvBuffer.Insert(0, $"[{now}] ");
-                    FirstSaveData = false;
-                }
                 value = RecvBuffer.ToString();
             }
+            value += Environment.NewLine;
             CurrentCharSize += Encoding.UTF8.GetByteCount(value);
             //MonitorLine(value);
             FilterLine(value);
@@ -620,7 +609,7 @@ namespace SuperCom.Entity
             App.Logger.Debug($"存数据：{bytes.Length} B");
             string value =
                 TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            SaveData(value + Environment.NewLine, now);
+            SaveData(value, now);
         }
 
         public override void Init()

@@ -2183,7 +2183,8 @@ namespace SuperCom
                 LastSortDesc = MenuItemExt.GetDesc(menuItem);
                 List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
                 string value = menuItem.Tag.ToString();
-                Enum.TryParse(value, out ComPortSortType LastSortType);
+                Enum.TryParse(value, out ComPortSortType sortType);
+                LastSortType = sortType;
                 vieModel.InitPortData(LastSortType, LastSortDesc);
 
                 Logger.Info($"sort port, type: {LastSortType}, desc: {LastSortDesc}");
@@ -3304,8 +3305,8 @@ namespace SuperCom
 
         private void RefreshPortsStatus(object sender, RoutedEventArgs e)
         {
-            List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
             vieModel.InitPortData(LastSortType, LastSortDesc);
+            List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
             RetainSidePortValue(sideComPorts);
         }
 

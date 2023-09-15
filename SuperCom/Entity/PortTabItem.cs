@@ -580,6 +580,8 @@ namespace SuperCom.Entity
                 for (int i = 0; i < valueLen; i++) {
                     c = value[i];
                     if (c == '\r' && i < valueLen - 1 && value[i + 1] == '\n') {
+                        RecvBuffer.Append($"\r\n[{now}] ");
+                        i++;//跳过 \n
                         continue;
                     } else {
                         RecvBuffer.Append(c);

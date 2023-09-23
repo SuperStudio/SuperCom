@@ -26,7 +26,6 @@ namespace SuperCom.Entity
     {
         private const int MAX_READ_LENGTH = 10240;
         private const int READ_INTERVAL = 50;
-        private const int NOT_RECV_HEX_SLEEP_INTERVAL = 2000;
 
 
         #region "属性"
@@ -35,9 +34,6 @@ namespace SuperCom.Entity
         /// 保存收到数据并处理
         /// </summary>
         private StringBuilder RecvBuffer { get; set; } = new StringBuilder();
-
-        private string StrRecvLine { get; set; } = "";
-        private string StrRecvTime { get; set; } = "";
 
         private DateTime HexRecvTime { get; set; }
 
@@ -102,7 +98,7 @@ namespace SuperCom.Entity
         private SerialPortEx _SerialPort;
         public SerialPortEx SerialPort {
             get { return _SerialPort; }
-            set { _SerialPort = value; RaisePropertyChanged(); }
+            set { _SerialPort = value; _SerialPort.DataReceived += OnReceive; RaisePropertyChanged(); }
         }
 
         private bool _AddNewLineWhenWrite = true;
@@ -135,7 +131,6 @@ namespace SuperCom.Entity
             set {
                 _RecvShowHex = value;
                 RaisePropertyChanged();
-                SetDataReceivedType();
                 Logger.Info($"port: {Name}, RecvShowHex: {value}");
             }
         }
@@ -262,52 +257,10 @@ namespace SuperCom.Entity
 
         }
 
-        void ProcessLine(SerialPortEx serialPort, string line, string now)
-        {
-            if (string.IsNullOrEmpty(line))
-                return;
-            string portName = serialPort.PortName;
-            try {
-                App.Current.Dispatcher.Invoke(() => {
-                    SaveData(line, now);
-                });
-            } catch (Exception ex) {
-                App.Logger.Error(ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// 处理收到的 COM 数据
-        /// <para>参考：<see href="https://stackoverflow.com/a/13755084">stackoverflow</see></para>
-        /// </summary>
-        /// <param name="serialPort"></param>
-        private void HandleStrReceived(SerialPortEx serialPort)
-        {
-            try {
-                StrRecvLine = serialPort.ReadExisting();
-                if (string.IsNullOrEmpty(StrRecvLine))
-                    return;
-
-                // 记录此刻的时间及数据
-                if (AddTimeStamp)
-                    StrRecvTime = DateHelper.Now();
-
-                ProcessLine(serialPort, StrRecvLine, StrRecvTime);
-            } catch (Exception ex) {
-                App.Logger.Error(ex.Message);
-            }
-        }
-
-        private void OnReceiveStr(object sender, SerialDataReceivedEventArgs e)
-        {
-            SerialPortEx serialPort = sender as SerialPortEx;
-            HandleStrReceived(serialPort);
-        }
-
-        #region "HEX 收数据处理"
+        #region "收数据处理"
 
 
-        private void OnReceiveHEX(object sender, SerialDataReceivedEventArgs e)
+        private void OnReceive(object sender, SerialDataReceivedEventArgs e)
         {
             ResetEvent.Set();
         }
@@ -320,7 +273,7 @@ namespace SuperCom.Entity
         /// <para>参考2：<see href="https://learn.microsoft.com/en-us/dotnet/api/system.io.ports.serialport.datareceived">microsoft</see></para>
         /// <para>参考3：<see href="https://stackoverflow.com/questions/46882774/how-to-deal-with-c-sharp-serialport-read-and-write-data-perfectly">deal-with-c-sharp-serialport-read</see></para>
         /// </summary>
-        public void ReadHexTask()
+        public void ReadTask()
         {
             ResetEvent.Reset();
             List<byte> allData = new List<byte>();
@@ -349,36 +302,21 @@ namespace SuperCom.Entity
             }
             if (allData.Count > 0) {
                 Application.Current.Dispatcher.Invoke(() => {
-                    SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
+                    if (RecvShowHex)
+                    {
+                        // HEX 模式
+                        SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
+                    }
+                    else
+                    {
+                        // STR 模式
+                        SaveData(Encoding.UTF8.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
+                    }
+                    
                 });
             }
         }
         #endregion
-
-
-
-        /// <summary>
-        /// 两种接收模式：HEX 和 STR
-        /// </summary>
-        /// <param name="serialPort"></param>
-        /// <param name="tabItem"></param>
-        public void SetDataReceivedType()
-        {
-            if (SerialPort == null)
-                return;
-            if (RecvShowHex) {
-                // HEX 模式
-                SerialPort.DataReceived -= OnReceiveStr;
-                SerialPort.DataReceived -= OnReceiveHEX;
-                SerialPort.DataReceived += OnReceiveHEX;
-            } else {
-                // STR 模式
-                SerialPort.DataReceived -= OnReceiveHEX;
-                SerialPort.DataReceived -= OnReceiveStr;
-                SerialPort.DataReceived += OnReceiveStr;
-            }
-        }
-
 
         private void RefreshSendHexValue(string value)
         {
@@ -627,10 +565,7 @@ namespace SuperCom.Entity
             ResetEvent = new AutoResetEvent(false);
             Task.Run(() => {
                 while (true) {
-                    if (RecvShowHex)
-                        ReadHexTask();
-                    else
-                        Thread.Sleep(NOT_RECV_HEX_SLEEP_INTERVAL);
+                    ReadTask();
                 }
             });
         }

@@ -729,8 +729,6 @@ namespace SuperCom
                 portTabItem.Selected = true;
                 vieModel.PortTabItems.Add(portTabItem);
 
-                portTabItem.SetDataReceivedType();
-
                 await Task.Run(async () => {
                     await Task.Delay(500);
                     Dispatcher.Invoke(() => {

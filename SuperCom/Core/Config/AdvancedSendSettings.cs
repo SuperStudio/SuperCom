@@ -7,6 +7,11 @@ namespace SuperCom.Config.WindowConfig
     {
         public const double DEFAULT_WINDOW_OPACITY = 0.5;
         public const double DEFAULT_LOG_OPACITY = 0.8;
+
+        /// <summary>
+        /// 发送延时的误差补偿
+        /// </summary>
+        public const long DEFAULT_SEND_COMPENSATION = 30;
         private AdvancedSendSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.AdvancedSendSettings")
         {
             Width = SystemParameters.WorkArea.Width * 0.7;
@@ -14,6 +19,9 @@ namespace SuperCom.Config.WindowConfig
             FirstRun = true;
             LogOpacity = DEFAULT_LOG_OPACITY;
             WindowOpacity = DEFAULT_WINDOW_OPACITY;
+
+            EnableSendCompensation = false;
+            SendCompensation = DEFAULT_SEND_COMPENSATION;
         }
 
         private static AdvancedSendSettings _instance = null;
@@ -40,6 +48,30 @@ namespace SuperCom.Config.WindowConfig
         public bool LogAutoWrap { get; set; }
         public double LogOpacity { get; set; }
 
+        private bool _EnableSendCompensation;
 
+        /// <summary>
+        /// 是否开启误差补偿
+        /// </summary>
+        public bool EnableSendCompensation {
+            get { return _EnableSendCompensation; }
+            set {
+                _EnableSendCompensation = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private long _SendCompensation;
+
+        /// <summary>
+        /// 误差补偿大小
+        /// </summary>
+        public long SendCompensation {
+            get { return _SendCompensation; }
+            set {
+                _SendCompensation = value;
+                RaisePropertyChanged();
+            }
+        }
     }
 }

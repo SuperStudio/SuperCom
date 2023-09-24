@@ -170,7 +170,7 @@ namespace SuperCom.Entity
         private async Task<bool> AsyncSendCommand(int idx, PortTabItem portTabItem, SendCommand command, AdvancedSend advancedSend)
         {
             bool success = false;
-            await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
+            await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
                 string value = command.Command;
                 success = portTabItem.SendCommand(value, true);
                 if (!success) {
@@ -184,12 +184,39 @@ namespace SuperCom.Entity
             return success;
         }
 
+        private async Task<bool> CmdDelay(int delay)
+        {
+            //if (command.Delay > 0) {
+            //    int delay = 10;
+            //    for (int i = 1; i <= command.Delay; i += delay) {
+            //        if (!portTabItem.RunningCommands)
+            //            break;
+            //        await Task.Delay(delay);
+            //        advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
+            //    }
+            //    advancedSend.CommandList[idx].StatusText = "0 ms";
+            //}
+
+            int time = delay;
+            if (ConfigManager.AdvancedSendSettings.EnableSendCompensation) {
+                time -= (int)ConfigManager.AdvancedSendSettings.SendCompensation;
+            }
+
+            if (time < 0)
+                return true;
+
+            // Task.Delay 在 window 系统上会有 15 ms 的误差
+            // 参考：https://learn.microsoft.com/en-us/dotnet/api/system.threading.tasks.task.delay?view=netframework-4.7.2&redirectedfrom=MSDN#System_Threading_Tasks_Task_Delay_System_Int32
+            await Task.Delay(time);
+            return true;
+        }
+
         /// <summary>
         /// 发送命令的任务
         /// </summary>
-        /// <param name="advancedSend"></param>
-        /// <param name="portName"></param>
-        /// <param name="button"></param>
+        /// <param name="advancedSend">需要发送的命令集合</param>
+        /// <param name="portTabItem">指定发送串口</param>
+        /// <param name="onSetRunningStatus">发送状态回调函数</param>
         public void BeginSendCommands(AdvancedSend advancedSend, PortTabItem portTabItem, Action<bool> onSetRunningStatus)
         {
             if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands) || portTabItem == null)
@@ -205,7 +232,6 @@ namespace SuperCom.Entity
                 return;
             }
             portTabItem.RunningCommands = true;
-
             onSetRunningStatus?.Invoke(true);
             Task.Run(async () => {
                 int idx = 0;
@@ -218,16 +244,7 @@ namespace SuperCom.Entity
                     if (!success)
                         break;
                     advancedSend.CommandList[idx].Status = RunningStatus.WaitingDelay;
-                    if (command.Delay > 0) {
-                        int delay = 10;
-                        for (int i = 1; i <= command.Delay; i += delay) {
-                            if (!portTabItem.RunningCommands)
-                                break;
-                            await Task.Delay(delay);
-                            advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
-                        }
-                        advancedSend.CommandList[idx].StatusText = "0 ms";
-                    }
+                    await CmdDelay(command.Delay);
                     advancedSend.CommandList[idx].Status = RunningStatus.WaitingToRun;
                     idx++;
                     if (idx >= advancedSend.CommandList.Count) {

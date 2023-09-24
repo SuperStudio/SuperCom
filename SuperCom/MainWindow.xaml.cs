@@ -1846,9 +1846,14 @@ namespace SuperCom
                 PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
                 if (advancedSend != null) {
                     Logger.Info($"start run command: {advancedSend.ProjectName}");
-                    advancedSend.BeginSendCommands(advancedSend, portTabItem, (status) => {
-                        SetRunningStatus(button, status);
-                    });
+                    try {
+                        advancedSend.BeginSendCommands(advancedSend, portTabItem, (status) => {
+                            SetRunningStatus(button, status);
+                        });
+                    } catch (Exception ex) {
+                        Logger.Error(ex);
+                        MessageCard.Error(ex.Message);
+                    }
                 }
             }
         }
@@ -2223,7 +2228,7 @@ namespace SuperCom
 
 
 
-        
+
         private void OpenShortCut(object sender, RoutedEventArgs e)
         {
             if (window_ShortCut != null)

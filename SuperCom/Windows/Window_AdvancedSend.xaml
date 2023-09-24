@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:config="clr-namespace:SuperCom.Config"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
@@ -394,6 +395,28 @@
                             Value="{Binding WindowOpacity, Mode=OneWay}" />
 
                     </StackPanel>
+
+                    <TextBlock Style="{StaticResource BaseTextBlock}" Text="补偿延时误差" />
+                    <super:HoverPath
+                        Width="23"
+                        Height="23"
+                        Style="{StaticResource HelpHoverPath}"
+                        ToolTip="系统定时器误差在 15-50ms" />
+                    <super:Switch
+                        Height="25"
+                        Background="{DynamicResource Window.Title.Background}"
+                        IsChecked="{Binding EnableSendCompensation, Source={x:Static config:ConfigManager.AdvancedSendSettings}}" />
+                    <super:SearchBox
+                        Width="80"
+                        Height="25"
+                        ShowClearButton="False"
+                        Text="{Binding SendCompensation, Source={x:Static config:ConfigManager.AdvancedSendSettings}, Mode=TwoWay}"
+                        TextAlignment="Center"
+                        Visibility="{Binding EnableSendCompensation, Source={x:Static config:ConfigManager.AdvancedSendSettings}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="ms"
+                        Visibility="{Binding EnableSendCompensation, Source={x:Static config:ConfigManager.AdvancedSendSettings}, Converter={StaticResource BoolToVisibilityConverter}}" />
                 </StackPanel>
 
 
@@ -534,8 +557,17 @@
                         <DataGridTemplateColumn
                             Width="auto"
                             MinWidth="60"
-                            Header="延时(ms)"
                             SortMemberPath="Delay">
+                            <DataGridTemplateColumn.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock VerticalAlignment="Center" Text="延时(ms)" />
+                                    <super:HoverPath
+                                        Width="23"
+                                        Height="23"
+                                        Style="{StaticResource HelpHoverPath}"
+                                        ToolTip="系统定时器误差在 15-50ms" />
+                                </StackPanel>
+                            </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <super:SearchBox

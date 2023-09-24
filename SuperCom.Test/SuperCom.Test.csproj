@@ -78,6 +78,9 @@
     <Compile Include="UITest\Upgrade\UpgradeTest.cs" />
     <Compile Include="UnitTests\Comparers\ComPortComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTests\Entity\HighLightRuleTest.cs" />
+    <Compile Include="UnitTests\Entity\RuleSetTest.cs" />
+    <Compile Include="UnitTests\Entity\VirtualPortTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SuperCom.Test
+namespace SuperCom.Test.UnitTests.Comparers
 {
     [TestClass]
     public class ComPortComparer

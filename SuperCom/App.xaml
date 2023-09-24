@@ -18,7 +18,7 @@
                 <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/XAML/Skin/DefaultColor.xaml" />
 
                 <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/Themes/SuperControls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/CustomStyle/Basic.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Core/CustomStyle/Basic.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/AvalonEdit/SearchPanel/SearchPanel.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

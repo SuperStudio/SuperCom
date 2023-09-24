@@ -1,10 +1,16 @@
 ﻿using SuperCom.Config;
 using SuperCom.Entity.Enums;
+using SuperControls.Style;
+using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace SuperCom.Entity
 {
@@ -159,6 +165,82 @@ namespace SuperCom.Entity
                 }
             }
         }
+
+
+        private async Task<bool> AsyncSendCommand(int idx, PortTabItem portTabItem, SendCommand command, AdvancedSend advancedSend)
+        {
+            bool success = false;
+            await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
+                string value = command.Command;
+                success = portTabItem.SendCommand(value, true);
+                if (!success) {
+                    return;
+                }
+
+                if (idx < advancedSend.CommandList.Count)
+                    advancedSend.CommandList[idx].Status = RunningStatus.AlreadySend;
+                success = true;
+            });
+            return success;
+        }
+
+        /// <summary>
+        /// 发送命令的任务
+        /// </summary>
+        /// <param name="advancedSend"></param>
+        /// <param name="portName"></param>
+        /// <param name="button"></param>
+        public void BeginSendCommands(AdvancedSend advancedSend, PortTabItem portTabItem, Action<bool> onSetRunningStatus)
+        {
+            if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands) || portTabItem == null)
+                return;
+            string portName = portTabItem.Name;
+
+            advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+            if (advancedSend.CommandList == null || advancedSend.CommandList.Count == 0)
+                return;
+
+            if (portTabItem == null || !portTabItem.Connected) {
+                MessageNotify.Error($"端口 {portName} 未连接");
+                return;
+            }
+            portTabItem.RunningCommands = true;
+
+            onSetRunningStatus?.Invoke(true);
+            Task.Run(async () => {
+                int idx = 0;
+                while (portTabItem.RunningCommands) {
+                    SendCommand command = advancedSend.CommandList[idx];
+                    if (idx < advancedSend.CommandList.Count)
+                        advancedSend.CommandList[idx].Status = RunningStatus.Running;
+
+                    bool success = await AsyncSendCommand(idx, portTabItem, command, advancedSend);
+                    if (!success)
+                        break;
+                    advancedSend.CommandList[idx].Status = RunningStatus.WaitingDelay;
+                    if (command.Delay > 0) {
+                        int delay = 10;
+                        for (int i = 1; i <= command.Delay; i += delay) {
+                            if (!portTabItem.RunningCommands)
+                                break;
+                            await Task.Delay(delay);
+                            advancedSend.CommandList[idx].StatusText = $"{command.Delay - i} ms";
+                        }
+                        advancedSend.CommandList[idx].StatusText = "0 ms";
+                    }
+                    advancedSend.CommandList[idx].Status = RunningStatus.WaitingToRun;
+                    idx++;
+                    if (idx >= advancedSend.CommandList.Count) {
+                        idx = 0;
+                        advancedSend.CommandList = advancedSend.CommandList.OrderBy(arg => arg.Order).ToList();
+                    }
+                }
+                App.Current.Dispatcher.Invoke(() => {
+                    onSetRunningStatus?.Invoke(false);
+                });
+            });
+        }
+
     }
 
 

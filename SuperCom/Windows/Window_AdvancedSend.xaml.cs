@@ -419,7 +419,7 @@ namespace SuperCom
                 PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
                 string value = command.Command;
                 if (port != null) {
-                    success = vieModel.Main.SendCommand(port, portTabItem, value);
+                    success = portTabItem.SendCommand(value);
                     if (!success) {
                         LogToTextBox($"[E] 向串口 {portName} 发送命令失败  {value} ");
                         success = false;

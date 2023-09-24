@@ -2,6 +2,7 @@
 using ICSharpCode.AvalonEdit;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
+using SuperControls.Style;
 using SuperUtils.Common;
 using SuperUtils.IO;
 using SuperUtils.Time;
@@ -27,8 +28,18 @@ namespace SuperCom.Entity
         private const int MAX_READ_LENGTH = 10240;
         private const int READ_INTERVAL = 50;
 
+        /// <summary>
+        /// 命令发送面板显示错误的数量上限，与 CurrentErrorCount 配合
+        /// </summary>
+        private const int MAX_ERROR_COUNT = 2;
 
         #region "属性"
+
+        /// <summary>
+        /// 避免连续发送命令时一直弹窗报错
+        /// </summary>
+        private int CurrentErrorCount { get; set; } = 0;
+
 
         /// <summary>
         /// 保存收到数据并处理
@@ -565,6 +576,79 @@ namespace SuperCom.Entity
                     ReadTask();
                 }
             });
+        }
+
+        /// <summary>
+        /// 异步超时发送
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="portTabItem"></param>
+        /// <param name="value"></param>
+        /// <param name="saveToHistory"></param>
+        /// <returns></returns>
+        public bool SendCommand(string value, bool saveToHistory = true)
+        {
+            if (SerialPort == null)
+                return false;
+            if (AddNewLineWhenWrite) {
+                value += "\r\n";
+            }
+
+            SerialPort port = SerialPort;
+
+            try {
+                if (SendHex) {
+                    int len = SendHexData(value);
+                    TX += len;
+                } else {
+                    port.Write(value);
+                    SaveData($"SEND >>>>>>>>>> {value}", DateHelper.Now());
+                    TX += Encoding.UTF8.GetByteCount(value);
+                    Logger.Info($"send data, port name: {Name}, hex: {SendHex}, TX: {TX}, value: {value}");
+
+                }
+
+                // todo 保存到发送历史
+                //if (saveToHistory)
+                //{
+                //    vieModel.SendHistory.Add(value.Trim());
+                //    vieModel.SaveSendHistory();
+                //}
+                //vieModel.StatusText = $"【发送命令】=>{WriteData}";
+                CurrentErrorCount = 0;
+                return true;
+            } catch (Exception ex) {
+                CurrentErrorCount++;
+                if (CurrentErrorCount <= MAX_ERROR_COUNT)
+                    MessageCard.Error(ex.Message);
+                return false;
+            }
+        }
+
+
+
+        public int SendHexData(string value)
+        {
+            if (string.IsNullOrEmpty(value) || SerialPort == null)
+                return 0;
+            byte[] bytes = TransformHelper.ParseHexString(value);
+            if (bytes == null || bytes.Length == 0)
+                return 0;
+            string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
+            SaveData($"SEND >>>>>>>>>> {str}", DateHelper.Now());
+            SerialPort.Write(bytes, 0, bytes.Length);
+            Logger.Info($"send data, port name: {Name}, hex: {SendHex}, TX: {TX + bytes.Length}, value: {str}");
+            return bytes.Length;
+        }
+
+        public void SendCustomCommand(string value)
+        {
+            // 设置固定滚屏
+            if (ConfigManager.CommonSettings.FixedOnSendCommand) {
+                FixedText = true;
+            }
+            CurrentErrorCount = 0;
+            SendCommand(value, false);
         }
     }
 

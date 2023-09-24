@@ -142,48 +142,48 @@
     <Compile Include="AvalonEdit\Colors\White.cs" />
     <Compile Include="AvalonEdit\Colors\Yellow.cs" />
     <Compile Include="AvalonEdit\Extensions\ExtensionMethods.cs" />
-    <Compile Include="Comparers\ComPortComparer.cs" />
-    <Compile Include="Config\VarMonitorSetting.cs" />
-    <Compile Include="Config\ConfigImport.cs" />
-    <Compile Include="Config\MapperManager.cs" />
-    <Compile Include="Config\PathManager.cs" />
-    <Compile Include="Config\VirtualPortSettings.cs" />
-    <Compile Include="Config\AdvancedSendSettings.cs" />
-    <Compile Include="Config\Settings.cs" />
-    <Compile Include="Config\ConfigManager.cs" />
-    <Compile Include="Config\UrlManager.cs" />
-    <Compile Include="Config\CommonSettings.cs" />
-    <Compile Include="Config\WindowConfig\Main.cs" />
-    <Compile Include="Converters\ColorToBrushConverter.cs" />
-    <Compile Include="Converters\RuleTypeEnumConverter.cs" />
-    <Compile Include="Converters\ComboBoxSelectedIndexConverter.cs" />
-    <Compile Include="Entity\AdvancedSend.cs" />
-    <Compile Include="Entity\ComSettings.cs" />
-    <Compile Include="Entity\Enums\ComPortSortType.cs" />
-    <Compile Include="Entity\Enums\RuleType.cs" />
-    <Compile Include="Entity\Enums\RunningStatus.cs" />
-    <Compile Include="Entity\Enums\VarDataType.cs" />
-    <Compile Include="Entity\SerialPortEx.cs">
+    <Compile Include="Core\Comparers\ComPortComparer.cs" />
+    <Compile Include="Core\Config\VarMonitorSetting.cs" />
+    <Compile Include="Core\Config\ConfigImport.cs" />
+    <Compile Include="Core\Config\MapperManager.cs" />
+    <Compile Include="Core\Config\PathManager.cs" />
+    <Compile Include="Core\Config\VirtualPortSettings.cs" />
+    <Compile Include="Core\Config\AdvancedSendSettings.cs" />
+    <Compile Include="Core\Config\Settings.cs" />
+    <Compile Include="Core\Config\ConfigManager.cs" />
+    <Compile Include="Core\Config\UrlManager.cs" />
+    <Compile Include="Core\Config\CommonSettings.cs" />
+    <Compile Include="Core\Config\WindowConfig\Main.cs" />
+    <Compile Include="Core\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Core\Converters\RuleTypeEnumConverter.cs" />
+    <Compile Include="Core\Converters\ComboBoxSelectedIndexConverter.cs" />
+    <Compile Include="Core\Entity\AdvancedSend.cs" />
+    <Compile Include="Core\Entity\ComSettings.cs" />
+    <Compile Include="Core\Entity\Enums\ComPortSortType.cs" />
+    <Compile Include="Core\Entity\Enums\RuleType.cs" />
+    <Compile Include="Core\Entity\Enums\RunningStatus.cs" />
+    <Compile Include="Core\Entity\Enums\VarDataType.cs" />
+    <Compile Include="Core\Entity\SerialPortEx.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Entity\Enums\FormatType.cs" />
-    <Compile Include="Entity\HighLightRule.cs" />
-    <Compile Include="Entity\ShortCutBinding.cs" />
-    <Compile Include="Entity\PortSetting.cs" />
-    <Compile Include="Entity\Enums\SplitPanelType.cs" />
-    <Compile Include="Entity\VarMonitor.cs" />
-    <Compile Include="Entity\VirtualPort.cs" />
+    <Compile Include="Core\Entity\Enums\FormatType.cs" />
+    <Compile Include="Core\Entity\HighLightRule.cs" />
+    <Compile Include="Core\Entity\ShortCutBinding.cs" />
+    <Compile Include="Core\Entity\PortSetting.cs" />
+    <Compile Include="Core\Entity\Enums\SplitPanelType.cs" />
+    <Compile Include="Core\Entity\VarMonitor.cs" />
+    <Compile Include="Core\Entity\VirtualPort.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
-    <Compile Include="Utils\FilterManager.cs" />
-    <Compile Include="Utils\MonitorManager.cs" />
+    <Compile Include="Core\Utils\FilterManager.cs" />
+    <Compile Include="Core\Utils\MonitorManager.cs" />
     <Compile Include="ViewModel\VieModel_Setting.cs" />
     <Compile Include="ViewModel\VieModel_AdvancedSend.cs" />
     <Compile Include="ViewModel\VieModel_Main.cs" />
-    <Compile Include="WatchDog\AbstractDog.cs" />
-    <Compile Include="WatchDog\IDog.cs" />
-    <Compile Include="WatchDog\MemoryDog.cs" />
+    <Compile Include="Core\WatchDog\AbstractDog.cs" />
+    <Compile Include="Core\WatchDog\IDog.cs" />
+    <Compile Include="Core\WatchDog\MemoryDog.cs" />
     <Compile Include="Windows\Window_AdvancedSend.xaml.cs">
       <DependentUpon>Window_AdvancedSend.xaml</DependentUpon>
     </Compile>
@@ -203,7 +203,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="CustomStyle\Basic.xaml">
+    <Page Include="Core\CustomStyle\Basic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -227,8 +227,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Entity\SideComPort.cs" />
-    <Compile Include="Entity\PortTabItem.cs" />
+    <Compile Include="Core\Entity\SideComPort.cs" />
+    <Compile Include="Core\Entity\PortTabItem.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -323,8 +323,6 @@
     <Resource Include="Resources\Ico\ICON_256.png" />
     <Resource Include="Resources\Ico\ICON_32.png" />
     <Resource Include="Resources\Pictures\develop.png" />
-    <Content Include="Sql\advanced_send.sql" />
-    <Content Include="Sql\com_settings.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

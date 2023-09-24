@@ -14,7 +14,6 @@ using SuperControls.Style.Utils;
 using SuperControls.Style.Windows;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Enums;
-using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.IO;
 using SuperUtils.Systems;
 using SuperUtils.Time;
@@ -166,8 +165,7 @@ namespace SuperCom
 
         public void ReadConfig()
         {
-            SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-            vieModel.ComSettingList = mapper.SelectList().ToHashSet();
+            vieModel.ComSettingList = MapperManager.ComMapper.SelectList().ToHashSet();
             if (vieModel.ComSettingList == null ||
                 vieModel.ComSettingList.Count == 0 ||
                 vieModel.SideComPorts == null ||
@@ -1157,8 +1155,7 @@ namespace SuperCom
                 portTabItem.SerialPort.RefreshSetting();
                 comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
 
-                SqliteMapper<ComSettings> mapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
-                mapper.Insert(comSettings, InsertMode.Replace);
+                MapperManager.ComMapper.Insert(comSettings, InsertMode.Replace);
             }
         }
 

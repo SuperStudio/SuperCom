@@ -28,7 +28,7 @@ namespace SuperCom.Entity
         /// CNCA0 PortName=COM2,EmuBR=yes,EmuOverrun=yes
         /// CNCB0 PortName = COM4, EmuBR = yes, EmuOverrun = yes
         /// </summary>
-        private static VirtualPort ParseVirtualPort(string data)
+        public static VirtualPort ParseVirtualPort(string data)
         {
             if (string.IsNullOrEmpty(data) || data.IndexOf(" ") < 0)
                 return null;

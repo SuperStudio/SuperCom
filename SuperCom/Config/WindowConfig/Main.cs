@@ -1,19 +1,10 @@
 ﻿using SuperUtils.Framework.ORM.Config;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace SuperCom.Config.WindowConfig
 {
-    public class Main : AbstractConfig, INotifyPropertyChanged
+    public class Main : AbstractConfig
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void RaisePropertyChanged([CallerMemberName] string name = null)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         private Main() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Main")
         {
             Width = SystemParameters.WorkArea.Width * 0.8;

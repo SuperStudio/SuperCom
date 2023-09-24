@@ -4,7 +4,6 @@ using SuperCom.Config;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;
 using SuperUtils.Common;
-using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Generic;
@@ -35,15 +34,6 @@ namespace SuperCom.ViewModel
         {
             Init();
         }
-
-        #region "静态属性"
-        private static SqliteMapper<AdvancedSend> Mapper { get; set; }
-        private static SqliteMapper<ComSettings> ComMapper { get; set; }
-        private static SqliteMapper<ShortCutBinding> ShortCutMapper { get; set; }
-        private static SqliteMapper<HighLightRule> RuleMapper { get; set; }
-
-
-        #endregion
 
         #region "属性"
 
@@ -226,7 +216,6 @@ namespace SuperCom.ViewModel
             LoadShortCut();
             LoadHandshake();
             LoadHighLightRule();
-            ComMapper = new SqliteMapper<ComSettings>(ConfigManager.SQLITE_DATA_PATH);
         }
 
         private void InitSendHistory()
@@ -314,9 +303,7 @@ namespace SuperCom.ViewModel
         public void LoadSendCommands()
         {
             SendCommandProjects = new ObservableCollection<AdvancedSend>();
-            if (Mapper == null)
-                Mapper = new SqliteMapper<AdvancedSend>(ConfigManager.SQLITE_DATA_PATH);
-            List<AdvancedSend> advancedSends = Mapper.SelectList();
+            List<AdvancedSend> advancedSends = MapperManager.AdvancedSendMapper.SelectList();
             foreach (var item in advancedSends) {
                 SendCommandProjects.Add(item);
             }
@@ -325,7 +312,7 @@ namespace SuperCom.ViewModel
 
         public void UpdateProject(AdvancedSend send)
         {
-            int count = Mapper.UpdateById(send);
+            int count = MapperManager.AdvancedSendMapper.UpdateById(send);
             if (count <= 0) {
                 Logger.Error($"insert error: {send.ProjectName}");
             }
@@ -401,16 +388,14 @@ namespace SuperCom.ViewModel
                     return;
                 portTabItem.SerialPort.BaudRate = value;
                 comSettings.PortSetting = portTabItem.SerialPort.PortSettingToJson();
-                ComMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
+                MapperManager.ComMapper.UpdateFieldById("PortSetting", comSettings.PortSetting, comSettings.Id);
             }
         }
 
         public void LoadShortCut()
         {
-            if (ShortCutMapper == null)
-                ShortCutMapper = new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
             ShortCutBindings = new List<ShortCutBinding>();
-            List<ShortCutBinding> shortCutBindings = ShortCutMapper.SelectList();
+            List<ShortCutBinding> shortCutBindings = MapperManager.ShortCutMapper.SelectList();
             foreach (var item in shortCutBindings) {
                 item.RefreshKeyList();
                 ShortCutBindings.Add(item);
@@ -419,9 +404,7 @@ namespace SuperCom.ViewModel
         }
         public void LoadHighLightRule()
         {
-            if (RuleMapper == null)
-                RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
-            HighLightRule.AllRules = RuleMapper.SelectList();
+            HighLightRule.AllRules = MapperManager.RuleMapper.SelectList();
         }
     }
 }

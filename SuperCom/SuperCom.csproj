@@ -166,7 +166,7 @@
     <Compile Include="Entity\SerialPortEx.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Entity\FormatType.cs" />
+    <Compile Include="Entity\Enums\FormatType.cs" />
     <Compile Include="Entity\HighLightRule.cs" />
     <Compile Include="Entity\ShortCutBinding.cs" />
     <Compile Include="Entity\PortSetting.cs" />

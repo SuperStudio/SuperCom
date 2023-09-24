@@ -2,7 +2,6 @@
 using SuperCom.Entity;
 using SuperControls.Style;
 using SuperUtils.Common;
-using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,9 +35,6 @@ namespace SuperCom
         #endregion
 
         #region "属性"
-        private SqliteMapper<ShortCutBinding> Mapper { get; set; } =
-             new SqliteMapper<ShortCutBinding>(ConfigManager.SQLITE_DATA_PATH);
-
         private MainWindow MainWindow { get; set; }
 
 
@@ -63,7 +59,7 @@ namespace SuperCom
         {
             dataGrid.ItemsSource = null;
             ShortCutBindings = new ObservableCollection<ShortCutBinding>();
-            List<ShortCutBinding> shortCutBindings = Mapper.SelectList();
+            List<ShortCutBinding> shortCutBindings = MapperManager.ShortCutMapper.SelectList();
             foreach (var item in shortCutBindings) {
                 item.RefreshKeyList();
                 ShortCutBindings.Add(item);
@@ -266,7 +262,7 @@ namespace SuperCom
             if (CurrentShortCutBinding != null && warningTextBlock.Visibility == Visibility.Hidden) {
                 CurrentShortCutBinding.Keys = hiddenTextBlock.Text;
                 CurrentShortCutBinding.RefreshKeyList();
-                Mapper.Update(CurrentShortCutBinding);
+                MapperManager.ShortCutMapper.Update(CurrentShortCutBinding);
                 Init();
                 SearchBox_TextChanged(null, null);
                 // 通知到其他应用

@@ -302,17 +302,14 @@ namespace SuperCom.Entity
             }
             if (allData.Count > 0) {
                 Application.Current.Dispatcher.Invoke(() => {
-                    if (RecvShowHex)
-                    {
+                    if (RecvShowHex) {
                         // HEX 模式
                         SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
-                    }
-                    else
-                    {
+                    } else {
                         // STR 模式
                         SaveData(Encoding.UTF8.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
                     }
-                    
+
                 });
             }
         }
@@ -507,7 +504,7 @@ namespace SuperCom.Entity
         public void SaveData(string inputData, string now)
         {
             RX += Encoding.UTF8.GetByteCount(inputData);     // todo
-            string value = inputData.Replace("\0", "\\0");
+            string value = inputData.Replace("\0", "\\0"); // 业务侧会打印很多 \0，需要转成 \\0 才能在文本框上显示
             int valueLen = value.Length;
             if (AddTimeStamp) {
                 // 遍历字符串

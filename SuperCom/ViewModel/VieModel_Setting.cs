@@ -26,7 +26,6 @@ namespace SuperCom.ViewModel
         }
 
         #region "属性"
-        private SqliteMapper<HighLightRule> RuleMapper { get; set; }
 
         private ObservableCollection<string> _BaudRates;
         public ObservableCollection<string> BaudRates {
@@ -176,7 +175,7 @@ namespace SuperCom.ViewModel
             HighLightRule rule = new HighLightRule();
             rule.RuleName = ruleName;
             rule.FileName = "";
-            RuleMapper.InsertAndGetID(rule);
+            MapperManager.RuleMapper.InsertAndGetID(rule);
             HighLightRules.Add(rule);
 
             Logger.Info($"new rule, name: {ruleName}");
@@ -188,7 +187,7 @@ namespace SuperCom.ViewModel
 
             Logger.Info($"delte rule, id: {id}");
 
-            int count = RuleMapper.DeleteById(id);
+            int count = MapperManager.RuleMapper.DeleteById(id);
             if (count <= 0) {
                 return false;
             }
@@ -261,7 +260,7 @@ namespace SuperCom.ViewModel
         public void UpdateRule(HighLightRule rule)
         {
 
-            int count = RuleMapper.UpdateById(rule);
+            int count = MapperManager.RuleMapper.UpdateById(rule);
             if (count <= 0) {
                 Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
@@ -275,15 +274,15 @@ namespace SuperCom.ViewModel
                 foreach (var item in HighLightRules) {
                     item.SetFileName();
                     item.WriteToXshd();
-                    RuleMapper.UpdateById(item);
+                    MapperManager.RuleMapper.UpdateById(item);
                 }
-                AllRules = RuleMapper.SelectList();
+                AllRules = MapperManager.RuleMapper.SelectList();
             }
         }
 
         public void RenameRule(HighLightRule rule)
         {
-            bool result = RuleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
+            bool result = MapperManager.RuleMapper.UpdateFieldById("RuleName", rule.RuleName, rule.RuleID);
             if (!result) {
                 Console.WriteLine($"重命名 {rule.RuleName} 失败");
             }
@@ -296,7 +295,7 @@ namespace SuperCom.ViewModel
 
         public override void Init()
         {
-            RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
+            MapperManager.RuleMapper = new SqliteMapper<HighLightRule>(ConfigManager.SQLITE_DATA_PATH);
             LoadBaudRates();
             LoadHighLightRules();
             RuleSets = new ObservableCollection<RuleSet>();
@@ -313,7 +312,7 @@ namespace SuperCom.ViewModel
 
         public void LoadHighLightRules()
         {
-            List<HighLightRule> highLightRules = RuleMapper.SelectList();
+            List<HighLightRule> highLightRules = MapperManager.RuleMapper.SelectList();
             HighLightRules = new ObservableCollection<HighLightRule>();
             foreach (var item in highLightRules) {
                 HighLightRules.Add(item);

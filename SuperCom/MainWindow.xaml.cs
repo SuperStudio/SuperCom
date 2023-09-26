@@ -705,17 +705,20 @@ namespace SuperCom
                 vieModel.PortTabItems = new System.Collections.ObjectModel.ObservableCollection<PortTabItem>();
 
             bool existed = false;
+            PortTabItem portTabItem = null;
             for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
                 if (vieModel.PortTabItems[i].Name.Equals(portName)) {
                     vieModel.PortTabItems[i].Selected = true;
                     SetGridVisible(portName);
                     existed = true;
+                    portTabItem = vieModel.PortTabItems[i];
                 } else {
                     vieModel.PortTabItems[i].Selected = false;
                 }
             }
+
             if (!existed) {
-                PortTabItem portTabItem = new PortTabItem(portName, connect);
+                portTabItem = new PortTabItem(portName, connect);
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
 
                 if (portTabItem.SerialPort == null)
@@ -747,7 +750,17 @@ namespace SuperCom
                 });
                 SetPortTabSelected(portName);
             }
+            ScrollIntoView(portTabItem);
             return true;
+        }
+
+        public void ScrollIntoView(PortTabItem portTabItem)
+        {
+            if (portTabItem == null)
+                return;
+            var container = tabItemsControl.ItemContainerGenerator.ContainerFromItem(portTabItem) as FrameworkElement;
+            if (container != null)
+                container.BringIntoView();
         }
 
         private async void Grid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -529,7 +529,13 @@ namespace SuperCom.Entity
                         RecvBuffer.Append($"\r\n[{now}] ");
                         i++;//跳过 \n
                         continue;
-                    } else {
+                    } 
+                    else if (c == '\r'||c == '\n')
+                    {
+                        RecvBuffer.Append($"\r\n[{now}] ");
+                        continue;
+                    }
+                    else {
                         RecvBuffer.Append(c);
                     }
                 }

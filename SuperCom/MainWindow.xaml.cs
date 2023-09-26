@@ -3113,8 +3113,8 @@ namespace SuperCom
 
         private void RefreshPortsStatus(object sender, RoutedEventArgs e)
         {
-            vieModel.InitPortData(LastSortType, LastSortDesc);
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
+            vieModel.InitPortData(LastSortType, LastSortDesc);
             RetainSidePortValue(sideComPorts);
         }
 

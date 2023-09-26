@@ -330,7 +330,7 @@ namespace SuperCom.ViewModel
         }
 
 
-        public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime, bool desc = true)
+        public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime, bool desc = false)
         {
             string[] ports = SerialPortEx.GetAllPorts();
 

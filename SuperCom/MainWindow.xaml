@@ -305,7 +305,7 @@
                                     <ContextMenu HorizontalOffset="-50">
 
                                         <MenuItem
-                                            super:MenuItemExt.Desc="False"
+                                            super:MenuItemExt.Desc="True"
                                             super:MenuItemExt.Sortable="True"
                                             Click="SortSidePorts"
                                             Header="按添加顺序"

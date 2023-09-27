@@ -862,6 +862,7 @@ namespace SuperCom
                 PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
                 if (portTabItem != null) {
                     portTabItem.ClearData();
+                    portTabItem.RX = portTabItem.TX = 0;
                     Logger.Info($"clear data: {portName}");
                 }
             }

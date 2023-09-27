@@ -2074,6 +2074,7 @@ namespace SuperCom
             };
 
             window_Plugin.SetConfig(config);
+            window_Plugin.Icon = this.Icon;
             window_Plugin.Show();
         }
 
@@ -2994,6 +2995,7 @@ namespace SuperCom
                 ConfigManager.CommonSettings.AsciiSelectedIndex = index;
                 ConfigManager.CommonSettings.Save();
             };
+            window_Ascii.Icon = this.Icon;
             window_Ascii.Show();
         }
 
@@ -3005,6 +3007,7 @@ namespace SuperCom
                 ConfigManager.CommonSettings.RefSelectedIndex = index;
                 ConfigManager.CommonSettings.Save();
             };
+            reference.Icon = this.Icon;
             reference.Show();
         }
 

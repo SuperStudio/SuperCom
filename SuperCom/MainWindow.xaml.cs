@@ -171,7 +171,7 @@ namespace SuperCom
                             newTextEditor.TextChanged += port.TextBox_TextChanged;
                         port.TextEditor = newTextEditor;
                         border.Child = newTextEditor;
-                        MessageCard.Warning($"内存限制，清空 {port.Name} 的日志（本地日志保留）");
+                        MessageCard.Warning($"{LangManager.GetValueByKey("MemLimitClearLog")}: {port.Name}");
                     }
                 }
             });
@@ -214,7 +214,7 @@ namespace SuperCom
                 && SuperControls.Style.LangManager.SupportLanguages.Contains(lang)) {
                 SuperControls.Style.LangManager.SetLang(lang);
                 SuperCom.Lang.LangManager.SetLang(lang);
-                Logger.Debug($"设置语言：{lang}");
+                Logger.Debug($"{LangManager.GetValueByKey("SetLang")}：{lang}");
             }
         }
 
@@ -438,7 +438,7 @@ namespace SuperCom
             List<string> toRemoved = new List<string>();
             bool success = false;
             foreach (var name in portNames) {
-                vieModel.DoingWorkMsg = $"关闭串口 {name}";
+                vieModel.DoingWorkMsg = $"{LangManager.GetValueByKey("ClosePort")}: {name}";
                 success = await ClosePort(name);
                 if (success)
                     toRemoved.Add(name);
@@ -487,11 +487,11 @@ namespace SuperCom
             string portName = button.Tag.ToString();
             SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (sideComPort == null) {
-                MessageNotify.Error($"打开 {portName} 失败！");
+                MessageNotify.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
                 return;
             }
 
-            if ("连接".Equals(content))
+            if (LangManager.GetValueByKey("Connect").Equals(content))
                 await OpenPort(sideComPort);
             else
                 await ClosePort(portName);
@@ -508,7 +508,7 @@ namespace SuperCom
                 return false;
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (portTabItem == null) {
-                MessageCard.Error($"打开 {portName} 失败！");
+                MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
                 return false;
             }
 
@@ -566,7 +566,7 @@ namespace SuperCom
                     }
                 } catch (Exception ex) {
                     Dispatcher.Invoke(() => {
-                        string msg = $"打开串口 {portName} 失败：{ex.Message}";
+                        string msg = $"{LangManager.GetValueByKey("OpenPortFailed")}: {portName} => {ex.Message}";
                         MessageCard.Error(msg);
                         vieModel.StatusText = msg;
                         RemovePortTabItem(portName);
@@ -645,7 +645,7 @@ namespace SuperCom
                     //portTabItem.StopMonitorTask();
                     return SetPortConnectStatus(portName, false);
                 } else {
-                    MessageNotify.Error($"{serialPort.PortName} 关闭串口超时");
+                    MessageNotify.Error($"{LangManager.GetValueByKey("ClosePortTimeout")}: {serialPort.PortName}");
                     return false;
                 }
             } else {
@@ -879,9 +879,9 @@ namespace SuperCom
                 if (File.Exists(fileName)) {
                     FileHelper.TryOpenSelectPath(fileName);
                     if (portTabItem.FragCount > 0)
-                        MessageNotify.Info($"当前日志已分 {portTabItem.FragCount} 片");
+                        MessageNotify.Info($"{LangManager.GetValueByKey("LogFragWithCount")} {portTabItem.FragCount}");
                 } else {
-                    MessageNotify.Warning($"当前无日志");
+                    MessageNotify.Warning($"{LangManager.GetValueByKey("CurrentNoLog")}");
                 }
 
             }
@@ -933,7 +933,7 @@ namespace SuperCom
         {
             SideComPort serialComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null) {
-                MessageCard.Error($"连接串口 {portName} 失败！");
+                MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
                 return;
             }
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
@@ -967,7 +967,7 @@ namespace SuperCom
             portTabItem.ConnectTime = DateTime.Now;
             string defaultName = portTabItem.GetDefaultFileName();
             string originFileName = Path.GetFileNameWithoutExtension(defaultName);
-            DialogInput dialogInput = new DialogInput("请输入新文件名", originFileName);
+            DialogInput dialogInput = new DialogInput(LangManager.GetValueByKey("PleaseEnterNewFileName"), originFileName);
 
             if (!(bool)dialogInput.ShowDialog(this))
                 return false;
@@ -984,7 +984,7 @@ namespace SuperCom
 
                 string targetFileName = portTabItem.GetCustomFileName(newName);
                 if (File.Exists(targetFileName)) {
-                    if (!(bool)(new MsgBox("文件已存在，是否继续追加写入？").ShowDialog())) {
+                    if (!(bool)(new MsgBox(LangManager.GetValueByKey("FileExistAskForAppend")).ShowDialog())) {
                         return false;
                     }
                 }
@@ -992,7 +992,7 @@ namespace SuperCom
                 portTabItem.SaveFileName = targetFileName;
                 return true;
             } else {
-                MessageNotify.Error("文件名异常");
+                MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
                 return false;
             }
         }
@@ -1007,7 +1007,7 @@ namespace SuperCom
             string portName = GetPortName(sender as FrameworkElement);
             if (!string.IsNullOrEmpty(portName)) {
                 if (SetNewSaveFileName(portName)) {
-                    MessageNotify.Success("日志另存成功");
+                    MessageNotify.Success(LangManager.GetValueByKey("LogSaveAsOK"));
                     await Task.Delay(500); // 防止频繁点保存
                 }
             }
@@ -1079,8 +1079,6 @@ namespace SuperCom
                     SplitPanel(SplitPanelType.None);
                 }
             }
-            //panelSplitPopup.IsOpen = false;
-            //MessageNotify.Info("开发中");
         }
 
         private void SplitPanel(SplitPanelType type)
@@ -1180,7 +1178,7 @@ namespace SuperCom
             if (string.IsNullOrEmpty(text))
                 return;
             if (text.Length > MAX_TRANSFORM_SIZE) {
-                MessageNotify.Warning($"超过了 {MAX_TRANSFORM_SIZE}");
+                MessageNotify.Warning($"{LangManager.GetValueByKey("Over")}: {MAX_TRANSFORM_SIZE}");
                 return;
             }
             hexTransPopup.IsOpen = true;
@@ -1209,7 +1207,7 @@ namespace SuperCom
         private void OpenTime(string text)
         {
             if (text.Length > MAX_TIMESTAMP_LENGTH) {
-                MessageNotify.Warning($"超过了 {MAX_TIMESTAMP_LENGTH}");
+                MessageNotify.Warning($"{LangManager.GetValueByKey("Over")}: {MAX_TIMESTAMP_LENGTH}");
                 return;
             }
             if (string.IsNullOrEmpty(text))
@@ -1250,7 +1248,7 @@ namespace SuperCom
         {
             bool success = long.TryParse(TimeStampTextBox.Text, out long timeStamp);
             if (!success) {
-                LocalTimeTextBox.Text = "解析失败";
+                LocalTimeTextBox.Text = LangManager.GetValueByKey("ParseFailed");
                 return;
             }
             try {
@@ -1265,7 +1263,7 @@ namespace SuperCom
         {
             bool success = DateTime.TryParse(LocalTimeTextBox.Text, out DateTime dt);
             if (!success) {
-                TimeStampTextBox.Text = "解析失败";
+                TimeStampTextBox.Text = LangManager.GetValueByKey("ParseFailed");
             } else {
                 TimeStampTextBox.Text = DateHelper.DateTimeToUnixTimeStamp(dt, TimeComboBox.SelectedIndex == 0).ToString();
             }
@@ -1296,7 +1294,7 @@ namespace SuperCom
             if (stackPanel.Tag == null || !(stackPanel.Tag.ToString() is string name))
                 return;
 
-            if (!(bool)new MsgBox($"是否将【{name}】配置恢复默认？").ShowDialog(this))
+            if (!(bool)new MsgBox($"{LangManager.GetValueByKey("RestoreSpec")}: {name} ?").ShowDialog(this))
                 return;
             if (vieModel.PortTabItems != null &&
                 vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name)) is PortTabItem tabItem &&
@@ -1325,7 +1323,7 @@ namespace SuperCom
                 if (File.Exists(fileName)) {
                     FileHelper.TryOpenByDefaultApp(fileName);
                 } else {
-                    MessageCard.Warning($"当前无日志");
+                    MessageCard.Warning(LangManager.GetValueByKey("CurrentNoLog"));
                 }
 
             }
@@ -1830,16 +1828,16 @@ namespace SuperCom
 
                     await Task.Delay(100);
                     time += 100;
-                    Console.WriteLine("查找中...");
+                    //Console.WriteLine("查找中...");
                 } else {
                     break;
                 }
             }
 
             if (find) {
-                MessageCard.Info($"找到：\n{resultCheck.Buffer}");
+                MessageCard.Info($"{LangManager.GetValueByKey("Found")} \n{resultCheck.Buffer}");
             } else {
-                MessageNotify.Info($"查找超时！");
+                MessageNotify.Info(LangManager.GetValueByKey("FoundTimeOut"));
             }
             portTabItem.ResultChecks.Dequeue();
         }
@@ -1963,7 +1961,7 @@ namespace SuperCom
                 SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
                 if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem) {
                     Logger.Info("click remark btn");
-                    DialogInput dialogInput = new DialogInput("请输入备注", portTabItem.Remark);
+                    DialogInput dialogInput = new DialogInput(LangManager.GetValueByKey("PleaseEnterRemark"), portTabItem.Remark);
                     if (dialogInput.ShowDialog(this) == true) {
                         string value = dialogInput.Text;
                         portTabItem.Remark = value;
@@ -1981,7 +1979,7 @@ namespace SuperCom
 
                     }
                 } else if (sideComPort.PortTabItem == null) {
-                    MessageNotify.Info("打开串口后才能备注");
+                    MessageNotify.Info(LangManager.GetValueByKey("RemarkAfterOpenPort"));
                 }
             }
         }
@@ -2011,7 +2009,7 @@ namespace SuperCom
 
         private void OpenLog(object sender, RoutedEventArgs e)
         {
-            MessageNotify.Info("开发中");
+            MessageNotify.Info(LangManager.GetValueByKey("Developing"));
         }
 
         private void BaudRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2132,12 +2130,9 @@ namespace SuperCom
                     string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
                     local = local.Substring(0, local.Length - ".0.0".Length);
                     if (local.CompareTo(remote) < 0) {
-                        MessageCard.Info($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}", () => {
+                        MessageCard.Info($"{LangManager.GetValueByKey("ExistNewVersion")}\n{LangManager.GetValueByKey("Version")}：{remote}\n{LangManager.GetValueByKey("Date")}：{ReleaseDate}", () => {
                             UpgradeHelper.OpenWindow(this);
                         }, targetWindow: this);
-                        //bool opened = (bool)new MsgBox($"存在新版本\n版本：{remote}\n日期：{ReleaseDate}").ShowDialog(this);
-                        //if (opened)
-                        //    UpgradeHelper.OpenWindow(this);
                     }
                 }
             } catch (Exception ex) {
@@ -2309,7 +2304,7 @@ namespace SuperCom
                 }
             }
 
-            App.Logger.Debug($"按下按键：{e.Key}");
+            App.Logger.Debug($"{LangManager.GetValueByKey("PressKey")}：{e.Key}");
 
             // 快捷键检测
             ShortCutBinding shortCutBinding = null;
@@ -2328,7 +2323,7 @@ namespace SuperCom
                 case 1:
                     SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
                     if (sideComPort == null) {
-                        MessageCard.Error($"打开 {portName} 失败！");
+                        MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
                         return;
                     }
 
@@ -3002,7 +2997,7 @@ namespace SuperCom
                 if (File.Exists(fileName)) {
                     string target = FileHelper.SaveFile();
                     if (!FileHelper.IsProperDirName(target)) {
-                        MessageNotify.Error("文件名存在非法字符");
+                        MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
                         return;
                     } else {
                         // 复制到该目录
@@ -3011,7 +3006,7 @@ namespace SuperCom
                         Logger.Info($"save log to {target}");
                     }
                 } else {
-                    MessageNotify.Warning($"当前无日志");
+                    MessageNotify.Warning(LangManager.GetValueByKey("CurrentNoLog"));
                 }
             }
 
@@ -3022,7 +3017,7 @@ namespace SuperCom
         private void pinToggleButton_Checked(object sender, RoutedEventArgs e)
         {
             if (ConfigManager.Settings.HintWhenPin)
-                MessageNotify.Info("固定当前日志（日志仍在收集）");
+                MessageNotify.Info(LangManager.GetValueByKey("PinLogHint"));
         }
 
         private void OpenAppDir(object sender, RoutedEventArgs e)
@@ -3119,14 +3114,14 @@ namespace SuperCom
 
                 string json = ConfigImport.ExportDataBaseInfo(import.CurrentBaseInfos.ToList());
                 if (string.IsNullOrEmpty(json)) {
-                    MessageCard.Error("导出失败");
+                    MessageCard.Error(LangManager.GetValueByKey("ExportFailed"));
                     return;
                 }
 
                 string fileName = FileHelper.SaveFile(this, filter: ConstValues.FILTER_JSON);
 
                 FileHelper.TryWriteToFile(fileName, json, Encoding.UTF8);
-                MessageNotify.Success("导出成功");
+                MessageNotify.Success(LangManager.GetValueByKey("ExportSuccess"));
                 FileHelper.TryOpenSelectPath(fileName);
                 Logger.Info($"export config to {fileName}");
 
@@ -3148,7 +3143,7 @@ namespace SuperCom
             List<DataBaseInfo> dataBaseInfos = ConfigImport.ParseInfo(content);
 
             if (dataBaseInfos == null || dataBaseInfos.Count == 0) {
-                MessageCard.Error("解析错误");
+                MessageCard.Error(LangManager.GetValueByKey("ParseFailed"));
                 return;
             }
             Window_Import window_Import = new Window_Import(dataBaseInfos, export: false);
@@ -3156,8 +3151,8 @@ namespace SuperCom
                 if (ConfigImport.ImportDataBaseInfo(dataBaseInfos, content)) {
                     RefreshSendCommands();
                     SetComboboxStatus();
-                    MessageNotify.Success("全部导入成功");
-                    MessageCard.Info("导入正则高亮后，需打开设置-正则高亮-保存");
+                    MessageNotify.Success(LangManager.GetValueByKey("ImportAllSuccess"));
+                    MessageCard.Info(LangManager.GetValueByKey("ImportHighLightHint"));
                 }
         }
 

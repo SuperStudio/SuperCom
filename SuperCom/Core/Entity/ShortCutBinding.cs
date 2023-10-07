@@ -1,4 +1,5 @@
 ﻿using SuperCom.Config;
+using SuperControls.Style;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
@@ -41,14 +42,14 @@ namespace SuperCom.Entity
 
         public static List<ShortCutBinding> SHORT_CUT_BINDINGS = new List<ShortCutBinding>()
         {
-            new ShortCutBinding(1,"关闭/打开当前串口",new List<Key>(){ Key.LeftCtrl,Key.Q }),
-            new ShortCutBinding(2,"收起/展开发送栏",new List<Key>(){ Key.LeftCtrl,Key.T }),
-            new ShortCutBinding(3,"全屏",new List<Key>(){ Key.LeftAlt,Key.Q }),
-            new ShortCutBinding(4,"固定/滚屏",new List<Key>(){ Key.LeftAlt,Key.W }),
-            new ShortCutBinding(5,"HEX转换",new List<Key>(){ Key.LeftAlt,Key.E }),
-            new ShortCutBinding(6,"时间戳转换",new List<Key>(){ Key.LeftAlt,Key.D }),
-            new ShortCutBinding(7,"格式化为JSON",new List<Key>(){ Key.F2 }),
-            new ShortCutBinding(8,"合并为一行",new List<Key>(){ Key.F3 }),
+            new ShortCutBinding(1,LangManager.GetValueByKey("OpenCloseCurrentPort"),new List<Key>(){ Key.LeftCtrl,Key.Q }),
+            new ShortCutBinding(2,LangManager.GetValueByKey("ExpandSendingBar"),new List<Key>(){ Key.LeftCtrl,Key.T }),
+            new ShortCutBinding(3,LangManager.GetValueByKey("FullScreen"),new List<Key>(){ Key.LeftAlt,Key.Q }),
+            new ShortCutBinding(4,LangManager.GetValueByKey("PinOrScroll"),new List<Key>(){ Key.LeftAlt,Key.W }),
+            new ShortCutBinding(5,LangManager.GetValueByKey("HexTransform"),new List<Key>(){ Key.LeftAlt,Key.E }),
+            new ShortCutBinding(6,LangManager.GetValueByKey("TimeStampTransform"),new List<Key>(){ Key.LeftAlt,Key.D }),
+            new ShortCutBinding(7,LangManager.GetValueByKey("FormatToJSON"),new List<Key>(){ Key.F2 }),
+            new ShortCutBinding(8,LangManager.GetValueByKey("JoinLine_"),new List<Key>(){ Key.F3 }),
         };
 
 

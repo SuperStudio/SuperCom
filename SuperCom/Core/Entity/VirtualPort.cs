@@ -1,4 +1,5 @@
-﻿using SuperUtils.Windows.WindowCmd;
+﻿using SuperControls.Style;
+using SuperUtils.Windows.WindowCmd;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -181,7 +182,7 @@ namespace SuperCom.Entity
             bool completed = false;
             foreach (VirtualPort port in ports) {
                 string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe change {port.ID} {port.ToUpdateString()}";
-                App.Logger.Info($"执行命令：{cmdParam}");
+                App.Logger.Info($"{LangManager.GetValueByKey("RunCommand")}：{cmdParam}");
                 await Task.Run(() => {
                     CmdHelper.Run($"cmd.exe", cmdParam, (output) => {
                         App.Logger.Info(output);

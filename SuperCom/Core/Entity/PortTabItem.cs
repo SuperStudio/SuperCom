@@ -335,7 +335,7 @@ namespace SuperCom.Entity
 
                 byte[] bytes = TransformHelper.ParseHexString(data);
                 string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-                SendHexValue = $"将发送：{str}";
+                SendHexValue = $"{LangManager.GetValueByKey("WillSend")}：{str}";
             }
         }
 
@@ -580,7 +580,7 @@ namespace SuperCom.Entity
         {
             if (bytes == null || bytes.Length == 0)
                 return;
-            App.Logger.Debug($"存数据：{bytes.Length} B");
+            App.Logger.Debug($"{LangManager.GetValueByKey("SaveData")}：{bytes.Length} B");
             string value =
                 TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
             SaveData(value, now);

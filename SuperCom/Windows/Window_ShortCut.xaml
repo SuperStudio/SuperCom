@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
-    Title="快捷键"
+    Title="{DynamicResource FastKey}"
     Width="800"
     Height="450"
     Background="{DynamicResource Window.Background}"
@@ -52,7 +52,7 @@
                         Margin="5,20,5,5"
                         FontWeight="Bold"
                         Style="{StaticResource BaseTextBlock}"
-                        Text="请输入快捷键，回车确认" />
+                        Text="{DynamicResource EnterFastKey}" />
 
                     <Border
                         Grid.Row="1"
@@ -67,7 +67,7 @@
                             FontWeight="Bold"
                             Foreground="{DynamicResource Window.Sub.Foreground}"
                             Style="{StaticResource BaseTextBlock}"
-                            Text="快捷键必须包含 Ctrl, Alt, Shift，或者使用单个 F1~F12"
+                            Text="{DynamicResource FastKeyHint}"
                             TextAlignment="Left" />
                     </Border>
 
@@ -94,7 +94,7 @@
                         Margin="10"
                         Foreground="{DynamicResource Common.HighLight.Deep.Background}"
                         Style="{StaticResource BaseTextBlock}"
-                        Text="不支持的快捷键"
+                        Text="{DynamicResource FastKeyNotSupport}"
                         Visibility="Hidden" />
                     <TextBlock
                         Name="sameTextBlock"
@@ -140,7 +140,7 @@
                 <DataGridTemplateColumn
                     Width="4*"
                     MinWidth="50"
-                    Header="操作"
+                    Header="{DynamicResource Operate}"
                     SortMemberPath="KeyName">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -156,7 +156,7 @@
                 <DataGridTemplateColumn
                     Width="6*"
                     MinWidth="50"
-                    Header="快捷键"
+                    Header="{DynamicResource FastKey}"
                     SortMemberPath="Keys">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

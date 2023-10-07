@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuperControls.Style;
+using System;
 using System.Threading.Tasks;
 using static SuperCom.App;
 
@@ -43,7 +44,7 @@ namespace SuperCom.WatchDog
                     //Logger.Debug($"看门狗每 {WatchInterval / 1000} s 看一下门");
                     if (!Feed()) {
                         // 通知程序
-                        Logger.Debug("看门狗发飙了！");
+                        Logger.Debug(LangManager.GetValueByKey("WatchDogShouting"));
                         OnNotFeed?.Invoke();
                     }
                     await Task.Delay(WatchInterval);

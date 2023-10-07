@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
-    Title="发送队列"
+    Title="{DynamicResource SendList}"
     Width="1000"
     Height="600"
     Background="{DynamicResource Window.Background}"
@@ -22,9 +22,9 @@
     <super:BaseWindow.Resources>
 
         <ContextMenu x:Key="dataGridContextMenu">
-            <MenuItem Header="移到顶部" />
-            <MenuItem Header="移到底部" />
-            <MenuItem Header="删除" />
+            <MenuItem Header="{DynamicResource MoveToTop}" />
+            <MenuItem Header="{DynamicResource MoveToBottom}" />
+            <MenuItem Header="{DynamicResource Delete}" />
         </ContextMenu>
 
     </super:BaseWindow.Resources>
@@ -67,11 +67,11 @@
                     <WrapPanel Margin="10,10,10,0" Orientation="Horizontal">
                         <Button
                             Click="HideLogGrid"
-                            Content="隐藏"
+                            Content="{DynamicResource Hide}"
                             Style="{StaticResource ButtonPrimary}" />
                         <Button
                             Click="ClearLogGrid"
-                            Content="清空"
+                            Content="{DynamicResource ClearAll}"
                             Style="{StaticResource ButtonDanger}" />
                         <CheckBox
                             x:Name="logAutoWrap"
@@ -79,7 +79,7 @@
                             super:CheckBoxExt.HookWidth="10"
                             super:CheckBoxExt.MarkHeight="16"
                             super:CheckBoxExt.MarkWidth="16"
-                            Content="自动换行"
+                            Content="{DynamicResource AutoWrap}"
                             FontSize="14"
                             IsChecked="{Binding LogAutoWrap, Mode=TwoWay}"
                             Style="{StaticResource NormalCheckBox}" />
@@ -88,7 +88,7 @@
                             VerticalAlignment="Center"
                             FontSize="14"
                             Style="{StaticResource BaseTextBlock}"
-                            Text="透明度" />
+                            Text="{DynamicResource Opacity}" />
                         <super:Slider
                             Name="logSlider"
                             Width="100"
@@ -138,7 +138,7 @@
                     <super:HoverPath
                         Click="AddNewProject"
                         Style="{StaticResource AddHoverPath}"
-                        ToolTip="新增" />
+                        ToolTip="{DynamicResource Add}" />
                 </StackPanel>
                 <!--  SelectedIndex="{Binding Path=SideIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  -->
 
@@ -170,11 +170,11 @@
                             <Grid Background="Transparent" Tag="{Binding ProjectID, Mode=OneWay}">
                                 <Grid.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Click="RenameProject" Header="重命名" />
+                                        <MenuItem Click="RenameProject" Header="{DynamicResource Raname}" />
                                         <MenuItem
                                             super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
                                             Click="DeleteProjectInMenuItem"
-                                            Header="删除"
+                                            Header="{DynamicResource Delete}"
                                             Tag="{Binding ProjectID}" />
                                     </ContextMenu>
                                 </Grid.ContextMenu>
@@ -331,7 +331,7 @@
                             super:CheckBoxExt.HookWidth="10"
                             super:CheckBoxExt.MarkHeight="16"
                             super:CheckBoxExt.MarkWidth="16"
-                            Content="显示日志"
+                            Content="{DynamicResource ShowLog}"
                             FontSize="12"
                             IsChecked="{Binding ShowLogGrid, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Style="{StaticResource NormalCheckBox}" />
@@ -374,14 +374,14 @@
                         Height="30"
                         Margin="10,5"
                         Click="AddNewSendCommand"
-                        Content="添加命令" />
+                        Content="{DynamicResource AddCommand}" />
 
 
                     <StackPanel Orientation="Horizontal" Visibility="{Binding RunningCommands, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock
                             Margin="5,0"
                             Style="{StaticResource BaseTextBlock}"
-                            Text="透明度" />
+                            Text="{DynamicResource Opacity}" />
 
                         <super:Slider
                             Width="150"
@@ -396,12 +396,12 @@
 
                     </StackPanel>
 
-                    <TextBlock Style="{StaticResource BaseTextBlock}" Text="补偿延时误差" />
+                    <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource CompensationDelay}" />
                     <super:HoverPath
                         Width="23"
                         Height="23"
                         Style="{StaticResource HelpHoverPath}"
-                        ToolTip="系统定时器误差在 15-50ms" />
+                        ToolTip="{DynamicResource CompensationDelayHint}" />
                     <super:Switch
                         Height="25"
                         Background="{DynamicResource Window.Title.Background}"
@@ -440,7 +440,7 @@
                         <DataGridTemplateColumn
                             Width="auto"
                             MinWidth="40"
-                            Header="操作">
+                            Header="{DynamicResource Operate}">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border
@@ -466,7 +466,7 @@
                         <DataGridTemplateColumn
                             Width="auto"
                             MinWidth="40"
-                            Header="状态"
+                            Header="{DynamicResource Status}"
                             SortMemberPath="Status">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -517,7 +517,7 @@
                         <DataGridTemplateColumn
                             Width="auto"
                             MinWidth="50"
-                            Header="顺序"
+                            Header="{DynamicResource Order}"
                             SortMemberPath="Order">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -535,7 +535,7 @@
                         <DataGridTemplateColumn
                             Width="auto"
                             MinWidth="50"
-                            Header="名称"
+                            Header="{DynamicResource Title}"
                             SortMemberPath="Order">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -544,7 +544,7 @@
                                         MaxWidth="150"
                                         Background="Transparent"
                                         LostFocus="SaveSendCommands"
-                                        PlaceHolder="请输入"
+                                        PlaceHolder="{DynamicResource PleaseEnter}"
                                         Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         TextChanged="CommandTextChanged" />
                                 </DataTemplate>
@@ -560,12 +560,12 @@
                             SortMemberPath="Delay">
                             <DataGridTemplateColumn.Header>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock VerticalAlignment="Center" Text="延时(ms)" />
+                                    <TextBlock VerticalAlignment="Center" Text="{DynamicResource DelayUnit}" />
                                     <super:HoverPath
                                         Width="23"
                                         Height="23"
                                         Style="{StaticResource HelpHoverPath}"
-                                        ToolTip="系统定时器误差在 15-50ms" />
+                                        ToolTip="{DynamicResource CompensationDelayHint}" />
                                 </StackPanel>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
@@ -588,7 +588,7 @@
                         <DataGridTemplateColumn
                             x:Name="col"
                             Width="*"
-                            Header="命令"
+                            Header="{DynamicResource Command}"
                             SortMemberPath="Command">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -614,7 +614,7 @@
                                             <super:SearchBox
                                                 Margin="0,5"
                                                 LostFocus="SaveSendCommands"
-                                                PlaceHolder="请输入"
+                                                PlaceHolder="{DynamicResource PleaseEnter}"
                                                 Style="{StaticResource SearchTextBoxStyle}"
                                                 Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 TextChanged="CommandTextChanged" />
@@ -643,7 +643,7 @@
                                             Margin="5,0"
                                             BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                             Click="ShowEditPopup"
-                                            Content="编辑"
+                                            Content="{DynamicResource Edit}"
                                             FontSize="10"
                                             Style="{StaticResource BorderButton}" />
                                         <CheckBox
@@ -652,7 +652,7 @@
                                             super:CheckBoxExt.MarkHeight="15"
                                             super:CheckBoxExt.MarkWidth="15"
                                             Click="SaveSendCommands"
-                                            Content="启用"
+                                            Content="{DynamicResource Enable}"
                                             FontSize="10"
                                             IsChecked="{Binding IsResultCheck, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             Style="{StaticResource NormalCheckBox}" />
@@ -699,7 +699,7 @@
                                                     </Border>
 
                                                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="超时(ms)" />
+                                                        <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource TimeoutUnit}" />
                                                         <Border
                                                             Grid.Row="2"
                                                             Margin="5"
@@ -750,7 +750,7 @@
                     Margin="10"
                     HorizontalAlignment="Right"
                     Click="SaveChanges"
-                    Content="保存"
+                    Content="{DynamicResource Save}"
                     Style="{StaticResource ButtonSuccess}"
                     Visibility="Collapsed" />
             </Grid>

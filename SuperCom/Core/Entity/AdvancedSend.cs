@@ -23,12 +23,12 @@ namespace SuperCom.Entity
 
         private static readonly Dictionary<RunningStatus, string> RUN_STATUS_TABLE =
             new Dictionary<RunningStatus, string>() {
-            { RunningStatus.WaitingToRun,"就绪" },
-            { RunningStatus.WaitingDelay,"等待中" },
-            { RunningStatus.Running,"运行中" },
-            { RunningStatus.AlreadySend,"已发送" },
-            { RunningStatus.Success,"成功" },
-            { RunningStatus.Failed,"失败" },
+            { RunningStatus.WaitingToRun,LangManager.GetValueByKey("WaitingToRun") },
+            { RunningStatus.WaitingDelay,LangManager.GetValueByKey("Waiting") },
+            { RunningStatus.Running,LangManager.GetValueByKey("Running") },
+            { RunningStatus.AlreadySend, LangManager.GetValueByKey("AlreadySend") },
+            { RunningStatus.Success,LangManager.GetValueByKey("Message_Success") },
+            { RunningStatus.Failed,LangManager.GetValueByKey("Message_Fail") },
         };
 
         #endregion
@@ -68,7 +68,7 @@ namespace SuperCom.Entity
             }
         }
 
-        private string _StatusText = "就绪";
+        private string _StatusText = LangManager.GetValueByKey("WaitingToRun");
         public string StatusText {
             get { return _StatusText; }
             set { _StatusText = value; RaisePropertyChanged(); }
@@ -228,7 +228,7 @@ namespace SuperCom.Entity
                 return;
 
             if (portTabItem == null || !portTabItem.Connected) {
-                MessageNotify.Error($"端口 {portName} 未连接");
+                MessageNotify.Error($"{LangManager.GetValueByKey("PortNotConnect")}: {portName}");
                 return;
             }
             portTabItem.RunningCommands = true;

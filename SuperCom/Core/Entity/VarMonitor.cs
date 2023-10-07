@@ -1,5 +1,6 @@
 ﻿using SuperCom.Config;
 using SuperCom.Entity.Enums;
+using SuperControls.Style;
 using SuperUtils.Framework.ORM.Attributes;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.Framework.ORM.Mapper;
@@ -75,7 +76,7 @@ namespace SuperCom.Entity
         public VarMonitor(int sortOrder, string portName) : this()
         {
             SortOrder = sortOrder;
-            Name = $"变量_{sortOrder}";
+            Name = $"{LangManager.GetValueByKey("Variable")}_{sortOrder}";
             PortName = portName;
         }
 

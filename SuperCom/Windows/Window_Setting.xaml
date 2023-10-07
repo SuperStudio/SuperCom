@@ -8,7 +8,7 @@
     xmlns:localConverter="clr-namespace:SuperCom.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
-    Title="设置"
+    Title="{DynamicResource Settings}"
     Width="1000"
     Height="600"
     Background="{DynamicResource Window.Background}"
@@ -48,7 +48,7 @@
             FontSize="15"
             SelectedIndex="{Binding TabSelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Style="{StaticResource FlatTabControl}">
-            <TabItem Header="基本设置" Style="{StaticResource FlatTabItem}">
+            <TabItem Header="{DynamicResource BasicSetting}" Style="{StaticResource FlatTabItem}">
                 <StackPanel Margin="0,10" Orientation="Vertical">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -58,17 +58,17 @@
 
 
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="基本" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource Basic}" />
                         <StackPanel
                             Grid.Column="1"
                             Margin="5"
                             Orientation="Vertical">
                             <CheckBox Content="{DynamicResource CloseToBar}" IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             <CheckBox Content="{DynamicResource FixAfterSendCommand}" IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <CheckBox Content="自动固定滚屏" IsChecked="{Binding FixedWhenFocus, Source={x:Static config:ConfigManager.Settings}}" />
-                            <CheckBox Content="固定滚屏时弹出提示" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
+                            <CheckBox Content="{DynamicResource AutoPin}" IsChecked="{Binding FixedWhenFocus, Source={x:Static config:ConfigManager.Settings}}" />
+                            <CheckBox Content="{DynamicResource ShowHintWhenPin}" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox Content="日志分片" IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}" />
+                                <CheckBox Content="{DynamicResource SepLog}" IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}" />
                                 <super:Slider
                                     Name="logFragSlider"
                                     Width="300"
@@ -88,8 +88,8 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
 
-                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="内存上限" />
-                                <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="超过上限后，文本框中的内容自动清空（硬盘日志保留）" />
+                                <TextBlock Style="{StaticResource BaseTextBlock}" Text="{DynamicResource MemMaxmium}" />
+                                <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="{DynamicResource MemMaxmiumHint}" />
 
                                 <super:Slider
                                     Width="300"
@@ -156,7 +156,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="备份" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource Backup}" />
                         <StackPanel
                             Grid.Column="5"
                             Margin="5"
@@ -182,7 +182,7 @@
                                     Margin="10,0"
                                     BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                     Click="OpenBackUpFolder"
-                                    Content="打开文件夹"
+                                    Content="{DynamicResource OpenDir}"
                                     Style="{StaticResource BorderButton}" />
                             </StackPanel>
                         </StackPanel>
@@ -193,7 +193,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="系统" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource System}" />
                         <StackPanel
                             Grid.Column="5"
                             Margin="5"
@@ -201,14 +201,14 @@
                             <StackPanel Orientation="Horizontal">
 
 
-                                <CheckBox Content="防止屏幕息屏及系统休眠" IsChecked="{Binding AvoidScreenClose, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox Content="{DynamicResource AvoidLockScreen}" IsChecked="{Binding AvoidScreenClose, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>
 
                 </StackPanel>
             </TabItem>
-            <TabItem Header="串口设置" Style="{StaticResource FlatTabItem}">
+            <TabItem Header="{DynamicResource PortSettings}" Style="{StaticResource FlatTabItem}">
                 <StackPanel Margin="0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -216,7 +216,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="波特率" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource BaudRate}" />
                         <StackPanel
                             Grid.Column="1"
                             Margin="5"
@@ -224,7 +224,7 @@
                             <super:HoverPath
                                 Click="AddNewBaudRate"
                                 Style="{StaticResource AddHoverPath}"
-                                ToolTip="新增" />
+                                ToolTip="{DynamicResource Add}" />
 
                             <ListBox
                                 Grid.Row="1"
@@ -271,7 +271,7 @@
                 </StackPanel>
             </TabItem>
 
-            <TabItem Header="日志" Style="{StaticResource FlatTabItem}">
+            <TabItem Header="{DynamicResource Log}" Style="{StaticResource FlatTabItem}">
 
                 <StackPanel Margin="0,10" Orientation="Vertical">
                     <Grid>
@@ -280,18 +280,18 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="存储" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource Storage}" />
                         <StackPanel
                             Grid.Column="1"
                             Margin="5"
                             Orientation="Vertical">
-                            <CheckBox Content="自动保存日志" IsChecked="{Binding WriteLogToFile, Source={x:Static config:ConfigManager.CommonSettings}}" />
+                            <CheckBox Content="{DynamicResource AutoSaveLog}" IsChecked="{Binding WriteLogToFile, Source={x:Static config:ConfigManager.CommonSettings}}" />
                             <TextBlock
                                 Margin="5"
                                 HorizontalAlignment="Left"
                                 FontWeight="Bold"
                                 Style="{StaticResource BaseTextBlock}"
-                                Text="保存目录（绝对路径）" />
+                                Text="{DynamicResource SaveDirAbsolutePath}" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -308,7 +308,7 @@
                                     Margin="10"
                                     BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                     Click="SelectLogSaveDir"
-                                    Content="选择文件夹"
+                                    Content="{DynamicResource ChooseDir}"
                                     Style="{StaticResource BorderButton}" />
                             </Grid>
 
@@ -320,7 +320,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="格式" />
+                        <TextBlock Style="{StaticResource SettingTitleStyle}" Text="{DynamicResource Form}" />
                         <StackPanel
                             Grid.Column="1"
                             Margin="5"
@@ -330,7 +330,7 @@
                                 HorizontalAlignment="Left"
                                 FontWeight="Bold"
                                 Style="{StaticResource BaseTextBlock}"
-                                Text="文件名" />
+                                Text="{DynamicResource FileName}" />
 
                             <super:SearchBox
                                 Name="searchBox"
@@ -350,17 +350,17 @@
                                         Margin="10"
                                         HorizontalAlignment="Left"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="%C 串口名" />
+                                        Text="{DynamicResource RenameHint1}" />
                                     <TextBlock
                                         Margin="10"
                                         HorizontalAlignment="Left"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="%R 备注名" />
+                                        Text="{DynamicResource RenameHint2}" />
                                     <TextBlock
                                         Margin="10"
                                         HorizontalAlignment="Left"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒" />
+                                        Text="{DynamicResource RenameHint3}" />
                                 </StackPanel>
 
                             </Border>
@@ -374,7 +374,7 @@
 
 
             </TabItem>
-            <TabItem Header="语法高亮" Style="{StaticResource FlatTabItem}">
+            <TabItem Header="{DynamicResource HighLighting}" Style="{StaticResource FlatTabItem}">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
@@ -386,7 +386,7 @@
                             HorizontalAlignment="Left"
                             BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                             Click="NewRule"
-                            Content="新增语法高亮"
+                            Content="{DynamicResource NewHighLighting}"
                             Style="{StaticResource BorderButton}" />
 
                         <super:HoverPath
@@ -432,10 +432,10 @@
                                         <Grid Background="Transparent" Tag="{Binding RuleID, Mode=OneWay}">
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Click="RenameRule" Header="重命名" />
+                                                    <MenuItem Click="RenameRule" Header="{DynamicResource Rename}" />
                                                     <MenuItem
                                                         Click="DeleteRule"
-                                                        Header="删除"
+                                                        Header="{DynamicResource Delete}"
                                                         Tag="{Binding RuleID}" />
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
@@ -499,7 +499,7 @@
                                     Height="30"
                                     Margin="5"
                                     Click="AddNewRuleItem"
-                                    Content="添加规则" />
+                                    Content="{DynamicResource AddRule}" />
 
                             </StackPanel>
 
@@ -535,12 +535,12 @@
                                             <Button
                                                 Margin="5"
                                                 Click="CancelColorPicker"
-                                                Content="取消"
+                                                Content="{DynamicResource Cancel}"
                                                 Style="{StaticResource ButtonDanger}" />
                                             <Button
                                                 Margin="5"
                                                 Click="ConfirmColorPicker"
-                                                Content="确认"
+                                                Content="{DynamicResource Confirm}"
                                                 Style="{StaticResource ButtonPrimary}" />
                                         </StackPanel>
                                     </Grid>
@@ -588,7 +588,7 @@
                                     <DataGridTemplateColumn
                                         Width="auto"
                                         MinWidth="80"
-                                        Header="类型"
+                                        Header="{DynamicResource Type}"
                                         SortMemberPath="Status">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -597,8 +597,8 @@
                                                     SelectedIndex="{Binding RuleType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource RuleTypeEnumConverter}}"
                                                     SelectionChanged="ComboBox_SelectionChanged"
                                                     Style="{StaticResource BorderComboBox}">
-                                                    <ComboBoxItem Content="正则表达式" />
-                                                    <ComboBoxItem Content="关键词" />
+                                                    <ComboBoxItem Content="{DynamicResource Regex}" />
+                                                    <ComboBoxItem Content="{DynamicResource KeyWord}" />
                                                 </ComboBox>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -607,7 +607,7 @@
                                     <DataGridTemplateColumn
                                         Width="auto"
                                         MinWidth="60"
-                                        Header="字体样式">
+                                        Header="{DynamicResource FontStyle}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -620,7 +620,7 @@
                                                         Cursor="Hand"
                                                         MouseLeftButtonUp="ShowColorPicker"
                                                         Tag="{Binding RuleSetID, Mode=OneWay}"
-                                                        ToolTip="前景色" />
+                                                        ToolTip="{DynamicResource Foreground}" />
                                                     <ToggleButton
                                                         Width="25"
                                                         Height="25"
@@ -632,7 +632,7 @@
                                                         FontSize="15"
                                                         IsChecked="{Binding Bold, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         Style="{StaticResource FlatToggleButton}"
-                                                        ToolTip="加粗" />
+                                                        ToolTip="{DynamicResource Bold}" />
                                                     <ToggleButton
                                                         Height="25"
                                                         Margin="2"
@@ -646,7 +646,7 @@
                                                         FontWeight="Bold"
                                                         IsChecked="{Binding Italic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         Style="{StaticResource FlatToggleButton}"
-                                                        ToolTip="斜体" />
+                                                        ToolTip="{DynamicResource Italic}" />
                                                 </StackPanel>
 
                                             </DataTemplate>
@@ -656,7 +656,7 @@
                                         x:Name="col"
                                         Width="*"
                                         MinWidth="50"
-                                        Header="表达式"
+                                        Header="{DynamicResource Expression}"
                                         SortMemberPath="Order">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
@@ -700,7 +700,7 @@
                                                         <super:SearchBox
                                                             Margin="0,5"
                                                             LostFocus="SaveRuleSet"
-                                                            PlaceHolder="请输入"
+                                                            PlaceHolder="{DynamicResource PleaseEnter}"
                                                             Style="{StaticResource SearchTextBoxStyle}"
                                                             Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                                     </Border>
@@ -736,7 +736,7 @@
                                     Margin="10"
                                     HorizontalAlignment="Left"
                                     Style="{StaticResource BaseTextBlock}"
-                                    Text="预览效果" />
+                                    Text="{DynamicResource PreviewEffect}" />
                                 <Border
                                     Grid.Row="1"
                                     MinHeight="150"
@@ -762,8 +762,8 @@
                                         TextChanged="previewTextEditor_TextChanged">
                                         <avalonEdit:TextEditor.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
-                                                <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+                                                <MenuItem Command="ApplicationCommands.SelectAll" Header="{DynamicResource SelectAllText}" />
+                                                <MenuItem Command="ApplicationCommands.Copy" Header="{DynamicResource Copy}" />
                                             </ContextMenu>
                                         </avalonEdit:TextEditor.ContextMenu>
                                     </avalonEdit:TextEditor>
@@ -805,7 +805,7 @@
                 Margin="10"
                 HorizontalAlignment="Left"
                 Click="RestoreSettings"
-                Content="恢复默认"
+                Content="{DynamicResource Restore}"
                 Style="{StaticResource ButtonDanger}" />
         </Grid>
 

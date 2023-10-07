@@ -68,7 +68,7 @@
                                     Content="Aa"
                                     IsChecked="{Binding MatchCase, RelativeSource={RelativeSource TemplatedParent}}"
                                     Style="{StaticResource FlatToggleButton}"
-                                    ToolTip="大小写" />
+                                    ToolTip="{DynamicResource UpperLower}" />
                                 <ToggleButton
                                     Width="28"
                                     Margin="1,8"
@@ -76,7 +76,7 @@
                                     Background="Transparent"
                                     IsChecked="{Binding WholeWords, RelativeSource={RelativeSource TemplatedParent}}"
                                     Style="{StaticResource FlatToggleButton}"
-                                    ToolTip="全字匹配">
+                                    ToolTip="{DynamicResource AllMatch}">
                                     <Canvas>
                                         <TextBlock
                                             Canvas.Left="-6"
@@ -113,7 +113,7 @@
                                     Content=".*"
                                     IsChecked="{Binding UseRegex, RelativeSource={RelativeSource TemplatedParent}}"
                                     Style="{StaticResource FlatToggleButton}"
-                                    ToolTip="正则" />
+                                    ToolTip="{DynamicResource Regex}" />
 
                             </StackPanel>
                             <TextBlock

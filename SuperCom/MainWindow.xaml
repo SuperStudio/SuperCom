@@ -11,7 +11,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
     Name="mainWindow"
-    Title="SuperCom-超级串口工具"
+    Title="{DynamicResource AppTitle}"
     Width="1200"
     Height="700"
     MinWidth="700"
@@ -33,16 +33,16 @@
     <super:BaseWindow.Resources>
 
         <ContextMenu x:Key="TextEditorContextMenu">
-            <MenuItem Command="ApplicationCommands.SelectAll" Header="全选" />
-            <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
-            <MenuItem Header="格式化">
+            <MenuItem Command="ApplicationCommands.SelectAll" Header="{DynamicResource SelectAllText}" />
+            <MenuItem Command="ApplicationCommands.Copy" Header="{DynamicResource Copy}" />
+            <MenuItem Header="{DynamicResource FormatText}">
                 <MenuItem Click="FormatJson" Header="JSON(F2)" />
             </MenuItem>
-            <MenuItem Header="编辑">
-                <MenuItem Click="JoinLine" Header="合并为一行(F3)" />
+            <MenuItem Header="{DynamicResource Edit}">
+                <MenuItem Click="JoinLine" Header="{DynamicResource JoinLine}" />
             </MenuItem>
-            <MenuItem Click="OpenHexTransform" Header="HEX 转换" />
-            <MenuItem Click="OpenTimeTransform" Header="时间戳" />
+            <MenuItem Click="OpenHexTransform" Header="{DynamicResource HexTransform}" />
+            <MenuItem Click="OpenTimeTransform" Header="{DynamicResource TimeStamp}" />
         </ContextMenu>
 
         <Style x:Key="BgHoverBorder" TargetType="Border">
@@ -86,7 +86,7 @@
                         Margin="5,0,5,10"
                         HorizontalAlignment="Center"
                         Click="CloseForegroundSelected"
-                        Content="关闭"
+                        Content="{DynamicResource Close}"
                         Style="{StaticResource ButtonDanger}" />
                 </StackPanel>
             </Grid>
@@ -106,126 +106,126 @@
                 <Menu x:Name="TopMenus">
                     <MenuItem
                         Background="{DynamicResource Window.Title.Background}"
-                        Header="文件"
+                        Header="{DynamicResource File}"
                         Style="{StaticResource TopMenuItemStyle}">
-                        <MenuItem Click="OpenLog" Header="加载日志" />
+                        <MenuItem Click="OpenLog" Header="{DynamicResource LoadLog}" />
                         <MenuItem
                             Click="SaveLog"
-                            Header="日志另存为"
+                            Header="{DynamicResource SaveLogAs}"
                             Icon="/Resources/Pictures/save.png" />
                         <Separator Margin="-20,5,10,5" />
-                        <MenuItem Click="ExportAllCmd" Header="导出配置" />
-                        <MenuItem Click="ImportAllCmd" Header="导入配置" />
+                        <MenuItem Click="ExportAllCmd" Header="{DynamicResource ExportConfig}" />
+                        <MenuItem Click="ImportAllCmd" Header="{DynamicResource ImportConfig}" />
                         <Separator Margin="-20,5,10,5" />
-                        <MenuItem Click="OpenAppDir" Header="打开软件目录" />
+                        <MenuItem Click="OpenAppDir" Header="{DynamicResource OpenAppPath}" />
                     </MenuItem>
                     <MenuItem
                         Background="{DynamicResource Window.Title.Background}"
-                        Header="编辑"
+                        Header="{DynamicResource Edit}"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem
-                            Header="自动换行"
+                            Header="{DynamicResource AutoWrap}"
                             IsCheckable="True"
                             IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Name="FontMenuItem"
-                            Header="字体"
+                            Header="{DynamicResource Font}"
                             IsCheckable="False" />
                         <MenuItem
                             Click="OpenForegroundSelected"
-                            Header="字体颜色"
+                            Header="{DynamicResource FontColor}"
                             IsCheckable="False" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Click="SetTextViewReturn"
-                            Header="显示换行符"
+                            Header="{DynamicResource ShowReturnChar}"
                             IsCheckable="True"
                             IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
                         <MenuItem
                             Click="SetTextViewSpace"
-                            Header="显示空格"
+                            Header="{DynamicResource ShowSpace}"
                             IsCheckable="True"
                             IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
                         <MenuItem
                             Click="SetTextViewTab"
-                            Header="显示Tab"
+                            Header="{DynamicResource ShowTab}"
                             IsCheckable="True"
                             IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
                         <MenuItem
                             Click="SetTextViewLineNumber"
-                            Header="显示行号"
+                            Header="{DynamicResource ShowLineNumber}"
                             IsCheckable="True"
                             IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
                         <MenuItem
                             Click="SetTextHighLightCurrent"
-                            Header="高亮选中行"
+                            Header="{DynamicResource HighLightSelectLine}"
                             IsCheckable="True"
                             IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
                     </MenuItem>
                     <MenuItem
                         Background="{DynamicResource Window.Title.Background}"
-                        Header="视图"
+                        Header="{DynamicResource View_}"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem
                             Name="sideGridMenuItem"
                             Click="HideSide"
-                            Header="侧边栏"
+                            Header="{DynamicResource SideBar}"
                             IsCheckable="True"
                             IsChecked="True" />
                         <!--<MenuItem
-                                            Header="右侧功能栏"
+                                            Header="{DynamicResource RightFuncBar}"
                                             IsCheckable="True"
                                             IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
 
                     </MenuItem>
                     <MenuItem
                         Background="{DynamicResource Window.Title.Background}"
-                        Header="工具"
+                        Header="{DynamicResource Tools}"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem
                             Click="OpenSetting"
-                            Header="设置"
+                            Header="{DynamicResource Settings}"
                             Icon="/Resources/Pictures/setting.png" />
 
-                        <MenuItem Click="OpenShortCut" Header="快捷键" />
-                        <MenuItem Click="ShowPluginWindow" Header="插件" />
+                        <MenuItem Click="OpenShortCut" Header="{DynamicResource FastKey}" />
+                        <MenuItem Click="ShowPluginWindow" Header="{DynamicResource Plugin}" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Click="ShowVarMonitor"
-                            Header="监视器"
+                            Header="{DynamicResource Monitor}"
                             Visibility="Collapsed" />
-                        <MenuItem Click="ShowVirtualPort" Header="虚拟串口模拟" />
+                        <MenuItem Click="ShowVirtualPort" Header="{DynamicResource VirtualSerialPort}" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Click="ShowAscii"
-                            Header="ASCII 表"
+                            Header="{DynamicResource AsciiTable}"
                             IsCheckable="False" />
                         <MenuItem
                             Click="ShowReferences"
-                            Header="参考文献"
+                            Header="{DynamicResource RefDoc}"
                             IsCheckable="False" />
                     </MenuItem>
                     <MenuItem
                         AutomationProperties.AutomationId="MenuItem_About"
                         Background="{DynamicResource Window.Title.Background}"
-                        Header="关于"
+                        Header="{DynamicResource About}"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem
                             AutomationProperties.AutomationId="MenuItem_ShowUpgrade"
                             Click="ShowUpgradeWindow"
-                            Header="检查更新"
+                            Header="{DynamicResource CheckUpgrade}"
                             Icon="/Resources/Pictures/update.png" />
                         <MenuItem
                             Click="ShowAbout"
-                            Header="关于"
+                            Header="{DynamicResource About}"
                             Icon="/Resources/Pictures/about.png" />
-                        <MenuItem Click="OpenFeedBack" Header="反馈" />
-                        <MenuItem Click="OpenHelp" Header="帮助" />
-                        <MenuItem Click="OpenHFAQ" Header="常见问题" />
+                        <MenuItem Click="OpenFeedBack" Header="{DynamicResource FeedBack}" />
+                        <MenuItem Click="OpenHelp" Header="{DynamicResource Help}" />
+                        <MenuItem Click="OpenHFAQ" Header="{DynamicResource FAQ}" />
                         <MenuItem
                             Click="OpenDevelop"
-                            Header="参与开发"
+                            Header="{DynamicResource DevelopTogether}"
                             Icon="/Resources/Pictures/develop.png" />
 
                     </MenuItem>
@@ -293,9 +293,9 @@
                                 <super:HoverPath.ContextMenu>
                                     <ContextMenu HorizontalOffset="-50">
 
-                                        <MenuItem Click="OpenAllPort" Header="打开所有串口" />
-                                        <MenuItem Click="CloseAllPort" Header="关闭所有串口" />
-                                        <MenuItem Click="ShowAllHidePort" Header="显示隐藏的串口" />
+                                        <MenuItem Click="OpenAllPort" Header="{DynamicResource OpenAllPort}" />
+                                        <MenuItem Click="CloseAllPort" Header="{DynamicResource CloseAllPort}" />
+                                        <MenuItem Click="ShowAllHidePort" Header="{DynamicResource ShowHidePort}" />
                                     </ContextMenu>
                                 </super:HoverPath.ContextMenu>
                             </super:HoverPath>
@@ -308,12 +308,12 @@
                                             super:MenuItemExt.Desc="True"
                                             super:MenuItemExt.Sortable="True"
                                             Click="SortSidePorts"
-                                            Header="按添加顺序"
+                                            Header="{DynamicResource SortByAddDate}"
                                             Style="{StaticResource SortMenuItemStyle}"
                                             Tag="AddTime" />
                                         <MenuItem
                                             Click="SortSidePorts"
-                                            Header="按串口名"
+                                            Header="{DynamicResource SortByName}"
                                             Style="{StaticResource SortMenuItemStyle}"
                                             Tag="PortName" />
                                     </ContextMenu>
@@ -371,9 +371,9 @@
                                                 <ContextMenu>
                                                     <MenuItem
                                                         Click="Remark"
-                                                        Header="备注"
+                                                        Header="{DynamicResource Remark}"
                                                         Icon="/Resources/Pictures/remark.png" />
-                                                    <MenuItem Click="HidePort" Header="隐藏" />
+                                                    <MenuItem Click="HidePort" Header="{DynamicResource Hide}" />
                                                 </ContextMenu>
                                             </Grid.ContextMenu>
                                             <Border
@@ -425,12 +425,11 @@
                                                 Tag="{Binding Name}">
                                                 <Button.Style>
                                                     <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
-                                                        <Setter Property="Content" Value="连接" />
+                                                        <Setter Property="Content" Value="{DynamicResource Connect}" />
                                                         <Setter Property="Visibility" Value="Hidden" />
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Connected}" Value="True">
-
-                                                                <Setter Property="Content" Value="断开" />
+                                                                <Setter Property="Content" Value="{DynamicResource Disconnect}" />
                                                                 <Setter Property="Background" Value="Red" />
                                                                 <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
                                                             </DataTrigger>
@@ -481,16 +480,16 @@
                                     <ContextMenu HorizontalOffset="-40">
                                         <MenuItem
                                             Click="OpenSetting"
-                                            Header="设置"
+                                            Header="{DynamicResource Settings}"
                                             Icon="/Resources/Pictures/setting.png" />
-                                        <MenuItem Click="ShowPluginWindow" Header="插件" />
+                                        <MenuItem Click="ShowPluginWindow" Header="{DynamicResource Plugin}" />
                                         <MenuItem
                                             Click="ShowUpgradeWindow"
-                                            Header="检查更新"
+                                            Header="{DynamicResource CheckUpgrade}"
                                             Icon="/Resources/Pictures/update.png" />
                                         <MenuItem
                                             Click="ShowAbout"
-                                            Header="关于"
+                                            Header="{DynamicResource About}"
                                             Icon="/Resources/Pictures/about.png" />
                                     </ContextMenu>
                                 </super:HoverPath.ContextMenu>
@@ -534,7 +533,7 @@
                                 Margin="5,20,5,5"
                                 FontWeight="Bold"
                                 Style="{StaticResource BaseTextBlock}"
-                                Text="编辑命令" />
+                                Text="{DynamicResource EditCommand}" />
 
                             <DockPanel
                                 Grid.Row="1"
@@ -544,7 +543,7 @@
                                     <TextBlock
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="顺序" />
+                                        Text="{DynamicResource Order}" />
                                     <super:SearchBox Name="editTextBoxOrder" Margin="0,5" />
                                 </DockPanel>
                                 <DockPanel
@@ -554,7 +553,7 @@
                                     <TextBlock
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="名称" />
+                                        Text="{DynamicResource Title}" />
                                     <super:SearchBox Name="editTextBoxName" Margin="0,5" />
                                 </DockPanel>
                                 <DockPanel
@@ -564,7 +563,7 @@
                                     <TextBlock
                                         MinWidth="50"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="延时" />
+                                        Text="{DynamicResource Delay}" />
 
                                     <super:SearchBox Name="editTextBoxDelay" Margin="0,5" />
 
@@ -578,7 +577,7 @@
                                         MinWidth="50"
                                         HorizontalAlignment="Left"
                                         Style="{StaticResource BaseTextBlock}"
-                                        Text="命令" />
+                                        Text="{DynamicResource Command}" />
 
                                     <super:HoverPath
                                         Grid.Column="0"
@@ -628,12 +627,12 @@
                                 <Button
                                     Margin="5"
                                     Click="EditCommandConfirm"
-                                    Content="确认"
+                                    Content="{DynamicResource Confirm}"
                                     Style="{StaticResource ButtonPrimary}" />
                                 <Button
                                     Margin="5"
                                     Click="EditCommandCancel"
-                                    Content="取消"
+                                    Content="{DynamicResource Cancel}"
                                     Style="{StaticResource ButtonDanger}" />
                             </StackPanel>
                         </Grid>
@@ -686,13 +685,13 @@
                                     VerticalAlignment="Center"
                                     FontSize="12"
                                     Style="{StaticResource BaseTextBlock}"
-                                    Text="大写" />
+                                    Text="{DynamicResource Upper}" />
                                 <Button
                                     Margin="5,2"
                                     Padding="4"
                                     VerticalAlignment="Center"
                                     Click="ClearHexSpace"
-                                    Content="清除空格"
+                                    Content="{DynamicResource RemoveSpace}"
                                     FontSize="10" />
 
 
@@ -737,7 +736,7 @@
                             <TextBlock
                                 Grid.Row="2"
                                 FontWeight="Bold"
-                                Text="字符串" />
+                                Text="{DynamicResource String}" />
 
                             <Border
                                 Grid.Row="3"
@@ -808,7 +807,7 @@
                                     Grid.Row="0"
                                     VerticalAlignment="Center"
                                     FontWeight="Bold"
-                                    Text="时间戳" />
+                                    Text="{DynamicResource TimeStamp}" />
 
                                 <ComboBox
                                     Name="TimeComboBox"
@@ -817,8 +816,8 @@
                                     FontSize="10"
                                     SelectedIndex="0"
                                     Style="{StaticResource BorderComboBox}">
-                                    <ComboBoxItem Content="秒(s)" />
-                                    <ComboBoxItem Content="毫秒(ms)" />
+                                    <ComboBoxItem Content="{DynamicResource SecondUnit}" />
+                                    <ComboBoxItem Content="{DynamicResource MilliSecondUnit}" />
                                 </ComboBox>
 
 
@@ -864,7 +863,7 @@
                             <TextBlock
                                 Grid.Row="2"
                                 FontWeight="Bold"
-                                Text="北京时间" />
+                                Text="{DynamicResource BeijingTime}" />
 
                             <Border
                                 Grid.Row="3"
@@ -939,7 +938,7 @@
                             Grid.Row="1"
                             FontSize="25"
                             Style="{StaticResource BaseTextBlock}"
-                            Text="欢迎使用 SuperCom">
+                            Text="{DynamicResource WelComeUseApp}">
                             <TextBlock.Effect>
                                 <DropShadowEffect
                                     BlurRadius="4"
@@ -1003,27 +1002,27 @@
                                             <ContextMenu>
                                                 <MenuItem
                                                     Click="CloseAllConnectPort"
-                                                    Header="断开所有"
+                                                    Header="{DynamicResource DisConnectAll}"
                                                     Icon="/Resources/Pictures/closeport.png" />
                                                 <Separator />
-                                                <MenuItem Click="CloseCurrentPort" Header="关闭" />
-                                                <MenuItem Click="CloseOtherPort" Header="关闭其它" />
-                                                <MenuItem Click="CloseAllLeftPort" Header="关闭左边所有" />
-                                                <MenuItem Click="CloseAllRightPort" Header="关闭右边所有" />
-                                                <MenuItem Click="CloseAllPorts" Header="关闭所有" />
+                                                <MenuItem Click="CloseCurrentPort" Header="{DynamicResource Close}" />
+                                                <MenuItem Click="CloseOtherPort" Header="{DynamicResource CloseOther}" />
+                                                <MenuItem Click="CloseAllLeftPort" Header="{DynamicResource CloseAllLeft}" />
+                                                <MenuItem Click="CloseAllRightPort" Header="{DynamicResource CloseAllRight}" />
+                                                <MenuItem Click="CloseAllPorts" Header="{DynamicResource CloseAllPort}" />
                                                 <Separator />
-                                                <MenuItem Click="MoveToFirst" Header="移到最前" />
-                                                <MenuItem Click="MoveToLast" Header="移到最后" />
+                                                <MenuItem Click="MoveToFirst" Header="{DynamicResource MoveToFirst}" />
+                                                <MenuItem Click="MoveToLast" Header="{DynamicResource MoveToLast}" />
                                                 <Separator />
                                                 <MenuItem
                                                     Click="PinPort"
-                                                    Header="固定"
+                                                    Header="{DynamicResource Pin}"
                                                     IsCheckable="True"
                                                     IsChecked="{Binding Pinned, Mode=OneWay}" />
                                                 <Separator />
                                                 <MenuItem
                                                     Click="Remark"
-                                                    Header="备注"
+                                                    Header="{DynamicResource Remark}"
                                                     Icon="/Resources/Pictures/remark.png" />
                                             </ContextMenu>
                                         </Border.ContextMenu>
@@ -1198,13 +1197,13 @@
                                                     Tag="{Binding Name}">
                                                     <Button.Style>
                                                         <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
-                                                            <Setter Property="Content" Value="连接" />
+                                                            <Setter Property="Content" Value="{DynamicResource Connect}" />
                                                             <Setter Property="Opacity" Value="1" />
 
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Connected}" Value="True">
 
-                                                                    <Setter Property="Content" Value="断开" />
+                                                                    <Setter Property="Content" Value="{DynamicResource DisConnect}" />
                                                                     <Setter Property="Background" Value="Red" />
                                                                     <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
                                                                 </DataTrigger>
@@ -1224,9 +1223,9 @@
                                                     VerticalAlignment="Center"
                                                     super:CommonExt.CornerRadius="5"
                                                     Click="ClearData"
-                                                    Content="清屏"
+                                                    Content="{DynamicResource ClearText}"
                                                     Style="{StaticResource ButtonDanger}"
-                                                    ToolTip="清空窗口" />
+                                                    ToolTip="{DynamicResource ClearWindowText}" />
                                                 <ToggleButton
                                                     Name="pinToggleButton"
                                                     Width="25"
@@ -1239,7 +1238,7 @@
                                                     Checked="pinToggleButton_Checked"
                                                     IsChecked="{Binding FixedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     Style="{StaticResource FlatToggleButton}"
-                                                    ToolTip="固定/滚屏">
+                                                    ToolTip="{DynamicResource PinOrScroll}">
                                                     <Viewbox
                                                         Width="16"
                                                         Height="auto"
@@ -1251,16 +1250,16 @@
                                                 <super:HoverPath
                                                     Click="OpenPath"
                                                     Style="{StaticResource FolderHoverPath}"
-                                                    ToolTip="打开当前日志所在文件夹" />
+                                                    ToolTip="{DynamicResource OpenLogDir}" />
                                                 <super:HoverPath
                                                     Click="OpenByDefaultApp"
                                                     Style="{StaticResource OpenTextHoverPath}"
-                                                    ToolTip="用默认应用打开当前日志" />
+                                                    ToolTip="{DynamicResource OpenLogByDefaultApp}" />
 
                                                 <CheckBox
                                                     Margin="10"
                                                     VerticalAlignment="Center"
-                                                    Content="加时间戳"
+                                                    Content="{DynamicResource AddTimeStamp}"
                                                     FontSize="15"
                                                     IsChecked="{Binding AddTimeStamp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     Style="{StaticResource NormalCheckBox}" />
@@ -1276,11 +1275,11 @@
                                                     <ToggleButton.Style>
                                                         <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
                                                             <Setter Property="Content" Value="STR" />
-                                                            <Setter Property="ToolTip" Value="当前模式：显示字符串" />
+                                                            <Setter Property="ToolTip" Value="{DynamicResource ModeShowString}" />
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsChecked" Value="True">
                                                                     <Setter Property="Content" Value="HEX" />
-                                                                    <Setter Property="ToolTip" Value="当前模式：显示十六进制" />
+                                                                    <Setter Property="ToolTip" Value="{DynamicResource ModeShowHex}" />
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -1290,7 +1289,7 @@
                                                 <Button
                                                     Margin="5,0"
                                                     Click="SaveToNewFile"
-                                                    Content="日志另存" />
+                                                    Content="{DynamicResource LogSaveAs}" />
 
                                                 <StackPanel
                                                     Grid.Column="1"
@@ -1423,7 +1422,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="编码"
+                                                        Text="{DynamicResource Encoding}"
                                                         TextAlignment="Right" />
                                                     <ComboBox
                                                         MinWidth="120"
@@ -1571,7 +1570,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="中断"
+                                                        Text="{DynamicResource Interrupt}"
                                                         TextAlignment="Right" />
                                                     <super:Switch
                                                         Height="20"
@@ -1609,7 +1608,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="读超时"
+                                                        Text="{DynamicResource ReadTimeout}"
                                                         TextAlignment="Right" />
                                                     <super:SearchBox
                                                         Width="100"
@@ -1631,7 +1630,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="写超时"
+                                                        Text="{DynamicResource WriteTimeout}"
                                                         TextAlignment="Right" />
                                                     <super:SearchBox
                                                         Width="100"
@@ -1654,7 +1653,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="握手"
+                                                        Text="{DynamicResource HandShake}"
                                                         TextAlignment="Right" />
                                                     <ComboBox
                                                         MinWidth="120"
@@ -1686,7 +1685,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="忽略空字符"
+                                                        Text="{DynamicResource IgnoreNullChar}"
                                                         TextAlignment="Right" />
                                                     <super:Switch
                                                         Height="20"
@@ -1707,11 +1706,11 @@
                                                 Tag="{Binding Name}">
                                                 <Button
                                                     Click="HideAdvancedGrid"
-                                                    Content="关闭"
+                                                    Content="{DynamicResource Close}"
                                                     Style="{StaticResource ButtonDanger}" />
                                                 <Button
                                                     Click="RestorePortSetting"
-                                                    Content="恢复默认"
+                                                    Content="{DynamicResource Restore}"
                                                     Style="{StaticResource ButtonPrimary}"
                                                     Visibility="Collapsed" />
                                             </StackPanel>
@@ -1745,7 +1744,7 @@
                                                 <TextBlock
                                                     FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="波特率" />
+                                                    Text="{DynamicResource BaudRate}" />
                                                 <ComboBox
                                                     x:Name="baudRateComboBox"
                                                     MinWidth="120"
@@ -1771,7 +1770,7 @@
                                                 <TextBlock
                                                     FontSize="12"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="数据位" />
+                                                    Text="{DynamicResource DataBits}" />
                                                 <ComboBox
                                                     MinWidth="70"
                                                     VerticalAlignment="Center"
@@ -1796,7 +1795,7 @@
                                                     Margin="5"
                                                     VerticalAlignment="Center"
                                                     Click="ShowAdvancedOptions"
-                                                    Content="更多串口设置" />
+                                                    Content="{DynamicResource MorePortSettings}" />
 
 
                                                 <TextBlock
@@ -1805,7 +1804,7 @@
                                                     FontSize="12"
                                                     FontWeight="Bold"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="语法高亮" />
+                                                    Text="{DynamicResource HighLighting}" />
 
                                                 <ComboBox
                                                     Name="highlightingComboBox"
@@ -1823,7 +1822,7 @@
                                                     Margin="5,0"
                                                     BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                                                     Click="ShowHighLightEdit"
-                                                    Content="编辑"
+                                                    Content="{DynamicResource Edit}"
                                                     FontSize="10"
                                                     Style="{StaticResource BorderButton}" />
 
@@ -1836,7 +1835,7 @@
                                                 <TextBlock
                                                     VerticalAlignment="Center"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="过滤器"
+                                                    Text="{DynamicResource Percolator}"
                                                     ToolTip="过滤规则同语法高亮"
                                                     Visibility="Collapsed" />
 
@@ -1867,7 +1866,7 @@
                                                         Margin="5,0"
                                                         VerticalAlignment="Center"
                                                         Click="OpenSendPanel"
-                                                        Content="编辑命令"
+                                                        Content="{DynamicResource EditCommand}"
                                                         IsEnabled="{Binding RunningCommands, Converter={StaticResource OppositeBooleanConverter}}"
                                                         Tag="{Binding ElementName=commandsComboBox, Path=SelectedIndex}" />
 
@@ -1980,11 +1979,11 @@
                                                                 ToolTip="{Binding Command}">
                                                                 <Button.ContextMenu>
                                                                     <ContextMenu>
-                                                                        <MenuItem Click="EditSendCommand" Header="编辑" />
+                                                                        <MenuItem Click="EditSendCommand" Header="{DynamicResource Edit}" />
                                                                         <MenuItem
                                                                             super:CommonExt.HoverBackground="{DynamicResource Menu.Hover.Deep.Background}"
                                                                             Click="DeleteSendCommand"
-                                                                            Header="删除" />
+                                                                            Header="{DynamicResource Delete}" />
                                                                     </ContextMenu>
                                                                 </Button.ContextMenu>
                                                             </Button>
@@ -2016,7 +2015,7 @@
                                                     IsChecked="{Binding AddNewLineWhenWrite, Mode=TwoWay}"
                                                     Opacity="0.8"
                                                     Style="{StaticResource FlatToggleButton}"
-                                                    ToolTip="发送时加回车换行">
+                                                    ToolTip="{DynamicResource AddReturn}">
                                                     <Viewbox
                                                         Width="15"
                                                         Height="auto"
@@ -2036,11 +2035,11 @@
                                                     <ToggleButton.Style>
                                                         <Style BasedOn="{StaticResource FlatToggleButton}" TargetType="ToggleButton">
                                                             <Setter Property="Content" Value="STR" />
-                                                            <Setter Property="ToolTip" Value="当前模式：发送字符串" />
+                                                            <Setter Property="ToolTip" Value="{DynamicResource ModeSendString}" />
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsChecked" Value="True">
                                                                     <Setter Property="Content" Value="HEX" />
-                                                                    <Setter Property="ToolTip" Value="当前模式：发送十六进制" />
+                                                                    <Setter Property="ToolTip" Value="{DynamicResource ModeSendHex}" />
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -2194,7 +2193,7 @@
                                                     HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Bottom"
                                                     Click="SendCommand"
-                                                    Content="发送"
+                                                    Content="{DynamicResource Send}"
                                                     Tag="{Binding Name}" />
                                             </Grid>
 

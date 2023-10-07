@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using SuperCom.Entity;
+using SuperControls.Style;
 using SuperUtils.Framework.ORM.Mapper;
 using System;
 using System.Collections.Generic;
@@ -43,11 +44,11 @@ namespace SuperCom.Config
 
             ALL_TABLE = new Dictionary<string, MapperConfig>()
             {
-                {"advanced_send",new MapperConfig("命令发送",AdvancedSendMapper.SelectAllAsJson ,AdvancedSendMapper.ImportAllJson) },
-                {"com_settings",new MapperConfig("串口配置",ComMapper.SelectAllAsJson ,ComMapper.ImportAllJson) },
-                {"short_cut",new MapperConfig("快捷键",ShortCutMapper.SelectAllAsJson ,ShortCutMapper.ImportAllJson) },
-                {"highlight_rule",new MapperConfig("语法高亮",RuleMapper.SelectAllAsJson ,RuleMapper.ImportAllJson) },
-                //{"var_monitor",new MapperConfig<VarMonitor>("监视器",MonitorMapper,MonitorMapper.GetType()) },
+                {"advanced_send",new MapperConfig(LangManager.GetValueByKey("SendCommand"),AdvancedSendMapper.SelectAllAsJson ,AdvancedSendMapper.ImportAllJson) },
+                {"com_settings",new MapperConfig(LangManager.GetValueByKey("PortSettings"),ComMapper.SelectAllAsJson ,ComMapper.ImportAllJson) },
+                {"short_cut",new MapperConfig(LangManager.GetValueByKey("FastKey"),ShortCutMapper.SelectAllAsJson ,ShortCutMapper.ImportAllJson) },
+                {"highlight_rule",new MapperConfig(LangManager.GetValueByKey("HighLighting"),RuleMapper.SelectAllAsJson ,RuleMapper.ImportAllJson) },
+                //{"var_monitor",new MapperConfig<VarMonitor>(LangManager.GetValueByKey("Monitor"),MonitorMapper,MonitorMapper.GetType()) },
             };
         }
     }

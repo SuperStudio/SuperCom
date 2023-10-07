@@ -4,12 +4,64 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="About_Content">SuperCom 是一款串口调试工具，用于 Window 串口的调试</sys:String>
 
-
     <sys:String x:Key="FixOnSearching">搜索时停止滚屏</sys:String>
     <sys:String x:Key="ScrollOnNotSearching">不搜索时开启滚屏</sys:String>
     <sys:String x:Key="FixAfterSendCommand">发送命令后停止滚屏</sys:String>
 
+    <sys:String x:Key="AppTitle">SuperCom-超级串口工具</sys:String>
+    <sys:String x:Key="AppSubTitle">超级串口工具</sys:String>
+    <sys:String x:Key="LoadLog">加载日志</sys:String>
+    <sys:String x:Key="SaveLogAs">日志另存为</sys:String>
+    <sys:String x:Key="OpenAllPort">打开所有串口</sys:String>
+    <sys:String x:Key="CloseAllPort">关闭所有串口</sys:String>
+    <sys:String x:Key="ShowHidePort">显示隐藏的串口</sys:String>
+    <sys:String x:Key="EditCommand">编辑命令</sys:String>
+    <sys:String x:Key="WelComeUseApp">欢迎使用 SuperCom</sys:String>
+    <sys:String x:Key="OpenLogDir">打开当前日志所在文件夹</sys:String>
+    <sys:String x:Key="OpenLogByDefaultApp">用默认应用打开当前日志</sys:String>
+    <sys:String x:Key="ModeShowString">当前模式：显示字符串</sys:String>
+    <sys:String x:Key="ModeShowHex">当前模式：显示十六进制</sys:String>
+    <sys:String x:Key="LogSaveAs">日志另存</sys:String>
+    <sys:String x:Key="BaudRate">波特率</sys:String>
+    <sys:String x:Key="DataBits">数据位</sys:String>
+    <sys:String x:Key="MorePortSettings">更多串口设置</sys:String>
+    <sys:String x:Key="AddReturn">发送时加回车换行</sys:String>
+    <sys:String x:Key="ModeSendString">当前模式：发送字符串</sys:String>
+    <sys:String x:Key="ModeSendHex">当前模式：发送十六进制</sys:String>
+    <sys:String x:Key="SepLog">日志分片</sys:String>
+    <sys:String x:Key="MemMaxmiumHint">超过上限后，文本框中的内容自动清空（硬盘日志保留）</sys:String>
+    <sys:String x:Key="PortSettings">串口设置</sys:String>
+    <sys:String x:Key="RenameHint1">%C 串口名</sys:String>
+    <sys:String x:Key="RenameHint2">%R 备注名</sys:String>
+    <sys:String x:Key="RenameHint3">%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒</sys:String>
+    <sys:String x:Key="VirtualSerialPort">虚拟串口模拟</sys:String>
+    <sys:String x:Key="AddVirtPort">新增串口对</sys:String>
+    <sys:String x:Key="InstallCom2Com">1、安装 com0com 程序</sys:String>
+    <sys:String x:Key="ChooseCom2ComPath">2、选择 com0com 程序路径</sys:String>
+    <sys:String x:Key="PortNumber">串口号</sys:String>
+    <sys:String x:Key="PortSample">例子：COM30</sys:String>
+    <sys:String x:Key="SimulationBaudRate">模拟波特率</sys:String>
+    <sys:String x:Key="SimulationPluginIn">模拟真实插拔</sys:String>
+    <sys:String x:Key="SimulationPluginInHint">如果配对的目标端口未打开，则该端口无法打开</sys:String>
+    <sys:String x:Key="ExclusiveHint">端口在打开时隐藏</sys:String>
+    <sys:String x:Key="EmuNoise">误码率</sys:String>
+    <sys:String x:Key="EmuNoiseHint">每个字符帧的错误传输概率，范围为 0-0.99999999</sys:String>
+    <sys:String x:Key="RTTOHint">读取操作的总超时时间</sys:String>
+    <sys:String x:Key="RITOHint">读取操作的两个字符到达之间允许的最长时间</sys:String>
+    <sys:String x:Key="PortNotConnect">端口未连接</sys:String>
+    <sys:String x:Key="ExpandSendingBar">收起/展开发送栏</sys:String>
+    <sys:String x:Key="OpenCloseCurrentPort">关闭/打开当前串口</sys:String>
 
-
+    <sys:String x:Key="MemLimitClearLog">内存限制，清空串口日志（本地日志保留）</sys:String>
+    <sys:String x:Key="ClosePort">关闭串口</sys:String>
+    <sys:String x:Key="OpenPortFailed">打开串口失败</sys:String>
+    <sys:String x:Key="ClosePortTimeout">关闭串口超时</sys:String>
+    <sys:String x:Key="CurrentNoLog">当前无日志</sys:String>
+    <sys:String x:Key="LogFragWithCount">当前日志已分片，数量:</sys:String>
+    <sys:String x:Key="LogSaveAsOK">日志另存成功</sys:String>
+    <sys:String x:Key="RestoreSpec">是否将以下配置恢复默认</sys:String>
+    <sys:String x:Key="RemarkAfterOpenPort">打开串口后才能备注</sys:String>
+    <sys:String x:Key="PinLogHint">固定当前日志（日志仍在收集）</sys:String>
+    <sys:String x:Key="ImportHighLightHint">导入正则高亮后，需打开设置-正则高亮-保存</sys:String>
 
 </ResourceDictionary>

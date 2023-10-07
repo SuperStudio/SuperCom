@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:SuperCom.Windows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
-    Title="虚拟串口模拟"
+    Title="{DynamicResource VirtualSerialPort}"
     Width="1000"
     Height="600"
     Background="{DynamicResource Window.Background}"
@@ -108,7 +108,7 @@
                     <TextBlock
                         HorizontalAlignment="Center"
                         Style="{StaticResource BaseTextBlock}"
-                        Text="新增串口对" />
+                        Text="{DynamicResource AddVirtPort}" />
 
 
                     <StackPanel
@@ -191,14 +191,14 @@
                                     DotSize="3"
                                     Foreground="{DynamicResource Window.Foreground}"
                                     Visibility="{Binding AddingPort, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <TextBlock VerticalAlignment="Center" Text="确认" />
+                                <TextBlock VerticalAlignment="Center" Text="{DynamicResource Confirm}" />
                             </StackPanel>
                         </Button>
                         <Button
                             MinWidth="100"
                             Margin="10"
                             Click="CloseNewVirtualPortGrid"
-                            Content="关闭"
+                            Content="{DynamicResource Close}"
                             IsEnabled="{Binding AddingPort, Converter={StaticResource OppositeBooleanConverter}}"
                             Style="{StaticResource ButtonDanger}" />
                     </StackPanel>
@@ -234,13 +234,13 @@
                     <TextBlock
                         HorizontalAlignment="Left"
                         Style="{StaticResource BaseTextBlock}"
-                        Text="1、安装 com0com 程序" />
+                        Text="{DynamicResource InstallCom2Com}" />
                     <Button
                         Margin="10,0"
                         HorizontalAlignment="Left"
                         BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                         Click="InstallCom0Com"
-                        Content="点此安装"
+                        Content="{DynamicResource ClickToInstall}"
                         Style="{StaticResource BorderButton}"
                         Visibility="{Binding IsCom0ConInstalled, Converter={StaticResource BoolToOppositeVisibilityConverter}}" />
                 </DockPanel>
@@ -267,7 +267,7 @@
                         <TextBlock
                             HorizontalAlignment="Left"
                             Style="{StaticResource BaseTextBlock}"
-                            Text="2、选择 com0com 程序路径" />
+                            Text="{DynamicResource ChooseCom2ComPath}" />
                     </StackPanel>
 
                     <Grid>
@@ -284,7 +284,7 @@
                             Margin="10"
                             BorderBrush="{DynamicResource Button.Selected.BorderBrush}"
                             Click="SelectPath"
-                            Content="选择文件"
+                            Content="{DynamicResource ChooseFile}"
                             Style="{StaticResource BorderButton}" />
                     </Grid>
                 </StackPanel>
@@ -299,7 +299,7 @@
                 Width="100"
                 Height="30"
                 Click="ShowNewVirtualPortGrid"
-                Content="新增"
+                Content="{DynamicResource Add}"
                 Style="{StaticResource ButtonPrimary}" />
             <Button
                 Width="100"
@@ -320,7 +320,7 @@
                         VerticalAlignment="Center"
                         FontSize="12"
                         Style="{StaticResource BaseTextBlock}"
-                        Text="刷新" />
+                        Text="{DynamicResource Refresh}" />
                 </StackPanel>
             </Button>
 
@@ -342,7 +342,7 @@
                 <TextBlock
                     Margin="10"
                     Style="{StaticResource BaseTextBlock}"
-                    Text="删除中..." />
+                    Text="{DynamicResource Deleting}" />
             </StackPanel>
         </Border>
 
@@ -375,7 +375,7 @@
                     <DataGridTemplateColumn
                         Width="auto"
                         MinWidth="40"
-                        Header="操作">
+                        Header="{DynamicResource Operate}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
 
@@ -445,7 +445,7 @@
 
                     <DataGridTemplateColumn
                         Width="200"
-                        Header="串口号"
+                        Header="{DynamicResource PortNumber}"
                         SortMemberPath="PortName">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -453,14 +453,14 @@
                                     Width="180"
                                     Margin="0,5"
                                     FontWeight="Bold"
-                                    PlaceHolder="例子：COM30"
+                                    PlaceHolder="{DynamicResource PortSample}"
                                     Style="{StaticResource SearchTextBoxStyle}"
                                     Text="{Binding PortName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTemplateColumn Header="隐藏" SortMemberPath="HiddenMode">
+                    <DataGridTemplateColumn Header="{DynamicResource Hide}" SortMemberPath="HiddenMode">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <super:Switch
@@ -473,7 +473,7 @@
 
 
 
-                    <DataGridTemplateColumn Header="模拟波特率" SortMemberPath="EmuBR">
+                    <DataGridTemplateColumn Header="{DynamicResource SimulationBaudRate}" SortMemberPath="EmuBR">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <super:Switch
@@ -484,7 +484,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTemplateColumn Header="缓冲区溢出" SortMemberPath="EmuOverrun">
+                    <DataGridTemplateColumn Header="{DynamicResource BufferOverflow}" SortMemberPath="EmuOverrun">
 
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -498,12 +498,12 @@
                     <DataGridTemplateColumn SortMemberPath="PlugInMode">
                         <DataGridTemplateColumn.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock VerticalAlignment="Center" Text="模拟真实插拔" />
+                                <TextBlock VerticalAlignment="Center" Text="{DynamicResource SimulationPluginIn}" />
                                 <super:HoverPath
                                     Width="23"
                                     Height="23"
                                     Style="{StaticResource HelpHoverPath}"
-                                    ToolTip="如果配对的目标端口未打开，则该端口无法打开" />
+                                    ToolTip="{DynamicResource SimulationPluginInHint}" />
 
                             </StackPanel>
                         </DataGridTemplateColumn.Header>
@@ -519,12 +519,12 @@
                     <DataGridTemplateColumn SortMemberPath="ExclusiveMode">
                         <DataGridTemplateColumn.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock VerticalAlignment="Center" Text="独占" />
+                                <TextBlock VerticalAlignment="Center" Text="{DynamicResource Exclusive}" />
                                 <super:HoverPath
                                     Width="23"
                                     Height="23"
                                     Style="{StaticResource HelpHoverPath}"
-                                    ToolTip="端口在打开时隐藏" />
+                                    ToolTip="{DynamicResource ExclusiveHint}" />
 
 
                             </StackPanel>
@@ -541,12 +541,12 @@
                     <DataGridTemplateColumn SortMemberPath="EmuNoise">
                         <DataGridTemplateColumn.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock VerticalAlignment="Center" Text="误码率" />
+                                <TextBlock VerticalAlignment="Center" Text="{DynamicResource EmuNoise}" />
                                 <super:HoverPath
                                     Width="23"
                                     Height="23"
                                     Style="{StaticResource HelpHoverPath}"
-                                    ToolTip="每个字符帧的错误传输概率，范围为 0-0.99999999" />
+                                    ToolTip="{DynamicResource EmuNoiseHint}" />
 
 
                             </StackPanel>
@@ -555,7 +555,7 @@
                             <DataTemplate>
                                 <super:SearchBox
                                     Width="100"
-                                    PlaceHolder="默认 0"
+                                    PlaceHolder="{DynamicResource DefaultZero}"
                                     Style="{StaticResource SearchTextBoxStyle}"
                                     Text="{Binding EmuNoise, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
@@ -570,7 +570,7 @@
                                     Width="23"
                                     Height="23"
                                     Style="{StaticResource HelpHoverPath}"
-                                    ToolTip="读取操作的总超时时间" />
+                                    ToolTip="{DynamicResource RTTOHint}" />
 
                             </StackPanel>
                         </DataGridTemplateColumn.Header>
@@ -578,7 +578,7 @@
                             <DataTemplate>
                                 <super:SearchBox
                                     Width="100"
-                                    PlaceHolder="默认 0"
+                                    PlaceHolder="{DynamicResource DefaultZero}"
                                     Style="{StaticResource SearchTextBoxStyle}"
                                     Text="{Binding AddRTTO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
@@ -593,7 +593,7 @@
                                     Width="23"
                                     Height="23"
                                     Style="{StaticResource HelpHoverPath}"
-                                    ToolTip="读取操作的两个字符到达之间允许的最长时间" />
+                                    ToolTip="{DynamicResource RITOHint}" />
 
 
 
@@ -603,7 +603,7 @@
                             <DataTemplate>
                                 <super:SearchBox
                                     Width="100"
-                                    PlaceHolder="默认 0"
+                                    PlaceHolder="{DynamicResource DefaultZero}"
                                     Style="{StaticResource SearchTextBoxStyle}"
                                     Text="{Binding AddRITO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>

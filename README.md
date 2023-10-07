@@ -17,7 +17,7 @@ SuperCom 是**超级串口调试工具**，用于 Window 串口日志的采集�
 
 [![p9reenx.png](https://s1.ax1x.com/2023/05/10/p9reenx.png)](https://imgse.com/i/p9reenx)
 
-[![star-history](https://api.star-history.com/svg?repos=SuperStudio/SuperCom&type=Date)
+![star-history](https://api.star-history.com/svg?repos=SuperStudio/SuperCom&type=Date)
 
 
 # 关于

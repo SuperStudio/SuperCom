@@ -185,7 +185,7 @@ namespace SuperCom.ViewModel
         public bool DeleteRule(long id)
         {
 
-            Logger.Info($"delte rule, id: {id}");
+            Logger.Info($"delete rule, id: {id}");
 
             int count = MapperManager.RuleMapper.DeleteById(id);
             if (count <= 0) {

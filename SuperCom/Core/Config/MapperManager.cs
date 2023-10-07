@@ -43,10 +43,10 @@ namespace SuperCom.Config
 
             ALL_TABLE = new Dictionary<string, MapperConfig>()
             {
-                {"advanced_send",new MapperConfig("命令发送",AdvancedSendMapper.SelctAllAsJson ,AdvancedSendMapper.ImportAllJson) },
-                {"com_settings",new MapperConfig("串口配置",ComMapper.SelctAllAsJson ,ComMapper.ImportAllJson) },
-                {"short_cut",new MapperConfig("快捷键",ShortCutMapper.SelctAllAsJson ,ShortCutMapper.ImportAllJson) },
-                {"highlight_rule",new MapperConfig("语法高亮",RuleMapper.SelctAllAsJson ,RuleMapper.ImportAllJson) },
+                {"advanced_send",new MapperConfig("命令发送",AdvancedSendMapper.SelectAllAsJson ,AdvancedSendMapper.ImportAllJson) },
+                {"com_settings",new MapperConfig("串口配置",ComMapper.SelectAllAsJson ,ComMapper.ImportAllJson) },
+                {"short_cut",new MapperConfig("快捷键",ShortCutMapper.SelectAllAsJson ,ShortCutMapper.ImportAllJson) },
+                {"highlight_rule",new MapperConfig("语法高亮",RuleMapper.SelectAllAsJson ,RuleMapper.ImportAllJson) },
                 //{"var_monitor",new MapperConfig<VarMonitor>("监视器",MonitorMapper,MonitorMapper.GetType()) },
             };
         }

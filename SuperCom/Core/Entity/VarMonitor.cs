@@ -84,7 +84,6 @@ namespace SuperCom.Entity
         {
             public static Dictionary<string, string> Table = new Dictionary<string, string>()
             {
-                //{"DROPTABLE","drop table if exists var_monitor" },
                 {
                     "var_monitor",
 

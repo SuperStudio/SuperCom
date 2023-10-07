@@ -105,7 +105,7 @@ namespace SuperCom
                 vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
             };
 
-            App.OnMemoryDog += OnMemeoryDog;
+            App.OnMemoryDog += OnMemoryDog;
 
             colorPicker.SelectedColorChanged += (s, e) => {
                 Logger.Info($"color picker set color: {colorPicker.SelectedColor}");
@@ -133,7 +133,7 @@ namespace SuperCom
             ApplyScreenStatus();
         }
 
-        private void OnMemeoryDog()
+        private void OnMemoryDog()
         {
             App.GetDispatcher()?.Invoke(() => {
                 if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
@@ -3151,8 +3151,8 @@ namespace SuperCom
                 MessageCard.Error("解析错误");
                 return;
             }
-            Window_Import imoprt = new Window_Import(dataBaseInfos, export: false);
-            if ((bool)imoprt.ShowDialog(this))
+            Window_Import window_Import = new Window_Import(dataBaseInfos, export: false);
+            if ((bool)window_Import.ShowDialog(this))
                 if (ConfigImport.ImportDataBaseInfo(dataBaseInfos, content)) {
                     RefreshSendCommands();
                     SetComboboxStatus();

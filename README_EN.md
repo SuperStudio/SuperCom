@@ -45,7 +45,7 @@ or
 
 Three, shortcut key
 
-<img src = "Image/Image-20230109234634330.png" Alt = "Image-2023010923434330" style="zoom: 80%;" /> " />
+<img src = "Image/Image-20230109234634330.png" Alt = "Image-2023010923434330" style="zoom: 80%;" />
 
 Four, plug -in and skin
 

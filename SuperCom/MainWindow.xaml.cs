@@ -1907,6 +1907,8 @@ namespace SuperCom
                     } catch (Exception ex) {
                         Logger.Error(ex);
                         MessageCard.Error(ex.Message);
+                        SetRunningStatus(button, false);
+                        portTabItem.RunningCommands = false;
                     }
                 }
             }

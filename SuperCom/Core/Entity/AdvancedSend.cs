@@ -254,6 +254,7 @@ namespace SuperCom.Entity
                 }
                 App.GetDispatcher()?.Invoke(() => {
                     onSetRunningStatus?.Invoke(false);
+                    portTabItem.RunningCommands = false;
                 });
             });
         }

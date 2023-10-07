@@ -1202,8 +1202,7 @@
 
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Connected}" Value="True">
-
-                                                                    <Setter Property="Content" Value="{DynamicResource DisConnect}" />
+                                                                    <Setter Property="Content" Value="{DynamicResource Disconnect}" />
                                                                     <Setter Property="Background" Value="Red" />
                                                                     <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
                                                                 </DataTrigger>

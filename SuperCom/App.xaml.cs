@@ -27,6 +27,12 @@ namespace SuperCom
 
         #endregion
 
+
+        public static Dispatcher GetDispatcher()
+        {
+            return App.Current.Dispatcher;
+        }
+
         static App()
         {
 

@@ -8,6 +8,7 @@ namespace SuperCom.Log
 {
     public class Logger : AbstractLogger
     {
+        public const string DEFAULT_LOG_EXTENSION = ".log";
         public static string LOG_DIR { get; set; } =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_logs");
 
@@ -42,7 +43,7 @@ namespace SuperCom.Log
             Console.Write(str);
             if (!Directory.Exists(LOG_DIR))
                 DirHelper.TryCreateDirectory(LOG_DIR);
-            string filePath = Path.Combine(LOG_DIR, DateHelper.NowDate() + ".log");
+            string filePath = Path.Combine(LOG_DIR, DateHelper.NowDate() + SuperCom.Log.Logger.DEFAULT_LOG_EXTENSION);
             FileHelper.TryAppendToFile(filePath, str);
             Writing = false;
         }

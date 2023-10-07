@@ -135,7 +135,7 @@ namespace SuperCom
 
         private void OnMemeoryDog()
         {
-            App.Current.Dispatcher.Invoke(() => {
+            App.GetDispatcher()?.Invoke(() => {
                 if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
                     PortTabItem port = null;
                     long maxLength = 0;
@@ -561,6 +561,7 @@ namespace SuperCom
                         //portTabItem.StartFilterTask();
                         //portTabItem.StartMonitorTask();
                         portTabItem.ConnectTime = DateTime.Now;
+                        portTabItem.SaveFileName = portTabItem.GetDefaultFileName();
                         SetPortConnectStatus(portName, true);
                     }
                 } catch (Exception ex) {
@@ -957,19 +958,60 @@ namespace SuperCom
             return null;
         }
 
+        private bool SetNewSaveFileName(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null)
+                return false;
+
+            portTabItem.ConnectTime = DateTime.Now;
+            string defaultName = portTabItem.GetDefaultFileName();
+            string originFileName = Path.GetFileNameWithoutExtension(defaultName);
+            DialogInput dialogInput = new DialogInput("请输入新文件名", originFileName);
+
+            if (!(bool)dialogInput.ShowDialog(this))
+                return false;
+
+            if (dialogInput.Text is string newName &&
+                !string.IsNullOrEmpty(newName) &&
+                newName.ToProperFileName() is string name) {
+
+                if (name.ToLower().Equals(originFileName.ToLower())) {
+                    // 文件名未变化，使用默认方式
+                    portTabItem.SaveFileName = defaultName;
+                    return true;
+                }
+
+                string targetFileName = portTabItem.GetCustomFileName(newName);
+                if (File.Exists(targetFileName)) {
+                    if (!(bool)(new MsgBox("文件已存在，是否继续追加写入？").ShowDialog())) {
+                        return false;
+                    }
+                }
+                // 保存为新文件名
+                portTabItem.SaveFileName = targetFileName;
+                return true;
+            } else {
+                MessageNotify.Error("文件名异常");
+                return false;
+            }
+        }
+
+
         private async void SaveToNewFile(object sender, RoutedEventArgs e)
         {
-            (sender as FrameworkElement).IsEnabled = false;
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele == null)
+                return;
+            ele.IsEnabled = false;
             string portName = GetPortName(sender as FrameworkElement);
             if (!string.IsNullOrEmpty(portName)) {
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-                if (portTabItem != null) {
-                    portTabItem.ConnectTime = DateTime.Now;
-                    await Task.Delay(500);
-                    MessageNotify.Success("成功存到新文件！");
+                if (SetNewSaveFileName(portName)) {
+                    MessageNotify.Success("日志另存成功");
+                    await Task.Delay(500); // 防止频繁点保存
                 }
             }
-            (sender as FrameworkElement).IsEnabled = true;
+            ele.IsEnabled = true;
         }
 
         private void ShowSettingsPopup(object sender, MouseButtonEventArgs e)
@@ -3042,7 +3084,7 @@ namespace SuperCom
             // 等待数据更新后在打印
             Task.Run(async () => {
                 await Task.Delay(100);
-                await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+                await App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
                     PortSettingChanged(sender);
                 });
             });

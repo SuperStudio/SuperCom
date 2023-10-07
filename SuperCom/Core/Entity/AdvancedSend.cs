@@ -170,7 +170,7 @@ namespace SuperCom.Entity
         private async Task<bool> AsyncSendCommand(int idx, PortTabItem portTabItem, SendCommand command, AdvancedSend advancedSend)
         {
             bool success = false;
-            await App.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+            await App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
                 string value = command.Command;
                 success = portTabItem.SendCommand(value, true);
                 if (!success) {
@@ -252,7 +252,7 @@ namespace SuperCom.Entity
                         advancedSend.CommandList = advancedSend.CommandList.OrderBy(arg => arg.Order).ToList();
                     }
                 }
-                App.Current.Dispatcher.Invoke(() => {
+                App.GetDispatcher()?.Invoke(() => {
                     onSetRunningStatus?.Invoke(false);
                 });
             });

@@ -227,7 +227,6 @@ namespace SuperCom.Entity
             get { return _ConnectTime; }
             set {
                 _ConnectTime = value;
-                SaveFileName = GetSaveFileName();
             }
         }
 
@@ -312,8 +311,8 @@ namespace SuperCom.Entity
 
             }
             if (allData.Count > 0) {
-                Application.Current.Dispatcher.Invoke(() => {
-                    RX += allData.Count; 
+                App.GetDispatcher()?.Invoke(() => {
+                    RX += allData.Count;
                     if (RecvShowHex) {
                         // HEX 模式
                         SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
@@ -429,15 +428,8 @@ namespace SuperCom.Entity
         }
 
 
-        public string GetSaveFileName()
+        public string GetLogDir()
         {
-            string format = ConfigManager.CommonSettings.LogNameFormat;
-            if (string.IsNullOrEmpty(format))
-                format = CommonSettings.DEFAULT_LOG_NAME_FORMAT;
-            string name = GetFileNameByFormat(format);
-            if (string.IsNullOrEmpty(name))
-                name = GetFileNameByFormat(CommonSettings.DEFAULT_LOG_NAME_FORMAT);
-
             string dirName = ConfigManager.CommonSettings.LogSaveDir;
             if (string.IsNullOrEmpty(dirName))
                 dirName = CommonSettings.DEFAULT_LOG_SAVE_DIR;
@@ -446,7 +438,37 @@ namespace SuperCom.Entity
                 logDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
             if (!Directory.Exists(logDir))
                 Directory.CreateDirectory(logDir);
-            return Path.Combine(logDir, name + ".log");
+
+            return logDir;
+        }
+
+        public string GetCustomFileName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return GetDefaultFileName();
+            string newName = name;
+            if (!newName.EndsWith(SuperCom.Log.Logger.DEFAULT_LOG_EXTENSION))
+                newName += SuperCom.Log.Logger.DEFAULT_LOG_EXTENSION;
+
+
+            return Path.Combine(GetLogDir(), newName);
+        }
+
+
+        /// <summary>
+        /// 根据时间戳和自定义文件名组合方式保存的目标文件名
+        /// </summary>
+        /// <returns></returns>
+        public string GetDefaultFileName()
+        {
+            string format = ConfigManager.CommonSettings.LogNameFormat;
+            if (string.IsNullOrEmpty(format))
+                format = CommonSettings.DEFAULT_LOG_NAME_FORMAT;
+            string name = GetFileNameByFormat(format);
+            if (string.IsNullOrEmpty(name))
+                name = GetFileNameByFormat(CommonSettings.DEFAULT_LOG_NAME_FORMAT);
+            string logDir = GetLogDir();
+            return Path.Combine(logDir, name + SuperCom.Log.Logger.DEFAULT_LOG_EXTENSION);
         }
 
 
@@ -493,6 +515,7 @@ namespace SuperCom.Entity
                 {
                     CurrentCharSize = 0;
                     ConnectTime = DateTime.Now;
+                    SaveFileName = GetDefaultFileName();
                     FragCount++;
                 }
                 // 回调
@@ -529,13 +552,10 @@ namespace SuperCom.Entity
                         RecvBuffer.Append($"\r\n[{now}] ");
                         i++;//跳过 \n
                         continue;
-                    } 
-                    else if (c == '\r'||c == '\n')
-                    {
+                    } else if (c == '\r' || c == '\n') {
                         RecvBuffer.Append($"\r\n[{now}] ");
                         continue;
-                    }
-                    else {
+                    } else {
                         RecvBuffer.Append(c);
                     }
                 }

@@ -1290,7 +1290,7 @@
                                                 <Button
                                                     Margin="5,0"
                                                     Click="SaveToNewFile"
-                                                    Content="日志立即分片" />
+                                                    Content="日志另存" />
 
                                                 <StackPanel
                                                     Grid.Column="1"

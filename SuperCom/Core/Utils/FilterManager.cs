@@ -50,7 +50,7 @@ namespace SuperCom.Utils
                         }
 
                         if (IsInFilterRule(data)) {
-                            App.Current.Dispatcher.Invoke(() => {
+                            App.GetDispatcher()?.Invoke(() => {
                                 onFilter?.Invoke(data);
                             });
                         } else {

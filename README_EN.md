@@ -11,7 +11,7 @@
 [![Star](https://img.shields.io/github/stars/SuperStudio/SuperCom?label=Star%20this%20repo)](https://github.com/SuperStudio/SuperCom)
 [![Fork](https://img.shields.io/github/forks/SuperStudio/SuperCom?label=Fork%20this%20repo)](https://github.com/SuperStudio/SuperCom/fork)
 
-Supercom is the **super serial port debugging tool **, which is used for the collection, storage, visualization of Window serial logs. **Free open source! **
+Supercom is the **super serial port debugging tool**, which is used for the collection, storage, visualization of Window serial logs. **Free open source!**
 
 Download：[Here](https://github.com/SuperStudio/SuperCom/releases)
 

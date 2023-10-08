@@ -354,6 +354,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border
+                                        Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=ActualWidth, Converter={StaticResource WidthConverter}, ConverterParameter=-15}"
                                         Margin="0,2"
                                         Background="{DynamicResource ListBoxItem.Background}"
                                         CornerRadius="5">
@@ -364,8 +365,8 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="auto" />
                                                 <ColumnDefinition Width="auto" />
-                                                <ColumnDefinition Width="auto" />
                                                 <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="auto" />
                                             </Grid.ColumnDefinitions>
                                             <Grid.ContextMenu>
                                                 <ContextMenu>
@@ -407,7 +408,6 @@
                                                 TextWrapping="WrapWithOverflow" />
                                             <TextBlock
                                                 Grid.Column="2"
-                                                MaxWidth="120"
                                                 Margin="0"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
@@ -416,7 +416,7 @@
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
                                                 TextTrimming="WordEllipsis"
-                                                TextWrapping="WrapWithOverflow" />
+                                                TextWrapping="NoWrap" />
                                             <Button
                                                 Grid.Column="3"
                                                 Margin="5"
@@ -1064,7 +1064,7 @@
                                                 TextWrapping="WrapWithOverflow" />
                                             <TextBlock
                                                 Grid.Column="2"
-                                                MaxWidth="50"
+                                                MaxWidth="100"
                                                 Margin="0"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
@@ -1073,15 +1073,16 @@
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Remark}"
                                                 TextTrimming="WordEllipsis"
-                                                TextWrapping="WrapWithOverflow" />
+                                                TextWrapping="NoWrap" />
 
                                             <Grid Grid.Column="3">
                                                 <super:HoverPath
                                                     Width="20"
                                                     Height="20"
-                                                    Margin="5"
+                                                    Margin="4"
                                                     VerticalAlignment="Center"
                                                     Panel.ZIndex="2"
+                                                    PathPadding="5 5 6 5"
                                                     PreviewMouseLeftButtonDown="PinTabItem"
                                                     Style="{StaticResource PinHoverPath}"
                                                     Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -1090,7 +1091,7 @@
                                                 <super:HoverPath
                                                     Width="20"
                                                     Height="20"
-                                                    Margin="5"
+                                                    Margin="4"
                                                     VerticalAlignment="Center"
                                                     PreviewMouseLeftButtonDown="CloseTabItem"
                                                     Style="{StaticResource CloseExHoverPath}"

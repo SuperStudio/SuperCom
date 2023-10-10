@@ -14,6 +14,7 @@
     Closing="BaseWindow_Closing"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
     Loaded="BaseWindow_Loaded"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"

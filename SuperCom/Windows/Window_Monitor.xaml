@@ -11,6 +11,7 @@
     Background="{DynamicResource Window.Background}"
     ContentRendered="BaseWindow_ContentRendered"
     Foreground="{DynamicResource Window.Foreground}"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>

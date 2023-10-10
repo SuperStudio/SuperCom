@@ -11,6 +11,7 @@
     Height="600"
     Background="{DynamicResource Window.Background}"
     ContentRendered="BaseWindow_ContentRendered"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 

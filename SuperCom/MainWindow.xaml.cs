@@ -3,6 +3,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
+using SuperCom.Core.Telnet;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;
 using SuperCom.Upgrade;
@@ -15,6 +16,7 @@ using SuperControls.Style.Windows;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.IO;
+using SuperUtils.NetWork;
 using SuperUtils.Systems;
 using SuperUtils.Time;
 using SuperUtils.Values;
@@ -23,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -65,6 +68,8 @@ namespace SuperCom
         private Window_ShortCut window_ShortCut { get; set; }
         private Window_Setting window_Setting { get; set; }
         private Window_Monitor window_Monitor { get; set; }
+        private Window_TelnetServer Window_TelnetServer { get; set; }
+        private Window_VirtualPort virtualPort { get; set; }
         public VieModel_Main vieModel { get; set; }
 
         /// <summary>
@@ -253,7 +258,7 @@ namespace SuperCom
                     }
                     // 检查是否在数据库中存在
                     string name = customHighlighting.Name;
-                    if (name.Equals("ComLog") || HighLightRule.AllRules.FirstOrDefault(arg => arg.RuleName.Equals(name)) != null)
+                    if (HighLightRule.DEFAULT_RULES.Contains(name) || HighLightRule.AllRules.FirstOrDefault(arg => arg.RuleName.Equals(name)) != null)
                         HighlightingManager.Instance.RegisterHighlighting(name, null, customHighlighting);
                 } catch (Exception ex) {
                     MessageCard.Error(ex.Message);
@@ -822,7 +827,6 @@ namespace SuperCom
                 textEditor.FontSize = fontSize;
                 e.Handled = true;
             }
-
         }
 
         private TextEditor FindTextBox(Grid rootGrid)
@@ -2629,8 +2633,8 @@ namespace SuperCom
             if (textEditor != null && textEditor.Parent is Border border)
                 border.BorderBrush = Brushes.Transparent;
         }
-        Window_VirtualPort virtualPort;
-        private async void ShowVirtualPort(object sender, RoutedEventArgs e)
+
+        private void ShowVirtualPort(object sender, RoutedEventArgs e)
         {
             if (virtualPort == null) {
                 virtualPort = new Window_VirtualPort();
@@ -3211,6 +3215,21 @@ namespace SuperCom
             Border baseBorder = grid.Parent as Border;
             string portName = baseBorder.Tag.ToString();
             ClosePortTabItemByName(portName, null);
+        }
+
+        private void StartTelnetServer(object sender, RoutedEventArgs e)
+        {
+            if (Window_TelnetServer == null) {
+                Window_TelnetServer = new Window_TelnetServer();
+                Window_TelnetServer.Show();
+            } else {
+                if (Window_TelnetServer.IsClosed) {
+                    Window_TelnetServer = new Window_TelnetServer();
+                    Window_TelnetServer.Show();
+                }
+                Window_TelnetServer.BringIntoView();
+                Window_TelnetServer.Focus();
+            }
         }
     }
 }

@@ -16,6 +16,11 @@ namespace SuperCom.Entity
     public class HighLightRule
     {
         #region "静态属性"
+
+        public static List<string> DEFAULT_RULES = new List<string>() {
+            "ComLog",
+            "Telnet"
+        };
         public static List<HighLightRule> AllRules { get; set; }
         public static List<string> AllName { get; set; }
 

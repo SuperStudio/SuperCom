@@ -1,4 +1,5 @@
 ﻿using SuperCom.Config;
+using SuperCom.Core.Telnet;
 using SuperCom.WatchDog;
 using SuperControls.Style.Windows;
 using SuperUtils.Framework.Logger;
@@ -97,7 +98,11 @@ namespace SuperCom
 
         protected override void OnExit(ExitEventArgs e)
         {
+            TelnetServerManager.Stop();
             Win32Helper.CancelPreventSleep(); // 取消系统休眠
+            Logger.Info("==========");
+            Logger.Info("good bye!");
+            Logger.Info("==========");
             base.OnExit(e);
         }
 

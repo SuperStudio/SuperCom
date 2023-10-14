@@ -173,6 +173,12 @@
     <Compile Include="Core\Entity\Enums\SplitPanelType.cs" />
     <Compile Include="Core\Entity\VarMonitor.cs" />
     <Compile Include="Core\Entity\VirtualPort.cs" />
+    <Compile Include="Core\Telnet\TelnetClient.cs" />
+    <Compile Include="Core\Telnet\TelnetServer.cs" />
+    <Compile Include="Core\Telnet\TelnetServerManager.cs" />
+    <Compile Include="Core\Telnet\Window_TelnetServer.xaml.cs">
+      <DependentUpon>Window_TelnetServer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
@@ -204,6 +210,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Core\CustomStyle\Basic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Core\Telnet\Window_TelnetServer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -273,6 +283,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
+    <None Include="AvalonEdit\Higlighting\Telnet.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Files\app_config.json" />
     <None Include="AvalonEdit\Higlighting\ComLog.xshd">
       <SubType>Designer</SubType>
@@ -343,6 +356,6 @@ XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y 
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
-    </PreBuildEvent>
+</PreBuildEvent>
   </PropertyGroup>
 </Project>

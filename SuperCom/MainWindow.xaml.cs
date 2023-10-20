@@ -641,6 +641,7 @@ namespace SuperCom
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
             if (portTabItem == null)
                 return false;
+            portTabItem.Close();
             SerialPortEx serialPort = portTabItem.SerialPort;
             if (serialPort != null) {
                 bool success = await AsyncClosePort(serialPort);

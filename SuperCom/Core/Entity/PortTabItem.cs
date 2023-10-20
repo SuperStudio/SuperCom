@@ -253,6 +253,9 @@ namespace SuperCom.Entity
             }
         }
 
+
+        private bool _IsClose = false;
+
         #endregion
 
         public void TextBox_TextChanged(object sender, EventArgs e)
@@ -285,42 +288,57 @@ namespace SuperCom.Entity
         public void ReadTask()
         {
             ResetEvent.Reset();
-            List<byte> allData = new List<byte>();
-            while (true) {
-                if (SerialPort == null || !SerialPort.IsOpen)
+            while (true)
+            {
+                ResetEvent.WaitOne();
+                if (_IsClose)
                     break;
-                try {
-                    int len = SerialPort.BytesToRead;
-                    if (len == 0)
+                List<byte> allData = new List<byte>();
+                while (true)
+                {
+                    if (SerialPort == null || !SerialPort.IsOpen)
                         break;
-                    byte[] buffer = new byte[len];
-                    HexRecvTime = DateTime.Now;
-                    SerialPort.Read(buffer, 0, len);
-                    if (buffer.Length == 0)
+                    try
+                    {
+                        int len = SerialPort.BytesToRead;
+                        if (len == 0)
+                            break;
+                        byte[] buffer = new byte[len];
+                        HexRecvTime = DateTime.Now;
+                        SerialPort.Read(buffer, 0, len);
+                        if (buffer.Length == 0)
+                            break;
+                        allData.AddRange(buffer);
+                    }
+                    catch
+                    {
                         break;
-                    allData.AddRange(buffer);
-                } catch {
-                    break;
-                }
-
-                if (allData.Count > MAX_READ_LENGTH)
-                    break;
-
-                Thread.Sleep(SerialPort.SubcontractingTimeoutValue); // 不能设置过小，也不能过大，否则一次读取的数据不完整
-
-            }
-            if (allData.Count > 0) {
-                App.GetDispatcher()?.Invoke(() => {
-                    RX += allData.Count;
-                    if (RecvShowHex) {
-                        // HEX 模式
-                        SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
-                    } else {
-                        // STR 模式
-                        SaveData(SerialPort.Encoding.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
                     }
 
-                });
+                    if (allData.Count > MAX_READ_LENGTH)
+                        break;
+
+                    Thread.Sleep(SerialPort.SubcontractingTimeoutValue); // 不能设置过小，也不能过大，否则一次读取的数据不完整
+
+                }
+                if (allData.Count > 0)
+                {
+                    App.GetDispatcher()?.Invoke(() =>
+                    {
+                        RX += allData.Count;
+                        if (RecvShowHex)
+                        {
+                            // HEX 模式
+                            SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
+                        }
+                        else
+                        {
+                            // STR 模式
+                            SaveData(SerialPort.Encoding.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
+                        }
+
+                    });
+                }
             }
         }
         #endregion
@@ -596,11 +614,12 @@ namespace SuperCom.Entity
             Connected = connected;
             Setting = new PortSetting();
             ResetEvent = new AutoResetEvent(false);
-            Task.Run(() => {
-                while (true) {
-                    ReadTask();
-                }
-            });
+            new Thread(ReadTask).Start();
+            //Task.Run(() => {
+            //    while (true) {
+            //        ReadTask();
+            //    }
+            //});
         }
 
         /// <summary>
@@ -674,6 +693,14 @@ namespace SuperCom.Entity
             }
             CurrentErrorCount = 0;
             SendCommand(value, false);
+        }
+        /// <summary>
+        /// 窗口关闭
+        /// </summary>
+        public void Close()
+        {
+            _IsClose = true;
+            ResetEvent.Set();
         }
     }
 

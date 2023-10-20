@@ -26,7 +26,6 @@ namespace SuperCom.Entity
     public class PortTabItem : ViewModelBase
     {
         private const int MAX_READ_LENGTH = 10240;
-        private const int READ_INTERVAL = 50;
 
         /// <summary>
         /// 命令发送面板显示错误的数量上限，与 CurrentErrorCount 配合
@@ -307,7 +306,7 @@ namespace SuperCom.Entity
                 if (allData.Count > MAX_READ_LENGTH)
                     break;
 
-                Thread.Sleep(READ_INTERVAL); // 不能设置过小，也不能过大，否则一次读取的数据不完整
+                Thread.Sleep(SerialPort.SubcontractingTimeoutValue); // 不能设置过小，也不能过大，否则一次读取的数据不完整
 
             }
             if (allData.Count > 0) {

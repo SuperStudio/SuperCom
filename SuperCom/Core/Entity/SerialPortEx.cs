@@ -113,6 +113,17 @@ namespace SuperCom.Entity
             }
         }
 
+        private int _SubcontractingTimeoutValue = PortSetting.DEFAULT_SUBCONTRACTING_TIME_OUT;
+        public int SubcontractingTimeoutValue
+        {
+            get { return _SubcontractingTimeoutValue; }
+            set
+            {
+                _SubcontractingTimeoutValue = value;
+                RaisePropertyChanged();
+            }
+        }
+
         #endregion
 
         public SerialPortEx()
@@ -228,6 +239,7 @@ namespace SuperCom.Entity
                 { "Handshake", this.Handshake },
                 { "ReadTimeout", this.ReadTimeoutValue },
                 { "WriteTimeout", this.WriteTimeoutValue },
+                { "SubcontractingTimeout", this.SubcontractingTimeoutValue },
                 { "DiscardNull", this.DiscardNull },
                 { "Remark", this.Remark },
                 { "Pinned", this.Pinned },
@@ -262,6 +274,7 @@ namespace SuperCom.Entity
 
                 this.ReadTimeoutValue = dict.GetInt("ReadTimeout", PortSetting.DEFAULT_READ_TIME_OUT);
                 this.WriteTimeoutValue = dict.GetInt("WriteTimeout", PortSetting.DEFAULT_WRITE_TIME_OUT);
+                this.SubcontractingTimeoutValue = dict.GetInt("SubcontractingTimeout", PortSetting.DEFAULT_SUBCONTRACTING_TIME_OUT);
 
                 if (dict.ContainsKey("Handshake") && Enum.TryParse(dict["Handshake"].ToString(), out Handshake Handshake))
                     this.Handshake = Handshake;

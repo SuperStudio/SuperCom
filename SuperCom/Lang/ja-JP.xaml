@@ -63,5 +63,6 @@
     <sys:String x:Key="RemarkAfterOpenPort">シリアルポートを開いた後にのみ気づくことができます</sys:String>
     <sys:String x:Key="PinLogHint">現在のログを修正しました（ログはまだ収集されています）</sys:String>
     <sys:String x:Key="ImportHighLightHint">定期的なハイライトをインポートした後、設定を開く必要があります - 通常のハイライトセイブ</sys:String>
+    <sys:String x:Key="SubcontractingTimeout">下請けのタイムアウト</sys:String>
 
 </ResourceDictionary>

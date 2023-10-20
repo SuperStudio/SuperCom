@@ -26,6 +26,7 @@ namespace SuperCom.Entity
         public const int CLOSE_TIME_OUT = 5;
         public const double DEFAULT_FONTSIZE = 15;
         public const int DEFAULT_WRITE_TIME_OUT = 1000;
+        public const int DEFAULT_SUBCONTRACTING_TIME_OUT = 30;
         public const int DEFAULT_READ_TIME_OUT = 2000;
         public const int MIN_TIME_OUT = 0;
         public const int MAX_TIME_OUT = 60 * 60 * 1000;

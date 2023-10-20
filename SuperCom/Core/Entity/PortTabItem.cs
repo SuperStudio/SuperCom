@@ -317,7 +317,7 @@ namespace SuperCom.Entity
                         SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
                     } else {
                         // STR 模式
-                        SaveData(Encoding.UTF8.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
+                        SaveData(SerialPort.Encoding.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
                     }
 
                 });

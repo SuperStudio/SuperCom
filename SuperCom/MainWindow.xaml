@@ -1667,6 +1667,28 @@
                                                         TextChanged="OnPortSettingChanged" />
                                                     <TextBlock VerticalAlignment="Center" Text="ms" />
                                                 </StackPanel>
+                                                <StackPanel
+                                                    Margin="5"
+                                                    Orientation="Horizontal"
+                                                    Tag="{Binding Name}">
+                                                    <TextBlock
+                                                        Width="60"
+                                                        FontSize="12"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="{DynamicResource SubcontractingTimeout}"
+                                                        TextAlignment="Right" />
+                                                    <super:SearchBox
+                                                        Width="100"
+                                                        Height="30"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="10"
+                                                        ShowClearButton="False"
+                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                        Text="{Binding SerialPort.SubcontractingTimeoutValue, Mode=TwoWay}"
+                                                        TextAlignment="Center"
+                                                        TextChanged="OnPortSettingChanged" />
+                                                    <TextBlock VerticalAlignment="Center" Text="ms" />
+                                                </StackPanel>
 
                                                 <StackPanel
                                                     Margin="5,0"

@@ -339,134 +339,134 @@
                         </StackPanel>
                         <ScrollViewer Grid.Row="1">
                             <StackPanel Orientation="Vertical">
-                                <Expander
+                                <!--<Expander
                                     Padding="0,5"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     Foreground="{DynamicResource Window.Foreground}"
                                     Header="串口"
-                                    IsExpanded="True">
-                                    <ListBox
-                                        HorizontalContentAlignment="Stretch"
-                                        d:ItemsSource="{d:SampleData ItemCount=5}"
-                                        Background="Transparent"
-                                        ItemsSource="{Binding SideComPorts}"
-                                        ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                        Style="{StaticResource NormalListBox}">
-                                        <ListBox.ItemContainerStyle>
-                                            <Style BasedOn="{StaticResource BaseListBoxItem}" TargetType="{x:Type ListBoxItem}">
-                                                <Setter Property="Padding" Value="0" />
-                                                <Setter Property="Background" Value="Transparent" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Hide}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ListBox.ItemContainerStyle>
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border
-                                                    Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=ActualWidth, Converter={StaticResource WidthConverter}, ConverterParameter=-15}"
-                                                    Margin="0,2"
-                                                    Background="{DynamicResource ListBoxItem.Background}"
-                                                    CornerRadius="5">
-                                                    <Grid
-                                                        Background="Transparent"
-                                                        PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown"
+                                    IsExpanded="True">-->
+                                <ListBox
+                                    HorizontalContentAlignment="Stretch"
+                                    d:ItemsSource="{d:SampleData ItemCount=5}"
+                                    Background="Transparent"
+                                    ItemsSource="{Binding SideComPorts}"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                    Style="{StaticResource NormalListBox}">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style BasedOn="{StaticResource BaseListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Hide}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                                Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=ActualWidth, Converter={StaticResource WidthConverter}, ConverterParameter=-15}"
+                                                Margin="0,2"
+                                                Background="{DynamicResource ListBoxItem.Background}"
+                                                CornerRadius="5">
+                                                <Grid
+                                                    Background="Transparent"
+                                                    PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown"
+                                                    Tag="{Binding Name}">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem
+                                                                Click="Remark"
+                                                                Header="{DynamicResource Remark}"
+                                                                Icon="/Resources/Pictures/remark.png" />
+                                                            <MenuItem Click="HidePort" Header="{DynamicResource Hide}" />
+                                                        </ContextMenu>
+                                                    </Grid.ContextMenu>
+                                                    <Border
+                                                        Grid.Column="0"
+                                                        Width="10"
+                                                        Height="10"
+                                                        Margin="5"
+                                                        CornerRadius="10">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="Green" />
+                                                                <Style.Triggers>
+
+                                                                    <DataTrigger Binding="{Binding Connected}" Value="True">
+                                                                        <Setter Property="Background" Value="Red" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                    </Border>
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        MaxWidth="120"
+                                                        Margin="0"
+                                                        Padding="10,5"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="{Binding Name}"
+                                                        TextTrimming="WordEllipsis"
+                                                        TextWrapping="WrapWithOverflow" />
+                                                    <TextBlock
+                                                        Grid.Column="2"
+                                                        Margin="0"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center"
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource Window.Sub.Foreground}"
+                                                        Style="{StaticResource BaseTextBlock}"
+                                                        Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                                                        TextTrimming="WordEllipsis"
+                                                        TextWrapping="NoWrap" />
+                                                    <Button
+                                                        Grid.Column="3"
+                                                        Margin="5"
+                                                        HorizontalAlignment="Right"
+                                                        Click="ConnectPort"
                                                         Tag="{Binding Name}">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="auto" />
-                                                            <ColumnDefinition Width="auto" />
-                                                            <ColumnDefinition Width="*" />
-                                                            <ColumnDefinition Width="auto" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <Grid.ContextMenu>
-                                                            <ContextMenu>
-                                                                <MenuItem
-                                                                    Click="Remark"
-                                                                    Header="{DynamicResource Remark}"
-                                                                    Icon="/Resources/Pictures/remark.png" />
-                                                                <MenuItem Click="HidePort" Header="{DynamicResource Hide}" />
-                                                            </ContextMenu>
-                                                        </Grid.ContextMenu>
-                                                        <Border
-                                                            Grid.Column="0"
-                                                            Width="10"
-                                                            Height="10"
-                                                            Margin="5"
-                                                            CornerRadius="10">
-                                                            <Border.Style>
-                                                                <Style TargetType="Border">
-                                                                    <Setter Property="Background" Value="Green" />
-                                                                    <Style.Triggers>
+                                                        <Button.Style>
+                                                            <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
+                                                                <Setter Property="Content" Value="{DynamicResource Connect}" />
+                                                                <Setter Property="Visibility" Value="Hidden" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Connected}" Value="True">
+                                                                        <Setter Property="Content" Value="{DynamicResource Disconnect}" />
+                                                                        <Setter Property="Background" Value="Red" />
+                                                                        <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
+                                                                    </DataTrigger>
 
-                                                                        <DataTrigger Binding="{Binding Connected}" Value="True">
-                                                                            <Setter Property="Background" Value="Red" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Border.Style>
-                                                        </Border>
-                                                        <TextBlock
-                                                            Grid.Column="1"
-                                                            MaxWidth="120"
-                                                            Margin="0"
-                                                            Padding="10,5"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center"
-                                                            Style="{StaticResource BaseTextBlock}"
-                                                            Text="{Binding Name}"
-                                                            TextTrimming="WordEllipsis"
-                                                            TextWrapping="WrapWithOverflow" />
-                                                        <TextBlock
-                                                            Grid.Column="2"
-                                                            Margin="0"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center"
-                                                            FontSize="12"
-                                                            Foreground="{DynamicResource Window.Sub.Foreground}"
-                                                            Style="{StaticResource BaseTextBlock}"
-                                                            Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
-                                                            TextTrimming="WordEllipsis"
-                                                            TextWrapping="NoWrap" />
-                                                        <Button
-                                                            Grid.Column="3"
-                                                            Margin="5"
-                                                            HorizontalAlignment="Right"
-                                                            Click="ConnectPort"
-                                                            Tag="{Binding Name}">
-                                                            <Button.Style>
-                                                                <Style BasedOn="{StaticResource FillButton}" TargetType="Button">
-                                                                    <Setter Property="Content" Value="{DynamicResource Connect}" />
-                                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Connected}" Value="True">
-                                                                            <Setter Property="Content" Value="{DynamicResource Disconnect}" />
-                                                                            <Setter Property="Background" Value="Red" />
-                                                                            <Setter Property="super:CommonExt.HoverBackground" Value="Red" />
-                                                                        </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
 
-                                                                        <DataTrigger Binding="{Binding Path=IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type Grid}, Mode=FindAncestor}}" Value="true">
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </DataTrigger>
-
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Button.Style>
-                                                        </Button>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
 
 
 
 
 
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
 
-                                </Expander>
+                                <!--</Expander>-->
                                 <Expander
                                     Foreground="{DynamicResource Window.Foreground}"
                                     Header="Telnet"

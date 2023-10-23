@@ -356,6 +356,6 @@ XCOPY  "$(ProjectDir)Files\app_config.json" "$(ProjectDir)bin\Release"    /E /Y 
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
-</PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

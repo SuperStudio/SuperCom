@@ -1,12 +1,15 @@
 ﻿using SuperCom.Config.WindowConfig;
 using SuperUtils.Framework.ORM.Config;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace SuperCom.Config
 {
     public static class ConfigManager
     {
-        public const string RELEASE_DATE = "2023-09-25";
+        public static string RELEASE_DATE = 
+            new FileInfo(Assembly.GetExecutingAssembly().Location).LastWriteTime.ToString("yyyy-MM-dd");
 
         public const string SQLITE_DATA_PATH = "user_data.sqlite";
 

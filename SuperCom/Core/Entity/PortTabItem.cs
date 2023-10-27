@@ -577,8 +577,8 @@ namespace SuperCom.Entity
                     }
                 }
                 value = RecvBuffer.ToString();
+                value += Environment.NewLine;
             }
-            value += Environment.NewLine;
             CurrentCharSize += Encoding.UTF8.GetByteCount(value);
             //MonitorLine(value);
             FilterLine(value);

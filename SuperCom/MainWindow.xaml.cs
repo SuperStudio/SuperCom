@@ -568,6 +568,7 @@ namespace SuperCom
                         portTabItem.ConnectTime = DateTime.Now;
                         portTabItem.SaveFileName = portTabItem.GetDefaultFileName();
                         SetPortConnectStatus(portName, true);
+                        portTabItem.Open();
                     }
                 } catch (Exception ex) {
                     Dispatcher.Invoke(() => {

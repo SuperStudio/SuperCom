@@ -3003,7 +3003,11 @@ namespace SuperCom
             if (portTabItem != null) {
                 string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName)) {
-                    string target = FileHelper.SaveFile();
+                    string target = FileHelper.SaveFile(null,null,"Normal text file|*.txt|All types|*.*");
+                    if (string.IsNullOrEmpty(target))
+                    {
+                        return;
+                    }
                     if (!FileHelper.IsProperDirName(target)) {
                         MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
                         return;

@@ -338,6 +338,33 @@ namespace SuperCom
             }
         }
 
+
+        /// <summary>
+        /// 设置下一个选中
+        /// </summary>
+        /// <param name="forward"></param>
+        public void SetPortTabSelected(bool forward)
+        {
+            if (vieModel.PortTabItems == null || vieModel.PortTabItems.Count <= 1)
+                return;
+            int idx = 0;
+            for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                if (vieModel.PortTabItems[i].Selected) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (forward)
+                idx++;
+            else
+                idx--;
+            if (idx < 0)
+                idx = vieModel.PortTabItems.Count - 1;
+            if (idx >= vieModel.PortTabItems.Count)
+                idx = 0;
+            SetPortTabSelected(vieModel.PortTabItems[idx].Name);
+        }
+
         private void SetGridVisible(string portName)
         {
             Logger.Debug(portName);
@@ -2336,6 +2363,11 @@ namespace SuperCom
 
         #endregion
 
+        private bool KeyDownInTab(object sender)
+        {
+            return sender is Grid;
+        }
+
         private void onPreviewKeyDown(object sender, KeyEventArgs e)
         {
             string portName = "";
@@ -2362,26 +2394,37 @@ namespace SuperCom
             }
             if (shortCutBinding == null)
                 return;
-
-            switch (shortCutBinding.KeyID) {
-                case 1:
-                    OpenCloseCurrentPort(portName);
+            ShortCutType type = (ShortCutType)shortCutBinding.KeyID;
+            switch (type) {
+                case ShortCutType.OpenCloseCurrentPort:
+                    if (KeyDownInTab(sender))
+                        OpenCloseCurrentPort(portName);
                     break;
-                case 2:
-                    ExpandSendPanel(sender);
+                case ShortCutType.ExpandSendingBar:
+                    if (KeyDownInTab(sender))
+                        ExpandSendPanel(sender);
                     break;
-                case 3:
+                case ShortCutType.FullScreen:
                     // 全屏
-                    //this.MaxWindow(null, null);
+                    if (this.WindowState == WindowState.Maximized) {
+                        this.WindowState = WindowState.Normal;
+                    } else if (this.WindowState == WindowState.Normal) {
+                        this.WindowState = WindowState.Maximized;
+                    }
+                    e.Handled = true;
                     break;
-                case 4: {
+                case ShortCutType.PinOrScroll: {
+                        if (!KeyDownInTab(sender))
+                            return;
                         // 固定滚屏
                         PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
                         if (portTabItem != null)
                             portTabItem.FixedText = !portTabItem.FixedText;
                     }
                     break;
-                case 5: {
+                case ShortCutType.HexTransform: {
+                        if (!KeyDownInTab(sender))
+                            return;
                         // hex 转换
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
@@ -2389,7 +2432,9 @@ namespace SuperCom
                             OpenHex(textEditor.SelectedText);
                     }
                     break;
-                case 6: {
+                case ShortCutType.TimeStampTransform: {
+                        if (!KeyDownInTab(sender))
+                            return;
                         // 时间戳
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
@@ -2397,7 +2442,9 @@ namespace SuperCom
                             OpenTime(textEditor.SelectedText);
                     }
                     break;
-                case 7: {
+                case ShortCutType.FormatToJSON: {
+                        if (!KeyDownInTab(sender))
+                            return;
                         // 格式化为 JSON
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
@@ -2408,7 +2455,9 @@ namespace SuperCom
                         }
                     }
                     break;
-                case 8: {
+                case ShortCutType.JoinLine: {
+                        if (!KeyDownInTab(sender))
+                            return;
                         // 合并为一行
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
@@ -2420,8 +2469,17 @@ namespace SuperCom
                     }
 
                     break;
-                case 9:
+                case ShortCutType.SaveLogAs:
                     SaveLog(null, null);// 另存为
+                    e.Handled = true;
+                    break;
+                case ShortCutType.Close:
+                    ClosePortTabItemByName(portName);
+                    e.Handled = true;
+                    break;
+                case ShortCutType.PinnedTab:
+                    PinPort(vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)));
+                    e.Handled = true;
                     break;
                 default:
 
@@ -3238,6 +3296,15 @@ namespace SuperCom
                 }
                 Window_TelnetServer.BringIntoView();
                 Window_TelnetServer.Focus();
+            }
+        }
+
+        private void onPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.XButton1 == MouseButtonState.Pressed) {
+                SetPortTabSelected(true);
+            } else if (e.XButton2 == MouseButtonState.Pressed) {
+                SetPortTabSelected(false);
             }
         }
     }

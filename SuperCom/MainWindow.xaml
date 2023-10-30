@@ -24,6 +24,8 @@
     Loaded="mainWindow_Loaded"
     MenuAlign="Left"
     MenuMargin="200 0 0 0"
+    PreviewKeyDown="onPreviewKeyDown"
+    PreviewMouseDown="onPreviewMouseDown"
     ShowThemeSelector="True"
     TitleHeight="30"
     TitleMargin="5 0"

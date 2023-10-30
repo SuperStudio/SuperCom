@@ -13,6 +13,25 @@ using System.Windows.Input;
 namespace SuperCom.Entity
 {
 
+    /// <summary>
+    /// 快捷键类型，只能往下递增
+    /// </summary>
+    public enum ShortCutType
+    {
+        None,
+        OpenCloseCurrentPort = 1,
+        ExpandSendingBar,
+        FullScreen,
+        PinOrScroll,
+        HexTransform,
+        TimeStampTransform,
+        FormatToJSON,
+        JoinLine,
+        SaveLogAs,
+        Close,
+        PinnedTab,
+    }
+
     [Table(tableName: "short_cut")]
     public class ShortCutBinding : ViewModelBase
     {
@@ -39,18 +58,22 @@ namespace SuperCom.Entity
         [TableField(exist: false)]
         public ObservableCollection<string> KeyStringList { get; set; }
 
-
-        public static List<ShortCutBinding> SHORT_CUT_BINDINGS = new List<ShortCutBinding>()
+        /// <summary>
+        /// 快键键表，只能往下添加
+        /// </summary>
+        public static List<ShortCutBinding> SHORT_CUT_BINDINGS { get; set; } = new List<ShortCutBinding>()
         {
-            new ShortCutBinding(1,LangManager.GetValueByKey("OpenCloseCurrentPort"),new List<Key>(){ Key.LeftCtrl,Key.Q }),
-            new ShortCutBinding(2,LangManager.GetValueByKey("ExpandSendingBar"),new List<Key>(){ Key.LeftCtrl,Key.T }),
-            new ShortCutBinding(3,LangManager.GetValueByKey("FullScreen"),new List<Key>(){ Key.LeftAlt,Key.Q }),
-            new ShortCutBinding(4,LangManager.GetValueByKey("PinOrScroll"),new List<Key>(){ Key.LeftAlt,Key.W }),
-            new ShortCutBinding(5,LangManager.GetValueByKey("HexTransform"),new List<Key>(){ Key.LeftAlt,Key.E }),
-            new ShortCutBinding(6,LangManager.GetValueByKey("TimeStampTransform"),new List<Key>(){ Key.LeftAlt,Key.D }),
-            new ShortCutBinding(7,LangManager.GetValueByKey("FormatToJSON"),new List<Key>(){ Key.F2 }),
-            new ShortCutBinding(8,LangManager.GetValueByKey("JoinLine_"),new List<Key>(){ Key.F3 }),
-            new ShortCutBinding(9,LangManager.GetValueByKey("SaveLogAs"),new List<Key>(){ Key.LeftCtrl,Key.S }),
+            new ShortCutBinding((long)ShortCutType.OpenCloseCurrentPort,LangManager.GetValueByKey("OpenCloseCurrentPort"),new List<Key>(){ Key.LeftCtrl,Key.Q }),
+            new ShortCutBinding((long)ShortCutType.ExpandSendingBar,LangManager.GetValueByKey("ExpandSendingBar"),new List<Key>(){ Key.LeftCtrl,Key.T }),
+            new ShortCutBinding((long)ShortCutType.FullScreen,LangManager.GetValueByKey("FullScreen"),new List<Key>(){ Key.F11 }),
+            new ShortCutBinding((long)ShortCutType.PinOrScroll,LangManager.GetValueByKey("PinOrScroll"),new List<Key>(){ Key.LeftAlt,Key.W }),
+            new ShortCutBinding((long)ShortCutType.HexTransform,LangManager.GetValueByKey("HexTransform"),new List<Key>(){ Key.LeftAlt,Key.E }),
+            new ShortCutBinding((long)ShortCutType.TimeStampTransform,LangManager.GetValueByKey("TimeStampTransform"),new List<Key>(){ Key.LeftAlt,Key.D }),
+            new ShortCutBinding((long)ShortCutType.FormatToJSON,LangManager.GetValueByKey("FormatToJSON"),new List<Key>(){ Key.F2 }),
+            new ShortCutBinding((long)ShortCutType.JoinLine,LangManager.GetValueByKey("JoinLine_"),new List<Key>(){ Key.F3 }),
+            new ShortCutBinding((long)ShortCutType.SaveLogAs,LangManager.GetValueByKey("SaveLogAs"),new List<Key>(){ Key.LeftCtrl,Key.S }),
+            new ShortCutBinding((long)ShortCutType.Close,LangManager.GetValueByKey("Close"),new List<Key>(){ Key.LeftCtrl,Key.W }),
+            new ShortCutBinding((long)ShortCutType.PinnedTab,LangManager.GetValueByKey("Pin"),new List<Key>(){ Key.LeftCtrl,Key.E }),
         };
 
 

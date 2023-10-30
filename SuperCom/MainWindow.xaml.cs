@@ -2300,7 +2300,43 @@ namespace SuperCom
             window_ShortCut.Activate();
         }
 
-        private async void baseGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        #region "快捷键处理"
+
+        private async void OpenCloseCurrentPort(string portName)
+        {
+            SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (sideComPort == null) {
+                MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
+                return;
+            }
+
+            if (sideComPort.Connected) {
+                await ClosePort(portName);
+            } else {
+                // 连接
+                await OpenPort(sideComPort);
+            }
+        }
+
+        /// <summary>
+        /// 收起展开发送栏
+        /// </summary>
+        /// <param name="sender"></param>
+        private void ExpandSendPanel(object sender)
+        {
+            Grid baseGrid = sender as Grid;
+            if (baseGrid != null) {
+                double height = baseGrid.RowDefinitions[2].ActualHeight;
+                if (height <= 10)
+                    baseGrid.RowDefinitions[2].Height = new GridLength(DEFAULT_SEND_PANEL_HEIGHT, GridUnitType.Pixel);
+                else
+                    baseGrid.RowDefinitions[2].Height = new GridLength(0, GridUnitType.Pixel);
+            }
+        }
+
+        #endregion
+
+        private void onPreviewKeyDown(object sender, KeyEventArgs e)
         {
             string portName = "";
             if (vieModel.PortTabItems?.Count > 0) {
@@ -2329,58 +2365,23 @@ namespace SuperCom
 
             switch (shortCutBinding.KeyID) {
                 case 1:
-                    SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
-                    if (sideComPort == null) {
-                        MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
-                        return;
-                    }
-
-                    if (sideComPort.Connected) {
-                        await ClosePort(portName);
-                    } else {
-                        // 连接
-                        await OpenPort(sideComPort);
-                    }
-
+                    OpenCloseCurrentPort(portName);
                     break;
-                case 2: {
-                        // 收起展开发送栏
-                        Grid baseGrid = sender as Grid;
-                        if (baseGrid != null) {
-                            double height = baseGrid.RowDefinitions[2].ActualHeight;
-                            if (height <= 10)
-                                baseGrid.RowDefinitions[2].Height = new GridLength(DEFAULT_SEND_PANEL_HEIGHT, GridUnitType.Pixel);
-                            else
-                                baseGrid.RowDefinitions[2].Height = new GridLength(0, GridUnitType.Pixel);
-                        }
-
-                    }
+                case 2:
+                    ExpandSendPanel(sender);
                     break;
                 case 3:
                     // 全屏
                     //this.MaxWindow(null, null);
-
                     break;
                 case 4: {
                         // 固定滚屏
-                        //Grid baseGrid = sender as Grid;
-                        //(ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
-                        //if (!toggleButton.IsEnabled) return;
-                        //toggleButton.IsChecked = !toggleButton.IsChecked;
-                        //if ((bool)toggleButton.IsChecked)
-                        //    textEditor.TextChanged -= TextBox_TextChanged;
-                        //else
-                        //{
-                        //    textEditor.TextChanged -= TextBox_TextChanged;
-                        //    textEditor.TextChanged += TextBox_TextChanged;
-                        //}
                         PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
                         if (portTabItem != null)
                             portTabItem.FixedText = !portTabItem.FixedText;
                     }
                     break;
                 case 5: {
-
                         // hex 转换
                         Grid baseGrid = sender as Grid;
                         (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
@@ -2418,6 +2419,9 @@ namespace SuperCom
                         }
                     }
 
+                    break;
+                case 9:
+                    SaveLog(null, null);// 另存为
                     break;
                 default:
 
@@ -3003,9 +3007,8 @@ namespace SuperCom
             if (portTabItem != null) {
                 string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName)) {
-                    string target = FileHelper.SaveFile(null,null,"Normal text file|*.txt|All types|*.*");
-                    if (string.IsNullOrEmpty(target))
-                    {
+                    string target = FileHelper.SaveFile(null, null, "Normal text file|*.txt|All types|*.*");
+                    if (string.IsNullOrEmpty(target)) {
                         return;
                     }
                     if (!FileHelper.IsProperDirName(target)) {

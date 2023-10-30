@@ -50,6 +50,7 @@ namespace SuperCom.Entity
             new ShortCutBinding(6,LangManager.GetValueByKey("TimeStampTransform"),new List<Key>(){ Key.LeftAlt,Key.D }),
             new ShortCutBinding(7,LangManager.GetValueByKey("FormatToJSON"),new List<Key>(){ Key.F2 }),
             new ShortCutBinding(8,LangManager.GetValueByKey("JoinLine_"),new List<Key>(){ Key.F3 }),
+            new ShortCutBinding(9,LangManager.GetValueByKey("SaveLogAs"),new List<Key>(){ Key.LeftCtrl,Key.S }),
         };
 
 

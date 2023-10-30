@@ -1146,7 +1146,7 @@
                             <DataTemplate>
                                 <Grid
                                     Name="baseGrid"
-                                    PreviewKeyDown="baseGrid_PreviewKeyDown"
+                                    PreviewKeyDown="onPreviewKeyDown"
                                     Tag="{Binding Name}"
                                     Visibility="{Binding Selected, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <Grid.RowDefinitions>

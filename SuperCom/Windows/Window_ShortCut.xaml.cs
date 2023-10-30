@@ -37,7 +37,6 @@ namespace SuperCom
         #region "属性"
         private MainWindow MainWindow { get; set; }
 
-
         private List<ShortCutBinding> ShortCutBindingList { get; set; }
 
         private ObservableCollection<ShortCutBinding> _ShortCutBindings;

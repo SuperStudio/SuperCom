@@ -4,6 +4,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
 using SuperCom.Core.Telnet;
+using SuperCom.Core.Utils;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;
 using SuperCom.Upgrade;
@@ -772,7 +773,6 @@ namespace SuperCom
                     portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
                     portTabItem.Remark = portTabItem.SerialPort.Remark;
                     portTabItem.Pinned = portTabItem.SerialPort.Pinned;
-
                 }
                 portTabItem.Selected = true;
                 vieModel.PortTabItems.Add(portTabItem);
@@ -2011,7 +2011,6 @@ namespace SuperCom
                                 Logger.Info($"set remark: {value}");
                             }
                         }
-
                     }
                 } else if (sideComPort.PortTabItem == null) {
                     MessageNotify.Info(LangManager.GetValueByKey("RemarkAfterOpenPort"));
@@ -3307,5 +3306,46 @@ namespace SuperCom
                 SetPortTabSelected(false);
             }
         }
+
+        private void ShowHexCheckSettings(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement ele && ele.Parent is Grid grid &&
+                grid.Children.OfType<Popup>().FirstOrDefault() is Popup popup) {
+                popup.IsOpen = true;
+            }
+        }
+
+        private PortTabItem GetCurrentPort(object sender)
+        {
+            if (sender is FrameworkElement ele &&
+                ele.Tag != null && ele.Tag.ToString() is string portName &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem) {
+                return portTabItem;
+            }
+            return null;
+        }
+
+        private void SaveDataCheck(object sender)
+        {
+            if (GetCurrentPort(sender) is PortTabItem portTabItem) {
+                portTabItem.SerialPort.SaveDataCheck();
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portTabItem.Name));
+                if (comSettings != null) {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                    if (dict != null && dict.ContainsKey("DataCheck")) {
+                        dict["DataCheck"] = portTabItem.SerialPort.DataCheck;
+                        comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                        Logger.Info($"set datacheck");
+                        portTabItem.RefreshSendHexValue();
+                    }
+                }
+            }
+        }
+
+        private void SaveDataCheck(object sender, RoutedEventArgs e) => SaveDataCheck(sender);
+
+        private void SaveDataCheck(object sender, SelectionChangedEventArgs e) => SaveDataCheck(sender);
+
+        private void SaveDataCheck(object sender, TextChangedEventArgs e) => SaveDataCheck(sender);
     }
 }

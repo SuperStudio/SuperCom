@@ -1,4 +1,5 @@
 using ICSharpCode.AvalonEdit.Highlighting;
+using ITLDG.DataCheck;
 using SuperCom.Comparers;
 using SuperCom.Config;
 using SuperCom.Entity;
@@ -50,6 +51,12 @@ namespace SuperCom.ViewModel
         public ObservableCollection<string> BaudRates {
             get { return _BaudRates; }
             set { _BaudRates = value; RaisePropertyChanged(); }
+        }
+
+        private ObservableCollection<Plugin> _DataCheckPlugins;
+        public ObservableCollection<Plugin> DataCheckPlugins {
+            get { return _DataCheckPlugins; }
+            set { _DataCheckPlugins = value; RaisePropertyChanged(); }
         }
 
 
@@ -209,6 +216,7 @@ namespace SuperCom.ViewModel
             InitSendHistory();
             LoadSendCommands();
             LoadBaudRates();
+            LoadDataCheck();
             LoadDataBits();
             LoadEncodings();
             LoadParities();
@@ -271,6 +279,15 @@ namespace SuperCom.ViewModel
                 HandShakes.Add(item.ToString());
             }
         }
+        public void LoadDataCheck()
+        {
+            DataCheckPlugins = new ObservableCollection<Plugin>();
+            List<Plugin> baudrates = Plugin.GePlugins();
+            foreach (var item in baudrates) {
+                DataCheckPlugins.Add(item);
+            }
+        }
+
         public void LoadBaudRates()
         {
             List<PortTabItem> beforePortTabItems = new List<PortTabItem>();

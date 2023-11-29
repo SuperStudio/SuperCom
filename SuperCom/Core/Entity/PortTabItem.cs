@@ -1,7 +1,10 @@
 ﻿
 using ICSharpCode.AvalonEdit;
+using ITLDG.DataCheck;
+using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
+using SuperCom.Core.Utils;
 using SuperControls.Style;
 using SuperUtils.Common;
 using SuperUtils.IO;
@@ -11,10 +14,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
 using static SuperCom.App;
 
 namespace SuperCom.Entity
@@ -34,6 +39,8 @@ namespace SuperCom.Entity
 
         #region "属性"
 
+        private static List<Plugin> DataCheckPlugins = Plugin.GePlugins();
+
         /// <summary>
         /// 避免连续发送命令时一直弹窗报错
         /// </summary>
@@ -46,9 +53,6 @@ namespace SuperCom.Entity
         private StringBuilder RecvBuffer { get; set; } = new StringBuilder();
 
         private DateTime HexRecvTime { get; set; }
-
-
-
 
         private AutoResetEvent ResetEvent { get; set; }
 
@@ -63,97 +67,82 @@ namespace SuperCom.Entity
         public int FragCount { get; set; }
 
         private bool _RunningCommands;
-        public bool RunningCommands
-        {
+        public bool RunningCommands {
             get { return _RunningCommands; }
             set { _RunningCommands = value; RaisePropertyChanged(); }
         }
 
         private string _Name;
-        public string Name
-        {
+        public string Name {
             get { return _Name; }
             set { _Name = value; RaisePropertyChanged(); }
         }
         public bool _Connected;
-        public bool Connected
-        {
+        public bool Connected {
             get { return _Connected; }
-            set
-            {
+            set {
                 _Connected = value;
                 RaisePropertyChanged();
             }
         }
 
         private bool _Selected;
-        public bool Selected
-        {
+        public bool Selected {
             get { return _Selected; }
             set { _Selected = value; RaisePropertyChanged(); }
         }
 
 
         private string _Data;
-        public string Data
-        {
+        public string Data {
             get { return _Data; }
             set { _Data = value; RaisePropertyChanged(); }
         }
 
 
         private PortSetting _Setting;
-        public PortSetting Setting
-        {
+        public PortSetting Setting {
             get { return _Setting; }
-            set
-            {
+            set {
                 _Setting = value;
                 RaisePropertyChanged();
             }
         }
 
         private SerialPortEx _SerialPort;
-        public SerialPortEx SerialPort
-        {
+        public SerialPortEx SerialPort {
             get { return _SerialPort; }
             set { _SerialPort = value; _SerialPort.DataReceived += OnReceive; RaisePropertyChanged(); }
         }
 
         private bool _AddNewLineWhenWrite = true;
-        public bool AddNewLineWhenWrite
-        {
+        public bool AddNewLineWhenWrite {
             get { return _AddNewLineWhenWrite; }
-            set
-            {
+            set {
                 _AddNewLineWhenWrite = value;
                 RaisePropertyChanged();
-                RefreshSendHexValue(WriteData);
+                RefreshSendHexValue();
                 Logger.Info($"set AddNewLineWhenWrite: {value}");
             }
         }
 
         private bool _SendHex;
-        public bool SendHex
-        {
+        public bool SendHex {
             get { return _SendHex; }
-            set
-            {
+            set {
                 _SendHex = value;
                 RaisePropertyChanged();
                 if (value)
-                    RefreshSendHexValue(WriteData);
+                    RefreshSendHexValue();
 
                 Logger.Info($"set SendHex: {value}");
             }
         }
 
         private bool _RecvShowHex;
-        public bool RecvShowHex
-        {
+        public bool RecvShowHex {
             get { return _RecvShowHex; }
-            set
-            {
+            set {
                 _RecvShowHex = value;
                 RaisePropertyChanged();
                 Logger.Info($"port: {Name}, RecvShowHex: {value}");
@@ -161,31 +150,26 @@ namespace SuperCom.Entity
         }
 
         private string _SendHexValue;
-        public string SendHexValue
-        {
+        public string SendHexValue {
             get { return _SendHexValue; }
             set { _SendHexValue = value; RaisePropertyChanged(); }
         }
 
         private string _WriteData = "";
-        public string WriteData
-        {
+        public string WriteData {
             get { return _WriteData; }
-            set
-            {
+            set {
                 _WriteData = value;
                 RaisePropertyChanged();
-                RefreshSendHexValue(value);
+                RefreshSendHexValue();
             }
         }
 
 
         private bool _AddTimeStamp = true;
-        public bool AddTimeStamp
-        {
+        public bool AddTimeStamp {
             get { return _AddTimeStamp; }
-            set
-            {
+            set {
                 _AddTimeStamp = value;
                 RaisePropertyChanged();
                 Logger.Info($"port: {Name}, AddTimeStamp: {value}");
@@ -194,11 +178,9 @@ namespace SuperCom.Entity
 
 
         private bool _EnabledMonitor = true;
-        public bool EnabledMonitor
-        {
+        public bool EnabledMonitor {
             get { return _EnabledMonitor; }
-            set
-            {
+            set {
                 _EnabledMonitor = value;
                 RaisePropertyChanged();
                 //if (SerialPort != null && SerialPort.IsOpen)
@@ -213,14 +195,12 @@ namespace SuperCom.Entity
 
 
         private long _RX = 0L;
-        public long RX
-        {
+        public long RX {
             get { return _RX; }
             set { _RX = value; RaisePropertyChanged(); }
         }
         private long _TX = 0L;
-        public long TX
-        {
+        public long TX {
             get { return _TX; }
             set { _TX = value; RaisePropertyChanged(); }
         }
@@ -231,29 +211,24 @@ namespace SuperCom.Entity
         /// <summary>
         /// 备注
         /// </summary>
-        public string Remark
-        {
+        public string Remark {
             get { return _Remark; }
             set { _Remark = value; RaisePropertyChanged(); }
         }
 
         private bool _EnabledFilter;
-        public bool EnabledFilter
-        {
+        public bool EnabledFilter {
             get { return _EnabledFilter; }
-            set
-            {
+            set {
                 _EnabledFilter = value;
                 RaisePropertyChanged();
             }
         }
 
         private DateTime _ConnectTime;
-        public DateTime ConnectTime
-        {
+        public DateTime ConnectTime {
             get { return _ConnectTime; }
-            set
-            {
+            set {
                 _ConnectTime = value;
             }
         }
@@ -261,22 +236,21 @@ namespace SuperCom.Entity
 
 
         private bool _Pinned;
-        public bool Pinned
-        {
+        public bool Pinned {
             get { return _Pinned; }
-            set { _Pinned = value; RaisePropertyChanged(); }
+            set {
+                _Pinned = value;
+                RaisePropertyChanged();
+            }
         }
 
         private bool _FixedText;
-        public bool FixedText
-        {
+        public bool FixedText {
             get { return _FixedText; }
-            set
-            {
+            set {
                 _FixedText = value;
                 RaisePropertyChanged();
-                if (TextEditor != null)
-                {
+                if (TextEditor != null) {
                     if (value)
                         TextEditor.TextChanged -= TextBox_TextChanged;
                     else
@@ -285,7 +259,6 @@ namespace SuperCom.Entity
                 }
             }
         }
-
 
         private bool _IsClose = false;
 
@@ -321,18 +294,15 @@ namespace SuperCom.Entity
         public void ReadTask()
         {
             ResetEvent.Reset();
-            while (true)
-            {
+            while (true) {
                 ResetEvent.WaitOne();
                 if (_IsClose)
                     break;
                 List<byte> allData = new List<byte>();
-                while (true)
-                {
+                while (true) {
                     if (SerialPort == null || !SerialPort.IsOpen)
                         break;
-                    try
-                    {
+                    try {
                         int len = SerialPort.BytesToRead;
                         if (len == 0)
                             break;
@@ -342,9 +312,7 @@ namespace SuperCom.Entity
                         if (buffer.Length == 0)
                             break;
                         allData.AddRange(buffer);
-                    }
-                    catch
-                    {
+                    } catch {
                         break;
                     }
 
@@ -354,18 +322,13 @@ namespace SuperCom.Entity
                     Thread.Sleep(SerialPort.SubcontractingTimeoutValue); // 不能设置过小，也不能过大，否则一次读取的数据不完整
 
                 }
-                if (allData.Count > 0)
-                {
-                    App.GetDispatcher()?.Invoke(() =>
-                    {
+                if (allData.Count > 0) {
+                    App.GetDispatcher()?.Invoke(() => {
                         RX += allData.Count;
-                        if (RecvShowHex)
-                        {
+                        if (RecvShowHex) {
                             // HEX 模式
                             SaveHex(allData.ToArray(), HexRecvTime.ToLocalDate());
-                        }
-                        else
-                        {
+                        } else {
                             // STR 模式
                             SaveData(SerialPort.Encoding.GetString(allData.ToArray()), HexRecvTime.ToLocalDate());
                         }
@@ -376,15 +339,81 @@ namespace SuperCom.Entity
         }
         #endregion
 
-        private void RefreshSendHexValue(string value)
+        private byte[] CalcHexValue(string data)
         {
-            if (SendHex)
-            {
-                string data = value;
+            byte[] bytes = TransformHelper.ParseHexString(data);
+            // 添加校验位
+            if (SerialPort != null &&
+                SerialPort.DataCheck is DataCheck dataCheck &&
+                dataCheck.Enabled &&
+                DataCheckPlugins.Count > 0 &&
+                dataCheck.SelectedIndex is int index &&
+                index >= 0 && index < DataCheckPlugins.Count - 1) {
+                Plugin plugin = DataCheckPlugins[index];
+
+                int len = bytes.Length;
+
+                int start = 0;
+                int end = len - 1;
+                int insert = len;
+                if (dataCheck.UseCustom) {
+                    start = dataCheck.CustomStart;
+                    end = dataCheck.CustomEnd;
+                    insert = dataCheck.CustomInsert;
+                }
+
+                // start 小于 0
+                if (start < 0) {
+                    start += len;
+                }
+
+                // end 小于 0
+                if (end < 0) {
+                    end += len;
+                }
+
+                // insert 小于 0
+                if (insert < 0) {
+                    insert += len + 1;
+                }
+
+                if (start < 0 || end < 0 ||
+                     insert < 0 || start >= end ||
+                    start >= len || end >= len || insert > len) {
+                    return bytes;
+                }
+
+                byte[] dataToCalc = new ArraySegment<byte>(bytes, start, end - start + 1).ToArray();
+                byte[] checkByte = null;
+                try {
+                    checkByte = plugin.CheckData(dataToCalc);
+                } catch (Exception e) {
+                    Logger.Error(e);
+                }
+                if (checkByte != null) {
+                    byte[] newData = new byte[bytes.Length + checkByte.Length];
+                    if (insert == 0) {
+                        checkByte.CopyTo(newData, 0);
+                        bytes.CopyTo(newData, checkByte.Length);
+                    } else {
+                        // 插入中间
+                        List<byte> list = bytes.ToList();
+                        list.InsertRange(insert, checkByte);
+                        newData = list.ToArray();
+                    }
+                    return newData;
+                }
+            }
+            return bytes;
+        }
+
+        public void RefreshSendHexValue()
+        {
+            if (SendHex) {
+                string data = WriteData;
                 if (AddNewLineWhenWrite)
                     data += "\r\n";
-
-                byte[] bytes = TransformHelper.ParseHexString(data);
+                byte[] bytes = CalcHexValue(data);
                 string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
                 SendHexValue = $"{LangManager.GetValueByKey("WillSend")}：{str}";
             }
@@ -394,10 +423,8 @@ namespace SuperCom.Entity
         {
             //  "%C","%R","%Y","%M","%D","%H","%M","%S","%F"
             string result = format;
-            foreach (string item in CommonSettings.SUPPORT_FORMAT)
-            {
-                switch (item)
-                {
+            foreach (string item in CommonSettings.SUPPORT_FORMAT) {
+                switch (item) {
                     case "%C":
                         result = result.Replace(item, Name);
                         break;
@@ -441,10 +468,8 @@ namespace SuperCom.Entity
         {
             //  "%C","%R","%Y","%M","%D","%H","%M","%S","%F"
             string result = format;
-            foreach (string item in CommonSettings.SUPPORT_FORMAT)
-            {
-                switch (item)
-                {
+            foreach (string item in CommonSettings.SUPPORT_FORMAT) {
+                switch (item) {
                     case "%C":
                         result = result.Replace(item, Name);
                         break;
@@ -560,8 +585,7 @@ namespace SuperCom.Entity
         /// </summary>
         public void SepFile()
         {
-            if (ConfigManager.Settings.EnabledLogFrag)
-            {
+            if (ConfigManager.Settings.EnabledLogFrag) {
                 //if (CurrentCharSize >= 4096)
 #if DEBUG
                 if (CurrentCharSize / 1024 / 1024 >= (UInt64)ConfigManager.Settings.LogFragSize)
@@ -596,29 +620,22 @@ namespace SuperCom.Entity
         {
             string value = inputData.Replace("\0", "\\0"); // 业务侧会打印很多 \0，需要转成 \\0 才能在文本框上显示
             int valueLen = value.Length;
-            if (AddTimeStamp)
-            {
+            if (AddTimeStamp) {
                 // 遍历字符串
                 RecvBuffer.Clear();
                 RecvBuffer.Append($"[{now}] ");
                 // 一次遍历效率最高，使用 indexof 还额外多遍历几次
                 char c;
-                for (int i = 0; i < valueLen; i++)
-                {
+                for (int i = 0; i < valueLen; i++) {
                     c = value[i];
-                    if (c == '\r' && i < valueLen - 1 && value[i + 1] == '\n')
-                    {
+                    if (c == '\r' && i < valueLen - 1 && value[i + 1] == '\n') {
                         RecvBuffer.Append($"\r\n[{now}] ");
                         i++;//跳过 \n
                         continue;
-                    }
-                    else if (c == '\r' || c == '\n')
-                    {
+                    } else if (c == '\r' || c == '\n') {
                         RecvBuffer.Append($"\r\n[{now}] ");
                         continue;
-                    }
-                    else
-                    {
+                    } else {
                         RecvBuffer.Append(c);
                     }
                 }
@@ -630,13 +647,10 @@ namespace SuperCom.Entity
             FilterLine(value);
             SepFile();
             // 保存到本地
-            try
-            {
+            try {
                 if (ConfigManager.CommonSettings.WriteLogToFile)
                     File.AppendAllText(SaveFileName, value, Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 App.Logger.Error(ex.Message);
             }
         }
@@ -682,22 +696,17 @@ namespace SuperCom.Entity
         {
             if (SerialPort == null)
                 return false;
-            if (AddNewLineWhenWrite)
-            {
+            if (AddNewLineWhenWrite) {
                 value += "\r\n";
             }
 
             SerialPort port = SerialPort;
 
-            try
-            {
-                if (SendHex)
-                {
+            try {
+                if (SendHex) {
                     int len = SendHexData(value);
                     TX += len;
-                }
-                else
-                {
+                } else {
                     port.Write(value);
                     SaveData($"SEND >>>>>>>>>> {value}", DateHelper.Now());
                     TX += Encoding.UTF8.GetByteCount(value);
@@ -714,9 +723,7 @@ namespace SuperCom.Entity
                 //vieModel.StatusText = $"【发送命令】=>{WriteData}";
                 CurrentErrorCount = 0;
                 return true;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 CurrentErrorCount++;
                 if (CurrentErrorCount <= MAX_ERROR_COUNT)
                     MessageCard.Error(ex.Message);
@@ -730,7 +737,7 @@ namespace SuperCom.Entity
         {
             if (string.IsNullOrEmpty(value) || SerialPort == null)
                 return 0;
-            byte[] bytes = TransformHelper.ParseHexString(value);
+            byte[] bytes = CalcHexValue(value);
             if (bytes == null || bytes.Length == 0)
                 return 0;
             string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
@@ -743,8 +750,7 @@ namespace SuperCom.Entity
         public void SendCustomCommand(string value)
         {
             // 设置固定滚屏
-            if (ConfigManager.CommonSettings.FixedOnSendCommand)
-            {
+            if (ConfigManager.CommonSettings.FixedOnSendCommand) {
                 FixedText = true;
             }
             CurrentErrorCount = 0;

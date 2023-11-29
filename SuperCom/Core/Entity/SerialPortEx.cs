@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Win32;
+using SuperCom.Core.Utils;
 using SuperControls.Style;
 using SuperUtils.Common;
 using System;
@@ -84,6 +85,16 @@ namespace SuperCom.Entity
             set { _HighLightIndex = value; RaisePropertyChanged(); }
         }
 
+
+        private DataCheck _DataCheck;
+        public DataCheck DataCheck {
+            get { return _DataCheck; }
+            set {
+                _DataCheck = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private long _FilterSelectedIndex = 0;
         public long FilterSelectedIndex {
             get { return _FilterSelectedIndex; }
@@ -114,11 +125,9 @@ namespace SuperCom.Entity
         }
 
         private int _SubcontractingTimeoutValue = PortSetting.DEFAULT_SUBCONTRACTING_TIME_OUT;
-        public int SubcontractingTimeoutValue
-        {
+        public int SubcontractingTimeoutValue {
             get { return _SubcontractingTimeoutValue; }
-            set
-            {
+            set {
                 _SubcontractingTimeoutValue = value;
                 RaisePropertyChanged();
             }
@@ -140,6 +149,7 @@ namespace SuperCom.Entity
         public SerialPortEx(string portName) : this()
         {
             this.PortName = portName;
+            DataCheck = new DataCheck();
             RefreshSetting();
         }
 
@@ -201,9 +211,9 @@ namespace SuperCom.Entity
             this.Pinned = pinned;
             SettingJson = PortSettingToJson(); // 保存
         }
-        public void SaveHide(bool hide)
+
+        public void SaveDataCheck()
         {
-            this.Hide = hide;
             SettingJson = PortSettingToJson(); // 保存
         }
 
@@ -224,6 +234,7 @@ namespace SuperCom.Entity
                 MessageCard.Error(ex.Message);
             }
         }
+
 
         public string PortSettingToJson()
         {
@@ -246,6 +257,7 @@ namespace SuperCom.Entity
                 { "Hide", this.Hide },
                 { "TextFontSize", this.TextFontSize },
                 { "HighLightIndex", this.HighLightIndex },
+                { "DataCheck", JsonUtils.TrySerializeObject(this.DataCheck) },
             };
             if (this.Handshake == Handshake.RequestToSend || this.Handshake == Handshake.RequestToSendXOnXOff) {
                 // Handshake 设置为 RequestToSend 或 RequestToSendXOnXOff，则无法访问 RtsEnable
@@ -282,6 +294,7 @@ namespace SuperCom.Entity
                 this.Remark = dict.GetString("Remark", "");
                 this.Pinned = dict.GetBool("Pinned", false);
                 this.Hide = dict.GetBool("Hide", false);
+                this.DataCheck = DataCheck.FromJson(dict.GetString("DataCheck", ""));
             }
         }
 

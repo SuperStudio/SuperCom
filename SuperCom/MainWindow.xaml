@@ -2141,11 +2141,181 @@
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </Border.Style>
-                                                        <TextBox
-                                                            Margin="0"
-                                                            FontSize="10"
-                                                            Style="{StaticResource ReadOnlyNoWrapTextBox}"
-                                                            Text="{Binding SendHexValue}" />
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+
+                                                            <Popup
+                                                                AllowsTransparency="True"
+                                                                HorizontalOffset="-10"
+                                                                Placement="Top"
+                                                                PlacementTarget="{Binding ElementName=dataCheck}"
+                                                                PopupAnimation="Fade"
+                                                                StaysOpen="False"
+                                                                VerticalOffset="-10">
+                                                                <Grid
+                                                                    MinWidth="500"
+                                                                    MinHeight="100"
+                                                                    Margin="5">
+                                                                    <Border
+                                                                        Margin="5"
+                                                                        Background="{DynamicResource Menu.Background}"
+                                                                        CornerRadius="5"
+                                                                        Effect="{StaticResource PopupDropShadowEffect}" />
+
+                                                                    <DockPanel>
+                                                                        <Border DockPanel.Dock="Top" Style="{StaticResource InfoBorder}">
+                                                                            <TextBlock Style="{StaticResource BaseTextBlock}" Text="计算校验" />
+                                                                        </Border>
+
+                                                                        <StackPanel
+                                                                            Margin="20,10"
+                                                                            Orientation="Vertical"
+                                                                            Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}}">
+                                                                            <DockPanel>
+                                                                                <TextBlock
+                                                                                    Margin="10,0,20,0"
+                                                                                    Style="{StaticResource BaseTextBlock}"
+                                                                                    Text="启用" />
+                                                                                <CheckBox
+                                                                                    Click="SaveDataCheck"
+                                                                                    Content="自动计算"
+                                                                                    IsChecked="{Binding SerialPort.DataCheck.Enabled, Mode=TwoWay}"
+                                                                                    Tag="{Binding Name, Mode=OneWay}" />
+                                                                            </DockPanel>
+                                                                            <StackPanel Orientation="Vertical" Visibility="{Binding SerialPort.DataCheck.Enabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                                <DockPanel>
+                                                                                    <TextBlock
+                                                                                        Margin="10,0,15,0"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="方式" />
+                                                                                    <ComboBox
+                                                                                        MinWidth="100"
+                                                                                        DisplayMemberPath="Name"
+                                                                                        FontSize="15"
+                                                                                        ItemsSource="{Binding DataContext.DataCheckPlugins, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                                                                                        SelectedIndex="{Binding SerialPort.DataCheck.SelectedIndex, Mode=TwoWay, FallbackValue=0}"
+                                                                                        SelectionChanged="SaveDataCheck"
+                                                                                        Style="{StaticResource BorderComboBox}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}" />
+                                                                                </DockPanel>
+                                                                                <StackPanel Margin="70,5,0,5" Orientation="Horizontal">
+                                                                                    <RadioButton
+                                                                                        Click="SaveDataCheck"
+                                                                                        Content="添加到末尾"
+                                                                                        GroupName="crcRadioButton"
+                                                                                        IsChecked="{Binding SerialPort.DataCheck.UseCustom, Mode=OneWay, Converter={StaticResource OppositeBooleanConverter}}"
+                                                                                        Style="{StaticResource NormalRadioButton}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}" />
+                                                                                    <RadioButton
+                                                                                        Click="SaveDataCheck"
+                                                                                        Content="自定义"
+                                                                                        GroupName="crcRadioButton"
+                                                                                        IsChecked="{Binding SerialPort.DataCheck.UseCustom, Mode=TwoWay}"
+                                                                                        Style="{StaticResource NormalRadioButton}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}" />
+                                                                                </StackPanel>
+                                                                                <StackPanel
+                                                                                    Margin="70,0,5,0"
+                                                                                    Orientation="Horizontal"
+                                                                                    Visibility="{Binding SerialPort.DataCheck.UseCustom, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                                    <TextBlock
+                                                                                        FontSize="13"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="计算第" />
+                                                                                    <super:SearchBox
+                                                                                        Height="25"
+                                                                                        MinWidth="70"
+                                                                                        MaxWidth="150"
+                                                                                        ShowClearButton="False"
+                                                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}"
+                                                                                        Text="{Binding SerialPort.DataCheck.CustomStart, Mode=TwoWay}"
+                                                                                        TextAlignment="Center"
+                                                                                        TextChanged="SaveDataCheck" />
+                                                                                    <TextBlock
+                                                                                        FontSize="13"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="字节到第" />
+                                                                                    <super:SearchBox
+                                                                                        Height="25"
+                                                                                        MinWidth="70"
+                                                                                        MaxWidth="150"
+                                                                                        ShowClearButton="False"
+                                                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}"
+                                                                                        Text="{Binding SerialPort.DataCheck.CustomEnd, Mode=TwoWay}"
+                                                                                        TextAlignment="Center"
+                                                                                        TextChanged="SaveDataCheck" />
+                                                                                    <TextBlock
+                                                                                        FontSize="13"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="字节(-1 表示最后一字节)" />
+                                                                                </StackPanel>
+                                                                                <StackPanel
+                                                                                    Margin="70,0,5,0"
+                                                                                    Orientation="Horizontal"
+                                                                                    Visibility="{Binding SerialPort.DataCheck.UseCustom, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                                    <TextBlock
+                                                                                        FontSize="13"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="并插入到第" />
+                                                                                    <super:SearchBox
+                                                                                        Height="25"
+                                                                                        MinWidth="70"
+                                                                                        MaxWidth="150"
+                                                                                        ShowClearButton="False"
+                                                                                        Style="{StaticResource SearchTextBoxStyle}"
+                                                                                        Tag="{Binding Name, Mode=OneWay}"
+                                                                                        Text="{Binding SerialPort.DataCheck.CustomInsert, Mode=TwoWay}"
+                                                                                        TextAlignment="Center"
+                                                                                        TextChanged="SaveDataCheck" />
+                                                                                    <TextBlock
+                                                                                        FontSize="13"
+                                                                                        Style="{StaticResource BaseTextBlock}"
+                                                                                        Text="字节后" />
+                                                                                </StackPanel>
+                                                                            </StackPanel>
+                                                                        </StackPanel>
+                                                                    </DockPanel>
+                                                                </Grid>
+                                                            </Popup>
+
+
+                                                            <Button
+                                                                Name="dataCheck"
+                                                                Grid.Column="0"
+                                                                Width="22"
+                                                                Height="22"
+                                                                Margin="2"
+                                                                Padding="0"
+                                                                VerticalAlignment="Stretch"
+                                                                super:CommonExt.CornerRadius="5"
+                                                                super:CommonExt.HoverBackground="{DynamicResource Window.Title.Hover.Background}"
+                                                                Click="ShowHexCheckSettings"
+                                                                Style="{StaticResource FlatButton}">
+                                                                <Viewbox
+                                                                    Width="12"
+                                                                    Height="auto"
+                                                                    VerticalAlignment="Center">
+                                                                    <Path
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"
+                                                                        Data="M866.3 23.2H157.7c-51.7 0-93.8 42.1-93.8 93.8v790.2c0 51.7 42.1 93.8 93.8 93.8h708.6c51.7 0 93.8-42.1 93.8-93.8V116.9c0-51.7-42.1-93.7-93.8-93.7z m44.1 883.9c0 24.3-19.8 44.1-44.1 44.1H157.7c-24.3 0-44.1-19.8-44.1-44.1V116.9c0-24.3 19.8-44.1 44.1-44.1h708.6c24.3 0 44.1 19.8 44.1 44.1v790.2z M778.9 155.2H240.3c-31.4 0-56.9 25.5-56.9 56.9v145.6c0 31.4 25.5 56.9 56.9 56.9h538.6c31.4 0 56.9-25.5 56.9-56.9V212.1c0-31.4-25.5-56.9-56.9-56.9z m7.2 202.5c0 3.9-3.3 7.2-7.2 7.2H240.3c-3.9 0-7.2-3.3-7.2-7.2V212.1c0-3.9 3.3-7.2 7.2-7.2h538.6c3.9 0 7.2 3.3 7.2 7.2v145.6zM786.4 460.9h-82.8c-27.3 0-49.4 22.2-49.4 49.4v304.9c0 27.3 22.2 49.4 49.4 49.4h82.8c27.3 0 49.4-22.2 49.4-49.4V510.4c0-27.3-22.2-49.5-49.4-49.5z m-82.6 354.4l-0.2-304.7 82.6-0.2v304.7l-82.4 0.2zM319.7 460.9h-88.2c-26.5 0-48.1 21.6-48.1 48.1v88.2c0 26.5 21.6 48.1 48.1 48.1h88.2c26.5 0 48.1-21.6 48.1-48.1V509c0.1-26.5-21.5-48.1-48.1-48.1z m-1.5 134.8l-85.1 1.5-1.5-86.6 86.6-1.5v86.6zM551.1 460.9h-88.2c-26.5 0-48.1 21.6-48.1 48.1v88.2c0 26.5 21.6 48.1 48.1 48.1h88.2c26.5 0 48.1-21.6 48.1-48.1V509c0-26.5-21.6-48.1-48.1-48.1z m-1.6 134.8l-85.1 1.5-1.5-86.6 86.6-1.5v86.6zM319.7 680.3h-88.2c-26.5 0-48.1 21.6-48.1 48.1v88.2c0 26.5 21.6 48.1 48.1 48.1h88.2c26.5 0 48.1-21.6 48.1-48.1v-88.2c0.1-26.5-21.5-48.1-48.1-48.1z m-1.5 134.8l-85.1 1.5-1.5-86.6 86.6-1.5v86.6zM551.1 680.3h-88.2c-26.5 0-48.1 21.6-48.1 48.1v88.2c0 26.5 21.6 48.1 48.1 48.1h88.2c26.5 0 48.1-21.6 48.1-48.1v-88.2c0-26.5-21.6-48.1-48.1-48.1z m-1.6 134.8l-85.1 1.5-1.5-86.6 86.6-1.5v86.6z"
+                                                                        Fill="{DynamicResource Window.Foreground}" />
+                                                                </Viewbox>
+                                                            </Button>
+
+
+                                                            <TextBox
+                                                                Grid.Column="1"
+                                                                Margin="0"
+                                                                FontSize="10"
+                                                                Style="{StaticResource ReadOnlyNoWrapTextBox}"
+                                                                Text="{Binding SendHexValue}" />
+                                                        </Grid>
                                                     </Border>
                                                 </Grid>
                                             </Border>

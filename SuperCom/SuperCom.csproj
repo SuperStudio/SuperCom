@@ -57,6 +57,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
+    <Reference Include="ITLDG.DataCheck, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\ITLDG.DataCheck.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\Newtonsoft.Json.dll</HintPath>
@@ -179,6 +183,7 @@
     <Compile Include="Core\Telnet\Window_TelnetServer.xaml.cs">
       <DependentUpon>Window_TelnetServer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\Utils\DataCheck.cs" />
     <Compile Include="Lang\LangManager.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Upgrade\UpgradeHelper.cs" />
@@ -318,6 +323,7 @@
     </Content>
     <Content Include="References\HtmlAgilityPack.dll" />
     <Content Include="References\ICSharpCode.AvalonEdit.dll" />
+    <Content Include="References\ITLDG.DataCheck.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.dll" />
     <Content Include="References\Microsoft.WindowsAPICodePack.Shell.dll" />
     <Content Include="References\MihaZupan.HttpToSocks5Proxy.dll" />

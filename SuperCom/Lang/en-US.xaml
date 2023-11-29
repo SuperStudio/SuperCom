@@ -62,7 +62,9 @@
     <sys:String x:Key="RestoreSpec">Whether the following configuration is restored to default</sys:String>
     <sys:String x:Key="RemarkAfterOpenPort">Only after opening the serial port can it be noticed</sys:String>
     <sys:String x:Key="PinLogHint">Fixed the current log (the log is still collecting)</sys:String>
-    <sys:String x:Key="ImportHighLightHint">After importing regular highlights, you need to open the settings-regular highlight-save </sys:String>
+    <sys:String x:Key="ImportHighLightHint">After importing regular highlights, you need to open the settings-regular highlight-save</sys:String>
     <sys:String x:Key="SubcontractingTimeout">Subcontracting timeout</sys:String>
+    <sys:String x:Key="Parity">Parity</sys:String>
+    <sys:String x:Key="StopBits">StopBits</sys:String>
 
 </ResourceDictionary>

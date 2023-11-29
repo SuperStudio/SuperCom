@@ -1478,7 +1478,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="Parity"
+                                                        Text="{DynamicResource Parity}"
                                                         TextAlignment="Right" />
                                                     <ComboBox
                                                         MinWidth="120"
@@ -1509,7 +1509,7 @@
                                                         Width="60"
                                                         FontSize="12"
                                                         Style="{StaticResource BaseTextBlock}"
-                                                        Text="StopBits"
+                                                        Text="{DynamicResource StopBits}"
                                                         TextAlignment="Right" />
                                                     <ComboBox
                                                         MinWidth="120"

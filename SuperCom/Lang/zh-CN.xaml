@@ -64,5 +64,7 @@
     <sys:String x:Key="PinLogHint">固定当前日志（日志仍在收集）</sys:String>
     <sys:String x:Key="ImportHighLightHint">导入正则高亮后，需打开设置-正则高亮-保存</sys:String>
     <sys:String x:Key="SubcontractingTimeout">分包超时</sys:String>
+    <sys:String x:Key="Parity">校验位</sys:String>
+    <sys:String x:Key="StopBits">停止位</sys:String>
 
 </ResourceDictionary>

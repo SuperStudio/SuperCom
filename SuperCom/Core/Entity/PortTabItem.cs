@@ -339,8 +339,10 @@ namespace SuperCom.Entity
         }
         #endregion
 
-        private byte[] CalcHexValue(string data)
+        public byte[] CalcHexValue(string data)
         {
+            if (string.IsNullOrEmpty(data))
+                return null;
             byte[] bytes = TransformHelper.ParseHexString(data);
             // 添加校验位
             if (SerialPort != null &&
@@ -377,9 +379,9 @@ namespace SuperCom.Entity
                     insert += len + 1;
                 }
 
-                if (start < 0 || end < 0 ||
-                     insert < 0 || start >= end ||
-                    start >= len || end >= len || insert > len) {
+                if (start < 0 || end < 0 || insert < 0 ||
+                    start >= len || end >= len || insert > len ||
+                    (start != 0 && end != 0 && start >= end)) {
                     return bytes;
                 }
 

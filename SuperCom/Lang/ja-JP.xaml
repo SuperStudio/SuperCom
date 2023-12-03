@@ -34,6 +34,7 @@
     <sys:String x:Key="RenameHint1">%C シリアル名</sys:String>
     <sys:String x:Key="RenameHint2">%R berem name</sys:String>
     <sys:String x:Key="RenameHint3">%Y 年 %M 月 %D 日 %m 分 %s 秒 %f ミリ秒</sys:String>
+    <sys:String x:Key="RenameHint4">完了（塗りつぶし0）：%MM %DD %hh %mm %ss %fff</sys:String>
     <sys:String x:Key="VirtualSerialPort">仮想シリアルポートアナログ</sys:String>
     <sys:String x:Key="AddVirtPort">新しいシリアルペア</sys:String>
     <sys:String x:Key="InstallCom2Com">1. com0comプログラムをインストールします</sys:String>

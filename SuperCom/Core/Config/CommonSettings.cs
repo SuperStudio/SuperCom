@@ -7,12 +7,13 @@ namespace SuperCom.Config.WindowConfig
     public class CommonSettings : AbstractConfig
     {
 
-        public const string DEFAULT_LOG_NAME_FORMAT = "[%C] %Y-%M-%D %h-%m-%s.%f";
+        public const string DEFAULT_LOG_NAME_FORMAT = "[%C] %Y-%MM-%DD %hh-%mm-%ss.%fff";
 
-        public static string DEFAULT_LOG_SAVE_DIR = System.IO.Path.Combine(Environment.CurrentDirectory, "logs", "%Y-%M-%D");
-        public static List<string> SUPPORT_FORMAT = new List<string>()
+        public static string DEFAULT_LOG_SAVE_DIR { get; set; } =
+            System.IO.Path.Combine(Environment.CurrentDirectory, "logs", "%Y-%M-%D");
+        public static List<string> SUPPORT_FORMAT { get; set; } = new List<string>()
         {
-            "%C","%R","%Y","%M","%D","%h","%m","%s","%f"
+            "%MM","%DD","%hh","%mm","%ss","%fff","%C","%R","%Y","%M","%D","%h","%m","%s","%f"
         };
 
         private CommonSettings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.CommonSettings")

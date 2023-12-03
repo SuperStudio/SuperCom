@@ -34,6 +34,7 @@
     <sys:String x:Key="RenameHint1">%C serial name</sys:String>
     <sys:String x:Key="RenameHint2">%R Remark Name</sys:String>
     <sys:String x:Key="RenameHint3">%Y year %M month %D day %m miniute %s second %f millisecond</sys:String>
+    <sys:String x:Key="RenameHint4">Completion (filling 0): %MM %DD %hh %mm %ss %fff</sys:String>
     <sys:String x:Key="VirtualSerialPort">Virtual serial port analog</sys:String>
     <sys:String x:Key="AddVirtPort">New serial pair</sys:String>
     <sys:String x:Key="InstallCom2Com">1. Install the com0com program</sys:String>

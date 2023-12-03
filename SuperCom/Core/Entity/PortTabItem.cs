@@ -445,7 +445,6 @@ namespace SuperCom.Entity
 
         private string GetFileNameByFormat(string format)
         {
-            //  "%C","%R","%Y","%M","%D","%H","%M","%S","%F"
             string result = format;
             foreach (string item in CommonSettings.SUPPORT_FORMAT) {
                 switch (item) {
@@ -457,6 +456,24 @@ namespace SuperCom.Entity
                             result = result.Replace(item, Remark);
                         else
                             result = result.Replace("%R", "");
+                        break;
+                    case "%MM":
+                        result = result.Replace(item, ConnectTime.Month.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%DD":
+                        result = result.Replace(item, ConnectTime.Day.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%hh":
+                        result = result.Replace(item, ConnectTime.Hour.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%mm":
+                        result = result.Replace(item, ConnectTime.Minute.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%ss":
+                        result = result.Replace(item, ConnectTime.Second.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%fff":
+                        result = result.Replace(item, ConnectTime.Millisecond.ToString().PadLeft(3, '0'));
                         break;
                     case "%Y":
                         result = result.Replace(item, ConnectTime.Year.ToString());

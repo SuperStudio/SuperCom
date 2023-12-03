@@ -416,6 +416,11 @@
                                         HorizontalAlignment="Left"
                                         Style="{StaticResource BaseTextBlock}"
                                         Text="{DynamicResource RenameHint3}" />
+                                    <TextBlock
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="{DynamicResource RenameHint4}" />
                                 </StackPanel>
 
                             </Border>

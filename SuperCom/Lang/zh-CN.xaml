@@ -34,6 +34,7 @@
     <sys:String x:Key="RenameHint1">%C 串口名</sys:String>
     <sys:String x:Key="RenameHint2">%R 备注名</sys:String>
     <sys:String x:Key="RenameHint3">%Y 年 %M 月 %D 日 %h 时 %m 分 %s 秒 %f 毫秒</sys:String>
+    <sys:String x:Key="RenameHint4">补全（填充 0）：%MM %DD %hh %mm %ss %fff</sys:String>
     <sys:String x:Key="VirtualSerialPort">虚拟串口模拟</sys:String>
     <sys:String x:Key="AddVirtPort">新增串口对</sys:String>
     <sys:String x:Key="InstallCom2Com">1、安装 com0com 程序</sys:String>

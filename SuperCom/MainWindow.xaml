@@ -1060,6 +1060,7 @@
                                         Height="35"
                                         MinWidth="150"
                                         BorderThickness="1"
+                                        ContextMenuOpening="ContextMenu_ContextMenuOpening"
                                         Cursor="Hand"
                                         PreviewMouseLeftButtonDown="BeginDragTabItem"
                                         PreviewMouseLeftButtonUp="SetPortSelected"
@@ -1078,9 +1079,9 @@
                                         <Border.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem
+                                                    Name="_CloseOpenAllMenuItem"
                                                     Click="CloseAllConnectPort"
-                                                    Header="{DynamicResource DisConnectAll}"
-                                                    Icon="/Resources/Pictures/closeport.png" />
+                                                    Header="{DynamicResource DisConnectAll}" />
                                                 <Separator />
                                                 <MenuItem Click="CloseCurrentPort" Header="{DynamicResource Close}" />
                                                 <MenuItem Click="CloseOtherPort" Header="{DynamicResource CloseOther}" />

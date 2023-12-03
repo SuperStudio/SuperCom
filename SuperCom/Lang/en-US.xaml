@@ -70,5 +70,6 @@
     <sys:String x:Key="VirtualPort">Virtual Port</sys:String>
     <sys:String x:Key="PinOnFocus">Pin On Focus</sys:String>
     <sys:String x:Key="PinOnMouseWheel">Mouse rolling decision fixed</sys:String>
+    <sys:String x:Key="ConnectAll">Connect All</sys:String>
 
 </ResourceDictionary>

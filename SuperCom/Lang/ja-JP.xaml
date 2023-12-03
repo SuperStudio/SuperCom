@@ -70,5 +70,6 @@
     <sys:String x:Key="VirtualPort">仮想シリアルポート</sys:String>
     <sys:String x:Key="PinOnFocus">フォーカスを取得するときに修正します</sys:String>
     <sys:String x:Key="PinOnMouseWheel">マウスローリングの決定は修正されました</sys:String>
+    <sys:String x:Key="ConnectAll">すべてを接続します</sys:String>
 
 </ResourceDictionary>

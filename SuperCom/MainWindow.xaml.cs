@@ -3046,9 +3046,20 @@ namespace SuperCom
 
         private void CloseAllConnectPort(object sender, RoutedEventArgs e)
         {
+            bool close = IsAllClose();
             foreach (var item in vieModel.PortTabItems) {
-                if (item.Connected)
-                    ClosePort(item.Name);
+                string portName = item.Name;
+                if (!close) {
+                    SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (sideComPort == null) {
+                        MessageNotify.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
+                        return;
+                    }
+                    OpenPort(sideComPort);
+                } else {
+                    if (item.Connected)
+                        ClosePort(portName);
+                }
             }
         }
 
@@ -3365,6 +3376,30 @@ namespace SuperCom
                     bool isAtEnd = textView.VerticalOffset + textView.ActualHeight + 1 >= textView.DocumentHeight;
                     if (isAtEnd)
                         FixedTextEditor(border, false);
+                }
+            }
+        }
+
+        private bool IsAllClose()
+        {
+            bool close = false;
+            foreach (var item in vieModel.PortTabItems) {
+                if (item.Connected) {
+                    close = true;
+                    break;
+                }
+            }
+            return close;
+        }
+
+        private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (sender is FrameworkElement ele && ele.ContextMenu is ContextMenu contextMenu &&
+                contextMenu.Items.OfType<MenuItem>().FirstOrDefault(arg => arg.Name.Equals("_CloseOpenAllMenuItem")) is MenuItem menuItem) {
+                if (IsAllClose()) {
+                    menuItem.Header = LangManager.GetValueByKey("DisConnectAll");
+                } else {
+                    menuItem.Header = LangManager.GetValueByKey("ConnectAll");
                 }
             }
         }

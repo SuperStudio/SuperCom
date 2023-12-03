@@ -436,7 +436,7 @@ namespace SuperCom.Entity
             if (SendHex) {
                 string data = WriteData;
                 if (AddNewLineWhenWrite)
-                    data += "\r\n";
+                    data += ConfigManager.Settings.NewLineText;
                 byte[] bytes = CalcHexValue(data);
                 string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
                 SendHexValue = $"{LangManager.GetValueByKey("WillSend")}：{str}";
@@ -721,7 +721,7 @@ namespace SuperCom.Entity
             if (SerialPort == null)
                 return false;
             if (AddNewLineWhenWrite) {
-                value += "\r\n";
+                value += ConfigManager.Settings.NewLineText;
             }
 
             SerialPort port = SerialPort;

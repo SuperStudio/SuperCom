@@ -36,6 +36,8 @@ namespace SuperCom
         public static string BASE_XSHD_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                         "AvalonEdit", "Higlighting");
 
+        public static string[] NEW_LINE_ARR = { "\r\n", "\r", "\n" };
+
         private MainWindow Main { get; set; }
         public VieModel_Setting vieModel { get; set; }
 
@@ -84,8 +86,23 @@ namespace SuperCom
                     vieModel.CurrentLanguage = lang;
                 }
             };
+
+            SetNewLineSelect();
         }
 
+
+        /// <summary>
+        /// 设置回车换行选中
+        /// </summary>
+        private void SetNewLineSelect()
+        {
+            List<RadioButton> radioButtons = newLineTextStackPanel.Children.OfType<RadioButton>().ToList();
+            int index = NEW_LINE_ARR.ToList().FindIndex(arg => arg.Equals(ConfigManager.Settings.NewLineText));
+            if (index < 0 || index >= radioButtons.Count) {
+                index = 0;
+            }
+            radioButtons[index].IsChecked = true;
+        }
 
         public void AdjustWindow()
         {
@@ -558,6 +575,19 @@ namespace SuperCom
         private void ShowHighLightHelp(object sender, RoutedEventArgs e)
         {
             FileHelper.TryOpenUrl(UrlManager.WIKI_HIGH_LIGHT);
+        }
+
+        private void SetNewLineText(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton radioButton && radioButton.Parent is StackPanel panel &&
+                panel.Children.OfType<RadioButton>().ToList() is List<RadioButton> list &&
+                list.FindIndex(arg => (bool)arg.IsChecked) is int index) {
+                if (index < 0 || index >= NEW_LINE_ARR.Length) {
+                    index = 0;
+                }
+                ConfigManager.Settings.NewLineText = NEW_LINE_ARR[index];
+                ConfigManager.Settings.Save();
+            }
         }
     }
 }

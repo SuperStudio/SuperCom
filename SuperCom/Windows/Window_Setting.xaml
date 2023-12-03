@@ -285,6 +285,48 @@
                             <CheckBox Content="显示串口类型" IsChecked="{Binding ShowPortType, Source={x:Static config:ConfigManager.Settings}}" />
                         </StackPanel>
                     </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Margin="20,15,40,0"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource Send}" />
+
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="15,10"
+                            HorizontalAlignment="Left"
+                            Orientation="Vertical">
+
+                            <StackPanel Name="newLineTextStackPanel" Orientation="Horizontal">
+                                <TextBlock
+                                    HorizontalAlignment="Left"
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="回车换行模式" />
+                                <RadioButton
+                                    Click="SetNewLineText"
+                                    Content="\r\n"
+                                    GroupName="newLineText"
+                                    IsChecked="True"
+                                    Style="{StaticResource NormalRadioButton}" />
+                                <RadioButton
+                                    Click="SetNewLineText"
+                                    Content="\r"
+                                    GroupName="newLineText"
+                                    Style="{StaticResource NormalRadioButton}" />
+                                <RadioButton
+                                    Click="SetNewLineText"
+                                    Content="\n"
+                                    GroupName="newLineText"
+                                    Style="{StaticResource NormalRadioButton}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </TabItem>
 

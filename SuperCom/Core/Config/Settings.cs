@@ -6,7 +6,7 @@ namespace SuperCom.Config.WindowConfig
 {
     public class Settings : AbstractConfig
     {
-
+        private const string DEFAULT_NEW_LINE = "\r\n";
         private const int DEFAULT_LOG_FRAG_SIZE = 40;  // MB
         private const int DEFAULT_MEMORY_LIMIT = 1024; // MB
         private Settings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Settings")
@@ -22,6 +22,7 @@ namespace SuperCom.Config.WindowConfig
             HintWhenPin = true;
             FixedWhenFocus = true;
             ShowPortType = true;
+            NewLineText = DEFAULT_NEW_LINE;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -65,6 +66,6 @@ namespace SuperCom.Config.WindowConfig
                 RaisePropertyChanged();
             }
         }
-
+        public string NewLineText { get; set; }
     }
 }

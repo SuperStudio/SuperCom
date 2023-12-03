@@ -164,6 +164,7 @@
     <Compile Include="Core\Entity\AdvancedSend.cs" />
     <Compile Include="Core\Entity\ComSettings.cs" />
     <Compile Include="Core\Entity\Enums\ComPortSortType.cs" />
+    <Compile Include="Core\Entity\Enums\PortType.cs" />
     <Compile Include="Core\Entity\Enums\RuleType.cs" />
     <Compile Include="Core\Entity\Enums\RunningStatus.cs" />
     <Compile Include="Core\Entity\Enums\VarDataType.cs" />

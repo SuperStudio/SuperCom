@@ -66,5 +66,6 @@
     <sys:String x:Key="SubcontractingTimeout">下請けのタイムアウト</sys:String>
     <sys:String x:Key="Parity">数字確認</sys:String>
     <sys:String x:Key="StopBits">停止</sys:String>
+    <sys:String x:Key="VirtualPort">仮想シリアルポート</sys:String>
 
 </ResourceDictionary>

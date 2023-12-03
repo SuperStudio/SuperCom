@@ -4,6 +4,7 @@ using ITLDG.DataCheck;
 using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
+using SuperCom.Core.Entity.Enums;
 using SuperCom.Core.Utils;
 using SuperControls.Style;
 using SuperUtils.Common;
@@ -225,6 +226,16 @@ namespace SuperCom.Entity
         public string Detail {
             get { return _Detail; }
             set { _Detail = value; RaisePropertyChanged(); }
+        }
+
+        private PortType _PortType;
+
+        /// <summary>
+        /// 串口详情
+        /// </summary>
+        public PortType PortType {
+            get { return _PortType; }
+            set { _PortType = value; RaisePropertyChanged(); }
         }
 
         private bool _EnabledFilter;

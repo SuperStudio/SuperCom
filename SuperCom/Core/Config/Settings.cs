@@ -21,6 +21,7 @@ namespace SuperCom.Config.WindowConfig
             MemoryLimit = DEFAULT_MEMORY_LIMIT;
             HintWhenPin = true;
             FixedWhenFocus = true;
+            ShowPortType = true;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -56,6 +57,14 @@ namespace SuperCom.Config.WindowConfig
         public bool HintWhenPin { get; set; }
         public bool FixedWhenFocus { get; set; }
         public bool AvoidScreenClose { get; set; }
+        private bool _ShowPortType { get; set; }
+        public bool ShowPortType {
+            get { return _ShowPortType; }
+            set {
+                _ShowPortType = value;
+                RaisePropertyChanged();
+            }
+        }
 
     }
 }

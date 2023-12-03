@@ -66,5 +66,6 @@
     <sys:String x:Key="SubcontractingTimeout">分包超时</sys:String>
     <sys:String x:Key="Parity">校验位</sys:String>
     <sys:String x:Key="StopBits">停止位</sys:String>
+    <sys:String x:Key="VirtualPort">虚拟串口</sys:String>
 
 </ResourceDictionary>

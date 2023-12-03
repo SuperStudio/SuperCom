@@ -756,9 +756,9 @@ namespace SuperCom
             if (!existed) {
                 portTabItem = new PortTabItem(portName, connect);
                 if (vieModel.SideComPorts != null &&
-                    vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName)) is SideComPort p &&
-                    p.Detail is string detail) {
-                    portTabItem.Detail = detail;
+                    vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName)) is SideComPort p) {
+                    portTabItem.Detail = p.Detail;
+                    portTabItem.PortType = p.PortType;
                 }
                 portTabItem.Setting = PortSetting.GetDefaultSetting();
 

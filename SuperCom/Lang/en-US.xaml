@@ -66,5 +66,6 @@
     <sys:String x:Key="SubcontractingTimeout">Subcontracting timeout</sys:String>
     <sys:String x:Key="Parity">Parity</sys:String>
     <sys:String x:Key="StopBits">StopBits</sys:String>
+    <sys:String x:Key="VirtualPort">Virtual Port</sys:String>
 
 </ResourceDictionary>

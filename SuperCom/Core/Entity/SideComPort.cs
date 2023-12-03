@@ -1,4 +1,6 @@
 ﻿
+using SuperCom.Core.Entity.Enums;
+using SuperUtils.Common;
 using SuperUtils.WPF.VieModel;
 using static SuperCom.App;
 
@@ -7,6 +9,16 @@ namespace SuperCom.Entity
 
     public class SideComPort : ViewModelBase
     {
+
+        private const string VIRTUAL_TAG = "virtual";
+        private const string USB_TAG = "usb";
+        private static string[] BLE_STRING = {
+            "蓝牙",
+            "ble",
+            "bluetooth low energy" ,
+            "bluetooth smart",
+            "bluetooth le"
+        };
 
         #region "属性"
         private string _Name;
@@ -18,7 +30,17 @@ namespace SuperCom.Entity
         private string _Detail;
         public string Detail {
             get { return _Detail; }
-            set { _Detail = value; RaisePropertyChanged(); }
+            set {
+                _Detail = value;
+                RaisePropertyChanged();
+                PortType = GetPortType();
+            }
+        }
+
+        private PortType _PortType;
+        public PortType PortType {
+            get { return _PortType; }
+            set { _PortType = value; RaisePropertyChanged(); }
         }
 
         private bool _Connected;
@@ -51,11 +73,25 @@ namespace SuperCom.Entity
 
         #endregion
 
-        public SideComPort(string name, bool connected,string detail)
+        public SideComPort(string name, bool connected)
         {
             Name = name;
             Connected = connected;
-            Detail = detail;
+        }
+
+        private PortType GetPortType()
+        {
+            if (string.IsNullOrEmpty(Detail))
+                return PortType.None;
+
+            string detail = Detail.ToLower().Trim();
+            if (detail.IndexOf(VIRTUAL_TAG) >= 0)
+                return PortType.Virtual;
+            if (detail.IndexOf(USB_TAG) >= 0)
+                return PortType.USBSerial;
+            if (detail.IndexOfAnyString(BLE_STRING) >= 0)
+                return PortType.BLE;
+            return PortType.None;
         }
 
         public override bool Equals(object obj)

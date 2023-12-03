@@ -380,6 +380,7 @@
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="auto" />
                                                         <ColumnDefinition Width="auto" />
+                                                        <ColumnDefinition Width="auto" />
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="auto" />
                                                     </Grid.ColumnDefinitions>
@@ -422,8 +423,63 @@
                                                         TextTrimming="WordEllipsis"
                                                         TextWrapping="WrapWithOverflow"
                                                         ToolTip="{Binding Detail}" />
-                                                    <TextBlock
+                                                    <Border
                                                         Grid.Column="2"
+                                                        Margin="0,0,5,0"
+                                                        Padding="5,3"
+                                                        VerticalAlignment="Center"
+                                                        CornerRadius="4">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+
+                                                                    <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                                                        <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                                                        <Setter Property="Background" Value="{DynamicResource Common.HighLight.Deep.Background}" />
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                                                        <Setter Property="ToolTip" Value="USB-Serial" />
+                                                                        <Setter Property="Background" Value="{DynamicResource Common.HighLight.BorderBrush}" />
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                                                        <Setter Property="ToolTip" Value="BLE" />
+                                                                        <Setter Property="Background" Value="{DynamicResource Control.Disabled.Background}" />
+                                                                        <Setter Property="Visibility" Value="Visible" />
+                                                                    </DataTrigger>
+
+                                                                    <DataTrigger Binding="{Binding Path=ShowPortType, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay}" Value="False">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+
+                                                        <TextBlock Margin="0" FontSize="7">
+                                                            <TextBlock.Style>
+                                                                <Style BasedOn="{StaticResource BaseTextBlock}" TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                                                            <Setter Property="Text" Value="V" />
+                                                                            <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                                                            <Setter Property="Text" Value="U" />
+                                                                            <Setter Property="ToolTip" Value="USB-Serial" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                                                            <Setter Property="Text" Value="B" />
+                                                                            <Setter Property="ToolTip" Value="BLE" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <TextBlock
+                                                        Grid.Column="3"
                                                         Margin="0"
                                                         HorizontalAlignment="Left"
                                                         VerticalAlignment="Center"
@@ -434,7 +490,7 @@
                                                         TextTrimming="WordEllipsis"
                                                         TextWrapping="NoWrap" />
                                                     <Button
-                                                        Grid.Column="3"
+                                                        Grid.Column="4"
                                                         Margin="5"
                                                         HorizontalAlignment="Right"
                                                         Click="ConnectPort"
@@ -458,11 +514,6 @@
                                                             </Style>
                                                         </Button.Style>
                                                     </Button>
-
-
-
-
-
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -1058,6 +1109,7 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="auto" />
                                                 <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="auto" />
                                             </Grid.ColumnDefinitions>
                                             <Border
                                                 Grid.Column="0"
@@ -1089,8 +1141,63 @@
                                                 TextTrimming="WordEllipsis"
                                                 TextWrapping="WrapWithOverflow"
                                                 ToolTip="{Binding Detail}" />
-                                            <TextBlock
+                                            <Border
                                                 Grid.Column="2"
+                                                Margin="0,0,5,0"
+                                                Padding="5,3"
+                                                VerticalAlignment="Center"
+                                                CornerRadius="4">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+
+                                                            <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                                                <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                                                <Setter Property="Background" Value="{DynamicResource Common.HighLight.Deep.Background}" />
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                                                <Setter Property="ToolTip" Value="USB-Serial" />
+                                                                <Setter Property="Background" Value="{DynamicResource Common.HighLight.BorderBrush}" />
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                                                <Setter Property="ToolTip" Value="BLE" />
+                                                                <Setter Property="Background" Value="{DynamicResource Control.Disabled.Background}" />
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+
+                                                            <DataTrigger Binding="{Binding Path=ShowPortType, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay}" Value="False">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+
+                                                <TextBlock Margin="0" FontSize="7">
+                                                    <TextBlock.Style>
+                                                        <Style BasedOn="{StaticResource BaseTextBlock}" TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                                                    <Setter Property="Text" Value="V" />
+                                                                    <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                                                    <Setter Property="Text" Value="U" />
+                                                                    <Setter Property="ToolTip" Value="USB-Serial" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                                                    <Setter Property="Text" Value="B" />
+                                                                    <Setter Property="ToolTip" Value="BLE" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock
+                                                Grid.Column="3"
                                                 MaxWidth="100"
                                                 Margin="0"
                                                 HorizontalAlignment="Left"
@@ -1102,7 +1209,7 @@
                                                 TextTrimming="WordEllipsis"
                                                 TextWrapping="NoWrap" />
 
-                                            <Grid Grid.Column="3">
+                                            <Grid Grid.Column="4">
                                                 <super:HoverPath
                                                     Width="20"
                                                     Height="20"

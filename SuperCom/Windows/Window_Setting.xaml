@@ -266,8 +266,25 @@
 
                         </StackPanel>
                     </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
+                        <TextBlock
+                            Margin="20,15,40,0"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource Show}" />
 
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="15,10"
+                            HorizontalAlignment="Left"
+                            Orientation="Vertical">
+                            <CheckBox Content="显示串口类型" IsChecked="{Binding ShowPortType, Source={x:Static config:ConfigManager.Settings}}" />
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
             </TabItem>
 

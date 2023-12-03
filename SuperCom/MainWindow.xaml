@@ -420,7 +420,8 @@
                                                         Style="{StaticResource BaseTextBlock}"
                                                         Text="{Binding Name}"
                                                         TextTrimming="WordEllipsis"
-                                                        TextWrapping="WrapWithOverflow" />
+                                                        TextWrapping="WrapWithOverflow"
+                                                        ToolTip="{Binding Detail}" />
                                                     <TextBlock
                                                         Grid.Column="2"
                                                         Margin="0"
@@ -1086,7 +1087,8 @@
                                                 Style="{StaticResource BaseTextBlock}"
                                                 Text="{Binding Name}"
                                                 TextTrimming="WordEllipsis"
-                                                TextWrapping="WrapWithOverflow" />
+                                                TextWrapping="WrapWithOverflow"
+                                                ToolTip="{Binding Detail}" />
                                             <TextBlock
                                                 Grid.Column="2"
                                                 MaxWidth="100"

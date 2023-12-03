@@ -216,6 +216,17 @@ namespace SuperCom.Entity
             set { _Remark = value; RaisePropertyChanged(); }
         }
 
+
+        private string _Detail = "";
+
+        /// <summary>
+        /// 串口详情
+        /// </summary>
+        public string Detail {
+            get { return _Detail; }
+            set { _Detail = value; RaisePropertyChanged(); }
+        }
+
         private bool _EnabledFilter;
         public bool EnabledFilter {
             get { return _EnabledFilter; }

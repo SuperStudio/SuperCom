@@ -15,6 +15,12 @@ namespace SuperCom.Entity
             set { _Name = value; RaisePropertyChanged(); }
         }
 
+        private string _Detail;
+        public string Detail {
+            get { return _Detail; }
+            set { _Detail = value; RaisePropertyChanged(); }
+        }
+
         private bool _Connected;
         public bool Connected {
             get { return _Connected; }
@@ -45,10 +51,11 @@ namespace SuperCom.Entity
 
         #endregion
 
-        public SideComPort(string name, bool connected)
+        public SideComPort(string name, bool connected,string detail)
         {
             Name = name;
             Connected = connected;
+            Detail = detail;
         }
 
         public override bool Equals(object obj)

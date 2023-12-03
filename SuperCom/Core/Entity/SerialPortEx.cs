@@ -1,4 +1,5 @@
 ﻿
+using ITLDG.DataCheck;
 using Microsoft.Win32;
 using SuperCom.Core.Utils;
 using SuperControls.Style;
@@ -9,9 +10,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO.Ports;
+using System.Linq;
+using System.Management;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using static SuperCom.App;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace SuperCom.Entity
 {
@@ -19,7 +24,8 @@ namespace SuperCom.Entity
     {
         private static readonly string DEFAULT_STOPBITS = StopBits.One.ToString();
         private static readonly string DEFAULT_PARITY = Parity.None.ToString();
-
+        private const string COM_PATTERN = @"COM[0-9]+";
+        private const string PORT_INFO_SELECT_SQL = "SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'";
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged([CallerMemberName] string name = null)
@@ -162,15 +168,40 @@ namespace SuperCom.Entity
         /// 仅有 COM[NUMBER]
         /// </summary>
         /// <returns></returns>
-        public static string[] GetAllPorts()
+        public static Dictionary<string, string> GetAllPorts()
         {
-            List<string> result = new List<string>();
-            string[] ports = GetPortNames();
-            foreach (var item in ports) {
-                if (int.TryParse(item.ToUpper().Replace("COM", ""), out _))
-                    result.Add(item);
+            Logger.Info($"get all ports:");
+            string[] portNames = new string[0];
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            try {
+                portNames = GetPortNames();
+                using (var searcher = new ManagementObjectSearcher(PORT_INFO_SELECT_SQL)) {
+                    var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
+                    var portList = portNames.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains(n))).ToList();
+                    foreach (string detail in portList) {
+                        Logger.Info(detail);
+                        if (Regex.Match(detail, COM_PATTERN) is Match match && match.Success && match.Groups != null &&
+                            match.Value is string portName && !string.IsNullOrEmpty(portName) &&
+                            !dict.ContainsKey(portName)) {
+                            dict.Add(portName, detail);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Logger.Error(ex);
+                // 使用默认的
+                try {
+                    foreach (var item in portNames) {
+                        if (int.TryParse(item.ToUpper().Replace("COM", ""), out _) && !dict.ContainsKey(item)) {
+                            Logger.Info(item);
+                            dict.Add(item, item);
+                        }
+                    }
+                } catch (Exception e) {
+                    Logger.Error(e);
+                }
             }
-            return result.ToArray();
+            return dict;
         }
 
         public static string[] GetUsbSerDevices()

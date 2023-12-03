@@ -61,14 +61,6 @@ namespace SuperCom
         public void Init()
         {
             CurrentPortNames = new ObservableCollection<string>();
-            string[] ports = SerialPortEx.GetAllPorts();
-
-            if (ports != null && ports.Length > 0) {
-                foreach (var item in ports)
-                    CurrentPortNames.Add(item);
-            }
-
-
         }
 
         public void SetCurrentPortName()

@@ -349,8 +349,8 @@ namespace SuperCom.ViewModel
 
         public void InitPortData(ComPortSortType sortType = ComPortSortType.AddTime, bool desc = false)
         {
-            string[] ports = SerialPortEx.GetAllPorts();
-
+            Dictionary<string, string> dict = SerialPortEx.GetAllPorts();
+            string[] ports = dict.Keys.ToArray();
             List<string> portNames = new List<string>();
             switch (sortType) {
                 case ComPortSortType.AddTime:
@@ -371,11 +371,11 @@ namespace SuperCom.ViewModel
 
             }
 
-            Logger.Info($"get all ports: {string.Join(",", portNames)}");
-
             SideComPorts = new ObservableCollection<SideComPort>();
             foreach (string port in portNames) {
-                SideComPorts.Add(new SideComPort(port, false));
+                SideComPort sideComPort = new SideComPort(port, false);
+                sideComPort.Detail = dict[port];
+                SideComPorts.Add(sideComPort);
             }
 
         }

@@ -1,10 +1,10 @@
 ﻿
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
 using SuperCom.Core.Telnet;
-using SuperCom.Core.Utils;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;
 using SuperCom.Upgrade;
@@ -17,7 +17,6 @@ using SuperControls.Style.Windows;
 using SuperUtils.Common;
 using SuperUtils.Framework.ORM.Enums;
 using SuperUtils.IO;
-using SuperUtils.NetWork;
 using SuperUtils.Systems;
 using SuperUtils.Time;
 using SuperUtils.Values;
@@ -26,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -2676,10 +2674,10 @@ namespace SuperCom
                 return;
             border.BorderBrush = (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
             // 设置不滚动
-            FixedTextEditor(border);
+            FixedTextEditor(border, true);
         }
 
-        private void FixedTextEditor(Border border)
+        private void FixedTextEditor(Border border, bool fixedText)
         {
             // 将文本固定
             if (ConfigManager.Settings.FixedWhenFocus) {
@@ -2687,10 +2685,9 @@ namespace SuperCom
                 ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
                 string portName = rootGrid.Tag.ToString();
                 SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
-                if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && !(bool)toggleButton.IsChecked) {
-                    //portTabItem.TextEditor.TextChanged -= TextBox_TextChanged;
-                    //toggleButton.IsChecked = true;
-                    portTabItem.FixedText = true;
+                if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && (bool)toggleButton.IsChecked != fixedText) {
+                    toggleButton.IsChecked = fixedText;
+                    portTabItem.FixedText = fixedText;
                 }
             }
         }
@@ -3254,8 +3251,10 @@ namespace SuperCom
             FrameworkElement ele = sender as FrameworkElement;
             if (ele != null && ele.Parent is Grid grid) {
                 TextEditor textEditor = FindTextBox(grid);
-                if (textEditor != null)
+                if (textEditor != null) {
                     textEditor.ScrollToEnd();
+                    FixedTextEditor(textEditor.Parent as Border, false);
+                }
             }
         }
 
@@ -3352,5 +3351,22 @@ namespace SuperCom
         private void SaveDataCheck(object sender, SelectionChangedEventArgs e) => SaveDataCheck(sender);
 
         private void SaveDataCheck(object sender, TextChangedEventArgs e) => SaveDataCheck(sender);
+
+        private void textEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (ConfigManager.Settings.PinOnMouseWheel &&
+                sender is TextEditor textEditor &&
+                textEditor.IsLoaded && textEditor.Parent is Border border) {
+                if (e.Delta > 0) {
+                    FixedTextEditor(border, true);
+                } else {
+                    // 鼠标滚动到底部
+                    TextView textView = textEditor.TextArea.TextView;
+                    bool isAtEnd = textView.VerticalOffset + textView.ActualHeight + 1 >= textView.DocumentHeight;
+                    if (isAtEnd)
+                        FixedTextEditor(border, false);
+                }
+            }
+        }
     }
 }

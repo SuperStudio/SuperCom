@@ -23,6 +23,7 @@ namespace SuperCom.Config.WindowConfig
             FixedWhenFocus = true;
             ShowPortType = true;
             NewLineText = DEFAULT_NEW_LINE;
+            PinOnMouseWheel = true;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -67,5 +68,7 @@ namespace SuperCom.Config.WindowConfig
             }
         }
         public string NewLineText { get; set; }
+
+        public bool PinOnMouseWheel { get; set; }
     }
 }

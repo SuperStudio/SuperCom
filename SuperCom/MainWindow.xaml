@@ -1299,6 +1299,7 @@
                                                 GotFocus="textBox_GotFocus"
                                                 IsReadOnly="True"
                                                 LostFocus="textBox_LostFocus"
+                                                PreviewMouseWheel="textEditor_PreviewMouseWheel"
                                                 SyntaxHighlighting="ComLog"
                                                 WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>

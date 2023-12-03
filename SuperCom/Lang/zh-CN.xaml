@@ -67,5 +67,7 @@
     <sys:String x:Key="Parity">校验位</sys:String>
     <sys:String x:Key="StopBits">停止位</sys:String>
     <sys:String x:Key="VirtualPort">虚拟串口</sys:String>
+    <sys:String x:Key="PinOnFocus">获得焦点时固定</sys:String>
+    <sys:String x:Key="PinOnMouseWheel">鼠标滚动决策固定</sys:String>
 
 </ResourceDictionary>

@@ -64,9 +64,6 @@
                             Margin="5"
                             Orientation="Vertical">
                             <CheckBox Content="{DynamicResource CloseToBar}" IsChecked="{Binding CloseToBar, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <CheckBox Content="{DynamicResource FixAfterSendCommand}" IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            <CheckBox Content="{DynamicResource AutoPin}" IsChecked="{Binding FixedWhenFocus, Source={x:Static config:ConfigManager.Settings}}" />
-                            <CheckBox Content="{DynamicResource ShowHintWhenPin}" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
                             <StackPanel Orientation="Horizontal">
                                 <CheckBox Content="{DynamicResource SepLog}" IsChecked="{Binding EnabledLogFrag, Source={x:Static config:ConfigManager.Settings}}" />
                                 <super:Slider
@@ -107,26 +104,25 @@
                         </StackPanel>
                     </Grid>
 
-                    <!--<CheckBox
-                        Margin="10,5"
-                        HorizontalAlignment="Left"
-                        Content="{DynamicResource FixOnSearching}"
-                        IsChecked="{Binding FixedOnSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />-->
-                    <!--<CheckBox
-                        Margin="10,5"
-                        HorizontalAlignment="Left"
-                        Content="{DynamicResource ScrollOnNotSearching}"
-                        IsChecked="{Binding ScrollOnSearchClosed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource NormalCheckBox}" />-->
 
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <CheckBox
-                        Margin="10"
-                        Content="{DynamicResource CloseToBar}"
-                        Style="{StaticResource NormalCheckBox}"
-                        Visibility="Collapsed" />
+                        <TextBlock
+                            Margin="20,5,5,10"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource PinOrScroll}" />
 
+                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                            <CheckBox Content="{DynamicResource ShowHintWhenPin}" IsChecked="{Binding HintWhenPin, Source={x:Static config:ConfigManager.Settings}}" />
+                            <CheckBox Content="{DynamicResource PinOnFocus}" IsChecked="{Binding FixedWhenFocus, Source={x:Static config:ConfigManager.Settings}}" />
+                            <CheckBox Content="{DynamicResource FixAfterSendCommand}" IsChecked="{Binding FixedOnSendCommand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <CheckBox Content="{DynamicResource PinOnMouseWheel}" IsChecked="{Binding PinOnMouseWheel, Source={x:Static config:ConfigManager.Settings}}" />
+                        </StackPanel>
+                    </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />

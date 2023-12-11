@@ -518,18 +518,20 @@ namespace SuperCom
             if (!(sender is Button button) || button.Tag == null || button.Content == null)
                 return;
             button.IsEnabled = false;
-            string content = button.Content.ToString();
-            string portName = button.Tag.ToString();
-            SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
-            if (sideComPort == null) {
-                MessageNotify.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
-                return;
-            }
+            do {
+                string content = button.Content.ToString();
+                string portName = button.Tag.ToString();
+                SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (sideComPort == null) {
+                    MessageNotify.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
+                    break;
+                }
 
-            if (LangManager.GetValueByKey("Connect").Equals(content))
-                await OpenPort(sideComPort);
-            else
-                await ClosePort(portName);
+                if (LangManager.GetValueByKey("Connect").Equals(content))
+                    await OpenPort(sideComPort);
+                else
+                    await ClosePort(portName);
+            } while (false);
             button.IsEnabled = true;
         }
 

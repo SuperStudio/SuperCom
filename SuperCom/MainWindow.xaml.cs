@@ -3065,7 +3065,7 @@ namespace SuperCom
                     SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
                     if (sideComPort == null) {
                         MessageNotify.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
-                        return;
+                        continue;
                     }
                     OpenPort(sideComPort);
                 } else {

@@ -2691,8 +2691,9 @@ namespace SuperCom
                 ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
                 string portName = rootGrid.Tag.ToString();
                 SideComPort sideComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
-                if (sideComPort != null && sideComPort.PortTabItem is PortTabItem portTabItem && (bool)toggleButton.IsChecked != fixedText) {
-                    toggleButton.IsChecked = fixedText;
+                if (sideComPort != null &&
+                    sideComPort.PortTabItem is PortTabItem portTabItem &&
+                    portTabItem.FixedText != fixedText) {
                     portTabItem.FixedText = fixedText;
                 }
             }
@@ -3278,7 +3279,8 @@ namespace SuperCom
                 TextEditor textEditor = FindTextBox(grid);
                 if (textEditor != null) {
                     textEditor.ScrollToEnd();
-                    FixedTextEditor(textEditor.Parent as Border, false);
+                    if (ConfigManager.Settings.PinOnMouseWheel)
+                        FixedTextEditor(textEditor.Parent as Border, false);
                 }
             }
         }

@@ -1982,7 +1982,8 @@
                                                     Click="ShowHighLightEdit"
                                                     Content="{DynamicResource Edit}"
                                                     FontSize="10"
-                                                    Style="{StaticResource BorderButton}" />
+                                                    Style="{StaticResource BorderButton}"
+                                                    Tag="{Binding Name}" />
 
                                                 <super:Switch
                                                     Height="20"

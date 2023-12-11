@@ -10,6 +10,10 @@ namespace SuperCom.Core.Utils
 {
     public class DataCheck : ViewModelBase
     {
+        private const int DEFAULT_START = 0;
+        private const int DEFAULT_END = -1;
+        private const int DEFAULT_INSERT = -1;
+
         public DataCheck()
         {
 
@@ -41,7 +45,7 @@ namespace SuperCom.Core.Utils
                 RaisePropertyChanged();
             }
         }
-        private int _CustomStart;
+        private int _CustomStart = DEFAULT_START;
         public int CustomStart {
             get { return _CustomStart; }
             set {
@@ -49,7 +53,7 @@ namespace SuperCom.Core.Utils
                 RaisePropertyChanged();
             }
         }
-        private int _CustomEnd;
+        private int _CustomEnd = DEFAULT_END;
         public int CustomEnd {
             get { return _CustomEnd; }
             set {
@@ -57,7 +61,7 @@ namespace SuperCom.Core.Utils
                 RaisePropertyChanged();
             }
         }
-        private int _CustomInsert;
+        private int _CustomInsert = DEFAULT_INSERT;
         public int CustomInsert {
             get { return _CustomInsert; }
             set {

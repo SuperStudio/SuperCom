@@ -447,7 +447,7 @@ namespace SuperCom
                         vieModel.PortTabItems[idx].Pinned = false;
                         SavePinnedByName(portName, false);
                         SaveComSettings();
-                        vieModel.PortTabItems.RemoveAt(idx);
+                        await RemovePortsByName(new List<string> { portName });
                     }
                     if (button != null)
                         button.IsEnabled = true;
@@ -477,8 +477,12 @@ namespace SuperCom
             // 移除 item
             foreach (var item in toRemoved) {
                 if (vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(item))
-                    is PortTabItem portTabItem)
+                    is PortTabItem portTabItem) {
                     vieModel.PortTabItems.Remove(portTabItem);
+                    if (vieModel.SideComPorts != null && vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(item)) is SideComPort sideComPort) {
+                        sideComPort.PortTabItem = null;
+                    }
+                }
             }
             return true;
         }
@@ -3041,7 +3045,15 @@ namespace SuperCom
         private void ShowHighLightEdit(object sender, RoutedEventArgs e)
         {
             OpenSetting(null, null);
-            window_Setting.vieModel.TabSelectedIndex = Window_Setting.HIGH_LIGHT_TAB_INDEX;
+            window_Setting.SetTabSelected(Window_Setting.HIGH_LIGHT_TAB_INDEX);
+            // 选中项
+            if (sender is FrameworkElement element && element.Tag.ToString() is string portName &&
+                 vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem &&
+                 portTabItem != null && portTabItem.SerialPort is SerialPortEx serialPort &&
+                 serialPort.HighLightIndex is long index &&
+                 index >= 0) {
+                window_Setting.SetHighLightIndex((int)index);
+            }
         }
 
         private void CloseAllConnectPort(object sender, RoutedEventArgs e)

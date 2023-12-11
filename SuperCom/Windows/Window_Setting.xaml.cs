@@ -589,5 +589,22 @@ namespace SuperCom
                 ConfigManager.Settings.Save();
             }
         }
+
+        public void SetHighLightIndex(int idx)
+        {
+            if (vieModel.HighLightRules == null || vieModel.HighLightRules.Count <= 0) {
+                return;
+            }
+
+            if (idx >= 0 && idx < vieModel.HighLightRules.Count)
+                vieModel.HighLightSideIndex = idx;
+        }
+
+        public void SetTabSelected(int idx)
+        {
+            if (idx < 0 || idx >= tabControl.Items.Count)
+                return;
+            vieModel.TabSelectedIndex = idx;
+        }
     }
 }

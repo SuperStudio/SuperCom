@@ -3368,6 +3368,7 @@ namespace SuperCom
                         comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
                         Logger.Info($"set datacheck");
                         portTabItem.RefreshSendHexValue();
+                        portTabItem.SerialPort.SaveDataCheck();
                     }
                 }
             }

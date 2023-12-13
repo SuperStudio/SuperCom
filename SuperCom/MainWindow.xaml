@@ -2317,14 +2317,14 @@
                                                                                     <RadioButton
                                                                                         Click="SaveDataCheck"
                                                                                         Content="添加到末尾"
-                                                                                        GroupName="crcRadioButton"
+                                                                                        GroupName="{Binding Name}"
                                                                                         IsChecked="{Binding SerialPort.DataCheck.UseCustom, Mode=OneWay, Converter={StaticResource OppositeBooleanConverter}}"
                                                                                         Style="{StaticResource NormalRadioButton}"
                                                                                         Tag="{Binding Name, Mode=OneWay}" />
                                                                                     <RadioButton
                                                                                         Click="SaveDataCheck"
                                                                                         Content="自定义"
-                                                                                        GroupName="crcRadioButton"
+                                                                                        GroupName="{Binding Name}"
                                                                                         IsChecked="{Binding SerialPort.DataCheck.UseCustom, Mode=TwoWay}"
                                                                                         Style="{StaticResource NormalRadioButton}"
                                                                                         Tag="{Binding Name, Mode=OneWay}" />

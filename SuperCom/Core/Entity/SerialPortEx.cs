@@ -177,7 +177,7 @@ namespace SuperCom.Entity
                 portNames = GetPortNames();
                 using (var searcher = new ManagementObjectSearcher(PORT_INFO_SELECT_SQL)) {
                     var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
-                    var portList = portNames.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains(n))).ToList();
+                    var portList = portNames.Select(n => n + " - " + ports.FirstOrDefault(s => s.EndsWith(n+")"))).ToList();
                     foreach (string detail in portList) {
                         Logger.Info(detail);
                         if (Regex.Match(detail, COM_PATTERN) is Match match && match.Success && match.Groups != null &&

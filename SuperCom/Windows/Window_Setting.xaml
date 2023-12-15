@@ -553,7 +553,7 @@
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="*" MinHeight="140" />
                                 <RowDefinition Height="4" />
-                                <RowDefinition Height="auto" MinHeight="200" />
+                                <RowDefinition Height="*" MinHeight="200" />
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <Button

@@ -71,5 +71,7 @@
     <sys:String x:Key="PinOnFocus">获得焦点时固定</sys:String>
     <sys:String x:Key="PinOnMouseWheel">鼠标滚动决策固定</sys:String>
     <sys:String x:Key="ConnectAll">连接所有</sys:String>
+    <sys:String x:Key="NewLineMode">回车换行模式</sys:String>
+    <sys:String x:Key="SendPrefix">发送提示前缀</sys:String>
 
 </ResourceDictionary>

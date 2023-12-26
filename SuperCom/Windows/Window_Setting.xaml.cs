@@ -291,6 +291,8 @@ namespace SuperCom
             vieModel.CloseToBar = false;
             vieModel.FixedOnSendCommand = false;
             vieModel.ScrollOnSearchClosed = true;
+            ConfigManager.Settings = Settings.Reset();
+            this.Close();
             MessageNotify.Success("已恢复默认值");
         }
 

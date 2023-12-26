@@ -71,5 +71,8 @@
     <sys:String x:Key="PinOnFocus">Pin On Focus</sys:String>
     <sys:String x:Key="PinOnMouseWheel">Mouse rolling decision fixed</sys:String>
     <sys:String x:Key="ConnectAll">Connect All</sys:String>
+    <sys:String x:Key="NewLineMode">NewLine Mode</sys:String>
+    <sys:String x:Key="SendPrefix">Send Prefix</sys:String>
+
 
 </ResourceDictionary>

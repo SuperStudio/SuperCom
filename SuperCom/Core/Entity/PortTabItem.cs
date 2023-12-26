@@ -749,7 +749,8 @@ namespace SuperCom.Entity
                     TX += len;
                 } else {
                     port.Write(value);
-                    SaveData($"SEND >>>>>>>>>> {value}", DateHelper.Now());
+                    if (ConfigManager.Settings.EnabledSendPrefix)
+                        SaveData($"{ConfigManager.Settings.SendPrefix}{value}", DateHelper.Now());
                     TX += Encoding.UTF8.GetByteCount(value);
                     Logger.Info($"send data, port name: {Name}, hex: {SendHex}, TX: {TX}, value: {value}");
 
@@ -782,7 +783,8 @@ namespace SuperCom.Entity
             if (bytes == null || bytes.Length == 0)
                 return 0;
             string str = TransformHelper.FormatHexString(TransformHelper.ByteArrayToHexString(bytes), "", " ");
-            SaveData($"SEND >>>>>>>>>> {str}", DateHelper.Now());
+            if (ConfigManager.Settings.EnabledSendPrefix)
+                SaveData($"{ConfigManager.Settings.SendPrefix}{str}", DateHelper.Now());
             SerialPort.Write(bytes, 0, bytes.Length);
             Logger.Info($"send data, port name: {Name}, hex: {SendHex}, TX: {TX + bytes.Length}, value: {str}");
             return bytes.Length;

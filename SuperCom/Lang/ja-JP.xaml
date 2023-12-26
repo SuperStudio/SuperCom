@@ -71,5 +71,8 @@
     <sys:String x:Key="PinOnFocus">フォーカスを取得するときに修正します</sys:String>
     <sys:String x:Key="PinOnMouseWheel">マウスローリングの決定は修正されました</sys:String>
     <sys:String x:Key="ConnectAll">すべてを接続します</sys:String>
+    <sys:String x:Key="NewLineMode">銀行と変更モードを入力します</sys:String>
+    <sys:String x:Key="SendPrefix">プロンプトプレフィックスを送信します</sys:String>
+
 
 </ResourceDictionary>

@@ -1858,11 +1858,7 @@ namespace SuperCom
                 if (check != null) {
                     string[] buffers = check.Buffer.ToString().Split(Environment.NewLine.ToCharArray());
                     foreach (string line in buffers) {
-                        if (line.IndexOf(recvResult) >= 0 && line.IndexOf($"SEND >>>>>>>>>> {command}") < 0) {
-                            find = true;
 
-                            break;
-                        }
                     }
                     if (find)
                         break;

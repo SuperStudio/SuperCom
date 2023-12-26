@@ -304,7 +304,7 @@
                                 <TextBlock
                                     HorizontalAlignment="Left"
                                     Style="{StaticResource BaseTextBlock}"
-                                    Text="回车换行模式" />
+                                    Text="{DynamicResource NewLineMode}" />
                                 <RadioButton
                                     Click="SetNewLineText"
                                     Content="\r\n"
@@ -321,6 +321,20 @@
                                     Content="\n"
                                     GroupName="newLineText"
                                     Style="{StaticResource NormalRadioButton}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,10" Orientation="Horizontal">
+                                <CheckBox
+                                    Content="{DynamicResource SendPrefix}"
+                                    IsChecked="{Binding EnabledSendPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Source={x:Static config:ConfigManager.Settings}}"
+                                    Style="{StaticResource NormalCheckBox}" />
+                                <super:SearchBox
+                                    MinWidth="250"
+                                    Margin="10,0"
+                                    IsEnabled="{Binding EnabledSendPrefix, Mode=OneWay, Source={x:Static config:ConfigManager.Settings}}"
+                                    ShowClearButton="True"
+                                    Style="{StaticResource SearchTextBoxStyle}"
+                                    Text="{Binding SendPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Source={x:Static config:ConfigManager.Settings}}" />
                             </StackPanel>
                         </StackPanel>
                     </Grid>

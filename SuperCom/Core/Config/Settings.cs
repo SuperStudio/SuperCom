@@ -9,6 +9,7 @@ namespace SuperCom.Config.WindowConfig
         private const string DEFAULT_NEW_LINE = "\r\n";
         private const int DEFAULT_LOG_FRAG_SIZE = 40;  // MB
         private const int DEFAULT_MEMORY_LIMIT = 1024; // MB
+        private const string SEND_PREFIX = "SEND >>>>>>>>>> ";
         private Settings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Settings")
         {
             Width = SystemParameters.WorkArea.Width * 0.7;
@@ -24,6 +25,8 @@ namespace SuperCom.Config.WindowConfig
             ShowPortType = true;
             NewLineText = DEFAULT_NEW_LINE;
             PinOnMouseWheel = true;
+            SendPrefix = SEND_PREFIX;
+            EnabledSendPrefix = true;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -36,6 +39,12 @@ namespace SuperCom.Config.WindowConfig
                 _instance = new Settings();
 
             return _instance;
+        }
+
+        public static Settings Reset()
+        {
+            _instance = null;
+            return CreateInstance();
         }
 
         public string CurrentLanguage { get; set; }
@@ -70,5 +79,23 @@ namespace SuperCom.Config.WindowConfig
         public string NewLineText { get; set; }
 
         public bool PinOnMouseWheel { get; set; }
+
+        private string _SendPrefix { get; set; }
+        public string SendPrefix {
+            get { return _SendPrefix; }
+            set {
+                _SendPrefix = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _EnabledSendPrefix { get; set; }
+        public bool EnabledSendPrefix {
+            get { return _EnabledSendPrefix; }
+            set {
+                _EnabledSendPrefix = value;
+                RaisePropertyChanged();
+            }
+        }
     }
 }

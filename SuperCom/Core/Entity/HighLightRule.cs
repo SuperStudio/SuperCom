@@ -167,7 +167,7 @@ namespace SuperCom.Entity
             new RuleSet(){RuleType = RuleType.Regex,RuleValue="(\\bW: .+)|(\\[W\\]:.+)"},
             new RuleSet(){RuleType = RuleType.Regex,RuleValue="(\\bD: .+)|(\\[D\\]:.+)"},
             new RuleSet(){RuleType = RuleType.Regex,RuleValue="\\{.+\\}"},
-            new RuleSet(){RuleType = RuleType.KeyWord,RuleValue="SEND >>>>>>>>>>"},
+            new RuleSet(){RuleType = RuleType.KeyWord,RuleValue=ConfigManager.Settings.SendPrefix},
         };
 
 

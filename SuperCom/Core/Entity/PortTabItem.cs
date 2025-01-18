@@ -748,6 +748,8 @@ namespace SuperCom.Entity
                     int len = SendHexData(value);
                     TX += len;
                 } else {
+                    //支持用户输入\n \x等特殊字符
+                    value = System.Text.RegularExpressions.Regex.Unescape(value);
                     port.Write(value);
                     if (ConfigManager.Settings.EnabledSendPrefix)
                     {

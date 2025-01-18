@@ -750,7 +750,13 @@ namespace SuperCom.Entity
                 } else {
                     port.Write(value);
                     if (ConfigManager.Settings.EnabledSendPrefix)
+                    {
                         SaveData($"{ConfigManager.Settings.SendPrefix}{value}", DateHelper.Now());
+                    }
+                    else { 
+                        SaveData($"{value}", DateHelper.Now());
+                    }
+
                     TX += Encoding.UTF8.GetByteCount(value);
                     Logger.Info($"send data, port name: {Name}, hex: {SendHex}, TX: {TX}, value: {value}");
 

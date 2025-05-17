@@ -9,6 +9,7 @@ namespace SuperCom.Config.WindowConfig
         private const string DEFAULT_NEW_LINE = "\r\n";
         private const int DEFAULT_LOG_FRAG_SIZE = 40;  // MB
         private const int DEFAULT_MEMORY_LIMIT = 1024; // MB
+        private const int DEFAULT_SEARCH_DELAY_MS = 500; // MB
         private const float DEFAULT_SEARCH_OPACITY = 1.0F;
         private const string SEND_PREFIX = "SEND >>>>>>>>>> ";
         private Settings() : base(ConfigManager.SQLITE_DATA_PATH, $"WindowConfig.Settings")
@@ -29,6 +30,7 @@ namespace SuperCom.Config.WindowConfig
             SendPrefix = SEND_PREFIX;
             EnabledSendPrefix = true;
             SearchOpacity = DEFAULT_SEARCH_OPACITY;
+            SearchDelayMs = DEFAULT_SEARCH_DELAY_MS;
         }
 
         public static List<int> BackUpPeriods = new List<int> { 1, 3, 7, 15, 30 };
@@ -105,6 +107,15 @@ namespace SuperCom.Config.WindowConfig
             get { return _SearchOpacity; }
             set {
                 _SearchOpacity = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private long _SearchDelayMs { get; set; }
+        public long SearchDelayMs {
+            get { return _SearchDelayMs; }
+            set {
+                _SearchDelayMs = value;
                 RaisePropertyChanged();
             }
         }

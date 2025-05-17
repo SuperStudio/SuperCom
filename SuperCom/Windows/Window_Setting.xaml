@@ -859,6 +859,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
+                            Width="100"
                             Margin="20,15,40,0"
                             Style="{StaticResource SettingTitleStyle}"
                             Text="{DynamicResource Opacity}" />
@@ -877,6 +878,37 @@
                                 Minimum="0.2"
                                 SmallChange="0.05"
                                 Value="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Width="100"
+                            Margin="20,15,40,0"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource DelaySearch}" />
+
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="15,10"
+                            HorizontalAlignment="Left"
+                            Orientation="Horizontal">
+                            <super:SearchBox
+                                Width="100"
+                                Margin="0"
+                                ShowClearButton="True"
+                                Style="{StaticResource SearchTextBoxStyle}"
+                                Text="{Binding SearchDelayMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Source={x:Static config:ConfigManager.Settings}}" />
+
+                            <TextBlock
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="ms"
+                                Visibility="{Binding ElementName=logFragCheckBox, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}" />
+
                         </StackPanel>
                     </Grid>
                 </StackPanel>

@@ -225,6 +225,7 @@ namespace SuperCom
         public void RefreshSetting()
         {
             this.CloseToTaskBar = ConfigManager.CommonSettings.CloseToBar;
+            SearchPanel.SearchDelayMs = (int)ConfigManager.Settings.SearchDelayMs;
         }
 
         /// <summary>

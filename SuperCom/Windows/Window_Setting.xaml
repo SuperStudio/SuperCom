@@ -736,21 +736,21 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <!--<Border
-                                                    Margin="5"
-                                                    Padding="5"
-                                                    Background="{DynamicResource Window.Title.Background}"
-                                                    CornerRadius="3">
-                                                    <TextBox
-                                                        Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
-                                                        Padding="15,0,0,0"
-                                                        AcceptsReturn="False"
-                                                        Background="Transparent"
-                                                        ContextMenu="{StaticResource TextBoxContextMenu}"
-                                                        LostFocus="SaveRuleSet"
-                                                        Style="{StaticResource BaseTextBox}"
-                                                        Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        TextAlignment="Left"
-                                                        TextWrapping="NoWrap" />
+                                                Margin="5"
+                                                Padding="5"
+                                                Background="{DynamicResource Window.Title.Background}"
+                                                CornerRadius="3">
+                                                <TextBox
+                                                Width="{Binding ElementName=col, Path=ActualWidth, Converter={StaticResource BiggerWidthConverter}, ConverterParameter=-100}"
+                                                Padding="15,0,0,0"
+                                                AcceptsReturn="False"
+                                                Background="Transparent"
+                                                ContextMenu="{StaticResource TextBoxContextMenu}"
+                                                LostFocus="SaveRuleSet"
+                                                Style="{StaticResource BaseTextBox}"
+                                                Text="{Binding RuleValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                TextAlignment="Left"
+                                                TextWrapping="NoWrap" />
                                                 </Border>-->
 
                                                 <Grid>
@@ -848,6 +848,38 @@
                     </Grid>
 
                 </Grid>
+            </TabItem>
+
+            <TabItem Header="{DynamicResource Search}" Style="{StaticResource FlatTabItem}">
+                <StackPanel Margin="0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Margin="20,15,40,0"
+                            Style="{StaticResource SettingTitleStyle}"
+                            Text="{DynamicResource Opacity}" />
+
+                        <StackPanel
+                            Grid.Column="1"
+                            Margin="15,10"
+                            HorizontalAlignment="Left"
+                            Orientation="Vertical">
+                            <super:Slider
+                                Width="300"
+                                Margin="0"
+                                LargeChange="0.1"
+                                Maximum="1.0"
+                                ValueChanged="Slider_ValueChanged"
+                                Minimum="0.2"
+                                SmallChange="0.05"
+                                Value="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </TabItem>
 
             <TabItem

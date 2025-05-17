@@ -9,12 +9,13 @@
                 <ControlTemplate TargetType="{x:Type search:SearchPanel}">
                     <Grid
                         HorizontalAlignment="Right"
+                        Opacity="{Binding Tag, RelativeSource={RelativeSource AncestorType=search:TextEditor, Mode=FindAncestor}, Converter={StaticResource DoubleConverter}}"
                         VerticalAlignment="Top"
+                        Margin="20 5"
                         Cursor="Arrow">
                         <Border
                             Background="{DynamicResource Window.Title.Background}"
                             BorderBrush="{DynamicResource Window.Background}"
-                            BorderThickness="4,0,0,0"
                             CornerRadius="1"
                             Effect="{StaticResource PopupDropShadowEffect}" />
                         <Grid Margin="5,3,3,3">

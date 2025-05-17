@@ -521,16 +521,18 @@
 
                         <DataGridTemplateColumn
                             Width="auto"
-                            MinWidth="50"
+                            MinWidth="40"
                             Header="{DynamicResource Order}"
                             SortMemberPath="Order">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <super:SearchBox
-                                        MinWidth="70"
+                                        MinWidth="50"
                                         MaxWidth="100"
                                         Background="Transparent"
                                         LostFocus="SaveSendCommands"
+                                        ShowClearButton="False"
+                                        TextAlignment="Center"
                                         Text="{Binding Order, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                         TextChanged="CommandTextChanged" />
                                 </DataTemplate>

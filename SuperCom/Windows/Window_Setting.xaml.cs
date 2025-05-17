@@ -31,6 +31,8 @@ namespace SuperCom
 
         public const string INPUT_NOTICE_TEXT = "请输入波特率";
 
+        private DelayedActionExecutor SaveSearchOpacityExecutor = new DelayedActionExecutor();
+
         #region "属性"
 
         public static string BASE_XSHD_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -607,6 +609,13 @@ namespace SuperCom
             if (idx < 0 || idx >= tabControl.Items.Count)
                 return;
             vieModel.TabSelectedIndex = idx;
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SaveSearchOpacityExecutor.ExecuteAfterDelay(() => {
+                ConfigManager.Settings.Save();
+            });
         }
     }
 }

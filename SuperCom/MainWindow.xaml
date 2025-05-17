@@ -176,9 +176,9 @@
                             IsCheckable="True"
                             IsChecked="True" />
                         <!--<MenuItem
-                                            Header="{DynamicResource RightFuncBar}"
-                                            IsCheckable="True"
-                                            IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
+                        Header="{DynamicResource RightFuncBar}"
+                        IsCheckable="True"
+                        IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
 
                     </MenuItem>
                     <MenuItem
@@ -329,25 +329,25 @@
 
 
                             <!--<Image
-                                Grid.Column="0"
-                                Width="24"
-                                Height="24"
-                                Margin="5,0"
-                                HorizontalAlignment="Left"
-                                Source="{Binding Icon, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
-                                Stretch="UniformToFill" />-->
+                            Grid.Column="0"
+                            Width="24"
+                            Height="24"
+                            Margin="5,0"
+                            HorizontalAlignment="Left"
+                            Source="{Binding Icon, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                            Stretch="UniformToFill" />-->
 
 
                         </StackPanel>
                         <ScrollViewer Grid.Row="1">
                             <StackPanel Orientation="Vertical">
                                 <!--<Expander
-                                    Padding="0,5"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    Foreground="{DynamicResource Window.Foreground}"
-                                    Header="串口"
-                                    IsExpanded="True">-->
+                                Padding="0,5"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Foreground="{DynamicResource Window.Foreground}"
+                                Header="串口"
+                                IsExpanded="True">-->
                                 <ListBox
                                     HorizontalContentAlignment="Stretch"
                                     d:ItemsSource="{d:SampleData ItemCount=5}"
@@ -1301,6 +1301,7 @@
                                                 IsReadOnly="True"
                                                 LostFocus="textBox_LostFocus"
                                                 PreviewMouseWheel="textEditor_PreviewMouseWheel"
+                                                Tag="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}}"
                                                 SyntaxHighlighting="ComLog"
                                                 WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>
@@ -1681,16 +1682,16 @@
                                                         Click="OnPortSettingChanged"
                                                         IsChecked="{Binding SerialPort.RtsEnable, Mode=TwoWay}">
                                                         <!--<super:Switch.Style>
-                                                            <Style TargetType="{x:Type super:Switch}">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="2">
-                                                                        <Setter Property="IsEnabled" Value="False" />
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="3">
-                                                                        <Setter Property="IsEnabled" Value="False" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
+                                                        <Style TargetType="{x:Type super:Switch}">
+                                                        <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="2">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding SerialPort.Handshake}" Value="3">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                        </DataTrigger>
+                                                        </Style.Triggers>
+                                                        </Style>
                                                         </super:Switch.Style>-->
                                                     </super:Switch>
                                                     <super:HoverPath Style="{StaticResource HelpHoverPath}" ToolTip="Request to Send， 流量控制机制&#x0a;更多请访问顶部菜单栏：高级——文献——Serial and UART Tutorial" />

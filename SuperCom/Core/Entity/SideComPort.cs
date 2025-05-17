@@ -49,8 +49,8 @@ namespace SuperCom.Entity
             set { _Connected = value; RaisePropertyChanged(); }
         }
 
-        private PortTabItem _PortTabItem;
-        public PortTabItem PortTabItem {
+        private ComConnector _PortTabItem;
+        public ComConnector PortTabItem {
             get { return _PortTabItem; }
             set { _PortTabItem = value; RaisePropertyChanged(); }
         }

@@ -31,6 +31,8 @@ namespace SuperCom
 
         public static Dispatcher GetDispatcher()
         {
+            if (App.Current == null)
+                return null;
             return App.Current.Dispatcher;
         }
 
@@ -100,6 +102,7 @@ namespace SuperCom
         {
             TelnetServerManager.Stop();
             Win32Helper.CancelPreventSleep(); // 取消系统休眠
+            MemoryDog.Stop();
             Logger.Info("==========");
             Logger.Info("good bye!");
             Logger.Info("==========");

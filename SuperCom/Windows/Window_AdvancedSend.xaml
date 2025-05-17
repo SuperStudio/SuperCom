@@ -356,7 +356,7 @@
                                         super:CheckBoxExt.MarkHeight="16"
                                         super:CheckBoxExt.MarkWidth="16"
                                         Checked="CheckBox_Checked"
-                                        Content="{Binding Key.Name}"
+                                        Content="{Binding Key}"
                                         FontSize="12"
                                         IsChecked="{Binding Value, Mode=OneWay}"
                                         Style="{StaticResource NormalCheckBox}"

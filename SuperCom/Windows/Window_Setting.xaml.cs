@@ -1,6 +1,7 @@
 ﻿using ICSharpCode.AvalonEdit;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
+using SuperCom.Core.Settings;
 using SuperCom.Entity;
 using SuperCom.ViewModel;
 using SuperControls.Style;
@@ -159,11 +160,8 @@ namespace SuperCom
 
         private bool IsPortRunning()
         {
-            if (Main != null && Main.vieModel.SideComPorts?.Count > 0) {
-                foreach (var item in Main.vieModel.SideComPorts) {
-                    if (item.Connected)
-                        return true;
-                }
+            if (Main != null && Main.IsPortConnecting()) {
+                return true;
             }
             return false;
         }
@@ -192,7 +190,7 @@ namespace SuperCom
                     vieModel.BaudRates.RemoveAt(idx);
                     ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
                     ConfigManager.Main.Save();
-                    Main.vieModel.LoadBaudRates();
+                    GlobalSettings.ComSetting.ReLoadBaudRates();
                 }
             }
         }
@@ -283,7 +281,7 @@ namespace SuperCom
             }
             ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
             ConfigManager.Main.Save();
-            Main.vieModel.LoadBaudRates();
+            GlobalSettings.ComSetting.ReLoadBaudRates();
 
             vieModel.LogNameFormat = CommonSettings.DEFAULT_LOG_NAME_FORMAT;
             vieModel.LogSaveDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
@@ -569,7 +567,7 @@ namespace SuperCom
                     vieModel.BaudRates.Add(baudRate.ToString());
                     ConfigManager.Main.CustomBaudRates = JsonUtils.TrySerializeObject(vieModel.BaudRates);
                     ConfigManager.Main.Save();
-                    Main.vieModel.LoadBaudRates();
+                    GlobalSettings.ComSetting.ReLoadBaudRates();
                 }
             }
         }

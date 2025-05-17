@@ -167,7 +167,7 @@ namespace SuperCom.Entity
         }
 
 
-        private async Task<bool> AsyncSendCommand(int idx, PortTabItem portTabItem, SendCommand command, AdvancedSend advancedSend)
+        private async Task<bool> AsyncSendCommand(int idx, ComConnector portTabItem, SendCommand command, AdvancedSend advancedSend)
         {
             bool success = false;
             await App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
@@ -217,7 +217,7 @@ namespace SuperCom.Entity
         /// <param name="advancedSend">需要发送的命令集合</param>
         /// <param name="portTabItem">指定发送串口</param>
         /// <param name="onSetRunningStatus">发送状态回调函数</param>
-        public void BeginSendCommands(AdvancedSend advancedSend, PortTabItem portTabItem, Action<bool> onSetRunningStatus)
+        public void BeginSendCommands(AdvancedSend advancedSend, ComConnector portTabItem, Action<bool> onSetRunningStatus)
         {
             if (advancedSend == null || string.IsNullOrEmpty(advancedSend.Commands) || portTabItem == null)
                 return;

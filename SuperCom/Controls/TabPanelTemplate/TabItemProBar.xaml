@@ -1,0 +1,252 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviours="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:config="clr-namespace:SuperCom.Config"
+    xmlns:super="https://github.com/SuperStudio/SuperControls">
+
+    <DataTemplate x:Key="TabItemProBar">
+        <Border
+            Name="rootBorder"
+            Height="30"
+            MinWidth="150"
+            BorderBrush="{Binding ElementName=tabControlPro, Path=Background}"
+            BorderThickness="0,0,1,0"
+            ContextMenu="{StaticResource TabItemProContextMenu}"
+            Cursor="Hand"
+            Tag="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex)}">
+            <behaviours:Interaction.Triggers>
+                <!--  这 EventArgsConverter 的，这TM都行  -->
+                <behaviours:EventTrigger EventName="ContextMenuOpening">
+                    <behaviours:InvokeCommandAction
+                        Command="super:TabProMenu.ContextMenuOpening"
+                        EventArgsConverter="{StaticResource ContextualEventArgsConverter}"
+                        EventArgsConverterParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                        PassEventArgsToCommand="True" />
+                </behaviours:EventTrigger>
+                <behaviours:EventTrigger EventName="MouseLeftButtonDown">
+                    <behaviours:InvokeCommandAction
+                        Command="super:TabProMenu.MouseLeftButtonDown"
+                        EventArgsConverter="{StaticResource ContextualEventArgsConverter}"
+                        EventArgsConverterParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                        PassEventArgsToCommand="True" />
+                </behaviours:EventTrigger>
+                <behaviours:EventTrigger EventName="MouseLeftButtonUp">
+                    <behaviours:InvokeCommandAction
+                        Command="super:TabProMenu.MouseLeftButtonUp"
+                        EventArgsConverter="{StaticResource ContextualEventArgsConverter}"
+                        EventArgsConverterParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                        PassEventArgsToCommand="True" />
+                </behaviours:EventTrigger>
+                <behaviours:EventTrigger EventName="MouseMove">
+                    <behaviours:InvokeCommandAction
+                        Command="super:TabProMenu.MouseMove"
+                        EventArgsConverter="{StaticResource ContextualEventArgsConverter}"
+                        EventArgsConverterParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Border}}"
+                        PassEventArgsToCommand="True" />
+                </behaviours:EventTrigger>
+            </behaviours:Interaction.Triggers>
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{DynamicResource TabItem.Background}" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource ListBoxItem.Selected.Active.BorderBrush}" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Selected}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource ListBoxItem.Selected.Active.Background}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    Grid.Column="0"
+                    Width="10"
+                    Height="10"
+                    Margin="5"
+                    CornerRadius="10">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="Green" />
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding Connected}" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <TextBlock
+                    Grid.Column="1"
+                    MaxWidth="120"
+                    Margin="0"
+                    Padding="10,5"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource BaseTextBlock}"
+                    Text="{Binding Name}"
+                    TextTrimming="WordEllipsis"
+                    TextWrapping="WrapWithOverflow"
+                    ToolTip="{Binding Detail}" />
+                <Border
+                    Grid.Column="2"
+                    Margin="0,0,5,0"
+                    Padding="5,3"
+                    VerticalAlignment="Center"
+                    CornerRadius="4">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                    <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                    <Setter Property="Background" Value="{DynamicResource Common.HighLight.Deep.Background}" />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                    <Setter Property="ToolTip" Value="USB-Serial" />
+                                    <Setter Property="Background" Value="{DynamicResource Common.HighLight.BorderBrush}" />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                    <Setter Property="ToolTip" Value="BLE" />
+                                    <Setter Property="Background" Value="{DynamicResource Control.Disabled.Background}" />
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding Path=ShowPortType, Source={x:Static config:ConfigManager.Settings}, Mode=OneWay}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <TextBlock Margin="0" FontSize="7">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource BaseTextBlock}" TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PortType}" Value="Virtual">
+                                        <Setter Property="Text" Value="V" />
+                                        <Setter Property="ToolTip" Value="{DynamicResource VirtualPort}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PortType}" Value="USBSerial">
+                                        <Setter Property="Text" Value="U" />
+                                        <Setter Property="ToolTip" Value="USB-Serial" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PortType}" Value="BLE">
+                                        <Setter Property="Text" Value="B" />
+                                        <Setter Property="ToolTip" Value="BLE" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+                <TextBlock
+                    Grid.Column="3"
+                    MaxWidth="100"
+                    Margin="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontSize="12"
+                    Foreground="{DynamicResource Window.Sub.Foreground}"
+                    Style="{StaticResource BaseTextBlock}"
+                    Text="{Binding Remark}"
+                    TextTrimming="WordEllipsis"
+                    TextWrapping="NoWrap" />
+
+                <Grid Grid.Column="4">
+                    <Button
+                        Width="20"
+                        Height="20"
+                        Margin="0,0,5,0"
+                        Padding="3,3,4,4"
+                        Panel.ZIndex="2"
+                        Command="super:TabProMenu.PinTab"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+                        Tag="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex)}"
+                        Visibility="{Binding Pinned, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource RoundNormalButton}" TargetType="Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource Window.Title.Background}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Viewbox Width="auto" Height="auto">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M621.888 141.888a32 32 0 0 0-17.152-8.896l-5.44 31.552 5.376-31.552h-0.192l-0.384-0.128-0.96-0.128a83.84 83.84 0 0 0-11.84-0.896 92.16 92.16 0 0 0-28.416 3.712 63.104 63.104 0 0 0-34.24 24.512c-9.792 14.336-12.608 31.744-10.24 50.176 0.256 1.92 0.64 3.84 1.28 5.696l14.4 45.44-155.392 130.112-121.984-7.872a32 32 0 0 0-11.008 1.216l8.96 30.72-8.96-30.72h-0.128l-0.128 0.064-0.32 0.128-0.832 0.256a71.36 71.36 0 0 0-9.6 3.84 81.92 81.92 0 0 0-20.672 13.824 62.528 62.528 0 0 0-18.624 31.488c-3.456 14.528-1.28 29.632 5.44 44.352a32 32 0 0 0 6.592 9.408l96 94.848-165.888 259.008a32 32 0 0 0 44.16 44.928l259.456-166.144 94.784 96a32 32 0 0 0 9.472 6.592c14.72 6.72 29.824 8.832 44.288 5.44a62.592 62.592 0 0 0 31.488-18.688 81.92 81.92 0 0 0 17.728-30.208l0.256-0.832 0.128-0.384v-0.192l-30.72-8.96 30.72 8.96a32 32 0 0 0 1.28-11.072l-7.872-121.984L762.88 490.24l45.44 14.4c1.856 0.64 3.776 1.024 5.696 1.28 18.368 2.304 35.84-0.448 50.176-10.24 14.08-9.6 21.12-23.168 24.512-34.304a92.16 92.16 0 0 0 2.752-40.256l-0.128-0.96V419.84l-0.064-0.128v-0.064l-31.552 5.376 31.552-5.44a32 32 0 0 0-8.96-17.216L753.28 273.344a32.576 32.576 0 0 0-1.152-1.28L621.888 141.952z m83.776 174.272L585.472 196.032a21.12 21.12 0 0 0-3.84 0.64 20.288 20.288 0 0 0 0 3.008l19.968 62.72a32 32 0 0 1-9.984 34.24L409.984 448.768a32 32 0 0 1-22.592 7.36L260.16 448a18.56 18.56 0 0 0-1.408 0.96l108.096 106.88a32 32 0 0 1 4.48 40L269.44 754.752l158.976-101.76a32 32 0 0 1 40 4.416l106.88 108.16a17.536 17.536 0 0 0 0.896-1.536l-8.192-127.168a32 32 0 0 1 7.424-22.592l152.128-181.696a32 32 0 0 1 34.24-9.92l62.72 19.904c1.28 0.128 2.24 0.064 2.944 0a21.312 21.312 0 0 0 0.704-3.84L706.816 317.44a32.832 32.832 0 0 1-1.152-1.28zM581.952 195.2l-0.064 0.192v-0.192z m246.912 247.04l-0.192 0.064 0.192-0.064z"
+                                Fill="{DynamicResource Window.Foreground}" />
+                        </Viewbox>
+                    </Button>
+
+                    <Button
+                        Width="20"
+                        Height="20"
+                        Margin="0,0,5,0"
+                        Padding="5,5,6,6"
+                        Panel.ZIndex="2"
+                        Command="super:TabProMenu.CloseTabItem"
+                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+                        Tag="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex)}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource RoundNormalButton}" TargetType="Button">
+                                <Setter Property="Visibility" Value="Hidden" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource Window.Title.Background}" />
+                                    </Trigger>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource MultiValueEqualityConverter}" ConverterParameter="false,true">
+                                                <Binding Mode="OneWay" Path="Pinned" />
+                                                <Binding
+                                                    ElementName="rootBorder"
+                                                    Mode="OneWay"
+                                                    Path="IsMouseOver" />
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource MultiValueEqualityConverter}" ConverterParameter="true,false">
+                                                <Binding Mode="OneWay" Path="Selected" />
+                                                <Binding Mode="OneWay" Path="Pinned" />
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Viewbox Width="auto" Height="auto">
+                            <Path
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Data="M141.82592 778.24q0-36.864 26.624-63.488l199.68-199.68-199.68-200.704Q141.82592 288.768 141.82592 251.904T168.44992 189.44t62.464-25.6 62.464 25.6l200.704 200.704 199.68-200.704q25.6-25.6 62.464-25.6t62.464 25.6 25.6 62.464-25.6 62.464l-199.68 200.704 199.68 199.68q25.6 26.624 25.6 63.488t-25.6 62.464-62.464 25.6-62.464-25.6l-199.68-199.68-200.704 199.68q-25.6 25.6-62.464 25.6t-62.464-25.6Q141.82592 814.08 141.82592 778.24z"
+                                Fill="{DynamicResource Window.Foreground}" />
+                        </Viewbox>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

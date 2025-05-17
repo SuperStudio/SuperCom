@@ -1,0 +1,490 @@
+﻿<super:BaseWindow
+    x:Class="SuperCom.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+    xmlns:config="clr-namespace:SuperCom.Config"
+    xmlns:controlTemplate="clr-namespace:SuperCom.Controls.DataTemplate"
+    xmlns:controls="clr-namespace:SuperCom.Controls"
+    xmlns:converter="clr-namespace:SuperCom.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+    xmlns:local="clr-namespace:SuperCom"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
+    xmlns:tabcontrolpro="clr-namespace:SuperControls.Style.UserControls.TabControlPro;assembly=SuperControls.Style"
+    Name="mainWindow"
+    Title="{DynamicResource AppTitle}"
+    Width="1200"
+    Height="700"
+    MinWidth="700"
+    AutomationProperties.AutomationId="MainWindow"
+    Background="{DynamicResource Window.Background}"
+    Closing="mainWindow_Closing"
+    ContentRendered="mainWindow_ContentRendered"
+    Foreground="{DynamicResource Window.Foreground}"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
+    Loaded="mainWindow_Loaded"
+    MenuAlign="Left"
+    MenuMargin="200 0 0 0"
+    PreviewKeyDown="onPreviewKeyDown"
+    PreviewMouseDown="onPreviewMouseDown"
+    ShowThemeSelector="True"
+    TitleHeight="30"
+    TitleMargin="5 0"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <super:BaseWindow.Resources>
+
+        <Style x:Key="BgHoverBorder" TargetType="Border">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="CornerRadius" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource Window.Title.Background}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Opacity" Value="0.8" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource Window.Title.Hover.Background}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </super:BaseWindow.Resources>
+
+    <Grid>
+        <Popup
+            x:Name="ForegroundPopup"
+            AllowsTransparency="True"
+            HorizontalOffset="-80"
+            Placement="MousePoint"
+            PopupAnimation="Fade"
+            StaysOpen="True"
+            VerticalOffset="0">
+            <Grid Margin="5">
+                <Border
+                    Margin="5"
+                    Background="{DynamicResource Menu.Background}"
+                    CornerRadius="5"
+                    Effect="{StaticResource PopupDropShadowEffect}" />
+                <StackPanel Orientation="Vertical" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ContextMenu}}}">
+                    <super:ColorPicker
+                        Name="colorPicker"
+                        SelectedColorChanged="colorPicker_SelectedColorChanged"
+                        ShowColorPalette="False" />
+                    <Button
+                        Margin="5,0,5,10"
+                        HorizontalAlignment="Center"
+                        Click="CloseForegroundSelected"
+                        Content="{DynamicResource Close}"
+                        Style="{StaticResource ButtonDanger}" />
+                </StackPanel>
+            </Grid>
+        </Popup>
+
+
+
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Menu x:Name="TopMenus">
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="{DynamicResource File}"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem Click="OpenLog" Header="{DynamicResource LoadLog}" />
+                        <MenuItem
+                            Click="SaveLog"
+                            Header="{DynamicResource SaveLogAs}"
+                            Icon="/Resources/Pictures/save.png" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="ExportAllCmd" Header="{DynamicResource ExportConfig}" />
+                        <MenuItem Click="ImportAllCmd" Header="{DynamicResource ImportConfig}" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem Click="OpenAppDir" Header="{DynamicResource OpenAppPath}" />
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="{DynamicResource Edit}"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Header="{DynamicResource AutoWrap}"
+                            IsCheckable="True"
+                            IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Name="FontMenuItem"
+                            Header="{DynamicResource Font}"
+                            IsCheckable="False" />
+                        <MenuItem
+                            Click="OpenForegroundSelected"
+                            Header="{DynamicResource FontColor}"
+                            IsCheckable="False" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Click="SetTextViewReturn"
+                            Header="{DynamicResource ShowReturnChar}"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowEndOfLine, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewSpace"
+                            Header="{DynamicResource ShowSpace}"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowSpaces, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewTab"
+                            Header="{DynamicResource ShowTab}"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowTabs, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextViewLineNumber"
+                            Header="{DynamicResource ShowLineNumber}"
+                            IsCheckable="True"
+                            IsChecked="{Binding HighlightCurrentLine, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Click="SetTextHighLightCurrent"
+                            Header="{DynamicResource HighLightSelectLine}"
+                            IsCheckable="True"
+                            IsChecked="{Binding ShowLineNumbers, Source={x:Static config:ConfigManager.Main}}" />
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="{DynamicResource View_}"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Name="sideGridMenuItem"
+                            Click="HideSide"
+                            Header="{DynamicResource SideBar}"
+                            IsCheckable="True"
+                            IsChecked="True" />
+                        <!--<MenuItem
+                                            Header="{DynamicResource RightFuncBar}"
+                                            IsCheckable="True"
+                                            IsChecked="{Binding ShowRightPanel, Source={x:Static config:ConfigManager.Main}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />-->
+
+                    </MenuItem>
+                    <MenuItem
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="{DynamicResource Tools}"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            Click="OpenSetting"
+                            Header="{DynamicResource Settings}"
+                            Icon="/Resources/Pictures/setting.png" />
+
+                        <MenuItem Click="OpenShortCut" Header="{DynamicResource FastKey}" />
+                        <MenuItem Click="ShowPluginWindow" Header="{DynamicResource Plugin}" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Click="ShowVarMonitor"
+                            Header="{DynamicResource Monitor}"
+                            Visibility="Collapsed" />
+                        <MenuItem Click="ShowVirtualPort" Header="{DynamicResource VirtualSerialPort}" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Click="ShowAscii"
+                            Header="{DynamicResource AsciiTable}"
+                            IsCheckable="False" />
+                        <MenuItem
+                            Click="ShowReferences"
+                            Header="{DynamicResource RefDoc}"
+                            IsCheckable="False" />
+                        <Separator Margin="-20,5,10,5" />
+                        <MenuItem
+                            Click="StartTelnetServer"
+                            Header="{DynamicResource TelnetServer}"
+                            IsCheckable="False" />
+                    </MenuItem>
+                    <MenuItem
+                        AutomationProperties.AutomationId="MenuItem_About"
+                        Background="{DynamicResource Window.Title.Background}"
+                        Header="{DynamicResource About}"
+                        Style="{StaticResource TopMenuItemStyle}">
+                        <MenuItem
+                            AutomationProperties.AutomationId="MenuItem_ShowUpgrade"
+                            Click="ShowUpgradeWindow"
+                            Header="{DynamicResource CheckUpgrade}"
+                            Icon="/Resources/Pictures/update.png" />
+                        <MenuItem
+                            Click="ShowAbout"
+                            Header="{DynamicResource About}"
+                            Icon="/Resources/Pictures/about.png" />
+                        <MenuItem Click="OpenFeedBack" Header="{DynamicResource FeedBack}" />
+                        <MenuItem Click="OpenHelp" Header="{DynamicResource Help}" />
+                        <MenuItem Click="OpenHFAQ" Header="{DynamicResource FAQ}" />
+                        <MenuItem
+                            Click="OpenDevelop"
+                            Header="{DynamicResource DevelopTogether}"
+                            Icon="/Resources/Pictures/develop.png" />
+
+                    </MenuItem>
+
+                </Menu>
+            </Grid>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Name="SideGridColumn"
+                        Width="{Binding SideGridWidth, FallbackValue=250, Mode=OneWay}"
+                        MaxWidth="500" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <Grid
+                    Grid.ColumnSpan="10"
+                    Panel.ZIndex="99"
+                    Visibility="{Binding DoingLongWork, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+                    <Border Background="{DynamicResource Window.Title.Background}" Opacity="0.7" />
+                    <Grid>
+                        <Border
+                            Width="200"
+                            Height="200"
+                            Background="{DynamicResource Window.Side.Background}"
+                            Effect="{StaticResource PopupDropShadowEffect}" />
+                        <StackPanel
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Orientation="Vertical">
+                            <super:LoadingCircle Width="40" Height="40" />
+                            <TextBlock
+                                Margin="10"
+                                Style="{StaticResource BaseTextBlock}"
+                                Text="{Binding DoingWorkMsg}" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TabControl
+                        super:TabControlExt.TabPanelBackground="Transparent"
+                        ItemContainerStyle="{StaticResource FlatTabItem}"
+                        Style="{StaticResource FlatTabControl}"
+                        TabStripPlacement="Left">
+                        <TabItem MinWidth="50" Cursor="Hand">
+                            <TabItem.Header>
+                                <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                    <Viewbox
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center">
+                                        <Path Data="M621.714286 877.714286a109.714286 109.714286 0 1 1-219.428572 0 109.714286 109.714286 0 0 1 219.428572 0zM475.428571 595.748571l-219.428571-123.428571v-79.835429A72.777143 72.777143 0 0 1 219.428571 402.285714a72.777143 72.777143 0 0 1-36.571428-9.801143v81.371429c0 25.490286 13.750857 49.005714 35.949714 61.44L475.428571 679.716571V595.748571zM548.571429 562.102857l251.867428-117.540571A70.546286 70.546286 0 0 0 841.142857 380.708571V292.571429h-73.142857v86.418285l-219.428571 102.4v80.713143zM512 36.571429l95.012571 164.571428h-190.025142L512 36.571429z M475.428571 201.142857v573.074286a109.604571 109.604571 0 0 1 73.142858 0V201.142857h-73.142858zM292.571429 329.142857a73.142857 73.142857 0 1 1-146.285715 0 73.142857 73.142857 0 0 1 146.285715 0zM731.428571 146.285714h146.285715v146.285715h-146.285715V146.285714z" Fill="{DynamicResource Window.Foreground}" />
+                                    </Viewbox>
+                                    <TextBlock
+                                        Margin="0,4"
+                                        FontSize="10"
+                                        FontWeight="Bold"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="COM" />
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Border
+                                Name="sideBorder"
+                                Background="{DynamicResource Window.Side.Background}"
+                                SizeChanged="Border_SizeChanged">
+                                <controls:ComSidePanel x:Name="comSidePanel" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Cursor="Hand">
+                            <TabItem.Header>
+                                <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                    <Viewbox
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center">
+                                        <Path Data="M693.2 822.6v77.6H330.8v-77.6h362.4z m181.2-698.8c42.9 0 77.6 34.8 77.6 77.6v491.8c0 42.9-34.8 77.7-77.6 77.7H149.6c-42.9 0-77.6-34.8-77.6-77.7V201.4c0-42.9 34.8-77.6 77.6-77.6h724.8z m0 77.6H149.6v491.8h724.7V201.4zM693.2 408.5 M283.4 395.2h-38.1v114.1h-28.5V395.2h-38v-24.1h104.7v24.1zM380.8 509.2h-79.1V371.1h76v24.1h-47.5v32.6h44.2v24h-44.2v33.4h50.6v24zM481.1 509.2h-78.4V371.1h28.5v114.1h49.9v24zM618 509.2h-29.1l-56.6-89.4c-2.9-4.6-5.1-8.4-6.4-11.2h-0.4c0.5 4.8 0.8 12.1 0.8 22v78.6h-27V371.1h31l54.5 86.9c3.6 5.8 5.8 9.4 6.6 11h0.4c-0.6-3.3-0.9-9.7-0.9-19.1v-78.8h27v138.1zM728.1 509.2H649V371.1h76v24.1h-47.5v32.6h44.2v24h-44.2v33.4h50.6v24zM843.6 395.2h-38.1v114.1H777V395.2h-38v-24.1h104.7v24.1z" Fill="{DynamicResource Window.Foreground}" />
+                                    </Viewbox>
+                                    <TextBlock
+                                        Margin="0,4"
+                                        FontSize="10"
+                                        FontWeight="Bold"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="Telnet" />
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Border Background="{DynamicResource Window.Side.Background}" />
+                        </TabItem>
+                        <TabItem Cursor="Hand">
+                            <TabItem.Header>
+                                <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical">
+                                    <Viewbox
+                                        Width="20"
+                                        Height="20"
+                                        VerticalAlignment="Center">
+                                        <Path Data="M533.333333 597.333333c17.066667 0 32-14.933333 32-32S550.4 533.333333 533.333333 533.333333s-32 14.933333-32 32 14.933333 32 32 32z m0-106.666666c17.066667 0 32-14.933333 32-32S550.4 426.666667 533.333333 426.666667s-32 14.933333-32 32 14.933333 32 32 32z m10.666667 170.666666h-21.333333c-17.066667 0-32 14.933333-32 32s14.933333 32 32 32h21.333333c17.066667 0 32-14.933333 32-32s-14.933333-32-32-32z m264.533333-288C793.6 258.133333 695.466667 170.666667 576 170.666667c-100.266667 0-185.6 61.866667-219.733333 149.333333H341.333333c-70.4 0-130.133333 49.066667-145.066666 115.2C106.666667 460.8 42.666667 544 42.666667 640c0 117.333333 96 213.333333 213.333333 213.333333h490.666667c130.133333-6.4 234.666667-113.066667 234.666666-245.333333 0-110.933333-72.533333-202.666667-172.8-234.666667zM405.333333 725.333333c0 23.466667-19.2 42.666667-42.666666 42.666667h-21.333334c-23.466667 0-42.666667-19.2-42.666666-42.666667V512c0-23.466667 19.2-42.666667 42.666666-42.666667h21.333334c23.466667 0 42.666667 19.2 42.666666 42.666667v213.333333z m213.333334 0c0 23.466667-19.2 42.666667-42.666667 42.666667h-85.333333c-23.466667 0-42.666667-19.2-42.666667-42.666667V426.666667c0-23.466667 19.2-42.666667 42.666667-42.666667h85.333333c23.466667 0 42.666667 19.2 42.666667 42.666667v298.666666z m149.333333 0c0 23.466667-19.2 42.666667-42.666667 42.666667h-21.333333c-23.466667 0-42.666667-19.2-42.666667-42.666667V512c0-23.466667 19.2-42.666667 42.666667-42.666667h21.333333c23.466667 0 42.666667 19.2 42.666667 42.666667v213.333333z" Fill="{DynamicResource Window.Foreground}" />
+                                    </Viewbox>
+                                    <TextBlock
+                                        Margin="0,4"
+                                        FontSize="10"
+                                        FontWeight="Bold"
+                                        Style="{StaticResource BaseTextBlock}"
+                                        Text="SSH" />
+                                </StackPanel>
+                            </TabItem.Header>
+                            <Border Background="{DynamicResource Window.Side.Background}" />
+                        </TabItem>
+                    </TabControl>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="10,0"
+                            VerticalAlignment="Center"
+                            FontSize="15"
+                            FontWeight="Bold"
+                            Foreground="Gold"
+                            Text="SuperCom" />
+
+
+                        <super:HoverPath
+                            Grid.Column="1"
+                            Width="30"
+                            Height="30"
+                            Margin="5"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SettingHoverPath}">
+                            <super:HoverPath.ContextMenu>
+                                <ContextMenu HorizontalOffset="-40">
+                                    <MenuItem
+                                        Click="OpenSetting"
+                                        Header="{DynamicResource Settings}"
+                                        Icon="/Resources/Pictures/setting.png" />
+                                    <MenuItem Click="ShowPluginWindow" Header="{DynamicResource Plugin}" />
+                                    <MenuItem
+                                        Click="ShowUpgradeWindow"
+                                        Header="{DynamicResource CheckUpgrade}"
+                                        Icon="/Resources/Pictures/update.png" />
+                                    <MenuItem
+                                        Click="ShowAbout"
+                                        Header="{DynamicResource About}"
+                                        Icon="/Resources/Pictures/about.png" />
+                                </ContextMenu>
+                            </super:HoverPath.ContextMenu>
+                        </super:HoverPath>
+
+
+                    </Grid>
+                </Grid>
+                <GridSplitter
+                    Grid.Column="1"
+                    Width="4"
+                    HorizontalAlignment="Left"
+                    Panel.ZIndex="10"
+                    Style="{StaticResource HoverSpliter}" />
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" MinHeight="0" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <super:NoticeViewer x:Name="noticeViewer" Grid.Row="0" />
+
+                    <StackPanel
+                        Grid.RowSpan="3"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Orientation="Vertical"
+                        Visibility="{Binding ShowSoft, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <Image
+                            Grid.Row="0"
+                            Height="128"
+                            Margin="10"
+                            Source="pack://application:,,,/Resources/Ico/ICON_256.png">
+                            <Image.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </Image.Effect>
+                        </Image>
+                        <TextBlock
+                            Grid.Row="1"
+                            FontSize="25"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="{DynamicResource WelComeUseApp}">
+                            <TextBlock.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="2"
+                            FontSize="15"
+                            Foreground="{DynamicResource Window.Sub.Foreground}"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="@SuperStudio Copyright © 2022">
+                            <TextBlock.Effect>
+                                <DropShadowEffect
+                                    BlurRadius="4"
+                                    Direction="315"
+                                    Opacity="1"
+                                    ShadowDepth="5"
+                                    Color="Black" />
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </StackPanel>
+
+
+                    <tabcontrolpro:TabPanelPro
+                        x:Name="tabPanelPro"
+                        Grid.Row="1"
+                        Margin="5"
+                        Background="{DynamicResource Window.Background}" />
+
+                </Grid>
+
+
+            </Grid>
+
+            <Grid
+                Grid.Row="1"
+                Height="25"
+                Background="{DynamicResource Window.StatusBar.Background}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <super:SysInfo Grid.Column="0" />
+                <TextBlock
+                    Grid.Column="1"
+                    HorizontalAlignment="Left"
+                    FontSize="10"
+                    Foreground="{DynamicResource Window.Sub.Foreground}"
+                    Style="{StaticResource BaseTextBlock}"
+                    Text="{Binding StatusText, Mode=OneWay}"
+                    TextAlignment="Left"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="NoWrap" />
+            </Grid>
+
+        </Grid>
+
+    </Grid>
+</super:BaseWindow>

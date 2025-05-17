@@ -7,7 +7,7 @@
     xmlns:local="clr-namespace:SuperCom"
     d1p1:Ignorable="d"
     ShutdownMode="OnMainWindowClose"
-    StartupUri="MainWindow.xaml">
+    StartupUri="Windows/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,6 +20,11 @@
                 <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/Themes/SuperControls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Core/CustomStyle/Basic.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/AvalonEdit/SearchPanel/SearchPanel.xaml" />
+
+                <!--  TabPanelPro  -->
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Controls/TabPanelTemplate/TabContextMenu.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Controls/TabPanelTemplate/TabItemProBar.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

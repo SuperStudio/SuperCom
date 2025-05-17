@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperCom.Core.Entity.Enums;
+using SuperCom.Core.Interfaces;
 using SuperCom.Core.Utils;
 using SuperControls.Style;
 using SuperUtils.Common;
@@ -25,11 +26,10 @@ using static SuperCom.App;
 
 namespace SuperCom.Entity
 {
-
     /// <summary>
-    /// 打开串口后，显示的标签栏
+    /// 对于串口的连接处理
     /// </summary>
-    public class PortTabItem : ViewModelBase
+    public class ComConnector : AbstractConnector
     {
         private const int MAX_READ_LENGTH = 10240;
 
@@ -57,15 +57,13 @@ namespace SuperCom.Entity
 
         private AutoResetEvent ResetEvent { get; set; }
 
-        public TextEditor TextEditor { get; set; }
 
-        public double CurrentCharSize { get; set; }
 
         public Queue<ResultCheck> ResultChecks { get; set; }
 
-        public string SaveFileName { get; set; }
 
-        public int FragCount { get; set; }
+
+
 
         private bool _RunningCommands;
         public bool RunningCommands {
@@ -73,32 +71,6 @@ namespace SuperCom.Entity
             set { _RunningCommands = value; RaisePropertyChanged(); }
         }
 
-        private string _Name;
-        public string Name {
-            get { return _Name; }
-            set { _Name = value; RaisePropertyChanged(); }
-        }
-        public bool _Connected;
-        public bool Connected {
-            get { return _Connected; }
-            set {
-                _Connected = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _Selected;
-        public bool Selected {
-            get { return _Selected; }
-            set { _Selected = value; RaisePropertyChanged(); }
-        }
-
-
-        private string _Data;
-        public string Data {
-            get { return _Data; }
-            set { _Data = value; RaisePropertyChanged(); }
-        }
 
 
         private PortSetting _Setting;
@@ -195,27 +167,6 @@ namespace SuperCom.Entity
         }
 
 
-        private long _RX = 0L;
-        public long RX {
-            get { return _RX; }
-            set { _RX = value; RaisePropertyChanged(); }
-        }
-        private long _TX = 0L;
-        public long TX {
-            get { return _TX; }
-            set { _TX = value; RaisePropertyChanged(); }
-        }
-
-
-        private string _Remark = "";
-
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Remark {
-            get { return _Remark; }
-            set { _Remark = value; RaisePropertyChanged(); }
-        }
 
 
         private string _Detail = "";
@@ -247,55 +198,15 @@ namespace SuperCom.Entity
             }
         }
 
-        private DateTime _ConnectTime;
-        public DateTime ConnectTime {
-            get { return _ConnectTime; }
-            set {
-                _ConnectTime = value;
-            }
-        }
 
-
-
-        private bool _Pinned;
-        public bool Pinned {
-            get { return _Pinned; }
-            set {
-                _Pinned = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _FixedText;
-        public bool FixedText {
-            get { return _FixedText; }
-            set {
-                _FixedText = value;
-                RaisePropertyChanged();
-                if (TextEditor != null) {
-                    if (value)
-                        TextEditor.TextChanged -= TextBox_TextChanged;
-                    else
-                        TextEditor.TextChanged += TextBox_TextChanged;
-                    Logger.Info($"fixed text: {value}");
-                }
-            }
-        }
 
         private bool _IsClose = false;
 
         #endregion
 
-        public void TextBox_TextChanged(object sender, EventArgs e)
-        {
-            TextEditor textEditor = sender as TextEditor;
-            textEditor?.ScrollToEnd();
-        }
 
-        public void ClearData()
-        {
 
-        }
+
 
         #region "收数据处理"
 
@@ -563,7 +474,7 @@ namespace SuperCom.Entity
             return logDir;
         }
 
-        public string GetCustomFileName(string name)
+        public new string GetCustomFileName(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return GetDefaultFileName();
@@ -580,7 +491,7 @@ namespace SuperCom.Entity
         /// 根据时间戳和自定义文件名组合方式保存的目标文件名
         /// </summary>
         /// <returns></returns>
-        public string GetDefaultFileName()
+        public new string GetDefaultFileName()
         {
             string format = ConfigManager.CommonSettings.LogNameFormat;
             if (string.IsNullOrEmpty(format))
@@ -712,7 +623,7 @@ namespace SuperCom.Entity
             throw new NotImplementedException();
         }
 
-        public PortTabItem(string name, bool connected)
+        public ComConnector(string name, bool connected)
         {
             Name = name;
             Connected = connected;
@@ -810,7 +721,7 @@ namespace SuperCom.Entity
         /// <summary>
         /// 窗口关闭
         /// </summary>
-        public void Close()
+        public new void Close()
         {
             _IsClose = true;
             ResetEvent.Set();
@@ -818,7 +729,7 @@ namespace SuperCom.Entity
         /// <summary>
         /// 串口打开
         /// </summary>
-        public void Open()
+        public new void Open()
         {
             _IsClose = false;
             new Thread(ReadTask).Start();

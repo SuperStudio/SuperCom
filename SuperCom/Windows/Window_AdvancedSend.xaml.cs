@@ -72,18 +72,15 @@ namespace SuperCom
 
         private void BaseWindow_ContentRendered(object sender, EventArgs e)
         {
-
-            if (Main != null && Main.vieModel != null && Main?.vieModel.HighlightingDefinitions?.Count > 0) {
-                foreach (var item in Main?.vieModel.HighlightingDefinitions) {
-                    if (item.Name.Equals("ComLog")) {
-                        logTextBox.SyntaxHighlighting = item;
-                        break;
-                    }
-                }
-
-
-
-            }
+            // todo
+            //if (Main != null && Main.vieModel != null && Main?.vieModel.HighlightingDefinitions?.Count > 0) {
+            //    foreach (var item in Main?.vieModel.HighlightingDefinitions) {
+            //        if (item.Name.Equals("ComLog")) {
+            //            logTextBox.SyntaxHighlighting = item;
+            //            break;
+            //        }
+            //    }
+            //}
             if (Main != null && Main.vieModel != null && vieModel.CurrentProjects?.Count > 0) {
                 if (SideSelectedIndex < 0 || SideSelectedIndex > vieModel.CurrentProjects.Count)
                     SideSelectedIndex = 0;
@@ -141,7 +138,6 @@ namespace SuperCom
             MainWindow window = GetWindowByName("mainWindow") as MainWindow;
             window?.RefreshSendCommands();
             CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
-            window?.SetComboboxStatus();
             Logger.Info("data changed");
         }
 
@@ -340,9 +336,9 @@ namespace SuperCom
             }
             CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
             List<string> portNames = new List<string>();
-            foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
+            foreach (string key in vieModel.SideComPortSelected.Keys) {
                 if (vieModel.SideComPortSelected[key])
-                    portNames.Add(key.Name);
+                    portNames.Add(key);
             }
             if (portNames.Count == 0) {
                 LogToTextBox("未选择任何串口");
@@ -391,9 +387,9 @@ namespace SuperCom
                         CurrentSendCommands = vieModel.SendCommands.OrderBy(arg => arg.Order).ToList();
                         // 更新选择的串口
                         portNames.Clear();
-                        foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
+                        foreach (string key in vieModel.SideComPortSelected.Keys) {
                             if (vieModel.SideComPortSelected[key])
-                                portNames.Add(key.Name);
+                                portNames.Add(key);
                         }
                         if (portNames.Count == 0) {
                             LogToTextBox("未选择任何串口");
@@ -409,14 +405,13 @@ namespace SuperCom
         {
             bool success = false;
             await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
-                SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null) {
+                ComConnector portTabItem = Main.GetPortTabItemByName(portName);
+                if (portTabItem == null || portTabItem.SerialPort == null) {
                     LogToTextBox($"[E] 连接串口 {portName} 失败！");
                     success = false;
                     return;
                 }
-                SerialPort port = serialComPort.PortTabItem.SerialPort;
-                PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                SerialPort port = portTabItem.SerialPort;
                 string value = command.Command;
                 if (port != null) {
                     success = portTabItem.SendCommand(value);
@@ -544,8 +539,8 @@ namespace SuperCom
         private void SetCheckedStatus(string portName, bool status)
         {
             if (!string.IsNullOrEmpty(portName)) {
-                foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
-                    if (key.Name.Equals(portName)) {
+                foreach (string key in vieModel.SideComPortSelected.Keys) {
+                    if (key.Equals(portName)) {
                         vieModel.SideComPortSelected[key] = status;
                         break;
                     }
@@ -553,8 +548,8 @@ namespace SuperCom
             }
             // 保存状态
             Dictionary<string, bool> dict = new Dictionary<string, bool>();
-            foreach (SideComPort key in vieModel.SideComPortSelected.Keys) {
-                dict.Add(key.Name, vieModel.SideComPortSelected[key]);
+            foreach (string key in vieModel.SideComPortSelected.Keys) {
+                dict.Add(key, vieModel.SideComPortSelected[key]);
             }
             ConfigManager.AdvancedSendSettings.SelectedPortNamesJson = JsonUtils.TrySerializeObject(dict);
             ConfigManager.AdvancedSendSettings.Save();

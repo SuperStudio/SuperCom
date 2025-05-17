@@ -1,0 +1,83 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:super="https://github.com/SuperStudio/SuperControls">
+    <ContextMenu x:Key="TabItemProContextMenu">
+        <MenuItem
+            Command="super:TabProMenu.RefreshTabCommand"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="自定义：刷新"
+            Icon="pack://application:,,,/SuperControls.Style;Component/Resources/Picture/refresh.png" />
+        <Separator />
+        <MenuItem
+            Command="super:TabProMenu.CloseTabCommand"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource Close}"
+            Icon="pack://application:,,,/SuperControls.Style;Component/Resources/Picture/status_fail.png" />
+        <MenuItem
+            Command="super:TabProMenu.CloseOtherTabCommand"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource CloseOther}" />
+        <MenuItem
+            Command="super:TabProMenu.CloseAllLeftTab"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource CloseAllLeft}" />
+        <MenuItem
+            Command="super:TabProMenu.CloseAllRightTab"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource CloseAllRight}" />
+        <MenuItem
+            Command="super:TabProMenu.CloseAllTabs"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="自定义：关闭全部" />
+        <Separator />
+        <MenuItem
+            Command="super:TabProMenu.MoveToFirst"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource MoveToFirst}" />
+        <MenuItem
+            Command="super:TabProMenu.MoveToLast"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="{DynamicResource MoveToLast}" />
+        <Separator />
+        <MenuItem
+            Command="super:TabProMenu.PinMenyTab"
+            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}}"
+            CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+            Header="固定"
+            IsCheckable="True"
+            IsChecked="{Binding Pinned, Mode=OneWay}" />
+    </ContextMenu>
+    <!--  todo  -->
+    <!--<ContextMenu x:Key="TabItemProContextMenu">
+        <MenuItem Click="CloseAllConnectPort" Header="{DynamicResource DisConnectAll}" />
+        <Separator />
+        <MenuItem Click="CloseCurrentPort" Header="{DynamicResource Close}" />
+        <MenuItem Click="CloseOtherPort" Header="{DynamicResource CloseOther}" />
+        <MenuItem Click="CloseAllLeftPort" Header="{DynamicResource CloseAllLeft}" />
+        <MenuItem Click="CloseAllRightPort" Header="{DynamicResource CloseAllRight}" />
+        <MenuItem Click="CloseAllPorts" Header="{DynamicResource CloseAllPort}" />
+        <Separator />
+        <MenuItem Click="MoveToFirst" Header="{DynamicResource MoveToFirst}" />
+        <MenuItem Click="MoveToLast" Header="{DynamicResource MoveToLast}" />
+        <Separator />
+        <MenuItem
+            Click="PinPort"
+            Header="{DynamicResource Pin}"
+            IsCheckable="True"
+            IsChecked="{Binding Pinned, Mode=OneWay}" />
+        <Separator />
+        <MenuItem
+            Click="Remark"
+            Header="{DynamicResource Remark}"
+            Icon="/Resources/Pictures/remark.png" />
+    </ContextMenu>-->
+</ResourceDictionary>

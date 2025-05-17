@@ -317,6 +317,7 @@ namespace SuperCom.ViewModel
             foreach (var item in highLightRules) {
                 HighLightRules.Add(item);
             }
+            Logger.Info("load highlight rules");
         }
 
         public void LoadBaudRates()

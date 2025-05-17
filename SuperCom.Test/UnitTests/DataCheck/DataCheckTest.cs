@@ -8,7 +8,7 @@ namespace SuperCom.Test.UnitTests.DataCheck
     public class DataCheckTest
     {
 
-        private static PortTabItem portTabItem = new PortTabItem("COM1", true);
+        private static ComConnector portTabItem = new ComConnector("COM1", true);
 
         static DataCheckTest()
         {

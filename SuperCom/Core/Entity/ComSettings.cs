@@ -7,7 +7,9 @@ using System.Collections.Generic;
 
 namespace SuperCom.Entity
 {
-
+    /// <summary>
+    /// ComTemplate界面可见的所有数据
+    /// </summary>
     [Table(tableName: "com_settings")]
     public class ComSettings
     {

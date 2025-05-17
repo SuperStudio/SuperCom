@@ -29,7 +29,7 @@ namespace SuperCom.ViewModel
 
         public List<AdvancedSend> AllProjects { get; set; }
 
-        public Dictionary<SideComPort, bool> SideComPortSelected { get; set; }
+        public Dictionary<string, bool> SideComPortSelected { get; set; }
 
 
         private ObservableCollection<AdvancedSend> _CurrentProjects;
@@ -85,8 +85,8 @@ namespace SuperCom.ViewModel
             }
         }
 
-        private ObservableCollection<SideComPort> _SideComPorts;
-        public ObservableCollection<SideComPort> SideComPorts {
+        private ObservableCollection<string> _SideComPorts;
+        public ObservableCollection<string> SideComPorts {
             get { return _SideComPorts; }
             set { _SideComPorts = value; RaisePropertyChanged(); }
         }
@@ -191,15 +191,15 @@ namespace SuperCom.ViewModel
 
         private void LoadSideComports()
         {
-            SideComPorts = new ObservableCollection<SideComPort>();
-            SideComPortSelected = new Dictionary<SideComPort, bool>();
+            SideComPorts = new ObservableCollection<string>();
+            SideComPortSelected = new Dictionary<string, bool>();
             Dictionary<string, bool> dict = JsonUtils.TryDeserializeObject<Dictionary<string, bool>>(ConfigManager.AdvancedSendSettings.SelectedPortNamesJson);
-            foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer())) {
+            foreach (var item in Main.GetCurrentTab().OrderBy(arg => arg, new ComPortComparer())) {
                 SideComPorts.Add(item);
                 bool isChecked = false;
                 // 设置选中
-                if (dict != null && dict.ContainsKey(item.Name))
-                    isChecked = dict[item.Name];
+                if (dict != null && dict.ContainsKey(item))
+                    isChecked = dict[item];
                 SideComPortSelected.Add(item, isChecked);
             }
         }

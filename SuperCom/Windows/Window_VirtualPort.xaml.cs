@@ -4,6 +4,7 @@ using SuperControls.Style;
 using SuperControls.Style.Windows;
 using SuperUtils.IO;
 using SuperUtils.Windows.WindowRegistry;
+using SuperUtils.WPF.VisualTools;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -190,6 +191,7 @@ namespace SuperCom.Windows
                 if (small >= 0 && large < CurrentVirtualPorts.Count) {
                     CurrentVirtualPorts.RemoveAt(large);
                     CurrentVirtualPorts.RemoveAt(small);
+                    RefreshPorts();
                 }
             }
             DeletingPort = false;
@@ -218,11 +220,11 @@ namespace SuperCom.Windows
             // 检查是否输入
 
             foreach (var item in CurrentVirtualPorts) {
-                if (string.IsNullOrEmpty(item.PortName)) {
+                if (string.IsNullOrEmpty(item.Name)) {
                     MessageNotify.Error("存在未填写的串口号");
                     return false;
                 }
-                if (!VirtualPort.IsProperPortName(item.PortName)) {
+                if (!VirtualPort.IsProperPortName(item.Name)) {
                     MessageNotify.Error("串口号填写错误");
                     return false;
                 }
@@ -230,10 +232,10 @@ namespace SuperCom.Windows
                     MessageNotify.Error("数值填写有误");
                     return false;
                 }
-                item.PortName = item.PortName.ToUpper();
+                item.Name = item.Name.ToUpper();
             }
 
-            long count = CurrentVirtualPorts.Select(arg => arg.PortName).ToHashSet().Count();
+            long count = CurrentVirtualPorts.Select(arg => arg.Name).ToHashSet().Count();
             if (count != CurrentVirtualPorts.Count) {
                 MessageNotify.Error("存在重复串口号");
                 return false;
@@ -245,7 +247,7 @@ namespace SuperCom.Windows
             // 更新
             List<VirtualPort> toChange = new List<VirtualPort>();
             foreach (var item in CurrentPorts) {
-                VirtualPort virtualPort = AllPorts.FirstOrDefault(arg => arg.PortName.Equals(item.PortName));
+                VirtualPort virtualPort = AllPorts.FirstOrDefault(arg => arg.Name.Equals(item.Name));
                 if (!item.Equals(virtualPort))
                     toChange.Add(item);
             }
@@ -281,7 +283,7 @@ namespace SuperCom.Windows
 
             // 检查是否存在相同的
             List<VirtualPort> virtualPorts = await VirtualPortManager.ListAllPort();
-            List<string> list = virtualPorts.Select(arg => arg.PortName).ToList();
+            List<string> list = virtualPorts.Select(arg => arg.Name).ToList();
             if (list.Contains(nameA) || list.Contains(nameB)) {
                 MessageNotify.Error("已存在串口");
                 return;
@@ -301,6 +303,23 @@ namespace SuperCom.Windows
             newVirtualPortGrid.Visibility = Visibility.Collapsed;
             AddingPort = false;
             MessageNotify.Success("添加成功！");
+            RefreshPorts();
+        }
+
+
+        private Window GetWindowByName(string name)
+        {
+            foreach (Window item in App.Current.Windows) {
+                if (item.Name.Equals(name))
+                    return item;
+            }
+            return null;
+        }
+
+        private void RefreshPorts()
+        {
+            MainWindow window = GetWindowByName("mainWindow") as MainWindow;
+            window?.RefreshPortsStatus(null, null);
         }
 
         private void CloseNewVirtualPortGrid(object sender, RoutedEventArgs e)

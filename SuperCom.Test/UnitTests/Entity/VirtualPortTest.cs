@@ -20,7 +20,7 @@ namespace SuperCom.Test.UnitTests.Entity
             VirtualPort virtualPort = VirtualPortManager.ParseVirtualPort(data);
             //string str = ClassUtils.ToString(virtualPort, true);
             Assert.AreEqual(virtualPort.ID, "CNCA0");
-            Assert.AreEqual(virtualPort.PortName, "COM2");
+            Assert.AreEqual(virtualPort.Name, "COM2");
             Assert.AreEqual(virtualPort.EmuBR, true);
             Assert.AreEqual(virtualPort.EmuOverrun, true);
             Assert.AreEqual(virtualPort.AddRITO, 0);

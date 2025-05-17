@@ -3261,7 +3261,7 @@ namespace SuperCom
             window_Monitor.BringIntoView();
         }
 
-        private void RefreshPortsStatus(object sender, RoutedEventArgs e)
+        public void RefreshPortsStatus(object sender, RoutedEventArgs e)
         {
             List<SideComPort> sideComPorts = vieModel.SideComPorts.ToList();
             vieModel.InitPortData(LastSortType, LastSortDesc);

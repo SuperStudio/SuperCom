@@ -447,7 +447,7 @@
                     <DataGridTemplateColumn
                         Width="200"
                         Header="{DynamicResource PortNumber}"
-                        SortMemberPath="PortName">
+                        SortMemberPath="Name">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <super:SearchBox
@@ -456,7 +456,7 @@
                                     FontWeight="Bold"
                                     PlaceHolder="{DynamicResource PortSample}"
                                     Style="{StaticResource SearchTextBoxStyle}"
-                                    Text="{Binding PortName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

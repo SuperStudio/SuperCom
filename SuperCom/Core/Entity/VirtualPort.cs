@@ -14,7 +14,7 @@ namespace SuperCom.Entity
     {
         public const string COM_0_COM_PROGRAM_NAME = "Null-modem emulator (com0com)";
         public const string COM_0_COM_PROGRAM_EXE_NAME = "setupc.exe";
-        public const int CMD_RUN_TIME_OUT = 5000;
+        public const int CMD_RUN_TIME_OUT = 3000;
 
         private static string AppDir { get; set; }
         private static string AppPath { get; set; }
@@ -50,6 +50,10 @@ namespace SuperCom.Entity
                         continue;
                     key = key.Trim();
                     value = value.Trim();
+                    if (key.Equals("PortName")) {
+                        result.Name = value;
+                        continue;
+                    }
                     if (names.Contains(key)) {
                         System.Reflection.PropertyInfo propertyInfo = propertyInfos.FirstOrDefault(arg => arg.Name.Equals(key));
                         if (propertyInfo.PropertyType == typeof(bool)) {
@@ -109,12 +113,12 @@ namespace SuperCom.Entity
 
         public static async Task<bool> InsertPort(VirtualPort portA, VirtualPort portB)
         {
-            if (portA == null || portB == null || string.IsNullOrEmpty(portA.PortName) || string.IsNullOrEmpty(portB.PortName))
+            if (portA == null || portB == null || string.IsNullOrEmpty(portA.Name) || string.IsNullOrEmpty(portB.Name))
                 return false;
 
             if (!File.Exists(AppPath))
                 return false;
-            string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe install PortName={portA.PortName} PortName={portB.PortName}";
+            string cmdParam = $"/C cd /d \"{AppDir}\" && setupc.exe install PortName={portA.Name} PortName={portB.Name}";
             bool completed = false;
             int count = 0;
             await Task.Run(() => {
@@ -239,16 +243,16 @@ namespace SuperCom.Entity
 
         }
 
-        public VirtualPort(string portName)
+        public VirtualPort(string name)
         {
-            this.PortName = portName;
+            this.Name = name;
         }
 
-        public static bool IsProperPortName(string portName)
+        public static bool IsProperPortName(string name)
         {
-            if (string.IsNullOrEmpty(portName) || !portName.ToUpper().StartsWith("COM"))
+            if (string.IsNullOrEmpty(name) || !name.ToUpper().StartsWith("COM"))
                 return false;
-            bool success = int.TryParse(portName.ToUpper().Trim().Replace("COM", ""), out int portNumber);
+            bool success = int.TryParse(name.ToUpper().Trim().Replace("COM", ""), out int portNumber);
             return success && portNumber > 0 && portNumber < int.MaxValue;
 
         }
@@ -267,7 +271,7 @@ namespace SuperCom.Entity
         }
 
         public string ID { get; set; }
-        public string PortName { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         ///  enable/disable baud rate emulation in the direction to the paired port(disabled by default)
@@ -377,7 +381,10 @@ namespace SuperCom.Entity
                 string str = v.ToString();
                 if (item.PropertyType == typeof(bool))
                     str = str.ToLower().Equals("true") ? "yes" : "no";
-                builder.Append($"{item.Name}={str},");
+                if (item.Name.Equals("Name"))
+                    builder.Append($"PortName={str},");
+                else
+                    builder.Append($"{item.Name}={str},");
             }
             if (builder.Length > 0)
                 builder.Remove(builder.Length - 1, 1);

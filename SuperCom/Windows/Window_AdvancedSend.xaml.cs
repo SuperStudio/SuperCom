@@ -178,8 +178,9 @@ namespace SuperCom
             Logger.Info($"show project: {advancedSend.ProjectName}");
         }
 
-        private void AddNewSendCommand(object sender, RoutedEventArgs e)
+        private void AddNewSendCommand(int index)
         {
+            bool insert = index < dataGrid.Items.Count;
             if (vieModel.SendCommands == null)
                 vieModel.SendCommands = new System.Collections.ObjectModel.ObservableCollection<SendCommand>();
             SendCommand send = new SendCommand();
@@ -189,6 +190,9 @@ namespace SuperCom
                 send.Order = vieModel.SendCommands.Select(arg => arg.Order).Max() + 1;
             else
                 send.Order = 1;
+            if (insert) {
+                send.Order = index;
+            }
             send.Command = "";
             AdvancedSend advancedSend = vieModel.CurrentProjects.Where(arg => arg.ProjectID == vieModel.CurrentProjectID).FirstOrDefault();
             if (advancedSend != null) {
@@ -197,17 +201,31 @@ namespace SuperCom
                 if (!string.IsNullOrEmpty(advancedSend.Commands)) {
                     advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
                 }
-
-
-                advancedSend.CommandList.Add(send);
+                advancedSend.CommandList.Insert(index, send);
                 advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
                 vieModel.UpdateProject(advancedSend);
-                vieModel.SendCommands.Add(send);
+                vieModel.SendCommands.Insert(index, send);
+                if (insert)
+                    advancedSend.RefreshCommandOrder(vieModel.SendCommands);
                 DataChanged();
-
                 Logger.Info($"add new cmd, order: {send.Order}");
             }
+        }
 
+        private void AddNewSendCommand(object sender, RoutedEventArgs e)
+        {
+            int idx = dataGrid.Items.Count;
+            if (idx < 0)
+                idx = 0;
+            AddNewSendCommand(idx);
+        }
+
+        private void InsertNewSendCommand(object sender, RoutedEventArgs e)
+        {
+            int idx = dataGrid.SelectedIndex;
+            if (idx < 0)
+                idx = 0;
+            AddNewSendCommand(idx);
         }
 
         private void DeleteCommand(object sender, RoutedEventArgs e)

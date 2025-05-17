@@ -376,7 +376,11 @@
                         Margin="10,5"
                         Click="AddNewSendCommand"
                         Content="{DynamicResource AddCommand}" />
-
+                    <Button
+                        Height="30"
+                        Margin="5"
+                        Click="InsertNewSendCommand"
+                        Content="{DynamicResource InsertCommand}" />
 
                     <StackPanel Orientation="Horizontal" Visibility="{Binding RunningCommands, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock

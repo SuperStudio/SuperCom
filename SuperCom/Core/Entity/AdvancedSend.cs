@@ -8,6 +8,7 @@ using SuperUtils.Framework.ORM.Mapper;
 using SuperUtils.WPF.VieModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -257,6 +258,16 @@ namespace SuperCom.Entity
                     portTabItem.RunningCommands = false;
                 });
             });
+        }
+
+        public void RefreshCommandOrder(ObservableCollection<SendCommand> sendCommands)
+        {
+            if (CommandList == null || CommandList.Count == 0)
+                return;
+            for (int i = 0; i < CommandList.Count; i++) {
+                CommandList[i].Order = i;
+                sendCommands[i].Order = i;
+            }
         }
 
     }

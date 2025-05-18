@@ -984,6 +984,7 @@ namespace SuperCom
                 return;
 
             string value = portTabItem.WriteData;
+            vieModel.SaveToHistory(value);
             portTabItem.SendCommand(value);
         }
 
@@ -1661,19 +1662,42 @@ namespace SuperCom
             }
         }
 
+        private void SetSendHistory(TextBox textBox, string portName, bool up)
+        {
+            string history = vieModel.GetSelectSendHistory(up);
+            if (string.IsNullOrEmpty(history))
+                return;
+            SideComPort serialComPort = vieModel.SideComPorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null) {
+                return;
+            }
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null)
+                return;
+
+            portTabItem.WriteData = history;
+            textBox.SelectionStart = textBox.Text.Length;
+        }
+
         private void SendTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.Enter)
-                return;
-            TextBox textBox = sender as TextBox;
-            if (textBox == null || textBox.Tag == null)
-                return;
-            string portName = textBox.Tag.ToString();
-            if (string.IsNullOrEmpty(portName))
-                return;
-            string text = textBox.Text.Trim();
-            if (!string.IsNullOrEmpty(text))
-                SendCommand(portName);
+            if (e.Key == Key.Enter) {
+                TextBox textBox = sender as TextBox;
+                if (textBox == null || textBox.Tag == null)
+                    return;
+                string portName = textBox.Tag.ToString();
+                if (string.IsNullOrEmpty(portName))
+                    return;
+                string text = textBox.Text.Trim();
+                if (!string.IsNullOrEmpty(text))
+                    SendCommand(portName);
+            } else if (e.Key == Key.Up || e.Key == Key.Down) {
+                TextBox textBox = sender as TextBox;
+                if (textBox == null || textBox.Tag == null)
+                    return;
+                string portName = textBox.Tag.ToString();
+                SetSendHistory(sender as TextBox, portName, e.Key == Key.Up);
+            }
         }
 
         private void SetSelectedStatus(ItemsControl itemsControl)

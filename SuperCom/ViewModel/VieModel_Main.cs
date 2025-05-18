@@ -22,6 +22,7 @@ namespace SuperCom.ViewModel
         public const string DEFAULT_ADD_TEXT = "新增";
 
         private const string DEFAULT_STATUS_TEXT = "就绪";
+        private const int MAX_SEND_HISTORY_COUNT = 100;
         #endregion
 
 
@@ -42,8 +43,14 @@ namespace SuperCom.ViewModel
 
         public Action<List<PortTabItem>> OnBaudRatesChanged { get; set; }
 
-        public HashSet<string> SendHistory { get; set; }
+        private ObservableCollection<string> SendHistory { get; set; }
+
+        public int CurrentSendHistoryIndex { get; set; }
+
+        public ObservableCollection<string> CurrentSendHistory { get; set; } = new ObservableCollection<string>();
+
         public HashSet<ComSettings> ComSettingList { get; set; }
+
         public List<ShortCutBinding> ShortCutBindings { get; set; }
 
 
@@ -229,11 +236,14 @@ namespace SuperCom.ViewModel
         private void InitSendHistory()
         {
             if (!string.IsNullOrEmpty(ConfigManager.Main.SendHistory)) {
-                SendHistory = JsonUtils.TryDeserializeObject<HashSet<string>>(ConfigManager.Main.SendHistory);
+                SendHistory = JsonUtils.TryDeserializeObject<ObservableCollection<string>>(ConfigManager.Main.SendHistory);
             }
             if (SendHistory == null)
-                SendHistory = new HashSet<string>();
+                SendHistory = new ObservableCollection<string>();
 
+            SendHistory.CollectionChanged += (s, e) => {
+                CurrentSendHistoryIndex = s as ObservableCollection<string> == null ? 0 : (s as ObservableCollection<string>).Count - 1;
+            };
         }
 
         private void OnPortTabItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -422,6 +432,36 @@ namespace SuperCom.ViewModel
         public void LoadHighLightRule()
         {
             HighLightRule.AllRules = MapperManager.RuleMapper.SelectList();
+        }
+
+        public void SaveToHistory(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return;
+            string val = value.Trim();
+            if (SendHistory.Count > MAX_SEND_HISTORY_COUNT)
+                SendHistory.RemoveAt(0);
+            SendHistory.Add(val);
+            // 保存
+            ConfigManager.Main.SendHistory = JsonUtils.TrySerializeObject(SendHistory.ToList());
+            ConfigManager.Main.Save();
+        }
+
+        public string GetSelectSendHistory(bool up)
+        {
+            if (SendHistory == null || SendHistory.Count == 0)
+                return string.Empty;
+            if (up) {
+                CurrentSendHistoryIndex--;
+            } else {
+                CurrentSendHistoryIndex++;
+            }
+
+            if (CurrentSendHistoryIndex >= SendHistory.Count)
+                CurrentSendHistoryIndex = SendHistory.Count - 1;
+            else if (CurrentSendHistoryIndex < 0)
+                CurrentSendHistoryIndex = 0;
+            return SendHistory[CurrentSendHistoryIndex];
         }
     }
 }

@@ -764,12 +764,6 @@ namespace SuperCom.Entity
 
                 }
 
-                // todo 保存到发送历史
-                //if (saveToHistory)
-                //{
-                //    vieModel.SendHistory.Add(value.Trim());
-                //    vieModel.SaveSendHistory();
-                //}
                 //vieModel.StatusText = $"【发送命令】=>{WriteData}";
                 CurrentErrorCount = 0;
                 return true;

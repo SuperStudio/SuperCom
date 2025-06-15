@@ -880,7 +880,7 @@
                                 Value="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         </StackPanel>
                     </Grid>
-                    <Grid>
+                    <Grid Visibility="Collapsed">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="*" />

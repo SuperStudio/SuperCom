@@ -67,10 +67,7 @@ namespace SuperCom.Entity
         /// 更多编码支持参考：
         /// <see href="https://learn.microsoft.com/en-us/dotnet/api/system.text.encoding.getencodings">microsoft</see>
         /// </summary>
-        public static List<string> DEFAULT_ENCODINGS = new List<string>()
-        {
-            "UTF8","US-ASCII","GB2312","ISO-8859-1"
-        };
+        public static List<string> DEFAULT_ENCODINGS = System.Text.Encoding.GetEncodings().Select(item => item.Name).OrderBy(item => item).ToList();
 
         public static List<string> DEFAULT_PARITIES = new List<string>()
         {

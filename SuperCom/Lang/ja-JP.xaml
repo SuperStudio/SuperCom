@@ -73,6 +73,7 @@
     <sys:String x:Key="ConnectAll">すべてを接続します</sys:String>
     <sys:String x:Key="NewLineMode">銀行と変更モードを入力します</sys:String>
     <sys:String x:Key="SendPrefix">プロンプトプレフィックスを送信します</sys:String>
+    <sys:String x:Key="TextEditorIsReadOnly">ログの編集は禁止されています</sys:String>
 
 
 </ResourceDictionary>

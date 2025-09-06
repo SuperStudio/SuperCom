@@ -62,6 +62,16 @@ namespace SuperCom.Config.WindowConfig
                 RaisePropertyChanged();
             }
         }
+
+        private bool _TextEditorIsReadOnly = true;
+        public bool TextEditorIsReadOnly {
+            get { return _TextEditorIsReadOnly; }
+            set {
+                _TextEditorIsReadOnly = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private bool _ShowEndOfLine = false;
         public bool ShowEndOfLine {
             get { return _ShowEndOfLine; }

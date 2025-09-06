@@ -73,6 +73,7 @@
     <sys:String x:Key="ConnectAll">Connect All</sys:String>
     <sys:String x:Key="NewLineMode">NewLine Mode</sys:String>
     <sys:String x:Key="SendPrefix">Send Prefix</sys:String>
+        <sys:String x:Key="TextEditorIsReadOnly">Log editing is prohibited</sys:String>
 
 
 </ResourceDictionary>

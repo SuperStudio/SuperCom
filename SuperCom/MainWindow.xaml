@@ -130,6 +130,10 @@
                             Header="{DynamicResource AutoWrap}"
                             IsCheckable="True"
                             IsChecked="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}}" />
+                        <MenuItem
+                            Header="{DynamicResource TextEditorIsReadOnly}"
+                            IsCheckable="True"
+                            IsChecked="{Binding TextEditorIsReadOnly, Source={x:Static config:ConfigManager.Main}}" />
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem
                             Name="FontMenuItem"
@@ -1300,7 +1304,7 @@
                                                 FontSize="{Binding SerialPort.TextFontSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Foreground="{DynamicResource Window.Foreground}"
                                                 GotFocus="textBox_GotFocus"
-                                                IsReadOnly="True"
+                                                IsReadOnly="{Binding TextEditorIsReadOnly, Source={x:Static config:ConfigManager.Main}}"
                                                 LostFocus="textBox_LostFocus"
                                                 PreviewMouseWheel="textEditor_PreviewMouseWheel"
                                                 SyntaxHighlighting="ComLog"

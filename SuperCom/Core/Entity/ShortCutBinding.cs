@@ -30,6 +30,7 @@ namespace SuperCom.Entity
         SaveLogAs,
         Close,
         PinnedTab,
+        ClearText,
     }
 
     [Table(tableName: "short_cut")]
@@ -74,6 +75,7 @@ namespace SuperCom.Entity
             new ShortCutBinding((long)ShortCutType.SaveLogAs,LangManager.GetValueByKey("SaveLogAs"),new List<Key>(){ Key.LeftCtrl,Key.S }),
             new ShortCutBinding((long)ShortCutType.Close,LangManager.GetValueByKey("Close"),new List<Key>(){ Key.LeftCtrl,Key.W }),
             new ShortCutBinding((long)ShortCutType.PinnedTab,LangManager.GetValueByKey("Pin"),new List<Key>(){ Key.LeftCtrl,Key.E }),
+            new ShortCutBinding((long)ShortCutType.ClearText,LangManager.GetValueByKey("ClearText"),new List<Key>(){ Key.LeftCtrl,Key.LeftShift, Key.C }),
         };
 
 

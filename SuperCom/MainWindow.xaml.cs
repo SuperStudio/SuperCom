@@ -902,13 +902,18 @@ namespace SuperCom
                 if (rootGrid.Tag == null)
                     return;
                 string portName = rootGrid.Tag.ToString();
-                FindTextBox(rootGrid)?.Clear();
-                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-                if (portTabItem != null) {
-                    portTabItem.ClearData();
-                    portTabItem.RX = portTabItem.TX = 0;
-                    Logger.Info($"clear data: {portName}");
-                }
+                ClearDataByPortName(portName);
+            }
+        }
+
+        private void ClearDataByPortName(string portName)
+        {
+            FindTextBoxByPortName(portName)?.Clear();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem != null) {
+                portTabItem.ClearData();
+                portTabItem.RX = portTabItem.TX = 0;
+                Logger.Info($"clear data: {portName}");
             }
         }
 
@@ -2508,6 +2513,10 @@ namespace SuperCom
                     break;
                 case ShortCutType.PinnedTab:
                     PinPort(vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)));
+                    e.Handled = true;
+                    break;
+                case ShortCutType.ClearText:
+                    ClearDataByPortName(portName);
                     e.Handled = true;
                     break;
                 default:

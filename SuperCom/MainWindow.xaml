@@ -564,6 +564,7 @@
                                             Click="ShowUpgradeWindow"
                                             Header="{DynamicResource CheckUpgrade}"
                                             Icon="/Resources/Pictures/update.png" />
+                                        <MenuItem Click="OpenShortCut" Header="{DynamicResource FastKey}" />
                                         <MenuItem
                                             Click="ShowAbout"
                                             Header="{DynamicResource About}"

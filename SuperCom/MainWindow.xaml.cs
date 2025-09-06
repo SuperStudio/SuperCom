@@ -4,6 +4,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Search;
 using SuperCom.Config;
+using SuperCom.Core.Entity.Enums;
 using SuperCom.Core.Telnet;
 using SuperCom.Entity;
 using SuperCom.Entity.Enums;
@@ -3110,6 +3111,26 @@ namespace SuperCom
 
         private void SaveLog(object sender, RoutedEventArgs e)
         {
+            SaveLog(SaveLogType.String);
+        }
+
+        private string BuildLogByType(TextEditor textEditor, SaveLogType saveLogType)
+        {
+            string text = textEditor.Text;
+            switch (saveLogType) {
+                case SaveLogType.String:
+                    return text;
+                case SaveLogType.Bin:
+                    return TransformHelper.StrToBinStr(text);
+                case SaveLogType.Hex:
+                    return TransformHelper.StrToHex(text);
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private void SaveLog(SaveLogType saveLogType)
+        {
             PortTabItem portTabItem = null;
             foreach (var item in vieModel.PortTabItems) {
                 if (item.Selected) {
@@ -3118,31 +3139,46 @@ namespace SuperCom
                 }
             }
 
-
-            if (portTabItem != null) {
-                string fileName = portTabItem.SaveFileName;
-                if (File.Exists(fileName)) {
-                    string target = FileHelper.SaveFile(null, null, "Normal text file|*.txt|All types|*.*");
-                    if (string.IsNullOrEmpty(target)) {
-                        return;
-                    }
-                    if (!FileHelper.IsProperDirName(target)) {
-                        MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
-                        return;
-                    } else {
-                        // 复制到该目录
-                        FileHelper.TryCopyFile(fileName, target, true);
-                        FileHelper.TryOpenSelectPath(target);
-                        Logger.Info($"save log to {target}");
-                    }
-                } else {
-                    MessageNotify.Warning(LangManager.GetValueByKey("CurrentNoLog"));
-                }
+            if (portTabItem == null) {
+                return;
             }
 
+            TextEditor textEditor = portTabItem.TextEditor;
+            if (textEditor == null || textEditor.Text.Length == 0) {
+                MessageNotify.Warning(LangManager.GetValueByKey("CurrentNoLog"));
+                return;
+            }
 
+            string target = FileHelper.SaveFile(null, null, "Normal text file|*.txt|All types|*.*");
+            if (string.IsNullOrEmpty(target)) {
+                return;
+            }
+            if (!FileHelper.IsProperDirName(target)) {
+                MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
+                return;
+            }
 
+            string data = BuildLogByType(textEditor, saveLogType);
+            if (string.IsNullOrEmpty(data)) {
+                Logger.Error("data is empty");
+                return;
+            }
+
+            FileHelper.TryWriteToFile(target, data, encoding: Encoding.UTF8);
+            FileHelper.TryOpenSelectPath(target);
+            Logger.Info($"save log to {target}");
         }
+
+        private void SaveLogAsBin(object sender, RoutedEventArgs e)
+        {
+            SaveLog(SaveLogType.Bin);
+        }
+
+        private void SaveLogAsHex(object sender, RoutedEventArgs e)
+        {
+            SaveLog(SaveLogType.Hex);
+        }
+
 
         private void pinToggleButton_Checked(object sender, RoutedEventArgs e)
         {

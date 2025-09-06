@@ -167,6 +167,7 @@
     <Compile Include="Core\Entity\Enums\PortType.cs" />
     <Compile Include="Core\Entity\Enums\RuleType.cs" />
     <Compile Include="Core\Entity\Enums\RunningStatus.cs" />
+    <Compile Include="Core\Entity\Enums\SaveLogType.cs" />
     <Compile Include="Core\Entity\Enums\VarDataType.cs" />
     <Compile Include="Core\Entity\SerialPortEx.cs">
       <SubType>Component</SubType>

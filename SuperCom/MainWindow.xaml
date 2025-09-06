@@ -111,10 +111,11 @@
                         Header="{DynamicResource File}"
                         Style="{StaticResource TopMenuItemStyle}">
                         <MenuItem Click="OpenLog" Header="{DynamicResource LoadLog}" />
-                        <MenuItem
-                            Click="SaveLog"
-                            Header="{DynamicResource SaveLogAs}"
-                            Icon="/Resources/Pictures/save.png" />
+                        <MenuItem Header="{DynamicResource SaveLogAs}" Icon="/Resources/Pictures/save.png">
+                            <MenuItem Click="SaveLog" Header="保存为字符串" />
+                            <MenuItem Click="SaveLogAsBin" Header="保存为二进制" />
+                            <MenuItem Click="SaveLogAsHex" Header="保存为十六进制" />
+                        </MenuItem>
                         <Separator Margin="-20,5,10,5" />
                         <MenuItem Click="ExportAllCmd" Header="{DynamicResource ExportConfig}" />
                         <MenuItem Click="ImportAllCmd" Header="{DynamicResource ImportConfig}" />
@@ -1302,8 +1303,8 @@
                                                 IsReadOnly="True"
                                                 LostFocus="textBox_LostFocus"
                                                 PreviewMouseWheel="textEditor_PreviewMouseWheel"
-                                                Tag="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}}"
                                                 SyntaxHighlighting="ComLog"
+                                                Tag="{Binding SearchOpacity, Source={x:Static config:ConfigManager.Settings}}"
                                                 WordWrap="{Binding AutoWrap, Source={x:Static config:ConfigManager.Main}, Mode=OneWay}" />
                                         </Border>
 

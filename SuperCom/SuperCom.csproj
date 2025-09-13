@@ -164,6 +164,7 @@
     <Compile Include="Core\Entity\AdvancedSend.cs" />
     <Compile Include="Core\Entity\ComSettings.cs" />
     <Compile Include="Core\Entity\Enums\ComPortSortType.cs" />
+    <Compile Include="Core\Entity\Enums\ConnectType.cs" />
     <Compile Include="Core\Entity\Enums\PortType.cs" />
     <Compile Include="Core\Entity\Enums\RuleType.cs" />
     <Compile Include="Core\Entity\Enums\RunningStatus.cs" />
@@ -179,6 +180,11 @@
     <Compile Include="Core\Entity\Enums\SplitPanelType.cs" />
     <Compile Include="Core\Entity\VarMonitor.cs" />
     <Compile Include="Core\Entity\VirtualPort.cs" />
+    <Compile Include="Core\Events\BasicEventManager.cs" />
+    <Compile Include="Core\Events\EventType.cs" />
+    <Compile Include="Core\Interfaces\AbstractConnector.cs" />
+    <Compile Include="Core\Interfaces\IConnectTemplate.cs" />
+    <Compile Include="Core\Interfaces\IViewTabItem.cs" />
     <Compile Include="Core\Telnet\TelnetClient.cs" />
     <Compile Include="Core\Telnet\TelnetServer.cs" />
     <Compile Include="Core\Telnet\TelnetServerManager.cs" />

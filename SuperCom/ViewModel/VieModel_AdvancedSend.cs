@@ -194,7 +194,7 @@ namespace SuperCom.ViewModel
             SideComPorts = new ObservableCollection<SideComPort>();
             SideComPortSelected = new Dictionary<SideComPort, bool>();
             Dictionary<string, bool> dict = JsonUtils.TryDeserializeObject<Dictionary<string, bool>>(ConfigManager.AdvancedSendSettings.SelectedPortNamesJson);
-            foreach (var item in Main?.vieModel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer())) {
+            foreach (var item in Main?.comSidePanel.SideComPorts.OrderBy(arg => arg.Name, new ComPortComparer())) {
                 SideComPorts.Add(item);
                 bool isChecked = false;
                 // 设置选中

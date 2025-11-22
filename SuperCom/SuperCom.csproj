@@ -146,6 +146,9 @@
     <Compile Include="AvalonEdit\Colors\White.cs" />
     <Compile Include="AvalonEdit\Colors\Yellow.cs" />
     <Compile Include="AvalonEdit\Extensions\ExtensionMethods.cs" />
+    <Compile Include="Controls\SidePanel\ComSidePanel.xaml.cs">
+      <DependentUpon>ComSidePanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\Comparers\ComPortComparer.cs" />
     <Compile Include="Core\Config\VarMonitorSetting.cs" />
     <Compile Include="Core\Config\ConfigImport.cs" />
@@ -178,6 +181,7 @@
     <Compile Include="Core\Entity\ShortCutBinding.cs" />
     <Compile Include="Core\Entity\PortSetting.cs" />
     <Compile Include="Core\Entity\Enums\SplitPanelType.cs" />
+    <Compile Include="Core\Entity\TabInfo.cs" />
     <Compile Include="Core\Entity\VarMonitor.cs" />
     <Compile Include="Core\Entity\VirtualPort.cs" />
     <Compile Include="Core\Events\BasicEventManager.cs" />
@@ -219,6 +223,10 @@
       <DependentUpon>Window_VirtualPort.xaml</DependentUpon>
     </Compile>
     <Page Include="AvalonEdit\SearchPanel\SearchPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\SidePanel\ComSidePanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

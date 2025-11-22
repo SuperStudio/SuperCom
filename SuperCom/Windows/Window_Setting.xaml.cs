@@ -161,8 +161,8 @@ namespace SuperCom
 
         private bool IsPortRunning()
         {
-            if (Main != null && Main.vieModel.SideComPorts?.Count > 0) {
-                foreach (var item in Main.vieModel.SideComPorts) {
+            if (Main != null && Main.vieModel.PortTabItems?.Count > 0) {
+                foreach (var item in Main.vieModel.PortTabItems) {
                     if (item.Connected)
                         return true;
                 }

@@ -427,14 +427,13 @@ namespace SuperCom
         {
             bool success = false;
             await Dispatcher.BeginInvoke(DispatcherPriority.Background, (Action)delegate {
-                SideComPort serialComPort = vieModel.Main.vieModel.SideComPorts.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
-                if (serialComPort == null || serialComPort.PortTabItem == null || serialComPort.PortTabItem.SerialPort == null) {
+                PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                if (portTabItem == null) {
                     LogToTextBox($"[E] 连接串口 {portName} 失败！");
                     success = false;
                     return;
                 }
-                SerialPort port = serialComPort.PortTabItem.SerialPort;
-                PortTabItem portTabItem = vieModel.Main.vieModel.PortTabItems.Where(arg => arg.Name.Equals(portName)).FirstOrDefault();
+                SerialPort port = portTabItem.SerialPort;
                 string value = command.Command;
                 if (port != null) {
                     success = portTabItem.SendCommand(value);

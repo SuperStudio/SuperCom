@@ -1,0 +1,26 @@
+<Application
+    x:Class="SuperCom.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:SuperCom"
+    d1p1:Ignorable="d"
+    ShutdownMode="OnMainWindowClose"
+    StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--  Lang  -->
+                <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/Lang/zh-CN.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Lang/zh-CN.xaml" />
+
+                <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/XAML/Skin/DefaultColor.xaml" />
+
+                <ResourceDictionary Source="pack://application:,,,/SuperControls.Style;Component/Themes/SuperControls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/Core/CustomStyle/Basic.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/SuperCom;Component/AvalonEdit/SearchPanel/SearchPanel.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

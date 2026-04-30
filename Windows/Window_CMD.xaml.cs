@@ -495,17 +495,10 @@ namespace SuperCom.Windows
                 TxtOutput.Text = _outputBuilder.ToString();
                 int textLen = TxtOutput.Text.Length;
 
-                // 如果旧内容被 AppendOutput 追加（没有用户输入夹杂其中），同步推进 _userInputStart
-                if (oldLen >= 0 && textLen > oldLen) {
-                    // 检查 _userInputStart 到 oldLen 之间是否只有空白/提示符内容
-                    string between = "";
-                    if (oldLen > 0 && _userInputStart < oldLen) {
-                        between = TxtOutput.Text.Substring(_userInputStart, oldLen - _userInputStart);
-                    }
-                    // 如果中间区域只含空白字符，说明没有用户输入，_userInputStart 可推进
-                    if (string.IsNullOrWhiteSpace(between)) {
-                        // _userInputStart = textLen; // 暂时注释：保持 _userInputStart 不变，让用户在旧提示符后继续输入
-                    }
+                // ★ 关键修复：_userInputStart 必须跟随 AppendOutput 同步推进
+                // 当输出追加后，用户的输入区域起点应推进到新文本末尾
+                if (textLen > oldLen && _userInputStart <= oldLen) {
+                    _userInputStart = textLen;
                 }
 
                 System.Text.RegularExpressions.Regex promptRx =
@@ -570,6 +563,7 @@ namespace SuperCom.Windows
                 }
                 TxtOutput.Text = "";
                 _promptEndIndex = 0;
+                _userInputStart = 0;  // 重置用户输入区域起点
                 _currentPrompt = "";
             });
         }

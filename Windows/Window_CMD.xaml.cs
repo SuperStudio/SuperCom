@@ -421,8 +421,11 @@ namespace SuperCom.Windows
             string userInput = TxtOutput.Text.Substring(_promptEndIndex, len - _promptEndIndex).TrimEnd('\r', '\n');
 
             // 立即把 TxtOutput 截断到 Enter 按下时的干净状态
-            // TextBox 此时已经插入了 \r\n，_outputBuilder 里没有——截断后两者再次同步
             TxtOutput.Text = TxtOutput.Text.Substring(0, len);
+            lock (_outputLock) {
+                _outputBuilder.Clear();
+                _outputBuilder.Append(TxtOutput.Text);
+            }
 
             if (!_isRunning || _cmdProcess == null || _cmdProcess.HasExited) {
                 MessageCard.Warning("请先启动 CMD 进程");
@@ -430,10 +433,22 @@ namespace SuperCom.Windows
                 return;
             }
 
-            // ★ 发送命令后立即更新提示符边界（保守估计）
-            // cmd.exe 收到 WriteLine 后会回显一行 "X:\...>command\n"，
-            // 加上命令本身的回显字符数，估算新提示符在当前长度 + 命令长度 + 4 之后
-            int estimatedPromptIdx = len + userInput.Length + 4;
+            // ★ 空命令保护：不发送给 cmd.exe（空行会导致进程异常/退出）
+            if (string.IsNullOrWhiteSpace(userInput)) {
+                // 仅在 UI 中换行，不发送
+                AppendOutput("\r\n");
+                _promptEndIndex = TxtOutput.Text.Length;
+                TxtOutput.CaretIndex = _promptEndIndex;
+                TxtOutput.Focus();
+                return;
+            }
+
+            // 发送命令前先输出一个换行，确保命令回显在新行开始
+            AppendOutput("\r\n");
+
+            // 估算新提示符位置
+            int baseLen = TxtOutput.Text.Length;
+            int estimatedPromptIdx = baseLen + userInput.Length + 8;
             _promptEndIndex = estimatedPromptIdx;
             _currentPrompt = "";
             TxtOutput.CaretIndex = Math.Min(estimatedPromptIdx, TxtOutput.Text.Length);
@@ -477,6 +492,7 @@ namespace SuperCom.Windows
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
+        // 底部输入框：Enter 键执行指令
         private void TxtExecuteCommand_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) {
@@ -485,11 +501,12 @@ namespace SuperCom.Windows
             }
         }
 
-        // 底部输入框也支持 Enter 执行
+        // 底部输入框：PreviewKeyDown 阻止默认换行行为
         private void TxtExecuteCommand_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
-                e.Handled = true;  // 阻止 TextBox 换行，由 KeyDown 处理
+            if (e.Key == Key.Enter) {
+                e.Handled = true;  // 阻止 TextBox 插入换行
+            }
         }
 
         private void BtnExecuteCommand_Click(object sender, RoutedEventArgs e)
@@ -508,6 +525,9 @@ namespace SuperCom.Windows
                 MessageCard.Warning("请先启动 CMD 进程");
                 return;
             }
+
+            // 发送前在输出区追加换行和命令标记，确保输出从新行开始
+            AppendOutput($"\r\n> {cmd}\r\n");
 
             await SendCommandAsync(cmd);
             TxtExecuteCommand.Text = "";

@@ -357,18 +357,13 @@ namespace SuperCom.Windows
 
         #region 输出区指令执行
 
-        // Enter键拦截：必须用 PreviewKeyDown（隧道事件，在 TextBox 处理前触发）
-        // e.Handled=true 可阻止 TextBox 插入换行符
-        // 由于 PreviewKeyDown 在 TextBox 更新 Text 之前触发，
-        // CaretIndex 无法准确反映实际内容位置，改用 Text.Length 在拦截瞬间记录
-        private int _enterKeyLength = -1;  // Enter 按下时记录 Text.Length
-
+        // Enter键拦截：PreviewKeyDown 是隧道事件，在 TextBox 默认处理之前触发
+        // 注意：WPF TextBox 默认在 KeyDown 后才更新 Text（PreviewKeyDown 时 Text 尚未变化）
         private void TxtOutput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // Enter：先记录当前长度，再阻止 TextBox 插入换行
+            // Enter：阻止 TextBox 默认插入换行，由 ExecuteCommandFromOutput 处理
             if (e.Key == Key.Enter) {
-                _enterKeyLength = TxtOutput.Text.Length;
-                e.Handled = true;  // 阻止 TextBox 插入换行（PreviewKeyDown 比 TextBox 更早触发）
+                e.Handled = true;
                 Dispatcher.InvokeAsync(ExecuteCommandFromOutput);
                 return;
             }
@@ -406,26 +401,20 @@ namespace SuperCom.Windows
             }
         }
 
-        // Enter 拦截后执行：提取提示符后的纯命令文本，发送给 cmd.exe
-        // 关键：必须在发送前把 TxtOutput 截断到 Enter 按下时的长度（去掉 TextBox 插入的换行），
-        // 这样 cmd.exe 的回显会追加在干净的历史末尾，不会出现重复的提示符行
+        // Enter 拦截后执行：从 TxtOutput 提取提示符后的纯命令文本，发送给 cmd.exe
+        // 策略：先从 UI 取文本并发送，再在后台清理输出历史（避免与 ReadOutputAsync 竞争）
         private async void ExecuteCommandFromOutput()
         {
-            int len = _enterKeyLength;
-            _enterKeyLength = -1;
-
-            if (len < 0 || len > TxtOutput.Text.Length)
-                return;
-
-            // 提取纯命令文本
-            string userInput = TxtOutput.Text.Substring(_promptEndIndex, len - _promptEndIndex).TrimEnd('\r', '\n');
-
-            // 立即把 TxtOutput 截断到 Enter 按下时的干净状态
-            TxtOutput.Text = TxtOutput.Text.Substring(0, len);
+            // 从 TxtOutput.Text 直接提取（此时 ReadOutputAsync 可能正在写入，需要复制快照）
+            string currentText;
+            int promptIdx;
             lock (_outputLock) {
-                _outputBuilder.Clear();
-                _outputBuilder.Append(TxtOutput.Text);
+                currentText = _outputBuilder.ToString();
+                promptIdx = _promptEndIndex;
             }
+
+            // 提取提示符后的纯命令（去掉末尾已有的换行符）
+            string userInput = currentText.Substring(promptIdx).TrimEnd('\r', '\n');
 
             if (!_isRunning || _cmdProcess == null || _cmdProcess.HasExited) {
                 MessageCard.Warning("请先启动 CMD 进程");
@@ -433,26 +422,24 @@ namespace SuperCom.Windows
                 return;
             }
 
-            // ★ 空命令保护：不发送给 cmd.exe（空行会导致进程异常/退出）
+            // 空命令：仅在 UI 换行，不发送给 cmd.exe
             if (string.IsNullOrWhiteSpace(userInput)) {
-                // 仅在 UI 中换行，不发送
                 AppendOutput("\r\n");
-                _promptEndIndex = TxtOutput.Text.Length;
-                TxtOutput.CaretIndex = _promptEndIndex;
                 TxtOutput.Focus();
                 return;
             }
 
-            // 发送命令前先输出一个换行，确保命令回显在新行开始
-            AppendOutput("\r\n");
+            // ★ 先截断 _outputBuilder 到提示符位置，再发送命令
+            // 截断后再发送，这样 cmd.exe 回显会从干净的历史末尾追加
+            lock (_outputLock) {
+                _outputBuilder.Clear();
+                _outputBuilder.Append(currentText.Substring(0, promptIdx));
+            }
 
-            // 估算新提示符位置
-            int baseLen = TxtOutput.Text.Length;
-            int estimatedPromptIdx = baseLen + userInput.Length + 8;
-            _promptEndIndex = estimatedPromptIdx;
-            _currentPrompt = "";
-            TxtOutput.CaretIndex = Math.Min(estimatedPromptIdx, TxtOutput.Text.Length);
+            // 同步 TxtOutput.Text 与 _outputBuilder
+            TxtOutput.Text = currentText.Substring(0, promptIdx);
 
+            // 发送命令
             try {
                 await _cmdProcess.StandardInput.WriteLineAsync(userInput);
                 await _cmdProcess.StandardInput.FlushAsync();
@@ -492,21 +479,20 @@ namespace SuperCom.Windows
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
-        // 底部输入框：Enter 键执行指令
-        private void TxtExecuteCommand_KeyDown(object sender, KeyEventArgs e)
+        // 底部输入框：PreviewKeyDown 拦截 Enter，防止 TextBox 默认换行
+        // KeyDown 是备用（PreviewKeyDown 处理了 e.Handled=true 后，KeyDown 仍会收到事件但不插入换行）
+        private void TxtExecuteCommand_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) {
-                e.Handled = true;
+                e.Handled = true;  // 阻止 TextBox 换行
                 ExecuteFromLegacyInput();
             }
         }
 
-        // 底部输入框：PreviewKeyDown 阻止默认换行行为
-        private void TxtExecuteCommand_PreviewKeyDown(object sender, KeyEventArgs e)
+        // 备用（保留，发送按钮点击也走这里）
+        private void TxtExecuteCommand_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) {
-                e.Handled = true;  // 阻止 TextBox 插入换行
-            }
+            // 空实现，防止 KeyDown 事件泄漏
         }
 
         private void BtnExecuteCommand_Click(object sender, RoutedEventArgs e)

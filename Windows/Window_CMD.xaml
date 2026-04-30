@@ -337,7 +337,6 @@
                             AcceptsReturn="True"
                             AcceptsTab="True"
                             PreviewKeyDown="TxtOutput_PreviewKeyDown"
-                            PreviewKeyUp="TxtOutput_PreviewKeyUp"
                             SelectionChanged="TxtOutput_SelectionChanged"
                             TextChanged="TxtOutput_TextChanged" />
                     </Border>

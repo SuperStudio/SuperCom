@@ -36,9 +36,6 @@ namespace SuperCom.Windows
         // 只读提示符保护
         private int _promptEndIndex = 0;  // 当前可编辑区域的起点（提示符结束位置）
         private string _currentPrompt = "";  // 当前命令提示符文本
-        private static readonly System.Text.RegularExpressions.Regex _promptRegex
-            = new System.Text.RegularExpressions.Regex(@"^([A-Z]:\\.+>) (.+)",
-                System.Text.RegularExpressions.RegexOptions.Multiline);
 
         public ObservableCollection<Entity.CmdCommand> Commands { get; set; }
 
@@ -304,7 +301,6 @@ namespace SuperCom.Windows
             UpdateStatus($"正在批量执行 {selectedCmds.Count} 条指令...");
 
             try {
-                // 非循环模式：先执行一轮
                 int executed = 0;
                 foreach (var cmd in selectedCmds) {
                     if (_batchCts.Token.IsCancellationRequested)
@@ -326,7 +322,6 @@ namespace SuperCom.Windows
 
                 UpdateStatus($"批量执行完成 ({executed} 条)");
 
-                // 循环模式：继续循环执行
                 while (_isLoopExecute && !_batchCts.Token.IsCancellationRequested) {
                     foreach (var cmd in selectedCmds) {
                         if (_batchCts.Token.IsCancellationRequested)
@@ -358,30 +353,28 @@ namespace SuperCom.Windows
         #region 输出区指令执行
 
         // Enter键拦截：PreviewKeyDown 是隧道事件，在 TextBox 默认处理之前触发
-        // 注意：WPF TextBox 默认在 KeyDown 后才更新 Text（PreviewKeyDown 时 Text 尚未变化）
         private void TxtOutput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // Enter：阻止 TextBox 默认插入换行，由 ExecuteCommandFromOutput 处理
             if (e.Key == Key.Enter) {
                 e.Handled = true;
                 Dispatcher.InvokeAsync(ExecuteCommandFromOutput);
                 return;
             }
 
-            // 只读提示符区域保护
             int caret = TxtOutput.CaretIndex;
             int selStart = TxtOutput.SelectionStart;
 
-            // Backspace 阻止越界
+            // Backspace 阻止越界（只保护提示符本身）
             if (e.Key == Key.Back) {
-                if (caret <= _promptEndIndex) {
+                if (TxtOutput.SelectionLength > 0 && selStart < _promptEndIndex) {
+                    TxtOutput.SelectionStart = _promptEndIndex;
+                    TxtOutput.SelectionLength = Math.Max(0, selStart + TxtOutput.SelectionLength - _promptEndIndex);
                     e.Handled = true;
                     return;
                 }
-                if (selStart < _promptEndIndex) {
-                    TxtOutput.SelectionStart = _promptEndIndex;
-                    TxtOutput.SelectionLength = 0;
+                if (TxtOutput.SelectionLength == 0 && caret <= _promptEndIndex) {
                     e.Handled = true;
+                    return;
                 }
                 return;
             }
@@ -402,10 +395,8 @@ namespace SuperCom.Windows
         }
 
         // Enter 拦截后执行：从 TxtOutput 提取提示符后的纯命令文本，发送给 cmd.exe
-        // 策略：先从 UI 取文本并发送，再在后台清理输出历史（避免与 ReadOutputAsync 竞争）
         private async void ExecuteCommandFromOutput()
         {
-            // 从 TxtOutput.Text 直接提取（此时 ReadOutputAsync 可能正在写入，需要复制快照）
             string currentText;
             int promptIdx;
             lock (_outputLock) {
@@ -413,7 +404,23 @@ namespace SuperCom.Windows
                 promptIdx = _promptEndIndex;
             }
 
-            // 提取提示符后的纯命令（去掉末尾已有的换行符）
+            // ★ 安全检查：如果 promptIdx 无效，从最后一行提取命令
+            if (promptIdx <= 0 || promptIdx >= currentText.Length) {
+                int lastNl = currentText.LastIndexOf('\n');
+                if (lastNl >= 0) {
+                    string lastLine = currentText.Substring(lastNl + 1).TrimEnd('\r', '\n');
+                    if (lastLine.Contains(">") || lastLine.Contains("#") || lastLine.Contains("$")) {
+                        AppendOutput("\r\n");
+                        TxtOutput.Focus();
+                        return;
+                    }
+                    currentText = lastLine;
+                    promptIdx = 0;
+                } else {
+                    promptIdx = 0;
+                }
+            }
+
             string userInput = currentText.Substring(promptIdx).TrimEnd('\r', '\n');
 
             if (!_isRunning || _cmdProcess == null || _cmdProcess.HasExited) {
@@ -422,22 +429,19 @@ namespace SuperCom.Windows
                 return;
             }
 
-            // 空命令：仅在 UI 换行，不发送给 cmd.exe
             if (string.IsNullOrWhiteSpace(userInput)) {
                 AppendOutput("\r\n");
                 TxtOutput.Focus();
                 return;
             }
 
-            // ★ 先截断 _outputBuilder 到提示符位置，再发送命令
-            // 截断后再发送，这样 cmd.exe 回显会从干净的历史末尾追加
+            // 截断 _outputBuilder 到提示符位置
             lock (_outputLock) {
                 _outputBuilder.Clear();
-                _outputBuilder.Append(currentText.Substring(0, promptIdx));
+                _outputBuilder.Append(currentText.Substring(0, Math.Min(promptIdx, currentText.Length)));
             }
 
-            // 同步 TxtOutput.Text 与 _outputBuilder
-            TxtOutput.Text = currentText.Substring(0, promptIdx);
+            TxtOutput.Text = currentText.Substring(0, Math.Min(promptIdx, currentText.Length));
 
             // 发送命令
             try {
@@ -448,21 +452,6 @@ namespace SuperCom.Windows
             }
 
             TxtOutput.Focus();
-        }
-
-        // 每次释放按键时确保光标在可编辑区
-        private void TxtOutput_PreviewKeyUp(object sender, KeyEventArgs e)
-        {
-            Dispatcher.InvokeAsync(() => {
-                if (TxtOutput.CaretIndex < _promptEndIndex) {
-                    TxtOutput.CaretIndex = Math.Min(_promptEndIndex, TxtOutput.Text.Length);
-                }
-                if (TxtOutput.SelectionStart < _promptEndIndex) {
-                    TxtOutput.SelectionStart = _promptEndIndex;
-                    TxtOutput.SelectionLength = Math.Max(0, TxtOutput.SelectionLength
-                        - (_promptEndIndex - TxtOutput.SelectionStart));
-                }
-            }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         // 鼠标选择时强制不允许选到只读区
@@ -479,20 +468,18 @@ namespace SuperCom.Windows
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
-        // 底部输入框：PreviewKeyDown 拦截 Enter，防止 TextBox 默认换行
-        // KeyDown 是备用（PreviewKeyDown 处理了 e.Handled=true 后，KeyDown 仍会收到事件但不插入换行）
+        // 底部输入框：PreviewKeyDown 拦截 Enter
         private void TxtExecuteCommand_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) {
-                e.Handled = true;  // 阻止 TextBox 换行
+                e.Handled = true;
                 ExecuteFromLegacyInput();
             }
         }
 
-        // 备用（保留，发送按钮点击也走这里）
         private void TxtExecuteCommand_KeyDown(object sender, KeyEventArgs e)
         {
-            // 空实现，防止 KeyDown 事件泄漏
+            // 空实现
         }
 
         private void BtnExecuteCommand_Click(object sender, RoutedEventArgs e)
@@ -512,7 +499,6 @@ namespace SuperCom.Windows
                 return;
             }
 
-            // 发送前在输出区追加换行和命令标记，确保输出从新行开始
             AppendOutput($"\r\n> {cmd}\r\n");
 
             await SendCommandAsync(cmd);
@@ -532,16 +518,14 @@ namespace SuperCom.Windows
             Dispatcher.Invoke(() => {
                 TxtOutput.Text = _outputBuilder.ToString();
 
-                // 更新提示符边界：扫描文本末尾的提示符行
+                // ★ 修复：使用 non-greedy regex，Group1 只捕获到 > 为止
                 int textLen = TxtOutput.Text.Length;
 
-                // 匹配两类提示符：
-                // 1. Windows: X:\path\to\dir>
-                // 2. Shell: #  $  /  等（adb shell 进入 Android 环境后）
                 System.Text.RegularExpressions.Regex promptRx =
-                    new System.Text.RegularExpressions.Regex(@"^(.+[A-Za-z]:[\\/].+[#>$] |[#/$] )$");
+                    new System.Text.RegularExpressions.Regex(@"^(.+?[A-Za-z]:[\\/][^>]+>) *$",
+                        System.Text.RegularExpressions.RegexOptions.Multiline);
 
-                // 从输出末尾往前找最后一个换行行
+                _promptEndIndex = 0;
                 for (int i = textLen - 2; i >= 0; i--) {
                     char c = TxtOutput.Text[i];
                     if (c == '\n') {
@@ -556,52 +540,36 @@ namespace SuperCom.Windows
                     }
                 }
 
-                // 如果末尾没有换行（提示符和光标在同一行），检查整体格式
+                // 单行文本：尝试整体匹配
                 if (_promptEndIndex == 0 && textLen > 2) {
                     string currentText = TxtOutput.Text;
-                    // 尝试 Windows 提示符（最后 > 位置）
                     int lastGt = currentText.LastIndexOf('>');
                     if (lastGt > 1) {
-                        string possible = currentText.Substring(lastGt - 1);
-                        if (System.Text.RegularExpressions.Regex.IsMatch(possible, @"^[A-Za-z]:[\\/].+> *$")) {
+                        string beforeGt = currentText.Substring(0, lastGt + 1);
+                        if (System.Text.RegularExpressions.Regex.IsMatch(beforeGt, @"^[^\r\n]*[A-Za-z]:[\\/][^>]*>$")) {
                             _promptEndIndex = lastGt + 1;
-                            _currentPrompt = possible.Substring(0, possible.LastIndexOf('>') + 1);
+                            _currentPrompt = beforeGt;
                         }
                     }
-                    // 尝试 Shell 提示符（adb shell 进入 Android 后出现 # 或 $）
                     if (_promptEndIndex == 0) {
                         int hashPos = currentText.LastIndexOf('#');
                         int dollarPos = currentText.LastIndexOf('$');
                         int lastShell = Math.Max(hashPos, dollarPos);
                         if (lastShell > 0) {
-                            bool atEnd = lastShell == currentText.Length - 1;
-                            bool followedBySpace = !atEnd && currentText[lastShell + 1] == ' ';
-                            if (atEnd || followedBySpace) {
-                                // 提取提示符文本：#prompt# 或 $prompt$ 形式，取 # 或 $ 之前的内容
-                                string promptText = currentText.Substring(0, lastShell + 1);
-                                _promptEndIndex = lastShell + 1;
-                                _currentPrompt = currentText[lastShell].ToString();
-                            }
+                            _promptEndIndex = lastShell + 1;
+                            _currentPrompt = currentText[lastShell].ToString();
                         }
                     }
                 }
 
                 TxtOutput.ScrollToEnd();
-
-                // 光标强制锚定到可编辑区域起点
-                if (TxtOutput.CaretIndex < _promptEndIndex) {
-                    TxtOutput.CaretIndex = Math.Min(_promptEndIndex, TxtOutput.Text.Length);
-                }
             }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private void TxtOutput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // 自动滚动到底部
             ((TextBox)sender).ScrollToEnd();
         }
-
-        // 已移除 GetScrollViewer 辅助方法，TextBox 内置 ScrollToEnd()
 
         private void ClearOutput()
         {
@@ -658,7 +626,6 @@ namespace SuperCom.Windows
 
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // 聚焦到添加指令输入框
             TxtNewCommand.Focus();
         }
 

@@ -35,6 +35,7 @@ namespace SuperCom.Windows
 
         // 只读提示符保护
         private int _promptEndIndex = 0;  // 当前可编辑区域的起点（提示符结束位置）
+        private int _userInputStart = 0;   // 当前行用户输入区域的起点（Enter插入换行后的位置）
         private string _currentPrompt = "";  // 当前命令提示符文本
 
         public ObservableCollection<Entity.CmdCommand> Commands { get; set; }
@@ -352,12 +353,16 @@ namespace SuperCom.Windows
 
         #region 输出区指令执行
 
-        // Enter键拦截：PreviewKeyDown 是隧道事件，在 TextBox 默认处理之前触发
+        // Enter键拦截：发送命令，不阻止 TextBox 自然处理（插入换行）
         private void TxtOutput_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter) {
-                e.Handled = true;
-                Dispatcher.InvokeAsync(ExecuteCommandFromOutput);
+                // 同步记录当前输入区域起点，再让 TextBox 自然处理 Enter
+                int inputStart = _userInputStart;
+                Dispatcher.Invoke(() => {
+                    ExecuteCommandFromOutput(inputStart);
+                    _userInputStart = TxtOutput.Text.Length; // Enter 换行已由 TextBox 处理，新行起点
+                });
                 return;
             }
 
@@ -394,64 +399,31 @@ namespace SuperCom.Windows
             }
         }
 
-        // Enter 拦截后执行：从 TxtOutput 提取提示符后的纯命令文本，发送给 cmd.exe
-        private async void ExecuteCommandFromOutput()
+        // Enter 后执行：发送命令
+        private async void ExecuteCommandFromOutput(int inputStart)
         {
-            string currentText;
-            int promptIdx;
-            lock (_outputLock) {
-                currentText = _outputBuilder.ToString();
-                promptIdx = _promptEndIndex;
-            }
+            string currentText = TxtOutput.Text;
 
-            // ★ 安全检查：如果 promptIdx 无效，从最后一行提取命令
-            if (promptIdx <= 0 || promptIdx >= currentText.Length) {
-                int lastNl = currentText.LastIndexOf('\n');
-                if (lastNl >= 0) {
-                    string lastLine = currentText.Substring(lastNl + 1).TrimEnd('\r', '\n');
-                    if (lastLine.Contains(">") || lastLine.Contains("#") || lastLine.Contains("$")) {
-                        AppendOutput("\r\n");
-                        TxtOutput.Focus();
-                        return;
-                    }
-                    currentText = lastLine;
-                    promptIdx = 0;
-                } else {
-                    promptIdx = 0;
-                }
-            }
-
-            string userInput = currentText.Substring(promptIdx).TrimEnd('\r', '\n');
+            // 从用户输入区域提取纯命令
+            string userInput = currentText.Substring(inputStart).TrimEnd('\r', '\n');
 
             if (!_isRunning || _cmdProcess == null || _cmdProcess.HasExited) {
                 MessageCard.Warning("请先启动 CMD 进程");
-                TxtOutput.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(userInput)) {
-                AppendOutput("\r\n");
-                TxtOutput.Focus();
-                return;
+                return; // 空命令，不发送，直接换行
             }
 
-            // 截断 _outputBuilder 到提示符位置
-            lock (_outputLock) {
-                _outputBuilder.Clear();
-                _outputBuilder.Append(currentText.Substring(0, Math.Min(promptIdx, currentText.Length)));
-            }
-
-            TxtOutput.Text = currentText.Substring(0, Math.Min(promptIdx, currentText.Length));
-
-            // 发送命令
             try {
                 await _cmdProcess.StandardInput.WriteLineAsync(userInput);
                 await _cmdProcess.StandardInput.FlushAsync();
             } catch (Exception ex) {
-                AppendOutput($"\r\n[发送失败] {ex.Message}\r\n");
+                Dispatcher.Invoke(() => {
+                    AppendOutput($"\r\n[发送失败] {ex.Message}\r\n");
+                });
             }
-
-            TxtOutput.Focus();
         }
 
         // 鼠标选择时强制不允许选到只读区
@@ -515,11 +487,26 @@ namespace SuperCom.Windows
             lock (_outputLock) {
                 _outputBuilder.Append(text);
             }
+            // ★ 修复：AppendOutput 更新 _promptEndIndex，同时同步 _userInputStart
+            // 如果 TextBox 末尾紧跟在上一次 AppendOutput 的内容后（即用户没有在中间打字），
+            // 则 _userInputStart 也应推进到新文本末尾
             Dispatcher.Invoke(() => {
+                int oldLen = TxtOutput.Text.Length - text.Length;
                 TxtOutput.Text = _outputBuilder.ToString();
-
-                // ★ 修复：使用 non-greedy regex，Group1 只捕获到 > 为止
                 int textLen = TxtOutput.Text.Length;
+
+                // 如果旧内容被 AppendOutput 追加（没有用户输入夹杂其中），同步推进 _userInputStart
+                if (oldLen >= 0 && textLen > oldLen) {
+                    // 检查 _userInputStart 到 oldLen 之间是否只有空白/提示符内容
+                    string between = "";
+                    if (oldLen > 0 && _userInputStart < oldLen) {
+                        between = TxtOutput.Text.Substring(_userInputStart, oldLen - _userInputStart);
+                    }
+                    // 如果中间区域只含空白字符，说明没有用户输入，_userInputStart 可推进
+                    if (string.IsNullOrWhiteSpace(between)) {
+                        // _userInputStart = textLen; // 暂时注释：保持 _userInputStart 不变，让用户在旧提示符后继续输入
+                    }
+                }
 
                 System.Text.RegularExpressions.Regex promptRx =
                     new System.Text.RegularExpressions.Regex(@"^(.+?[A-Za-z]:[\\/][^>]+>) *$",
@@ -562,6 +549,10 @@ namespace SuperCom.Windows
                     }
                 }
 
+                // 如果 _userInputStart 超过了 TextBox 长度（输出追加后），重置到末尾
+                if (_userInputStart > textLen) {
+                    _userInputStart = textLen;
+                }
                 TxtOutput.ScrollToEnd();
             }, System.Windows.Threading.DispatcherPriority.Background);
         }

@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:super="https://github.com/SuperStudio/SuperControls"
+    xmlns:conv="clr-namespace:SuperCom.Core.Converters"
     Title="CMD 指令工具"
     Width="1000"
     Height="700"
@@ -14,6 +15,12 @@
     WindowStartupLocation="CenterScreen"
     Closing="BaseWindow_Closing"
     Loaded="BaseWindow_Loaded">
+
+    <super:BaseWindow.Resources>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <conv:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <conv:ScriptStatusColorConverter x:Key="ScriptStatusColorConverter" />
+    </super:BaseWindow.Resources>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -30,6 +37,7 @@
             CornerRadius="5">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -70,8 +78,20 @@
                         Text="未启动" />
                 </StackPanel>
 
-                <!-- 间隔设置 -->
+                <!-- 导入脚本按钮 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button
+                        Name="BtnImportScript"
+                        MinWidth="80"
+                        Margin="5,0"
+                        Click="BtnImportScript_Click"
+                        Content="导入脚本"
+                        ToolTip="导入批处理或PowerShell脚本 (Ctrl+I)"
+                        Style="{StaticResource ButtonPrimary}" />
+                </StackPanel>
+
+                <!-- 间隔设置 -->
+                <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <TextBlock
                         Margin="0,0,5,0"
                         VerticalAlignment="Center"
@@ -103,163 +123,318 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- 左侧：指令列表 -->
-            <Border
+            <!-- 左侧：Tab控制面板 -->
+            <TabControl
                 Grid.Column="0"
-                Padding="10"
-                Background="{DynamicResource TabItem.Background}"
-                CornerRadius="5">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                Name="LeftTabControl"
+                Padding="0"
+                Background="Transparent"
+                BorderThickness="0"
+                Style="{StaticResource BaseTabControl}">
+                
+                <!-- Tab 1: 指令列表 -->
+                <TabItem Header="指令列表" Style="{StaticResource BaseTabItem}">
+                    <Border Padding="10" Background="{DynamicResource TabItem.Background}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                    <!-- 表头 -->
-                    <Grid Grid.Row="0" Margin="0,0,0,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <CheckBox
-                            Name="ChkSelectAll"
-                            Grid.Column="0"
-                            VerticalAlignment="Center"
-                            Click="ChkSelectAll_Click"
-                            Style="{StaticResource NormalCheckBox}"
-                            ToolTip="全选/取消全选" />
-                        <TextBlock
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            FontSize="13"
-                            FontWeight="Bold"
-                            Style="{StaticResource BaseTextBlock}"
-                            Text="指令列表" />
-                        <Button
-                            Grid.Column="2"
-                            MinWidth="60"
-                            Click="BtnDeleteSelected_Click"
-                            Content="删除"
-                            FontSize="11"
-                            Style="{StaticResource ButtonDanger}" />
-                    </Grid>
+                            <!-- 表头 -->
+                            <Grid Grid.Row="0" Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox
+                                    Name="ChkSelectAll"
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Click="ChkSelectAll_Click"
+                                    Style="{StaticResource NormalCheckBox}"
+                                    ToolTip="全选/取消全选" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="13"
+                                    FontWeight="Bold"
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="指令列表" />
+                                <Button
+                                    Grid.Column="2"
+                                    MinWidth="60"
+                                    Click="BtnDeleteSelected_Click"
+                                    Content="删除"
+                                    FontSize="11"
+                                    Style="{StaticResource ButtonDanger}" />
+                            </Grid>
 
-                    <!-- 添加指令 -->
-                    <Grid Grid.Row="1" Margin="0,5,0,10" Width="Auto">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox
-                            Grid.Column="0"
-                            Name="TxtNewCommand"
-                            Margin="0,0,5,0"
-                            MinWidth="200"
-                            Padding="8,5"
+                            <!-- 添加指令 -->
+                            <Grid Grid.Row="1" Margin="0,5,0,10" Width="Auto">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Grid.Column="0"
+                                    Name="TxtNewCommand"
+                                    Margin="0,0,5,0"
+                                    MinWidth="200"
+                                    Padding="8,5"
+                                    BorderBrush="#607080"
+                                    BorderThickness="1"
+                                    VerticalContentAlignment="Center"
+                                    HorizontalAlignment="Stretch"
+                                    KeyDown="TxtNewCommand_KeyDown"
+                                    Style="{StaticResource BaseTextBox}" />
+                                <Button
+                                    Grid.Column="1"
+                                    MinWidth="50"
+                                    Click="BtnAddCommand_Click"
+                                    Content="添加"
+                                    Style="{StaticResource ButtonPrimary}" />
+                            </Grid>
+
+                            <!-- 指令列表 -->
+                            <DataGrid
+                                Grid.Row="2"
+                                Name="DataGridCommands"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                HeadersVisibility="Column"
+                                IsReadOnly="True"
+                                SelectionMode="Single"
+                                SelectionUnit="FullRow"
+                                Background="{DynamicResource TabItem.Background}"
+                                RowBackground="{DynamicResource TabItem.Background}"
+                                AlternatingRowBackground="{DynamicResource TabItem.Background}"
+                                BorderBrush="{DynamicResource TabItem.Background}"
+                                GridLinesVisibility="Horizontal">
+                                <DataGrid.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Background}" />
+                                    </Style>
+                                </DataGrid.CellStyle>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="#30507080" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Width="30">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox
+                                                    IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Style="{StaticResource NormalCheckBox}"
+                                                    VerticalAlignment="Center" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="指令" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Margin="5,2"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding Command}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTip="{Binding Command}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="时延" Width="50">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    HorizontalAlignment="Center"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding Delay}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <!-- 底部按钮 -->
+                            <StackPanel
+                                Grid.Row="3"
+                                Margin="0,10,0,0"
+                                Orientation="Horizontal">
+                                <Button
+                                    MinWidth="80"
+                                    Click="BtnExecuteSelected_Click"
+                                    Content="发送选中"
+                                    Style="{StaticResource ButtonPrimary}" />
+                                <CheckBox
+                                    Name="ChkLoop"
+                                    Margin="15,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Content="循环"
+                                    Click="ChkLoop_Click"
+                                    Style="{StaticResource NormalCheckBox}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </TabItem>
+
+                <!-- Tab 2: 脚本列表 -->
+                <TabItem Header="脚本列表" Style="{StaticResource BaseTabItem}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- 脚本列表 -->
+                        <ListBox
+                            Grid.Row="0"
+                            Name="ListBoxScripts"
+                            Padding="5"
+                            Background="{DynamicResource TabItem.Background}"
+                            BorderThickness="0"
+                            SelectionMode="Single"
+                            SelectionChanged="ListBoxScripts_SelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Margin="2"
+                                        Padding="8,5"
+                                        Background="{DynamicResource TabItem.Background}"
+                                        BorderBrush="#40708090"
+                                        BorderThickness="1"
+                                        CornerRadius="3">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontWeight="Bold"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding DisplayName}" />
+                                                <TextBlock
+                                                    Margin="0,2,0,0"
+                                                    FontSize="10"
+                                                    Foreground="Gray"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding ScriptPath}"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    ToolTip="{Binding ScriptPath}" />
+                                                <TextBlock
+                                                    Margin="0,2,0,0"
+                                                    FontSize="10"
+                                                    Foreground="{Binding Status, Converter={StaticResource ScriptStatusColorConverter}}"
+                                                    Style="{StaticResource BaseTextBlock}"
+                                                    Text="{Binding StatusText}" />
+                                            </StackPanel>
+                                            <StackPanel
+                                                Grid.Column="1"
+                                                Margin="10,0,0,0"
+                                                Orientation="Horizontal">
+                                                <Button
+                                                    MinWidth="50"
+                                                    Margin="2,0"
+                                                    Padding="5,2"
+                                                    Click="BtnExecuteScript_Click"
+                                                    Content="执行"
+                                                    FontSize="10"
+                                                    IsEnabled="{Binding CanExecute}"
+                                                    Style="{StaticResource ButtonPrimary}"
+                                                    Tag="{Binding}" />
+                                                <Button
+                                                    MinWidth="50"
+                                                    Margin="2,0"
+                                                    Padding="5,2"
+                                                    Click="BtnStopScript_Click"
+                                                    Content="停止"
+                                                    FontSize="10"
+                                                    IsEnabled="{Binding CanStop}"
+                                                    Style="{StaticResource ButtonDanger}"
+                                                    Tag="{Binding}" />
+                                                <Button
+                                                    MinWidth="50"
+                                                    Margin="2,0"
+                                                    Padding="5,2"
+                                                    Click="BtnRemoveScript_Click"
+                                                    Content="移除"
+                                                    FontSize="10"
+                                                    Style="{StaticResource ButtonDefault}"
+                                                    Tag="{Binding}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- 脚本预览区 -->
+                        <Border
+                            Grid.Row="1"
+                            MinHeight="100"
+                            MaxHeight="200"
+                            Margin="0,10,0,0"
+                            Padding="10"
+                            Background="{DynamicResource TabItem.Background}"
                             BorderBrush="#607080"
                             BorderThickness="1"
-                            VerticalContentAlignment="Center"
-                            HorizontalAlignment="Stretch"
-                            KeyDown="TxtNewCommand_KeyDown"
-                            Style="{StaticResource BaseTextBox}" />
-                        <Button
-                            Grid.Column="1"
-                            MinWidth="50"
-                            Click="BtnAddCommand_Click"
-                            Content="添加"
-                            Style="{StaticResource ButtonPrimary}" />
-                    </Grid>
+                            CornerRadius="3"
+                            Visibility="{Binding ElementName=ListBoxScripts, Path=SelectedItem, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Margin="0,0,0,5"
+                                    FontSize="11"
+                                    FontWeight="Bold"
+                                    Style="{StaticResource BaseTextBlock}"
+                                    Text="脚本内容预览:" />
+                                <TextBox
+                                    Grid.Row="1"
+                                    Name="TxtScriptPreview"
+                                    Padding="5"
+                                    Background="Transparent"
+                                    FontFamily="Consolas"
+                                    FontSize="11"
+                                    Foreground="{DynamicResource Window.Foreground}"
+                                    IsReadOnly="True"
+                                    Style="{StaticResource BaseTextBox}"
+                                    Text="{Binding ElementName=ListBoxScripts, Path=SelectedItem.Content, Mode=OneWay}"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Auto"
+                                    VerticalContentAlignment="Top" />
+                            </Grid>
+                        </Border>
 
-                    <!-- 指令列表 -->
-                    <DataGrid
-                        Grid.Row="2"
-                        Name="DataGridCommands"
-                        AutoGenerateColumns="False"
-                        CanUserAddRows="False"
-                        CanUserDeleteRows="False"
-                        HeadersVisibility="Column"
-                        IsReadOnly="True"
-                        SelectionMode="Single"
-                        SelectionUnit="FullRow"
-                        Background="{DynamicResource TabItem.Background}"
-                        RowBackground="{DynamicResource TabItem.Background}"
-                        AlternatingRowBackground="{DynamicResource TabItem.Background}"
-                        BorderBrush="{DynamicResource TabItem.Background}"
-                        GridLinesVisibility="Horizontal">
-                        <DataGrid.CellStyle>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Background" Value="Transparent" />
-                                <Setter Property="BorderBrush" Value="{DynamicResource TabItem.Background}" />
-                            </Style>
-                        </DataGrid.CellStyle>
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow">
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="#30507080" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </DataGrid.RowStyle>
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="30">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox
-                                            IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            Style="{StaticResource NormalCheckBox}"
-                                            VerticalAlignment="Center" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="指令" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock
-                                            Margin="5,2"
-                                            Style="{StaticResource BaseTextBlock}"
-                                            Text="{Binding Command}"
-                                            TextTrimming="CharacterEllipsis"
-                                            ToolTip="{Binding Command}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="时延" Width="50">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock
-                                            HorizontalAlignment="Center"
-                                            Style="{StaticResource BaseTextBlock}"
-                                            Text="{Binding Delay}" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- 底部按钮 -->
-                    <StackPanel
-                        Grid.Row="3"
-                        Margin="0,10,0,0"
-                        Orientation="Horizontal">
-                        <Button
-                            MinWidth="80"
-                            Click="BtnExecuteSelected_Click"
-                            Content="发送选中"
-                            Style="{StaticResource ButtonPrimary}" />
-                        <CheckBox
-                            Name="ChkLoop"
-                            Margin="15,0,0,0"
+                        <!-- 空状态提示 -->
+                        <TextBlock
+                            Grid.Row="0"
+                            HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Content="循环"
-                            Click="ChkLoop_Click"
-                            Style="{StaticResource NormalCheckBox}" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+                            FontSize="14"
+                            Foreground="Gray"
+                            Style="{StaticResource BaseTextBlock}"
+                            Text="暂无脚本，请点击顶部 导入脚本 按钮"
+                            Visibility="{Binding ElementName=ListBoxScripts, Path=Items.Count, Converter={StaticResource CountToVisibilityConverter}}" />
+                    </Grid>
+                </TabItem>
+            </TabControl>
 
             <!-- 分割条 -->
             <GridSplitter
@@ -329,16 +504,11 @@
                             FontSize="12"
                             Foreground="{DynamicResource Window.Foreground}"
                             TextWrapping="Wrap"
-                            IsReadOnly="False"
+                            IsReadOnly="True"
                             IsReadOnlyCaretVisible="False"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Auto"
-                            BorderThickness="0"
-                            AcceptsReturn="True"
-                            AcceptsTab="True"
-                            PreviewKeyDown="TxtOutput_PreviewKeyDown"
-                            SelectionChanged="TxtOutput_SelectionChanged"
-                            TextChanged="TxtOutput_TextChanged" />
+                            BorderThickness="0" />
                     </Border>
 
                     <!-- 输入指令区 -->

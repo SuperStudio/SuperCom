@@ -1,5 +1,6 @@
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
+using SuperCom.Core.Commands;
 using SuperControls.Style;
 using SuperControls.Style.Windows;
 using SuperUtils.Common;
@@ -26,6 +27,7 @@ namespace SuperCom.Windows
         private System.Diagnostics.Process _cmdProcess;
         private CancellationTokenSource _outputCts;
         private CancellationTokenSource _batchCts;
+        private CancellationTokenSource _scriptCts;  // 脚本执行取消令牌
         private bool _isRunning;
         private bool _isLoopExecute; // 循环执行标志
         private string _currentOutputPath;
@@ -38,7 +40,12 @@ namespace SuperCom.Windows
         private int _userInputStart = 0;   // 当前行用户输入区域的起点（Enter插入换行后的位置）
         private string _currentPrompt = "";  // 当前命令提示符文本
 
+        // 脚本管理
+        private ScriptItem _currentExecutingScript;  // 当前正在执行的脚本
+        private bool _isExecutingScript;  // 是否正在执行脚本
+
         public ObservableCollection<Entity.CmdCommand> Commands { get; set; }
+        public ObservableCollection<Entity.ScriptItem> Scripts { get; set; }
 
         #endregion
 
@@ -46,8 +53,10 @@ namespace SuperCom.Windows
         {
             InitializeComponent();
             Commands = new ObservableCollection<Entity.CmdCommand>();
+            Scripts = new ObservableCollection<Entity.ScriptItem>();
             DataContext = this;
             DataGridCommands.ItemsSource = Commands;
+            ListBoxScripts.ItemsSource = Scripts;
 
             // 加载设置
             _defaultDelay = ConfigManager.CmdSettings.DefaultDelay > 0
@@ -57,6 +66,9 @@ namespace SuperCom.Windows
 
             // 加载指令列表
             LoadCommands();
+
+            // 绑定快捷键
+            BindHotkeys();
 
             UpdateStatus("就绪");
         }
@@ -607,6 +619,234 @@ namespace SuperCom.Windows
 
         #endregion
 
+        #region 脚本管理
+
+        private void BindHotkeys()
+        {
+            // Ctrl+I 导入脚本
+            var importBinding = new KeyBinding(
+                new RelayCommand(BtnImportScript_Click),
+                Key.I,
+                ModifierKeys.Control);
+            InputBindings.Add(importBinding);
+        }
+
+        private void BtnImportScript_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "导入脚本",
+                Filter = "批处理脚本 (*.bat;*.cmd)|*.bat;*.cmd|PowerShell 脚本 (*.ps1)|*.ps1|所有文件 (*.*)|*.*",
+                Multiselect = true,
+                CheckFileExists = true
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            int added = 0;
+            foreach (string filePath in dialog.FileNames)
+            {
+                // 检查是否已导入
+                if (Scripts.Any(s => s.ScriptPath == filePath))
+                {
+                    AppendOutput($"\r\n[提示] 脚本已存在: {filePath}\r\n");
+                    continue;
+                }
+
+                var script = new Entity.ScriptItem
+                {
+                    ScriptPath = filePath,
+                    Status = Entity.ScriptStatus.Waiting
+                };
+
+                if (script.LoadContent())
+                {
+                    Scripts.Add(script);
+                    added++;
+                    AppendOutput($"\r\n[导入] {script.FileName}\r\n");
+                }
+                else
+                {
+                    AppendOutput($"\r\n[错误] 无法读取: {filePath}\r\n");
+                }
+            }
+
+            if (added > 0)
+            {
+                UpdateStatus($"已导入 {added} 个脚本");
+                ListBoxScripts.SelectedIndex = 0;  // 选中第一个
+            }
+        }
+
+        private void ListBoxScripts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // 选择改变时，预览区会自动通过绑定更新
+        }
+
+        private async void BtnExecuteScript_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is Entity.ScriptItem script)
+            {
+                await ExecuteScriptAsync(script);
+            }
+        }
+
+        private async Task ExecuteScriptAsync(Entity.ScriptItem script)
+        {
+            if (_isExecutingScript)
+            {
+                MessageCard.Warning("已有脚本正在执行，请先停止");
+                return;
+            }
+
+            if (!_isRunning || _cmdProcess == null || _cmdProcess.HasExited)
+            {
+                MessageCard.Warning("请先启动 CMD 进程");
+                return;
+            }
+
+            _isExecutingScript = true;
+            _currentExecutingScript = script;
+            script.IsExecuting = true;
+            script.Status = Entity.ScriptStatus.Executing;
+
+            _scriptCts = new CancellationTokenSource();
+
+            AppendOutput($"\r\n{new string('=', 40)}\r\n");
+            AppendOutput($"[脚本开始] {script.FileName}\r\n");
+            AppendOutput($"路径: {script.ScriptPath}\r\n");
+            AppendOutput($"{new string('=', 40)}\r\n\r\n");
+
+            try
+            {
+                if (script.IsPowerShellScript)
+                {
+                    // PowerShell 脚本：使用 powershell -File 执行
+                    await SendCommandAsync($"powershell -ExecutionPolicy Bypass -File \"{script.ScriptPath}\"");
+                }
+                else
+                {
+                    // 批处理脚本：直接调用
+                    await SendCommandAsync($"\"{script.ScriptPath}\"");
+                }
+
+                // 等待脚本执行完成（简单方案：等待一段时间后检查）
+                // 实际应用中可能需要更复杂的检测机制
+                await Task.Delay(1000);  // 给脚本一点启动时间
+                
+                // 简单的完成检测：等待输出稳定
+                int stableCount = 0;
+                int lastLength = _outputBuilder.Length;
+                while (stableCount < 3 && !_scriptCts.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(500);
+                    if (_outputBuilder.Length == lastLength)
+                        stableCount++;
+                    else
+                        stableCount = 0;
+                    lastLength = _outputBuilder.Length;
+                }
+
+                if (!_scriptCts.Token.IsCancellationRequested)
+                {
+                    script.Status = Entity.ScriptStatus.Completed;
+                    AppendOutput($"\r\n\r\n{new string('=', 40)}\r\n");
+                    AppendOutput($"[脚本完成] {script.FileName}\r\n");
+                    AppendOutput($"{new string('=', 40)}\r\n\r\n");
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                script.Status = Entity.ScriptStatus.Stopped;
+                AppendOutput($"\r\n\r\n{new string('=', 40)}\r\n");
+                AppendOutput($"[脚本停止] {script.FileName}\r\n");
+                AppendOutput($"{new string('=', 40)}\r\n\r\n");
+            }
+            catch (Exception ex)
+            {
+                script.Status = Entity.ScriptStatus.Error;
+                AppendOutput($"\r\n[脚本错误] {ex.Message}\r\n");
+            }
+            finally
+            {
+                _isExecutingScript = false;
+                script.IsExecuting = false;
+                _currentExecutingScript = null;
+                script.RefreshStatus();
+                UpdateStatus("就绪");
+            }
+        }
+
+        private void BtnStopScript_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is Entity.ScriptItem script)
+            {
+                StopScript(script);
+            }
+        }
+
+        private void StopScript(Entity.ScriptItem script)
+        {
+            if (!script.IsExecuting)
+                return;
+
+            try
+            {
+                // 发送 Ctrl+C 信号
+                SendCtrlC();
+                _scriptCts?.Cancel();
+                UpdateStatus("正在停止脚本...");
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"\r\n[停止失败] {ex.Message}\r\n");
+            }
+        }
+
+        private void SendCtrlC()
+        {
+            if (_cmdProcess == null || _cmdProcess.HasExited)
+                return;
+
+            try
+            {
+                // 方法1：发送 Ctrl+C 信号
+                bool success = NativeMethods.AttachConsole((uint)_cmdProcess.Id);
+                if (success)
+                {
+                    NativeMethods.GenerateConsoleCtrlEvent(NativeMethods.CTRL_C_EVENT, 0);
+                    NativeMethods.FreeConsole();
+                }
+                else
+                {
+                    // 方法2：如果 AttachConsole 失败，尝试直接终止子进程
+                    // 注意：这会终止整个 CMD 进程
+                    AppendOutput("\r\n[警告] 无法发送中断信号，请手动停止\r\n");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppendOutput($"\r\n[发送中断信号失败] {ex.Message}\r\n");
+            }
+        }
+
+        private void BtnRemoveScript_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is Entity.ScriptItem script)
+            {
+                if (script.IsExecuting)
+                {
+                    MessageCard.Warning("请先停止脚本执行");
+                    return;
+                }
+                Scripts.Remove(script);
+                UpdateStatus($"已移除: {script.FileName}");
+            }
+        }
+
+        #endregion
+
         #region 窗口事件
 
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)
@@ -623,4 +863,29 @@ namespace SuperCom.Windows
 
         #endregion
     }
+
+    #region Native Methods
+
+    /// <summary>
+    /// Windows API 调用，用于向控制台进程发送控制信号
+    /// </summary>
+    internal static class NativeMethods
+    {
+        public const int CTRL_C_EVENT = 0;
+        public const int CTRL_BREAK_EVENT = 1;
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern bool AttachConsole(uint dwProcessId);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern bool FreeConsole();
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern bool SetConsoleCtrlHandler(IntPtr handlerRoutine, bool add);
+    }
+
+    #endregion
 }

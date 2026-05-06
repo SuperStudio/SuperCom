@@ -149,6 +149,7 @@
     <Compile Include="Controls\SidePanel\ComSidePanel.xaml.cs">
       <DependentUpon>ComSidePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\Commands\RelayCommand.cs" />
     <Compile Include="Core\Comparers\ComPortComparer.cs" />
     <Compile Include="Core\Config\VarMonitorSetting.cs" />
     <Compile Include="Core\Config\ConfigImport.cs" />
@@ -184,6 +185,7 @@
     <Compile Include="Core\Entity\ShortCutBinding.cs" />
     <Compile Include="Core\Entity\PortSetting.cs" />
     <Compile Include="Core\Entity\Enums\SplitPanelType.cs" />
+    <Compile Include="Core\Entity\ScriptItem.cs" />
     <Compile Include="Core\Entity\TabInfo.cs" />
     <Compile Include="Core\Entity\VarMonitor.cs" />
     <Compile Include="Core\Entity\VirtualPort.cs" />

@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Net.Mime;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
@@ -79,6 +80,11 @@ namespace SuperCom
         private Window_CMD window_CMD { get; set; }
         private Window_AdvancedSend window_AdvancedSend { get; set; }
         public VieModel_Main vieModel { get; set; }
+
+        /// <summary>
+        /// WMI 串口移除监听器，用于检测串口被外部拔出
+        /// </summary>
+        private ManagementEventWatcher _portRemovalWatcher;
 
         /// <summary>
         /// 支持标签栏拖拽
@@ -140,6 +146,7 @@ namespace SuperCom
             InitNotice();
             ApplyScreenStatus();
             InitEventManager();
+            StartPortRemovalWatcher();
         }
 
         private void InitEventManager()
@@ -745,6 +752,92 @@ namespace SuperCom
             return true;
         }
 
+        /// <summary>
+        /// 启动 WMI 串口移除监听器，检测串口被外部拔出
+        /// </summary>
+        private void StartPortRemovalWatcher()
+        {
+            try
+            {
+                // 监听 Win32_SerialPort 实例删除事件（串口拔出）
+                WqlEventQuery query = new WqlEventQuery(
+                    "SELECT * FROM __InstanceDeletionEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_SerialPort'");
+                _portRemovalWatcher = new ManagementEventWatcher(query);
+                _portRemovalWatcher.EventArrived += OnPortRemoved;
+                _portRemovalWatcher.Start();
+                Logger.Info("Port removal watcher started");
+            }
+            catch (Exception ex)
+            {
+                // WMI 监听可能因权限或服务未启动而失败，不影响主功能
+                Logger.Error($"Failed to start port removal watcher: {ex.Message}");
+                _portRemovalWatcher = null;
+            }
+        }
+
+        /// <summary>
+        /// 停止串口移除监听器
+        /// </summary>
+        private void StopPortRemovalWatcher()
+        {
+            try
+            {
+                if (_portRemovalWatcher != null)
+                {
+                    _portRemovalWatcher.Stop();
+                    _portRemovalWatcher.Dispose();
+                    _portRemovalWatcher = null;
+                    Logger.Info("Port removal watcher stopped");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to stop port removal watcher: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 串口拔出事件处理
+        /// </summary>
+        private void OnPortRemoved(object sender, EventArrivedEventArgs e)
+        {
+            try
+            {
+                ManagementBaseObject targetInstance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+                string deviceId = targetInstance["DeviceID"]?.ToString();
+                if (string.IsNullOrEmpty(deviceId))
+                    return;
+
+                // DeviceID 格式通常为 "COM3" 等
+                string portName = deviceId;
+                Logger.Info($"Detected port removal: {portName}");
+
+                App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+                    if (vieModel.PortTabItems == null)
+                        return;
+
+                    PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(p => p.Name.Equals(portName));
+                    if (portTabItem != null && portTabItem.Connected)
+                    {
+                        try
+                        {
+                            if (portTabItem.SerialPort != null && portTabItem.SerialPort.IsOpen)
+                                portTabItem.SerialPort.Close();
+                        }
+                        catch { /* 忽略关闭异常 */ }
+
+                        portTabItem.Connected = false;
+                        MessageCard.Error($"串口 {portName} 已断开连接（设备被移除）");
+                        Logger.Info($"Port {portName} marked as disconnected due to device removal");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error in port removal handler: {ex.Message}");
+            }
+        }
+
         private async Task<bool> OpenPortTabItem(string portName, bool connect)
         {
             // 打开窗口
@@ -1048,6 +1141,9 @@ namespace SuperCom
             
             // 保存扩展功能面板配置
             SaveQuickCommandPanelConfig();
+            
+            // 停止串口移除监听器
+            StopPortRemovalWatcher();
             
             try {
                 await CloseAllConnectPort();
@@ -3208,19 +3304,40 @@ namespace SuperCom
                     return;
                 }
 
-                // 发送指令
-                string command = item.Command;
-                if (item.IsHex)
+                // 发送前检查端口是否实际可用
+                if (selectedPort.SerialPort == null || !selectedPort.SerialPort.IsOpen)
                 {
-                    // HEX 模式发送
-                    byte[] bytes = selectedPort.CalcHexValue(command);
-                    if (bytes != null && bytes.Length > 0)
-                        selectedPort.SerialPort.Write(bytes, 0, bytes.Length);
+                    selectedPort.Connected = false;
+                    MessageCard.Error($"串口 {selectedPort.Name} 已断开连接");
+                    return;
                 }
-                else
+
+                try
                 {
-                    // 字符串模式发送
-                    selectedPort.SerialPort.WriteLine(command);
+                    // 发送指令
+                    string command = item.Command;
+                    if (item.IsHex)
+                    {
+                        // HEX 模式发送
+                        byte[] bytes = selectedPort.CalcHexValue(command);
+                        if (bytes != null && bytes.Length > 0)
+                            selectedPort.SerialPort.Write(bytes, 0, bytes.Length);
+                    }
+                    else
+                    {
+                        // 字符串模式发送
+                        selectedPort.SerialPort.WriteLine(command);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // 端口已关闭，更新连接状态
+                    selectedPort.Connected = false;
+                    MessageCard.Error($"串口 {selectedPort.Name} 已断开连接");
+                }
+                catch (Exception ex)
+                {
+                    MessageCard.Error($"发送失败：{ex.Message}");
                 }
             }
         }

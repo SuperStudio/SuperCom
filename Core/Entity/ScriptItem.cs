@@ -78,7 +78,7 @@ namespace SuperCom.Entity
         public bool IsBatchScript => Extension == ".bat" || Extension == ".cmd";
         public bool IsPowerShellScript => Extension == ".ps1";
 
-        public bool CanExecute => !IsExecuting && Status != ScriptStatus.Completed;
+        public bool CanExecute => !IsExecuting || Status == ScriptStatus.Completed || Status == ScriptStatus.Stopped || Status == ScriptStatus.Error;
         public bool CanStop => IsExecuting;
 
         public string StatusText => Status switch

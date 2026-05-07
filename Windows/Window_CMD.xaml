@@ -129,11 +129,10 @@
                 Name="LeftTabControl"
                 Padding="0"
                 Background="Transparent"
-                BorderThickness="0"
-                Style="{StaticResource BaseTabControl}">
+                BorderThickness="0">
                 
                 <!-- Tab 1: 指令列表 -->
-                <TabItem Header="指令列表" Style="{StaticResource BaseTabItem}">
+                <TabItem Header="指令列表">
                     <Border Padding="10" Background="{DynamicResource TabItem.Background}">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -289,7 +288,7 @@
                 </TabItem>
 
                 <!-- Tab 2: 脚本列表 -->
-                <TabItem Header="脚本列表" Style="{StaticResource BaseTabItem}">
+                <TabItem Header="脚本列表">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
@@ -353,17 +352,6 @@
                                                     Content="执行"
                                                     FontSize="10"
                                                     IsEnabled="{Binding CanExecute}"
-                                                    Style="{StaticResource ButtonPrimary}"
-                                                    Tag="{Binding}" />
-                                                <Button
-                                                    MinWidth="50"
-                                                    Margin="2,0"
-                                                    Padding="5,2"
-                                                    Click="BtnStopScript_Click"
-                                                    Content="停止"
-                                                    FontSize="10"
-                                                    IsEnabled="{Binding CanStop}"
-                                                    Style="{StaticResource ButtonDanger}"
                                                     Tag="{Binding}" />
                                                 <Button
                                                     MinWidth="50"
@@ -372,7 +360,7 @@
                                                     Click="BtnRemoveScript_Click"
                                                     Content="移除"
                                                     FontSize="10"
-                                                    Style="{StaticResource ButtonDefault}"
+                                                    Style="{StaticResource BorderButton}"
                                                     Tag="{Binding}" />
                                             </StackPanel>
                                         </Grid>
@@ -414,8 +402,7 @@
                                     FontSize="11"
                                     Foreground="{DynamicResource Window.Foreground}"
                                     IsReadOnly="True"
-                                    Style="{StaticResource BaseTextBox}"
-                                    Text="{Binding ElementName=ListBoxScripts, Path=SelectedItem.Content, Mode=OneWay}"
+                                    Text="{Binding ElementName=ListBoxScripts, Path=SelectedItem.Content, Mode=OneWay, TargetNullValue=''}"
                                     TextWrapping="Wrap"
                                     VerticalScrollBarVisibility="Auto"
                                     VerticalContentAlignment="Top" />

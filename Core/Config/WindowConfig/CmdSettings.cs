@@ -79,6 +79,15 @@ namespace SuperCom.Config.WindowConfig
             set { _CommandsJson = value; RaisePropertyChanged(); }
         }
 
+        private string _ScriptsJson { get; set; } = "";
+        /// <summary>
+        /// 脚本列表 JSON（仅存储 ScriptPath，Content 动态加载）
+        /// </summary>
+        public string ScriptsJson {
+            get { return _ScriptsJson; }
+            set { _ScriptsJson = value; RaisePropertyChanged(); }
+        }
+
         public double X { get; set; }
         public double Y { get; set; }
         public double Width { get; set; }

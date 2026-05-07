@@ -10,6 +10,7 @@
     <RootNamespace>SuperCom</RootNamespace>
     <AssemblyName>SuperCom</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <LangVersion>9.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -167,6 +168,7 @@
     <Compile Include="Core\Converters\ColorToBrushConverter.cs" />
     <Compile Include="Core\Converters\RuleTypeEnumConverter.cs" />
     <Compile Include="Core\Converters\ComboBoxSelectedIndexConverter.cs" />
+    <Compile Include="Core\Converters\ScriptConverters.cs" />
     <Compile Include="Core\Entity\AdvancedSend.cs" />
     <Compile Include="Core\Entity\CmdCommand.cs" />
     <Compile Include="Core\Entity\ComSettings.cs" />

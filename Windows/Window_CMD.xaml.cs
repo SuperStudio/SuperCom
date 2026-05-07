@@ -1,6 +1,7 @@
 using SuperCom.Config;
 using SuperCom.Config.WindowConfig;
 using SuperCom.Core.Commands;
+using SuperCom.Entity;
 using SuperControls.Style;
 using SuperControls.Style.Windows;
 using SuperUtils.Common;
@@ -9,6 +10,7 @@ using SuperUtils.Time;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -49,28 +51,68 @@ namespace SuperCom.Windows
 
         #endregion
 
+        private static readonly string LogPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "SuperCom", "logs", "window_cmd_init.log");
+
         public Window_CMD()
         {
-            InitializeComponent();
-            Commands = new ObservableCollection<Entity.CmdCommand>();
-            Scripts = new ObservableCollection<Entity.ScriptItem>();
-            DataContext = this;
-            DataGridCommands.ItemsSource = Commands;
-            ListBoxScripts.ItemsSource = Scripts;
+            // 初始化前检查
+            try {
+                var dir = Path.GetDirectoryName(LogPath);
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                File.AppendAllText(LogPath,
+                    $"[{DateTime.Now:HH:mm:ss.fff}] Window_CMD 构造开始\n", Encoding.UTF8);
+            } catch { }
 
-            // 加载设置
-            _defaultDelay = ConfigManager.CmdSettings.DefaultDelay > 0
-                ? ConfigManager.CmdSettings.DefaultDelay
-                : 1000;
-            TxtDefaultDelay.Text = _defaultDelay.ToString();
+            try {
+                InitializeComponent();
+                try { File.AppendAllText(LogPath, $"[{DateTime.Now:HH:mm:ss.fff}] InitializeComponent 成功\n", Encoding.UTF8); } catch { }
+            } catch (Exception ex) {
+                var msg = $"InitializeComponent 失败:\n{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
+                try { File.AppendAllText(LogPath, $"[{DateTime.Now:HH:mm:ss.fff}] {msg}\n", Encoding.UTF8); } catch { }
+                MessageBox.Show(msg, "初始化失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                throw;
+            }
 
-            // 加载指令列表
-            LoadCommands();
+            try
+            {
+                Commands = new ObservableCollection<Entity.CmdCommand>();
+                Scripts = new ObservableCollection<Entity.ScriptItem>();
+                DataContext = this;
+                DataGridCommands.ItemsSource = Commands;
+                ListBoxScripts.ItemsSource = Scripts;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("集合初始化失败: " + ex.Message + "\n" + ex.StackTrace, "错误");
+                throw;
+            }
 
-            // 绑定快捷键
-            BindHotkeys();
+            try
+            {
+                // 加载设置
+                _defaultDelay = ConfigManager.CmdSettings.DefaultDelay > 0
+                    ? ConfigManager.CmdSettings.DefaultDelay
+                    : 1000;
+                TxtDefaultDelay.Text = _defaultDelay.ToString();
 
-            UpdateStatus("就绪");
+                // 加载指令列表
+                LoadCommands();
+
+                // 加载脚本列表
+                LoadScripts();
+
+                // 绑定快捷键
+                BindHotkeys();
+
+                UpdateStatus("就绪");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("初始化失败: " + ex.Message + "\n" + ex.StackTrace, "错误");
+                throw;
+            }
         }
 
         private void LoadCommands()
@@ -93,6 +135,36 @@ namespace SuperCom.Windows
                 list[i].Order = i;
             ConfigManager.CmdSettings.CommandsJson = JsonUtils.TrySerializeObject(list);
             ConfigManager.CmdSettings.Save();
+        }
+
+        private void SaveScripts()
+        {
+            // 仅保存 ScriptPath 列表（不保存 Content，因为文件内容太大）
+            var paths = Scripts.Select(s => s.ScriptPath).ToList();
+            ConfigManager.CmdSettings.ScriptsJson = JsonUtils.TrySerializeObject(paths);
+            ConfigManager.CmdSettings.Save();
+        }
+
+        private void LoadScripts()
+        {
+            Scripts.Clear();
+            string json = ConfigManager.CmdSettings.ScriptsJson;
+            if (!string.IsNullOrEmpty(json))
+            {
+                var paths = JsonUtils.TryDeserializeObject<List<string>>(json);
+                if (paths != null)
+                {
+                    foreach (var path in paths)
+                    {
+                        if (File.Exists(path) && !Scripts.Any(s => s.ScriptPath == path))
+                        {
+                            var script = new Entity.ScriptItem { ScriptPath = path };
+                            script.LoadContent();
+                            Scripts.Add(script);
+                        }
+                    }
+                }
+            }
         }
 
         private void UpdateStatus(string text)
@@ -625,7 +697,7 @@ namespace SuperCom.Windows
         {
             // Ctrl+I 导入脚本
             var importBinding = new KeyBinding(
-                new RelayCommand(BtnImportScript_Click),
+                new RelayCommand(_ => BtnImportScript_Click(null, null)),
                 Key.I,
                 ModifierKeys.Control);
             InputBindings.Add(importBinding);
@@ -633,49 +705,59 @@ namespace SuperCom.Windows
 
         private void BtnImportScript_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
+            try
             {
-                Title = "导入脚本",
-                Filter = "批处理脚本 (*.bat;*.cmd)|*.bat;*.cmd|PowerShell 脚本 (*.ps1)|*.ps1|所有文件 (*.*)|*.*",
-                Multiselect = true,
-                CheckFileExists = true
-            };
-
-            if (dialog.ShowDialog() != true)
-                return;
-
-            int added = 0;
-            foreach (string filePath in dialog.FileNames)
-            {
-                // 检查是否已导入
-                if (Scripts.Any(s => s.ScriptPath == filePath))
+                var dialog = new Microsoft.Win32.OpenFileDialog
                 {
-                    AppendOutput($"\r\n[提示] 脚本已存在: {filePath}\r\n");
-                    continue;
-                }
-
-                var script = new Entity.ScriptItem
-                {
-                    ScriptPath = filePath,
-                    Status = Entity.ScriptStatus.Waiting
+                    Title = "导入脚本",
+                    Filter = "批处理脚本 (*.bat;*.cmd)|*.bat;*.cmd|PowerShell 脚本 (*.ps1)|*.ps1|所有文件 (*.*)|*.*",
+                    Multiselect = true,
+                    CheckFileExists = true
                 };
 
-                if (script.LoadContent())
+                if (dialog.ShowDialog() != true)
+                    return;
+
+                int added = 0;
+                foreach (string filePath in dialog.FileNames)
                 {
-                    Scripts.Add(script);
-                    added++;
-                    AppendOutput($"\r\n[导入] {script.FileName}\r\n");
+                    // 检查是否已导入
+                    if (Scripts.Any(s => s.ScriptPath == filePath))
+                    {
+                        AppendOutput($"\r\n[提示] 脚本已存在: {filePath}\r\n");
+                        continue;
+                    }
+
+                    var script = new Entity.ScriptItem
+                    {
+                        ScriptPath = filePath,
+                        Status = Entity.ScriptStatus.Waiting
+                    };
+
+                    if (script.LoadContent())
+                    {
+                        Scripts.Add(script);
+                        added++;
+                        AppendOutput($"\r\n[导入] {script.FileName}\r\n");
+                    }
+                    else
+                    {
+                        AppendOutput($"\r\n[错误] 无法读取: {filePath}\r\n");
+                    }
                 }
-                else
+
+                if (added > 0)
                 {
-                    AppendOutput($"\r\n[错误] 无法读取: {filePath}\r\n");
+                    UpdateStatus($"已导入 {added} 个脚本");
+                    // 延迟选择，让 ListBox 有时间完成渲染
+                    Dispatcher.BeginInvoke(new Action(() => {
+                        try { ListBoxScripts.SelectedIndex = 0; } catch { }
+                    }), System.Windows.Threading.DispatcherPriority.Loaded);
                 }
             }
-
-            if (added > 0)
+            catch (Exception ex)
             {
-                UpdateStatus($"已导入 {added} 个脚本");
-                ListBoxScripts.SelectedIndex = 0;  // 选中第一个
+                MessageBox.Show("导入脚本异常:\n" + ex.GetType().Name + ": " + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -694,6 +776,8 @@ namespace SuperCom.Windows
 
         private async Task ExecuteScriptAsync(Entity.ScriptItem script)
         {
+            if (script == null) return;
+
             if (_isExecutingScript)
             {
                 MessageCard.Warning("已有脚本正在执行，请先停止");
@@ -706,11 +790,14 @@ namespace SuperCom.Windows
                 return;
             }
 
+            // 重置脚本状态为等待中（允许重复执行）
+            script.Status = ScriptStatus.Waiting;
+            script.IsExecuting = true;
             _isExecutingScript = true;
             _currentExecutingScript = script;
-            script.IsExecuting = true;
-            script.Status = Entity.ScriptStatus.Executing;
-
+            
+            // 创建新的取消令牌源
+            _scriptCts?.Dispose();
             _scriptCts = new CancellationTokenSource();
 
             AppendOutput($"\r\n{new string('=', 40)}\r\n");
@@ -727,18 +814,20 @@ namespace SuperCom.Windows
                 }
                 else
                 {
-                    // 批处理脚本：直接调用
-                    await SendCommandAsync($"\"{script.ScriptPath}\"");
+                    // 批处理脚本：直接调用（使用 call 命令确保正确执行）
+                    await SendCommandAsync($"call \"{script.ScriptPath}\"");
                 }
 
-                // 等待脚本执行完成（简单方案：等待一段时间后检查）
-                // 实际应用中可能需要更复杂的检测机制
-                await Task.Delay(1000);  // 给脚本一点启动时间
+                // 等待脚本执行完成
+                await Task.Delay(500);  // 给脚本一点启动时间
                 
-                // 简单的完成检测：等待输出稳定
+                // 检测脚本执行完成：等待输出稳定
                 int stableCount = 0;
                 int lastLength = _outputBuilder.Length;
-                while (stableCount < 3 && !_scriptCts.Token.IsCancellationRequested)
+                const int maxWaitIterations = 60; // 最多等待30秒
+                int iterations = 0;
+                
+                while (stableCount < 3 && !_scriptCts.Token.IsCancellationRequested && iterations < maxWaitIterations)
                 {
                     await Task.Delay(500);
                     if (_outputBuilder.Length == lastLength)
@@ -746,6 +835,7 @@ namespace SuperCom.Windows
                     else
                         stableCount = 0;
                     lastLength = _outputBuilder.Length;
+                    iterations++;
                 }
 
                 if (!_scriptCts.Token.IsCancellationRequested)
@@ -770,64 +860,48 @@ namespace SuperCom.Windows
             }
             finally
             {
+                // 安全地重置状态
                 _isExecutingScript = false;
-                script.IsExecuting = false;
                 _currentExecutingScript = null;
-                script.RefreshStatus();
+                
+                if (script != null)
+                {
+                    script.IsExecuting = false;
+                    // 如果状态还是Waiting（未改变），说明执行异常，设为Error
+                    if (script.Status == ScriptStatus.Waiting)
+                    {
+                        script.Status = ScriptStatus.Error;
+                    }
+                    script.RefreshStatus();
+                }
+                
                 UpdateStatus("就绪");
             }
         }
 
-        private void BtnStopScript_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Tag is Entity.ScriptItem script)
-            {
-                StopScript(script);
-            }
-        }
-
-        private void StopScript(Entity.ScriptItem script)
-        {
-            if (!script.IsExecuting)
-                return;
-
-            try
-            {
-                // 发送 Ctrl+C 信号
-                SendCtrlC();
-                _scriptCts?.Cancel();
-                UpdateStatus("正在停止脚本...");
-            }
-            catch (Exception ex)
-            {
-                AppendOutput($"\r\n[停止失败] {ex.Message}\r\n");
-            }
-        }
+        // 停止按钮已从XAML移除，脚本执行完成或取消后自动停止
+        // 如需手动停止，可关闭CMD窗口或使用顶部"停止"按钮
 
         private void SendCtrlC()
         {
             if (_cmdProcess == null || _cmdProcess.HasExited)
                 return;
 
+            // 发送 Ctrl+C 信号（AttachConsole 在后台线程安全执行）
             try
             {
-                // 方法1：发送 Ctrl+C 信号
                 bool success = NativeMethods.AttachConsole((uint)_cmdProcess.Id);
                 if (success)
                 {
                     NativeMethods.GenerateConsoleCtrlEvent(NativeMethods.CTRL_C_EVENT, 0);
                     NativeMethods.FreeConsole();
                 }
-                else
-                {
-                    // 方法2：如果 AttachConsole 失败，尝试直接终止子进程
-                    // 注意：这会终止整个 CMD 进程
-                    AppendOutput("\r\n[警告] 无法发送中断信号，请手动停止\r\n");
-                }
+                // AttachConsole 失败时什么都不做
+                // Task.Run 中的 BeginInvoke 会显示提示
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                AppendOutput($"\r\n[发送中断信号失败] {ex.Message}\r\n");
+                // 静默忽略，让 Task.Run 中的 BeginInvoke 显示提示
             }
         }
 
@@ -858,6 +932,7 @@ namespace SuperCom.Windows
         {
             StopProcess();
             SaveCommands();
+            SaveScripts();
             UpdateStatus("已关闭");
         }
 

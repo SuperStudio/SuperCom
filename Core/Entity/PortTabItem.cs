@@ -737,6 +737,15 @@ namespace SuperCom.Entity
         {
             if (SerialPort == null)
                 return false;
+
+            // 发送前检查端口是否实际可用
+            if (!SerialPort.IsOpen)
+            {
+                Connected = false;
+                Logger.Info($"port already closed before send: {Name}");
+                return false;
+            }
+
             if (AddNewLineWhenWrite) {
                 value += ConfigManager.Settings.NewLineText;
             }
@@ -771,6 +780,12 @@ namespace SuperCom.Entity
                 CurrentErrorCount++;
                 if (CurrentErrorCount <= MAX_ERROR_COUNT)
                     MessageCard.Error(ex.Message);
+                // 检测端口是否已断开（外部拔出等情况）
+                if (port != null && !port.IsOpen)
+                {
+                    Connected = false;
+                    Logger.Info($"port disconnected: {Name}");
+                }
                 return false;
             }
         }

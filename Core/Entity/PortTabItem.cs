@@ -520,6 +520,24 @@ namespace SuperCom.Entity
                         else
                             result = result.Replace("%R", "");
                         break;
+                    case "%MM":
+                        result = result.Replace(item, ConnectTime.Month.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%DD":
+                        result = result.Replace(item, ConnectTime.Day.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%hh":
+                        result = result.Replace(item, ConnectTime.Hour.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%mm":
+                        result = result.Replace(item, ConnectTime.Minute.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%ss":
+                        result = result.Replace(item, ConnectTime.Second.ToString().PadLeft(2, '0'));
+                        break;
+                    case "%fff":
+                        result = result.Replace(item, ConnectTime.Millisecond.ToString().PadLeft(3, '0'));
+                        break;
                     case "%Y":
                         result = result.Replace(item, ConnectTime.Year.ToString());
                         break;
@@ -554,9 +572,25 @@ namespace SuperCom.Entity
             string dirName = ConfigManager.CommonSettings.LogSaveDir;
             if (string.IsNullOrEmpty(dirName))
                 dirName = CommonSettings.DEFAULT_LOG_SAVE_DIR;
-            string logDir = GetDirByFormat(dirName);
+
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // 始终基于程序所在目录动态拼接路径，避免绝对路径在其他电脑上无效
+            // 如果是绝对路径，提取相对部分（如 logs\%Y-%MM-%DD），再与当前程序目录组合
+            if (System.IO.Path.IsPathRooted(dirName))
+            {
+                int logsIndex = dirName.IndexOf("logs", StringComparison.OrdinalIgnoreCase);
+                if (logsIndex >= 0)
+                    dirName = dirName.Substring(logsIndex);
+                else
+                    dirName = "logs";
+            }
+
+            string logDir = GetDirByFormat(System.IO.Path.Combine(baseDir, dirName));
+
             if (string.IsNullOrEmpty(logDir))
-                logDir = CommonSettings.DEFAULT_LOG_SAVE_DIR;
+                logDir = System.IO.Path.Combine(baseDir, "logs", DateTime.Now.ToString("yyyy-MM-dd"));
+
             if (!Directory.Exists(logDir))
                 Directory.CreateDirectory(logDir);
 

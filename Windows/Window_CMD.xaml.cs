@@ -194,8 +194,8 @@ namespace SuperCom.Windows
                 _cmdProcess.StartInfo.RedirectStandardOutput = true;
                 _cmdProcess.StartInfo.RedirectStandardError = true;
                 _cmdProcess.StartInfo.CreateNoWindow = true;
-                _cmdProcess.StartInfo.StandardOutputEncoding = Encoding.Default;
-                _cmdProcess.StartInfo.StandardErrorEncoding = Encoding.Default;
+                _cmdProcess.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+                _cmdProcess.StartInfo.StandardErrorEncoding = Encoding.UTF8;
 
                 _cmdProcess.EnableRaisingEvents = true;
                 _cmdProcess.Exited += CmdProcess_Exited;
@@ -240,6 +240,17 @@ namespace SuperCom.Windows
 
             try { _cmdProcess?.Dispose(); } catch { }
             _cmdProcess = null;
+
+            // 重置所有脚本的执行状态
+            _isExecutingScript = false;
+            _currentExecutingScript = null;
+            _scriptCts?.Cancel();
+            foreach (var s in Scripts)
+            {
+                s.Status = Entity.ScriptStatus.Stopped;
+                s.IsExecuting = false;
+                s.RefreshStatus();
+            }
 
             BtnStart.IsEnabled = true;
             BtnStop.IsEnabled = false;
@@ -339,6 +350,21 @@ namespace SuperCom.Windows
             bool check = ChkSelectAll.IsChecked == true;
             foreach (var cmd in Commands)
                 cmd.IsSelected = check;
+        }
+
+        private void DataGridCommands_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            // 编辑开始时清空输入框文本，避免冲突
+            TxtNewCommand.Text = "";
+        }
+
+        private void DataGridCommands_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                // 提交编辑后自动保存
+                SaveCommands();
+            }
         }
 
         private void BtnDeleteSelected_Click(object sender, RoutedEventArgs e)
@@ -770,8 +796,37 @@ namespace SuperCom.Windows
         {
             if (sender is Button btn && btn.Tag is Entity.ScriptItem script)
             {
+                // 已有一个脚本在执行：提示用户使用"停止CMD进程"按钮
+                if (_isExecutingScript)
+                {
+                    MessageCard.Warning("有脚本正在执行，请先点击工具栏的\"停止CMD进程\"按钮");
+                    return;
+                }
+
                 await ExecuteScriptAsync(script);
             }
+        }
+
+        /// <summary>
+        /// 检测脚本是否为循环运行的脚本（包含 goto LOOP、while($true) 等模式）
+        /// </summary>
+        private bool IsLoopScript(Entity.ScriptItem script)
+        {
+            if (script == null || string.IsNullOrEmpty(script.Content))
+                return false;
+
+            string content = script.Content.ToUpperInvariant();
+
+            // 批处理循环模式
+            if (content.Contains("GOTO ") && System.Text.RegularExpressions.Regex.IsMatch(content, @":\w+"))
+                return true;
+
+            // PowerShell 循环模式
+            if (content.Contains("WHOLE($TRUE)") || content.Contains("WHILE ($TRUE)") ||
+                content.Contains("FOR(;;)") || content.Contains("FOR (;;)"))
+                return true;
+
+            return false;
         }
 
         private async Task ExecuteScriptAsync(Entity.ScriptItem script)
@@ -790,8 +845,11 @@ namespace SuperCom.Windows
                 return;
             }
 
-            // 重置脚本状态为等待中（允许重复执行）
-            script.Status = ScriptStatus.Waiting;
+            // 检测是否为循环脚本
+            bool isLoop = IsLoopScript(script);
+
+            // 重置脚本状态
+            script.Status = isLoop ? ScriptStatus.Running : ScriptStatus.Waiting;
             script.IsExecuting = true;
             _isExecutingScript = true;
             _currentExecutingScript = script;
@@ -803,28 +861,36 @@ namespace SuperCom.Windows
             AppendOutput($"\r\n{new string('=', 40)}\r\n");
             AppendOutput($"[脚本开始] {script.FileName}\r\n");
             AppendOutput($"路径: {script.ScriptPath}\r\n");
+            if (isLoop)
+                AppendOutput($"[循环脚本] 将持续运行，关闭CMD进程或使用Ctrl+C停止\r\n");
             AppendOutput($"{new string('=', 40)}\r\n\r\n");
 
             try
             {
                 if (script.IsPowerShellScript)
                 {
-                    // PowerShell 脚本：使用 powershell -File 执行
                     await SendCommandAsync($"powershell -ExecutionPolicy Bypass -File \"{script.ScriptPath}\"");
                 }
                 else
                 {
-                    // 批处理脚本：直接调用（使用 call 命令确保正确执行）
                     await SendCommandAsync($"call \"{script.ScriptPath}\"");
                 }
 
-                // 等待脚本执行完成
-                await Task.Delay(500);  // 给脚本一点启动时间
-                
-                // 检测脚本执行完成：等待输出稳定
+                await Task.Delay(500);
+
+                if (isLoop)
+                {
+                    // 循环脚本：只等启动成功，不等待完成
+                    // 保持 _isExecutingScript = true，防止重复执行
+                    script.Status = ScriptStatus.Running;
+                    UpdateStatus($"运行中: {script.FileName}");
+                    return;  // 不进入 finally 的重置逻辑
+                }
+
+                // 非循环脚本：等待输出稳定判断完成
                 int stableCount = 0;
                 int lastLength = _outputBuilder.Length;
-                const int maxWaitIterations = 60; // 最多等待30秒
+                const int maxWaitIterations = 120; // 最多等待60秒
                 int iterations = 0;
                 
                 while (stableCount < 3 && !_scriptCts.Token.IsCancellationRequested && iterations < maxWaitIterations)
@@ -860,22 +926,29 @@ namespace SuperCom.Windows
             }
             finally
             {
-                // 安全地重置状态
-                _isExecutingScript = false;
-                _currentExecutingScript = null;
-                
-                if (script != null)
+                // 循环脚本仍在后台运行，不重置状态
+                if (isLoop && script.Status == ScriptStatus.Running && !_scriptCts.Token.IsCancellationRequested)
                 {
-                    script.IsExecuting = false;
-                    // 如果状态还是Waiting（未改变），说明执行异常，设为Error
-                    if (script.Status == ScriptStatus.Waiting)
-                    {
-                        script.Status = ScriptStatus.Error;
-                    }
-                    script.RefreshStatus();
+                    // _isExecutingScript 保持 true，防止重复执行
                 }
-                
-                UpdateStatus("就绪");
+                else
+                {
+                    // 安全地重置状态
+                    _isExecutingScript = false;
+                    _currentExecutingScript = null;
+                    
+                    if (script != null)
+                    {
+                        script.IsExecuting = false;
+                        if (script.Status == ScriptStatus.Waiting)
+                        {
+                            script.Status = ScriptStatus.Error;
+                        }
+                        script.RefreshStatus();
+                    }
+                    
+                    UpdateStatus("就绪");
+                }
             }
         }
 
@@ -887,21 +960,21 @@ namespace SuperCom.Windows
             if (_cmdProcess == null || _cmdProcess.HasExited)
                 return;
 
-            // 发送 Ctrl+C 信号（AttachConsole 在后台线程安全执行）
             try
             {
-                bool success = NativeMethods.AttachConsole((uint)_cmdProcess.Id);
-                if (success)
+                if (NativeMethods.AttachConsole((uint)_cmdProcess.Id))
                 {
+                    // 关键：先让本进程忽略 Ctrl+C，否则 GenerateConsoleCtrlEvent
+                    // 会把信号同时发给 SuperCom 自身，导致直接 ExitProcess（闪退）
+                    NativeMethods.SetConsoleCtrlHandler(IntPtr.Zero, true);
                     NativeMethods.GenerateConsoleCtrlEvent(NativeMethods.CTRL_C_EVENT, 0);
+                    NativeMethods.SetConsoleCtrlHandler(IntPtr.Zero, false);
                     NativeMethods.FreeConsole();
                 }
-                // AttachConsole 失败时什么都不做
-                // Task.Run 中的 BeginInvoke 会显示提示
             }
             catch (Exception)
             {
-                // 静默忽略，让 Task.Run 中的 BeginInvoke 显示提示
+                // 静默忽略
             }
         }
 

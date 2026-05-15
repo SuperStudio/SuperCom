@@ -206,14 +206,16 @@
                                 CanUserAddRows="False"
                                 CanUserDeleteRows="False"
                                 HeadersVisibility="Column"
-                                IsReadOnly="True"
+                                IsReadOnly="False"
                                 SelectionMode="Single"
                                 SelectionUnit="FullRow"
                                 Background="{DynamicResource TabItem.Background}"
                                 RowBackground="{DynamicResource TabItem.Background}"
                                 AlternatingRowBackground="{DynamicResource TabItem.Background}"
                                 BorderBrush="{DynamicResource TabItem.Background}"
-                                GridLinesVisibility="Horizontal">
+                                GridLinesVisibility="Horizontal"
+                                BeginningEdit="DataGridCommands_BeginningEdit"
+                                CellEditEnding="DataGridCommands_CellEditEnding">
                                 <DataGrid.CellStyle>
                                     <Style TargetType="DataGridCell">
                                         <Setter Property="Background" Value="Transparent" />
@@ -246,11 +248,22 @@
                                                 <TextBlock
                                                     Margin="5,2"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="{Binding Command}"
+                                                    Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     TextTrimming="CharacterEllipsis"
                                                     ToolTip="{Binding Command}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox
+                                                    Name="TxtEditCommand"
+                                                    Margin="3,1"
+                                                    Padding="4,2"
+                                                    VerticalContentAlignment="Center"
+                                                    Text="{Binding Command, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Style="{StaticResource BaseTextBox}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTemplateColumn Header="时延" Width="50">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -258,9 +271,21 @@
                                                 <TextBlock
                                                     HorizontalAlignment="Center"
                                                     Style="{StaticResource BaseTextBlock}"
-                                                    Text="{Binding Delay}" />
+                                                    Text="{Binding Delay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
+                                        <DataGridTemplateColumn.CellEditingTemplate>
+                                            <DataTemplate>
+                                                <TextBox
+                                                    Name="TxtEditDelay"
+                                                    Margin="3,1"
+                                                    Padding="4,2"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center"
+                                                    Text="{Binding Delay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    Style="{StaticResource BaseTextBox}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellEditingTemplate>
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>

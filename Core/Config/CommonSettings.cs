@@ -1,6 +1,7 @@
 ﻿using SuperUtils.Framework.ORM.Config;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SuperCom.Config.WindowConfig
 {
@@ -10,7 +11,7 @@ namespace SuperCom.Config.WindowConfig
         public const string DEFAULT_LOG_NAME_FORMAT = "[%C] %Y-%MM-%DD %hh-%mm-%ss.%fff";
 
         public static string DEFAULT_LOG_SAVE_DIR { get; set; } =
-            System.IO.Path.Combine(Environment.CurrentDirectory, "logs", "%Y-%MM-%DD");
+            System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "%Y-%MM-%DD");
         public static List<string> SUPPORT_FORMAT { get; set; } = new List<string>()
         {
             "%MM","%DD","%hh","%mm","%ss","%fff","%C","%R","%Y","%M","%D","%h","%m","%s","%f"

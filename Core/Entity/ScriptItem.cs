@@ -78,13 +78,14 @@ namespace SuperCom.Entity
         public bool IsBatchScript => Extension == ".bat" || Extension == ".cmd";
         public bool IsPowerShellScript => Extension == ".ps1";
 
-        public bool CanExecute => !IsExecuting || Status == ScriptStatus.Completed || Status == ScriptStatus.Stopped || Status == ScriptStatus.Error;
+        public bool CanExecute => !IsExecuting || Status == ScriptStatus.Completed || Status == ScriptStatus.Running || Status == ScriptStatus.Stopped || Status == ScriptStatus.Error;
         public bool CanStop => IsExecuting;
 
         public string StatusText => Status switch
         {
             ScriptStatus.Waiting => "等待中",
             ScriptStatus.Executing => "执行中...",
+            ScriptStatus.Running => "循环运行中",
             ScriptStatus.Completed => "已完成",
             ScriptStatus.Stopped => "已停止",
             ScriptStatus.Error => "执行出错",
@@ -142,6 +143,7 @@ namespace SuperCom.Entity
     {
         Waiting,    // 等待执行
         Executing,  // 执行中
+        Running,    // 循环运行中
         Completed,  // 已完成
         Stopped,    // 已停止
         Error       // 执行出错

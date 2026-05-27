@@ -147,6 +147,15 @@ namespace SuperCom
             ApplyScreenStatus();
             InitEventManager();
             StartPortRemovalWatcher();
+
+            // 2秒后自动隐藏欢迎页，切换到主界面
+            await Task.Delay(2000);
+            vieModel.ShowSoft = false;
+
+            // 如果没有端口Tab，自动添加一个默认端口以显示主界面
+            if (vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0) {
+                AddDefaultPortTab();
+            }
         }
 
         private void InitEventManager()
@@ -1050,11 +1059,22 @@ namespace SuperCom
             return (toggleButton, firstBorder.Child as TextEditor);
         }
 
-        public void SendCommand(string portName)
+        public async void SendCommand(string portName)
         {
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-            if (portTabItem == null)
+            if (portTabItem == null) {
+                MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
                 return;
+            }
+
+            // 未连接时自动连接
+            if (!portTabItem.Connected) {
+                bool ok = await OpenPort(portName);
+                if (!ok) {
+                    MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                    return;
+                }
+            }
 
             string value = portTabItem.WriteData;
             vieModel.SaveToHistory(value);
@@ -1944,7 +1964,7 @@ namespace SuperCom
         }
 
 
-        private void SendCustomCommand(object sender, RoutedEventArgs e)
+        private async void SendCustomCommand(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
             string command = "";
@@ -1959,12 +1979,23 @@ namespace SuperCom
 
             string portName = border.Tag.ToString();
             PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
-            if (portTabItem == null)
+            if (portTabItem == null) {
+                MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
                 return;
+            }
 
             AdvancedSend send = vieModel.CurrentAdvancedSend;
             if (send == null || string.IsNullOrEmpty(send.Commands))
                 return;
+
+            // 未连接时自动连接
+            if (!portTabItem.Connected) {
+                bool ok = await OpenPort(portName);
+                if (!ok) {
+                    MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                    return;
+                }
+            }
 
             Logger.Info($"click send btn, name: {send.ProjectName}, port name: {portName}");
 
@@ -1980,7 +2011,7 @@ namespace SuperCom
             portTabItem.SendCustomCommand(command);
         }
 
-        private void StartSendCommands(object sender, RoutedEventArgs e)
+        private async void StartSendCommands(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
             if (button == null || button.Tag == null)
@@ -1995,6 +2026,20 @@ namespace SuperCom
                 // 开始执行队列
                 AdvancedSend advancedSend = vieModel.SendCommandProjects.FirstOrDefault(arg => arg.ProjectID.ToString().Equals(projectID));
                 PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (portTabItem == null) {
+                    MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
+                    return;
+                }
+
+                // 未连接时自动连接
+                if (!portTabItem.Connected) {
+                    bool ok = await OpenPort(portName);
+                    if (!ok) {
+                        MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                        return;
+                    }
+                }
+
                 if (advancedSend != null) {
                     Logger.Info($"start run command: {advancedSend.ProjectName}");
                     try {
@@ -3292,16 +3337,24 @@ namespace SuperCom
         /// <summary>
         /// 执行按钮点击
         /// </summary>
-        private void QuickCommandExecute_Click(object sender, RoutedEventArgs e)
+        private async void QuickCommandExecute_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.DataContext is QuickCommandItem item)
             {
                 // 获取当前选中的串口
                 var selectedPort = vieModel?.PortTabItems?.FirstOrDefault(p => p.Selected);
-                if (selectedPort == null || !selectedPort.Connected)
-                {
-                    MessageBox.Show("请先连接串口", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (selectedPort == null) {
+                    MessageCard.Error("未找到端口，请检查端口设置");
                     return;
+                }
+
+                // 未连接时自动连接
+                if (!selectedPort.Connected) {
+                    bool ok = await OpenPort(selectedPort.Name);
+                    if (!ok) {
+                        MessageCard.Error($"发送失败，端口 {selectedPort.Name} 连接失败，请检查端口");
+                        return;
+                    }
                 }
 
                 // 发送前检查端口是否实际可用
@@ -3793,6 +3846,20 @@ namespace SuperCom
             } else if (e.XButton2 == MouseButtonState.Pressed) {
                 SetPortTabSelected(false);
             }
+        }
+
+        /// <summary>
+        /// 添加默认端口Tab，使无端口时也能显示主界面
+        /// </summary>
+        private void AddDefaultPortTab()
+        {
+            string defaultPortName = "COM1";
+            PortTabItem portTabItem = new PortTabItem(defaultPortName, false);
+            portTabItem.Setting = PortSetting.GetDefaultSetting();
+            if (portTabItem.SerialPort == null)
+                portTabItem.SerialPort = new SerialPortEx(defaultPortName);
+            portTabItem.Selected = true;
+            vieModel.PortTabItems.Add(portTabItem);
         }
 
         private void ShowHexCheckSettings(object sender, RoutedEventArgs e)

@@ -223,6 +223,10 @@
                             Click="OpenCmdTool"
                             Header="CMD 指令工具"
                             IsCheckable="False" />
+                        <MenuItem
+                            Click="OpenBandCalcTool"
+                            Header="频段计算工具"
+                            IsCheckable="False" />
                     </MenuItem>
                     <MenuItem
                         AutomationProperties.AutomationId="MenuItem_About"

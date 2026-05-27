@@ -236,6 +236,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Compile Include="Windows\Window_BandCalc.xaml.cs">
+      <DependentUpon>Window_BandCalc.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Windows\Window_BandCalc.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="AvalonEdit\SearchPanel\SearchPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

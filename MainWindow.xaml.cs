@@ -3769,6 +3769,23 @@ namespace SuperCom
             }
         }
 
+        private Window_BandCalc window_BandCalc;
+
+        private void OpenBandCalcTool(object sender, RoutedEventArgs e)
+        {
+            if (window_BandCalc == null) {
+                window_BandCalc = new Window_BandCalc();
+                window_BandCalc.Show();
+            } else {
+                if (window_BandCalc.IsClosed) {
+                    window_BandCalc = new Window_BandCalc();
+                    window_BandCalc.Show();
+                }
+                window_BandCalc.BringIntoView();
+                window_BandCalc.Focus();
+            }
+        }
+
         private void onPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.XButton1 == MouseButtonState.Pressed) {

@@ -1001,13 +1001,15 @@ namespace SuperCom
 
         private void OpenPath(object sender, RoutedEventArgs e)
         {
-
             PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
             if (portTabItem != null) {
                 Logger.Info($"open log dir, portName: {portTabItem.Name}");
                 string fileName = portTabItem.SaveFileName;
                 if (File.Exists(fileName)) {
-                    FileHelper.TryOpenSelectPath(fileName);
+                    // 优先用自定义日志编辑器打开，失败则用默认应用
+                    if (!TryOpenWithLogEditor(fileName)) {
+                        FileHelper.TryOpenSelectPath(fileName);
+                    }
                     if (portTabItem.FragCount > 0)
                         MessageNotify.Info($"{LangManager.GetValueByKey("LogFragWithCount")} {portTabItem.FragCount}");
                 } else {
@@ -1028,6 +1030,56 @@ namespace SuperCom
                 return vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
             }
             return null;
+        }
+
+        /// <summary>
+        /// 尝试用自定义日志编辑器打开文件，未配置则尝试 Notepad++，都失败返回 false
+        /// </summary>
+        private string ReadLogEditorPathFromDB()
+        {
+            // 绕过内存单例，直接从 app_configs 表读取最新值（JSON 存储）
+            try
+            {
+                using (var conn = new System.Data.SQLite.SQLiteConnection($"Data Source={ConfigManager.SQLITE_DATA_PATH}"))
+                {
+                    conn.Open();
+                    using (var cmd = new System.Data.SQLite.SQLiteCommand(
+                        "SELECT ConfigValue FROM app_configs WHERE ConfigName='WindowConfig.CommonSettings' LIMIT 1", conn))
+                    {
+                        var result = cmd.ExecuteScalar() as string;
+                        if (!string.IsNullOrEmpty(result))
+                        {
+                            var json = Newtonsoft.Json.Linq.JObject.Parse(result);
+                            return json["LogEditorPath"]?.ToString() ?? "";
+                        }
+                    }
+                }
+            }
+            catch { }
+            return "";
+        }
+
+        private bool TryOpenWithLogEditor(string filePath)
+        {
+            // 优先使用设置中配置的日志编辑器路径（直接读 DB，绕过内存单例）
+            string editorPath = ReadLogEditorPathFromDB();
+            if (!string.IsNullOrWhiteSpace(editorPath) && File.Exists(editorPath)) {
+                System.Diagnostics.Process.Start(editorPath, $"\"{filePath}\"");
+                return true;
+            }
+            // 未配置或路径无效，尝试自动查找 Notepad++
+            string[] possiblePaths = new string[]
+            {
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Notepad++\\notepad++.exe"),
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Notepad++\\notepad++.exe"),
+            };
+            foreach (string nppe in possiblePaths) {
+                if (File.Exists(nppe)) {
+                    System.Diagnostics.Process.Start(nppe, $"\"{filePath}\"");
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void SendCommand(object sender, RoutedEventArgs e)

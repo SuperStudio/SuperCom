@@ -1359,6 +1359,26 @@
                                                     SelectionMode="Single"
                                                     VerticalGridLinesBrush="#E0E0E0"
                                                     VerticalScrollBarVisibility="Disabled">
+                                                    <DataGrid.Resources>
+                                                        <Style TargetType="DataGridRow">
+                                                            <Setter Property="Background" Value="White" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsSelected" Value="True">
+                                                                    <Setter Property="Background" Value="White" />
+                                                                    <Setter Property="Foreground" Value="White" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                        <Style TargetType="DataGridCell">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsSelected" Value="True">
+                                                                    <Setter Property="Background" Value="White" />
+                                                                    <Setter Property="Foreground" Value="White" />
+                                                                    <Setter Property="BorderBrush" Value="White" />
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </DataGrid.Resources>
                                                     <DataGrid.Columns>
                                                         <!-- HEX 列（固定宽度） -->
                                                         <DataGridTemplateColumn Width="44">

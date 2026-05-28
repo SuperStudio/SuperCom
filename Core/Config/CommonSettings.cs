@@ -1,6 +1,7 @@
 ﻿using SuperUtils.Framework.ORM.Config;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 
 namespace SuperCom.Config.WindowConfig
@@ -25,6 +26,54 @@ namespace SuperCom.Config.WindowConfig
             LogNameFormat = DEFAULT_LOG_NAME_FORMAT;
             LogSaveDir = DEFAULT_LOG_SAVE_DIR;
             WriteLogToFile = true;
+            // 数据库迁移：确保新增的 LogEditorPath 字段存在
+            MigrateLogEditorPathColumn();
+        }
+
+        /// <summary>
+        /// 迁移：给 WindowConfig.CommonSettings 表添加 LogEditorPath 列（如不存在）
+        /// </summary>
+        private static void MigrateLogEditorPathColumn()
+        {
+            try
+            {
+                string tableName = $"WindowConfig.CommonSettings";
+                using (var conn = new System.Data.SQLite.SQLiteConnection(
+                    $"Data Source={ConfigManager.SQLITE_DATA_PATH}"))
+                {
+                    conn.Open();
+                    // 检查列是否存在
+                    using (var cmd = new System.Data.SQLite.SQLiteCommand(
+                        $"PRAGMA table_info({tableName})", conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            bool exists = false;
+                            while (reader.Read())
+                            {
+                                if (reader["name"].ToString() == "LogEditorPath")
+                                {
+                                    exists = true;
+                                    break;
+                                }
+                            }
+                            if (!exists)
+                            {
+                                using (var alter = new System.Data.SQLite.SQLiteCommand(
+                                    $"ALTER TABLE {tableName} ADD COLUMN LogEditorPath TEXT DEFAULT ''", conn))
+                                {
+                                    alter.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 迁移失败不阻塞启动，下次打开设置时会重试
+                System.Diagnostics.Debug.WriteLine($"MigrateLogEditorPathColumn failed: {ex.Message}");
+            }
         }
 
         private static CommonSettings _instance = null;
@@ -47,6 +96,11 @@ namespace SuperCom.Config.WindowConfig
         public bool WriteLogToFile { get; set; }
         public long AsciiSelectedIndex { get; set; }
         public long RefSelectedIndex { get; set; }
+
+        /// <summary>
+        /// 日志文件打开程序路径（留空则使用系统默认应用）
+        /// </summary>
+        public string LogEditorPath { get; set; } = "";
 
     }
 }

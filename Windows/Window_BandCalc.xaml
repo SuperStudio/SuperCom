@@ -1,0 +1,97 @@
+<super:BaseWindow
+    x:Class="SuperCom.Window_BandCalc"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:super="https://github.com/SuperStudio/SuperControls"
+    Title="频段计算工具"
+    Width="720"
+    Height="580"
+    Background="{DynamicResource Window.Background}"
+    Foreground="{DynamicResource Window.Foreground}"
+    Icon="pack://application:,,,/Resources/Ico/ICON.ico"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 输入区 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="输入十进制数据序列（逗号分隔）：" Style="{StaticResource BaseTextBlock}" Margin="0,0,0,6" />
+            <TextBox
+                Name="TxtInput"
+                AcceptsReturn="True"
+                FontFamily="Consolas"
+                FontSize="14"
+                Height="60"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto" />
+        </StackPanel>
+
+        <!-- 按钮 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button Name="BtnCalc" Content="计算" Click="BtnCalc_Click" Style="{StaticResource ButtonPrimary}" Padding="24,8" FontSize="14" />
+            <Button Name="BtnClear" Content="清空" Click="BtnClear_Click" Margin="12,0,0,0" Padding="16,8" FontSize="14" />
+            <Button Name="BtnCopy" Content="复制结果" Click="BtnCopy_Click" Margin="12,0,0,0" Padding="16,8" FontSize="14" IsEnabled="False" />
+        </StackPanel>
+
+        <!-- 结果展示 -->
+        <GroupBox Grid.Row="2" Header="计算结果" Margin="0,15,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+
+                <!-- 开启的频段编号 -->
+                <TextBlock Grid.Row="0" Text="开启的频段编号：" Style="{StaticResource BaseTextBlock}" Margin="0,6,0,4" FontWeight="Bold" />
+                <TextBox
+                    Name="TxtResult"
+                    Grid.Row="1"
+                    IsReadOnly="True"
+                    FontFamily="Consolas"
+                    FontSize="14"
+                    TextWrapping="Wrap"
+                    VerticalScrollBarVisibility="Auto"
+                    Background="{DynamicResource TextBox.Background}"
+                    Foreground="{DynamicResource TextBox.Foreground}" />
+
+                <!-- 统计信息 -->
+                <TextBlock Name="TxtStats" Grid.Row="2" Style="{StaticResource BaseTextBlock}" Margin="0,8,0,0" Foreground="Gray" />
+            </Grid>
+        </GroupBox>
+
+        <!-- 详细表格 -->
+        <GroupBox Grid.Row="3" Header="位解析详情" Margin="0,10,0,0" MaxHeight="220">
+            <DataGrid
+                Name="DgDetail"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserResizeRows="False"
+                FontFamily="Consolas"
+                FontSize="12"
+                GridLinesVisibility="All"
+                HeadersVisibility="Column"
+                IsReadOnly="True"
+                RowHeaderWidth="0"
+                SelectionMode="Single"
+                VerticalGridLinesBrush="LightGray">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="序号(i)" Binding="{Binding Index}" Width="55" />
+                    <DataGridTextColumn Header="输入值" Binding="{Binding Value}" Width="70" />
+                    <DataGridTextColumn Header="8位二进制" Binding="{Binding Binary}" Width="90" />
+                    <DataGridTextColumn Header="开启的bit位(从0开始)" Binding="{Binding OnBits}" Width="180" />
+                    <DataGridTextColumn Header="对应频段编号" Binding="{Binding Bands}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+    </Grid>
+</super:BaseWindow>

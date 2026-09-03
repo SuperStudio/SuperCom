@@ -1,0 +1,4000 @@
+﻿
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.AvalonEdit.Search;
+using SuperCom.Config;
+using SuperCom.Config.WindowConfig;
+using SuperCom.Core.Entity;
+using SuperCom.Core.Entity.Enums;
+using SuperCom.Core.Events;
+using SuperCom.Core.Telnet;
+using SuperCom.Entity;
+using SuperCom.Entity.Enums;
+using SuperCom.Upgrade;
+using SuperCom.ViewModel;
+using SuperCom.Windows;
+using SuperControls.Style;
+using SuperControls.Style.Plugin;
+using SuperControls.Style.Utils;
+using SuperControls.Style.Windows;
+using SuperUtils.Common;
+using SuperUtils.Framework.ORM.Enums;
+using SuperUtils.IO;
+using SuperUtils.Systems;
+using SuperUtils.Time;
+using SuperUtils.Values;
+using SuperUtils.WPF.VisualTools;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Management;
+using System.Net.Mime;
+using System.Runtime.Remoting.Contexts;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Markup;
+using System.Windows.Media;
+using System.Windows.Threading;
+using System.Xml;
+using System.Xml.Linq;
+using static SuperCom.App;
+
+namespace SuperCom
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : BaseWindow
+    {
+        private const double DEFAULT_SEND_PANEL_HEIGHT = 186;
+        private const int DEFAULT_PORT_OPEN_INTERVAL = 100;
+
+        /// <summary>
+        /// HEX 转换工具中最大长度
+        /// </summary>
+        private const int MAX_TRANSFORM_SIZE = 100000;
+
+
+        /// <summary>
+        /// 时间戳转换中最长时间戳长度
+        /// </summary>
+        private const int MAX_TIMESTAMP_LENGTH = 100;
+
+
+        #region "属性"
+
+        private SendCommand CurrentEditCommand { get; set; }
+
+        private Window_ShortCut window_ShortCut { get; set; }
+        private Window_Setting window_Setting { get; set; }
+        private Window_Monitor window_Monitor { get; set; }
+        private Window_TelnetServer Window_TelnetServer { get; set; }
+        private Window_VirtualPort virtualPort { get; set; }
+        private Window_CMD window_CMD { get; set; }
+        private Window_AdvancedSend window_AdvancedSend { get; set; }
+        public VieModel_Main vieModel { get; set; }
+
+        /// <summary>
+        /// WMI 串口移除监听器，用于检测串口被外部拔出
+        /// </summary>
+        private ManagementEventWatcher _portRemovalWatcher;
+
+        /// <summary>
+        /// 支持标签栏拖拽
+        /// </summary>
+        private FrameworkElement CurrentDragElement { get; set; }
+
+
+
+        private bool CanDragTabItem { get; set; } = false;
+
+        #endregion
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            Init();
+        }
+
+        public void Init()
+        {
+            InitSqlite();
+            ConfigManager.InitConfig();
+            ConfigManager.Main.OpeningPorts = "";  // 启动时端口默认全部断开
+            vieModel = new VieModel_Main();
+            this.DataContext = vieModel;
+            SetLang();
+            ReadConfig();
+            PathManager.Init();
+
+            // 看门狗
+            App.OnMemoryChanged += (memory) => {
+                vieModel.MemoryUsed = Math.Ceiling((double)memory / 1024 / 1024);
+            };
+
+            App.OnMemoryDog += OnMemoryDog;
+
+            colorPicker.SelectedColorChanged += (s, e) => {
+                Logger.Info($"color picker set color: {colorPicker.SelectedColor}");
+            };
+
+            Logger.Info("main window init");
+        }
+
+        private async void mainWindow_ContentRendered(object sender, EventArgs e)
+        {
+            this.TopMenu = TopMenus;
+            //AdjustWindow();
+            if (ConfigManager.Main.FirstRun)
+                ConfigManager.Main.FirstRun = false;
+            InitThemeSelector();
+            RefreshSetting();
+            ReadXshdList();
+            LoadDonateConfig();
+            await BackupData();
+            LoadFontFamily();
+            InitUpgrade();
+
+            SetBaudRateAction();
+            InitNotice();
+            ApplyScreenStatus();
+            InitEventManager();
+            StartPortRemovalWatcher();
+
+            // 2秒后自动隐藏欢迎页，切换到主界面
+            await Task.Delay(2000);
+            vieModel.ShowSoft = false;
+
+            // 如果没有端口Tab，自动添加一个默认端口以显示主界面
+            if (vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0) {
+                AddDefaultPortTab();
+            }
+        }
+
+        private void InitEventManager()
+        {
+            BasicEventManager.RegisterEvent(EventType.OpenAll, OnRecvProc);
+            BasicEventManager.RegisterEvent(EventType.CloseAll, OnRecvProc);
+            BasicEventManager.RegisterEvent(EventType.ProcOne, OnRecvProc);
+            BasicEventManager.RegisterEvent(EventType.OpenTab, OnRecvProc);
+            BasicEventManager.RegisterEvent(EventType.Remark, OnRecvRemark);
+        }
+
+        private void OnRecvRemark(object data)
+        {
+            if (data is string name)
+                Remark(name);
+        }
+
+
+        private void OnRecvProc(object data)
+        {
+            if (data is TabInfo tabInfo) {
+                List<string> nameList = tabInfo.Data as List<string>;
+                ConnectType connectType = tabInfo.ConnectType;
+                bool isConnected = tabInfo.IsConnected;
+                if (!tabInfo.RemoveBar) {
+                    // 新建 tab
+                    ConnectAllPort(nameList, isConnected, connectType);
+                }
+            }
+        }
+
+        private async void ConnectAllPort(List<string> nameList, bool isConnected, ConnectType connectType)
+        {
+            foreach (string name in nameList) {
+                Logger.Info($"proc tab bar: {name}, connect: {isConnected}");
+                await OpenPortTabItem(name, isConnected);
+                await ConnectPort(name, isConnected, connectType);
+            }
+            await Task.Delay(200);
+        }
+
+        private void OnMemoryDog()
+        {
+            App.GetDispatcher()?.Invoke(() => {
+                if (vieModel != null && vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
+                    PortTabItem port = null;
+                    long maxLength = 0;
+                    foreach (var item in vieModel.PortTabItems) {
+                        if (item.TextEditor == null || !item.Connected)
+                            continue;
+                        if (item.TextEditor.Text.Length > maxLength) {
+                            maxLength = item.TextEditor.Text.Length;
+                            port = item;
+                        }
+                    }
+                    if (port != null && maxLength > 0) {
+                        TextEditor oldTextEditor = port.TextEditor;
+                        Border border = oldTextEditor.Parent as Border;
+                        TextEditor newTextEditor = new TextEditor();
+                        SetTextEditorConfig(ref newTextEditor, true);
+
+                        IHighlightingDefinition syntaxHighlighting = oldTextEditor.SyntaxHighlighting;
+                        double FontSize = oldTextEditor.FontSize;
+
+                        newTextEditor.SyntaxHighlighting = syntaxHighlighting;
+                        newTextEditor.FontSize = FontSize;
+                        newTextEditor.Options = oldTextEditor.Options;
+                        newTextEditor.ShowLineNumbers = oldTextEditor.ShowLineNumbers;
+                        newTextEditor.Language = oldTextEditor.Language;
+                        newTextEditor.FontFamily = oldTextEditor.FontFamily;
+                        newTextEditor.Foreground = oldTextEditor.Foreground;
+
+
+                        if (port.FixedText)
+                            newTextEditor.TextChanged -= port.TextBox_TextChanged;
+                        else
+                            newTextEditor.TextChanged += port.TextBox_TextChanged;
+                        port.TextEditor = newTextEditor;
+                        border.Child = null;
+                        oldTextEditor = null;
+                        border.Child = newTextEditor;
+                        MessageCard.Warning($"{LangManager.GetValueByKey("MemLimitClearLog")}: {port.Name}", onConfirm: null, this);
+                    }
+                }
+            });
+        }
+
+
+        public void ReadConfig()
+        {
+            vieModel.ComSettingList = MapperManager.ComMapper.SelectList().ToHashSet();
+            comSidePanel.UpdateComSettingList(vieModel.ComSettingList);
+        }
+
+        /// <summary>
+        /// 强制折叠扩展功能面板列（启动时调用，防止面板意外展开）
+        /// </summary>
+        private void ForceCollapseQuickCommandPanel()
+        {
+            foreach (var grid in FindVisualChild<Grid>(this)
+                .Where(g => g.Name == "rootGrid" && g.ColumnDefinitions.Count == 3))
+            {
+                // 强制归零面板列和分割条列
+                grid.ColumnDefinitions[2].Width = new GridLength(0);
+                grid.ColumnDefinitions[2].MinWidth = 0;
+                grid.ColumnDefinitions[1].Width = new GridLength(0);
+
+                // 归零右侧 margin
+                foreach (var border in grid.Children.OfType<Border>())
+                {
+                    int col = Grid.GetColumn(border);
+                    if (col == 0 && border.Name == "outputContentBorder")
+                        border.Margin = new Thickness(0);
+                    else if (col == 1 && border.Name == "outputNavBorder")
+                        border.Margin = new Thickness(0, 5, 0, 0);
+                }
+
+                // 折叠面板 Border
+                var panelBorder = grid.Children
+                    .OfType<Border>()
+                    .FirstOrDefault(b => Grid.GetColumn(b) == 2);
+                if (panelBorder != null)
+                    panelBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void SetLang()
+        {
+            // 设置语言
+            string lang = ConfigManager.Settings.CurrentLanguage;
+            if (!string.IsNullOrEmpty(lang)
+                && SuperControls.Style.LangManager.SupportLanguages.Contains(lang)) {
+                SuperControls.Style.LangManager.SetLang(lang);
+                SuperCom.Lang.LangManager.SetLang(lang);
+                Logger.Debug($"{LangManager.GetValueByKey("SetLang")}：{lang}");
+            }
+        }
+
+        public void RefreshSetting()
+        {
+            this.CloseToTaskBar = ConfigManager.CommonSettings.CloseToBar;
+            //SearchPanel.SearchDelayMs = (int)ConfigManager.Settings.SearchDelayMs;
+        }
+
+        /// <summary>
+        /// 读取自定义语法高亮
+        /// </summary>
+        public void ReadXshdList()
+        {
+            // 记录先前选定的
+            Dictionary<string, long> selectDict = new Dictionary<string, long>();
+            if (vieModel.PortTabItems?.Count > 0) {
+                foreach (PortTabItem item in vieModel.PortTabItems) {
+                    if (item.SerialPort == null)
+                        continue;
+                    selectDict.Add(item.Name, item.SerialPort.HighLightIndex);
+                }
+            }
+
+            HighlightingManager.Instance.Clear();
+            string[] xshd_list = FileHelper.TryGetAllFiles(HighLightRule.GetDirName(), "*.xshd");
+            foreach (var xshdPath in xshd_list) {
+                try {
+                    IHighlightingDefinition customHighlighting;
+                    using (Stream s = File.OpenRead(xshdPath)) {
+                        if (s == null)
+                            throw new InvalidOperationException("Could not find embedded resource");
+                        using (XmlReader reader = new XmlTextReader(s)) {
+                            customHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.
+                                HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                        }
+                    }
+                    // 检查是否在数据库中存在
+                    string name = customHighlighting.Name;
+                    if (HighLightRule.DEFAULT_RULES.Contains(name) || HighLightRule.AllRules.FirstOrDefault(arg => arg.RuleName.Equals(name)) != null)
+                        HighlightingManager.Instance.RegisterHighlighting(name, null, customHighlighting);
+                } catch (Exception ex) {
+                    MessageCard.Error(ex.Message);
+                    continue;
+                }
+
+            }
+
+            vieModel.LoadHighlightingDefinitions();
+
+
+            // 恢复选中项
+            if (vieModel.PortTabItems?.Count > 0) {
+                foreach (PortTabItem item in vieModel.PortTabItems) {
+                    if (item.SerialPort == null || !selectDict.ContainsKey(item.Name))
+                        continue;
+                    long idx = selectDict[item.Name];
+                    if (idx >= vieModel.HighlightingDefinitions.Count)
+                        idx = 0;
+                    item.SerialPort.HighLightIndex = idx;
+                }
+            }
+            Logger.Info("read high light xshd success");
+        }
+
+
+        private void InitSqlite()
+        {
+            ComSettings.InitSqlite();
+            AdvancedSend.InitSqlite();
+            HighLightRule.InitSqlite();
+            ShortCutBinding.InitSqlite();
+            VarMonitor.InitSqlite();
+        }
+
+
+        private void SetPortSelected(object sender, MouseButtonEventArgs e)
+        {
+            CanDragTabItem = false;
+            if (CurrentDragElement != null)
+                Mouse.Capture(CurrentDragElement, CaptureMode.None);
+        }
+
+        private void BeginDragTabItem(object sender, MouseButtonEventArgs e)
+        {
+            CanDragTabItem = true;
+            CurrentDragElement = sender as FrameworkElement;
+            Mouse.Capture(CurrentDragElement, CaptureMode.Element);
+
+            Border border = (Border)sender;
+            if (border == null || border.Tag == null)
+                return;
+            string portName = border.Tag.ToString();
+            if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems == null ||
+                vieModel.PortTabItems.Count <= 0)
+                return;
+            SetPortTabSelected(portName);
+        }
+
+        private void Border_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!CanDragTabItem)
+                return;
+        }
+
+        public void SetPortTabSelected(string portName)
+        {
+            if (vieModel.PortTabItems == null)
+                return;
+            for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                if (vieModel.PortTabItems[i].Name.Equals(portName)) {
+                    vieModel.PortTabItems[i].Selected = true;
+                    SetGridVisible(portName);
+                } else {
+                    vieModel.PortTabItems[i].Selected = false;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 设置下一个选中
+        /// </summary>
+        /// <param name="forward"></param>
+        public void SetPortTabSelected(bool forward)
+        {
+            if (vieModel.PortTabItems == null || vieModel.PortTabItems.Count <= 1)
+                return;
+            int idx = 0;
+            for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                if (vieModel.PortTabItems[i].Selected) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (forward)
+                idx++;
+            else
+                idx--;
+            if (idx < 0)
+                idx = vieModel.PortTabItems.Count - 1;
+            if (idx >= vieModel.PortTabItems.Count)
+                idx = 0;
+            SetPortTabSelected(vieModel.PortTabItems[idx].Name);
+        }
+
+        private void SetGridVisible(string portName)
+        {
+            Logger.Debug(portName);
+            if (string.IsNullOrEmpty(portName))
+                return;
+            for (int i = 0; i < itemsControl.Items.Count; i++) {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null) {
+                    Logger.Debug($"presenter[{i}] is null");
+                    continue;
+                }
+                Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "baseGrid");
+                if (grid == null || grid.Tag == null) {
+                    Logger.Debug($"presenter[{i}] baseGrid is null");
+                    continue;
+                }
+
+                string name = grid.Tag.ToString();
+                if (portName.Equals(name))
+                    grid.Visibility = Visibility.Visible;
+                else
+                    grid.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void PortTab_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = sender as ScrollViewer;
+            scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset - e.Delta);
+            e.Handled = true;
+        }
+
+        private void PinTabItem(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            Grid grid = (ele.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            PinPort(portTabItem);
+        }
+
+        private void CloseTabItem(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            Grid grid = (ele.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            ClosePortTabItemByName(portName, null);
+        }
+
+        private async void ClosePortTabItemByName(string portName, Button button = null)
+        {
+            if (string.IsNullOrEmpty(portName) || vieModel.PortTabItems?.Count <= 0)
+                return;
+            await RemovePortTabItem(portName, button);
+            // 默认选中 0
+            if (vieModel.PortTabItems.Count > 0)
+                SetPortTabSelected(vieModel.PortTabItems[0].Name);
+        }
+
+        private async Task<bool> RemovePortTabItem(string portName, Button button = null)
+        {
+            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName))
+                return false;
+
+            int idx = -1;
+            try {
+                for (int i = 0; idx < vieModel.PortTabItems.Count; i++) {
+                    if (portName.Equals(vieModel.PortTabItems[i].Name)) {
+                        idx = i;
+                        break;
+                    }
+                }
+
+                if (idx >= 0 && idx < vieModel.PortTabItems.Count) {
+                    if (button != null)
+                        button.IsEnabled = false;
+                    bool success = await ClosePort(portName);
+                    if (success) {
+                        vieModel.PortTabItems[idx].Pinned = false;
+                        SavePinnedByName(portName, false);
+                        SaveComSettings();
+                        await RemovePortsByName(new List<string> { portName });
+                    }
+                    if (button != null)
+                        button.IsEnabled = true;
+                }
+                return true;
+            } catch (Exception ex) {
+                MessageNotify.Error(ex.Message);
+                Logger?.Error(ex);
+                return false;
+            }
+
+        }
+
+        private async Task<bool> RemovePortsByName(List<string> portNames)
+        {
+            if (portNames == null || portNames.Count == 0)
+                return true;
+            SaveComSettings();
+            List<string> toRemoved = new List<string>();
+            bool success = false;
+            foreach (var name in portNames) {
+                vieModel.DoingWorkMsg = $"{LangManager.GetValueByKey("ClosePort")}: {name}";
+                success = await ClosePort(name);
+                if (success)
+                    toRemoved.Add(name);
+            }
+            // 移除 item
+            foreach (var item in toRemoved) {
+                if (vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(item))
+                    is PortTabItem portTabItem) {
+                    vieModel.PortTabItems.Remove(portTabItem);
+                }
+            }
+            return true;
+        }
+
+        private async void ConnectPort(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button button) || button.Tag == null || button.Content == null)
+                return;
+            button.IsEnabled = false;
+            string content = button.Content.ToString();
+            await ConnectPort(button.Tag.ToString(), LangManager.GetValueByKey("Connect").Equals(content), ConnectType.Com);
+            button.IsEnabled = true;
+        }
+
+        private async Task<bool> ConnectPort(string portName, bool open, ConnectType connectType)
+        {
+            do {
+                if (open)
+                    await OpenPort(portName);
+                else
+                    await ClosePort(portName);
+            } while (false);
+            return true;
+        }
+
+        private async Task<bool> OpenPort(string portName, bool connect = true)
+        {
+            await OpenPortTabItem(portName, connect);
+            if (vieModel.PortTabItems == null)
+                return false;
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null) {
+                MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
+                return false;
+            }
+
+            await Task.Delay(DEFAULT_PORT_OPEN_INTERVAL);
+            TextEditor textEditor = portTabItem.TextEditor;
+            if (textEditor == null) {
+                textEditor = FindTextBoxByPortName(portName);
+                SetTextEditorConfig(ref textEditor);
+
+                //textEditor.TextArea.TextView.LineTransformers.Add(new AnsiColorizer());
+                //textEditor.TextArea.TextView.LineTransformers.Add(new AnsiOctalColorizer());
+
+                textEditor.TextChanged += portTabItem.TextBox_TextChanged;
+                portTabItem.TextEditor = textEditor;
+                // 设置语法高亮
+                int idx = (int)portTabItem.SerialPort.HighLightIndex;
+                if (vieModel.HighlightingDefinitions != null && idx < vieModel.HighlightingDefinitions.Count && idx >= 0)
+                    portTabItem.TextEditor.SyntaxHighlighting = vieModel.HighlightingDefinitions[idx];
+                Logger.Debug($"set HighLightIndex = {idx}");
+            }
+            // 加载监视器
+            //portTabItem.VarMonitors = new System.Collections.ObjectModel.ObservableCollection<VarMonitor>();
+            //foreach (var item in vieModel.GetVarMonitorByPortName(portName))
+            //{
+            //    Logger.Debug($"add  var monitor: {item.Name}");
+            //    portTabItem.VarMonitors.Add(item);
+            //}
+
+
+            if (!connect)
+                return true;
+
+            await Task.Run(() => {
+                try {
+                    SerialPortEx serialPort = portTabItem.SerialPort;
+                    if (!serialPort.IsOpen) {
+                        //serialPort.WriteTimeout = CustomSerialPort.WRITE_TIME_OUT;
+                        //serialPort.ReadTimeout = CustomSerialPort.READ_TIME_OUT;
+                        serialPort.PrintSetting();
+                        serialPort.Open();
+                        // 打开后启动对应的过滤器线程
+                        //portTabItem.StartFilterTask();
+                        //portTabItem.StartMonitorTask();
+                        portTabItem.ConnectTime = DateTime.Now;
+                        portTabItem.SaveFileName = portTabItem.GetDefaultFileName();
+                        SetPortConnectStatus(portName, true);
+                        portTabItem.Open();
+                    }
+                } catch (Exception ex) {
+                    Dispatcher.Invoke(() => {
+                        string msg = $"{LangManager.GetValueByKey("OpenPortFailed")}: {portName} => {ex.Message}";
+                        MessageCard.Error(msg);
+                        vieModel.StatusText = msg;
+                        RemovePortTabItem(portName);
+                    });
+                    SetPortConnectStatus(portName, false);
+                }
+            });
+            Logger.Info($"success open port：{portName}");
+            return true;
+        }
+
+        private void SetTextEditorConfig(ref TextEditor textEditor, bool createInCode = false)
+        {
+            if (createInCode) {
+                // 恢复绑定
+                textEditor.Background = Brushes.Transparent;
+                textEditor.BorderThickness = new Thickness(0);
+
+                Binding binding1 = new Binding();
+                binding1.Source = vieModel.PortTabItems;
+                binding1.Path = new PropertyPath("SerialPort.TextFontSize");
+                binding1.Mode = BindingMode.TwoWay;
+                binding1.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+                BindingOperations.SetBinding(textEditor, TextEditor.FontSizeProperty, binding1);
+
+
+                Binding binding2 = new Binding();
+                binding2.Source = ConfigManager.Main;
+                binding2.Path = new PropertyPath("AutoWrap");
+                binding2.Mode = BindingMode.OneWay;
+                BindingOperations.SetBinding(textEditor, TextEditor.WordWrapProperty, binding2);
+
+
+                textEditor.SetResourceReference(TextEditor.ForegroundProperty, "Window.Foreground");
+                textEditor.IsReadOnly = true;
+                textEditor.GotFocus += textBox_GotFocus;
+                textEditor.LostFocus += textBox_LostFocus;
+            }
+
+            textEditor.Name = "textEditor";
+            textEditor.ContextMenu = this.Resources["TextEditorContextMenu"] as ContextMenu;
+            TextEditorOptions textEditorOptions = new TextEditorOptions();
+            textEditorOptions.HighlightCurrentLine = ConfigManager.Main.HighlightCurrentLine;
+            textEditorOptions.ShowEndOfLine = ConfigManager.Main.ShowEndOfLine;
+            textEditorOptions.ShowSpaces = ConfigManager.Main.ShowSpaces;
+            textEditorOptions.ShowTabs = ConfigManager.Main.ShowTabs;
+            textEditor.Options = textEditorOptions;
+            textEditor.ShowLineNumbers = ConfigManager.Main.ShowLineNumbers;
+            textEditor.Language = XmlLanguage.GetLanguage(VisualHelper.ZH_CN);
+            // 字体
+            textEditor.FontFamily = new FontFamily(ConfigManager.Main.TextFontName);
+            // 颜色
+            if (!string.IsNullOrEmpty(ConfigManager.Main.TextForeground)) {
+                RGB rGB = ColorHelper.HexToRgb(new HEX(ConfigManager.Main.TextForeground));
+                textEditor.Foreground = new SolidColorBrush(Color.FromRgb(rGB.R, rGB.G, rGB.B));
+            }
+
+            SearchPanel.Install(textEditor);
+        }
+
+        private async Task<bool> ClosePort(string portName)
+        {
+            if (vieModel.PortTabItems == null || string.IsNullOrEmpty(portName))
+                return false;
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null)
+                return false;
+            portTabItem.Close();
+            SerialPortEx serialPort = portTabItem.SerialPort;
+            if (serialPort != null) {
+                bool success = await AsyncClosePort(serialPort);
+                Logger.Info($"close port：{portName} ret: {success}");
+                if (success) {
+                    //portTabItem.StopFilterTask();
+                    //portTabItem.StopMonitorTask();
+                    return SetPortConnectStatus(portName, false);
+                } else {
+                    MessageNotify.Error($"{LangManager.GetValueByKey("ClosePortTimeout")}: {serialPort.PortName}");
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        public async Task<bool> AsyncClosePort(SerialPortEx serialPort)
+        {
+            try {
+                return await Task.Run(() => {
+                    serialPort.Close();
+                    serialPort.Dispose();
+                    return true;
+                }).TimeoutAfter(TimeSpan.FromSeconds(PortSetting.CLOSE_TIME_OUT));
+            } catch (TimeoutException ex) {
+                App.Logger.Error(ex.Message);
+            } catch (Exception ex) {
+                MessageNotify.Error(ex.Message);
+            }
+            return false;
+        }
+
+        private bool SetPortConnectStatus(string portName, bool status)
+        {
+            try {
+                App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+                    if (vieModel.PortTabItems != null && vieModel.PortTabItems.Count > 0) {
+                        foreach (PortTabItem item in vieModel.PortTabItems) {
+                            if (item != null && item.Name.Equals(portName)) {
+                                item.Connected = status;
+                                break;
+                            }
+                        }
+                    }
+                    var tabInfo = new TabInfo(ConnectType.Com, status, portName);
+                    BasicEventManager.SendEvent(EventType.StatusChanged, tabInfo);
+                });
+
+            } catch (Exception ex) {
+                MessageCard.Error(ex.Message);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 启动 WMI 串口移除监听器，检测串口被外部拔出
+        /// </summary>
+        private void StartPortRemovalWatcher()
+        {
+            try
+            {
+                // 监听 Win32_SerialPort 实例删除事件（串口拔出）
+                WqlEventQuery query = new WqlEventQuery(
+                    "SELECT * FROM __InstanceDeletionEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_SerialPort'");
+                _portRemovalWatcher = new ManagementEventWatcher(query);
+                _portRemovalWatcher.EventArrived += OnPortRemoved;
+                _portRemovalWatcher.Start();
+                Logger.Info("Port removal watcher started");
+            }
+            catch (Exception ex)
+            {
+                // WMI 监听可能因权限或服务未启动而失败，不影响主功能
+                Logger.Error($"Failed to start port removal watcher: {ex.Message}");
+                _portRemovalWatcher = null;
+            }
+        }
+
+        /// <summary>
+        /// 停止串口移除监听器
+        /// </summary>
+        private void StopPortRemovalWatcher()
+        {
+            try
+            {
+                if (_portRemovalWatcher != null)
+                {
+                    _portRemovalWatcher.Stop();
+                    _portRemovalWatcher.Dispose();
+                    _portRemovalWatcher = null;
+                    Logger.Info("Port removal watcher stopped");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Failed to stop port removal watcher: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 串口拔出事件处理
+        /// </summary>
+        private void OnPortRemoved(object sender, EventArrivedEventArgs e)
+        {
+            try
+            {
+                ManagementBaseObject targetInstance = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+                string deviceId = targetInstance["DeviceID"]?.ToString();
+                if (string.IsNullOrEmpty(deviceId))
+                    return;
+
+                // DeviceID 格式通常为 "COM3" 等
+                string portName = deviceId;
+                Logger.Info($"Detected port removal: {portName}");
+
+                App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+                    if (vieModel.PortTabItems == null)
+                        return;
+
+                    PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(p => p.Name.Equals(portName));
+                    if (portTabItem != null && portTabItem.Connected)
+                    {
+                        try
+                        {
+                            if (portTabItem.SerialPort != null && portTabItem.SerialPort.IsOpen)
+                                portTabItem.SerialPort.Close();
+                        }
+                        catch { /* 忽略关闭异常 */ }
+
+                        portTabItem.Connected = false;
+                        MessageCard.Error($"串口 {portName} 已断开连接（设备被移除）");
+                        Logger.Info($"Port {portName} marked as disconnected due to device removal");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error in port removal handler: {ex.Message}");
+            }
+        }
+
+        private async Task<bool> OpenPortTabItem(string portName, bool connect)
+        {
+            // 打开窗口
+            if (vieModel.PortTabItems == null)
+                vieModel.PortTabItems = new System.Collections.ObjectModel.ObservableCollection<PortTabItem>();
+
+            bool existed = false;
+            PortTabItem portTabItem = null;
+            for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                if (vieModel.PortTabItems[i].Name.Equals(portName)) {
+                    vieModel.PortTabItems[i].Selected = true;
+                    SetGridVisible(portName);
+                    existed = true;
+                    portTabItem = vieModel.PortTabItems[i];
+                } else {
+                    vieModel.PortTabItems[i].Selected = false;
+                }
+            }
+
+            if (!existed) {
+                portTabItem = new PortTabItem(portName, connect);
+                portTabItem.Setting = PortSetting.GetDefaultSetting();
+
+                if (portTabItem.SerialPort == null)
+                    portTabItem.SerialPort = new SerialPortEx(portName);
+
+                // 从配置里读取
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portName));
+                if (comSettings != null) {
+                    portTabItem.WriteData = comSettings.WriteData;
+                    portTabItem.AddTimeStamp = comSettings.AddTimeStamp;
+                    portTabItem.AddNewLineWhenWrite = comSettings.AddNewLineWhenWrite;
+                    portTabItem.SendHex = comSettings.SendHex;
+                    portTabItem.RecvShowHex = comSettings.RecvShowHex;
+                    portTabItem.EnabledFilter = comSettings.EnabledFilter;
+                    portTabItem.EnabledMonitor = comSettings.EnabledMonitor;
+                    portTabItem.SerialPort.SetPortSettingByJson(comSettings.PortSetting);
+                    portTabItem.Remark = portTabItem.SerialPort.Remark;
+                    portTabItem.Pinned = portTabItem.SerialPort.Pinned;
+                }
+                portTabItem.Selected = true;
+                vieModel.PortTabItems.Add(portTabItem);
+
+                await Task.Run(async () => {
+                    await Task.Delay(500);
+                    Dispatcher.Invoke(() => {
+                        SetComboboxStatus();
+                    });
+                });
+                SetPortTabSelected(portName);
+            }
+            ScrollIntoView(portTabItem);
+            return true;
+        }
+
+        public void ScrollIntoView(PortTabItem portTabItem)
+        {
+            if (portTabItem == null)
+                return;
+            var container = tabItemsControl.ItemContainerGenerator.ContainerFromItem(portTabItem) as FrameworkElement;
+            if (container != null)
+                container.BringIntoView();
+        }
+
+        private void ShowAbout(object sender, RoutedEventArgs e)
+        {
+            Dialog_About about = new Dialog_About();
+            string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            local = local.Substring(0, local.Length - ".0.0".Length);
+            about.AppName = ConfigManager.APP_NAME;
+            about.AppSubName = ConfigManager.APP_SUB_NAME;
+            about.Version = local;
+            about.ReleaseDate = ConfigManager.RELEASE_DATE;
+            about.Author = UrlManager.AUTHOR;
+            about.License = UrlManager.LICENSE;
+            about.GithubUrl = UrlManager.GITHUB_URL;
+            about.WebUrl = UrlManager.WEB_URL;
+            about.JoinGroupUrl = UrlManager.JOIN_GROUP_URL;
+            about.Image = SuperUtils.Media.ImageHelper
+                .ImageFromUri("pack://application:,,,/SuperCom;Component/Resources/Ico/ICON_256.png");
+            about.ShowDialog();
+        }
+
+        private void Border_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) {
+                Border border = sender as Border;
+                TextEditor textEditor = border.Child as TextEditor;
+                double fontSize = textEditor.FontSize;
+                if (e.Delta > 0) {
+                    fontSize++;
+                } else {
+                    fontSize--;
+                }
+                if (fontSize > PortSetting.MAX_FONTSIZE)
+                    fontSize = PortSetting.MAX_FONTSIZE;
+                if (fontSize < PortSetting.MIN_FONTSIZE)
+                    fontSize = PortSetting.MIN_FONTSIZE;
+
+                textEditor.FontSize = fontSize;
+                e.Handled = true;
+            }
+        }
+
+        private TextEditor FindTextBox(Grid rootGrid)
+        {
+            if (rootGrid == null)
+                return null;
+            Border border = rootGrid.Children.OfType<Border>().FirstOrDefault();
+            if (border != null && border.Child is TextEditor textEditor) {
+                return textEditor;
+            }
+            return null;
+        }
+
+        private TextEditor FindTextBoxByPortName(string portName)
+        {
+            if (string.IsNullOrEmpty(portName))
+                return null;
+            for (int i = 0; i < itemsControl.Items.Count; i++) {
+                ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                if (presenter == null)
+                    continue;
+                Grid grid = VisualHelper.FindElementByName<Grid>(presenter, "rootGrid");
+                if (grid != null && grid.Tag != null && portName.Equals(grid.Tag.ToString())
+                    && grid.FindName("textEditor") is TextEditor textEditor)
+                    return textEditor;
+            }
+            return null;
+        }
+
+        private void ClearData(object sender, RoutedEventArgs e)
+        {
+            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            if (stackPanel != null && stackPanel.Parent is Border border && border.Parent is Grid rootGrid) {
+                if (rootGrid.Tag == null)
+                    return;
+                string portName = rootGrid.Tag.ToString();
+                ClearDataByPortName(portName);
+            }
+        }
+
+        private void ClearDataByPortName(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem != null) {
+                portTabItem.ClearData();
+                portTabItem.RX = portTabItem.TX = 0;
+                Logger.Info($"clear data: {portName}");
+            }
+        }
+
+        private void OpenPath(object sender, RoutedEventArgs e)
+        {
+            PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
+            if (portTabItem != null) {
+                Logger.Info($"open log dir, portName: {portTabItem.Name}");
+                string fileName = portTabItem.SaveFileName;
+                if (File.Exists(fileName)) {
+                    // 优先用自定义日志编辑器打开，失败则用默认应用
+                    if (!TryOpenWithLogEditor(fileName)) {
+                        FileHelper.TryOpenSelectPath(fileName);
+                    }
+                    if (portTabItem.FragCount > 0)
+                        MessageNotify.Info($"{LangManager.GetValueByKey("LogFragWithCount")} {portTabItem.FragCount}");
+                } else {
+                    MessageNotify.Warning($"{LangManager.GetValueByKey("CurrentNoLog")}");
+                }
+
+            }
+
+        }
+
+        private PortTabItem GetPortItem(FrameworkElement element)
+        {
+            StackPanel stackPanel = element.Parent as StackPanel;
+            if (stackPanel != null && stackPanel.Parent is Border border && border.Parent is Grid rootGrid) {
+                if (rootGrid.Tag == null)
+                    return null;
+                string portName = rootGrid.Tag.ToString();
+                return vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 尝试用自定义日志编辑器打开文件，未配置则尝试 Notepad++，都失败返回 false
+        /// </summary>
+        private string ReadLogEditorPathFromDB()
+        {
+            // 绕过内存单例，直接从 app_configs 表读取最新值（JSON 存储）
+            try
+            {
+                using (var conn = new System.Data.SQLite.SQLiteConnection($"Data Source={ConfigManager.SQLITE_DATA_PATH}"))
+                {
+                    conn.Open();
+                    using (var cmd = new System.Data.SQLite.SQLiteCommand(
+                        "SELECT ConfigValue FROM app_configs WHERE ConfigName='WindowConfig.CommonSettings' LIMIT 1", conn))
+                    {
+                        var result = cmd.ExecuteScalar() as string;
+                        if (!string.IsNullOrEmpty(result))
+                        {
+                            var json = Newtonsoft.Json.Linq.JObject.Parse(result);
+                            return json["LogEditorPath"]?.ToString() ?? "";
+                        }
+                    }
+                }
+            }
+            catch { }
+            return "";
+        }
+
+        private bool TryOpenWithLogEditor(string filePath)
+        {
+            // 优先使用设置中配置的日志编辑器路径（直接读 DB，绕过内存单例）
+            string editorPath = ReadLogEditorPathFromDB();
+            if (!string.IsNullOrWhiteSpace(editorPath) && File.Exists(editorPath)) {
+                System.Diagnostics.Process.Start(editorPath, $"\"{filePath}\"");
+                return true;
+            }
+            // 未配置或路径无效，尝试自动查找 Notepad++
+            string[] possiblePaths = new string[]
+            {
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Notepad++\\notepad++.exe"),
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Notepad++\\notepad++.exe"),
+            };
+            foreach (string nppe in possiblePaths) {
+                if (File.Exists(nppe)) {
+                    System.Diagnostics.Process.Start(nppe, $"\"{filePath}\"");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void SendCommand(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button != null && button.Tag != null) {
+                string portName = button.Tag.ToString();
+                if (string.IsNullOrEmpty(portName))
+                    return;
+
+                Logger.Info($"click send command, port name: {portName}");
+
+                SendCommand(portName);
+                if (ConfigManager.CommonSettings.FixedOnSendCommand) {
+                    PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (portTabItem != null)
+                        portTabItem.FixedText = true;
+                }
+            }
+        }
+
+
+        private (ToggleButton, TextEditor) FindToggleButtonByBaseGrid(Grid baseGrid)
+        {
+            Grid rooGrid = baseGrid.Children.OfType<Grid>().FirstOrDefault();
+            Border firstBorder = rooGrid.Children.OfType<Border>().FirstOrDefault();
+            Border lastBorder = rooGrid.Children.OfType<Border>().LastOrDefault();
+            ToggleButton toggleButton = (lastBorder.Child as StackPanel).Children.OfType<ToggleButton>().FirstOrDefault();
+            return (toggleButton, firstBorder.Child as TextEditor);
+        }
+
+        public async void SendCommand(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null) {
+                MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
+                return;
+            }
+
+            // 未连接时自动连接
+            if (!portTabItem.Connected) {
+                bool ok = await OpenPort(portName);
+                if (!ok) {
+                    MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                    return;
+                }
+            }
+
+            string value = portTabItem.WriteData;
+            vieModel.SaveToHistory(value);
+            portTabItem.SendCommand(value);
+        }
+
+
+        private string GetPortName(FrameworkElement element)
+        {
+            if (element == null)
+                return null;
+            StackPanel stackPanel = element.Parent as StackPanel;
+            if (stackPanel != null && stackPanel.Parent is Border border) {
+                if (border.Tag != null) {
+                    return border.Tag.ToString();
+                }
+            }
+            return null;
+        }
+
+        private bool SetNewSaveFileName(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null)
+                return false;
+
+            portTabItem.ConnectTime = DateTime.Now;
+            string defaultName = portTabItem.GetDefaultFileName();
+            string originFileName = Path.GetFileNameWithoutExtension(defaultName);
+            DialogInput dialogInput = new DialogInput(LangManager.GetValueByKey("PleaseEnterNewFileName"), originFileName);
+
+            if (!(bool)dialogInput.ShowDialog(this))
+                return false;
+
+            if (dialogInput.Text is string newName &&
+                !string.IsNullOrEmpty(newName) &&
+                newName.ToProperFileName() is string name) {
+
+                if (name.ToLower().Equals(originFileName.ToLower())) {
+                    // 文件名未变化，使用默认方式
+                    portTabItem.SaveFileName = defaultName;
+                    return true;
+                }
+
+                string targetFileName = portTabItem.GetCustomFileName(newName);
+                if (File.Exists(targetFileName)) {
+                    if (!(bool)(new MsgBox(LangManager.GetValueByKey("FileExistAskForAppend")).ShowDialog())) {
+                        return false;
+                    }
+                }
+                // 保存为新文件名
+                portTabItem.SaveFileName = targetFileName;
+                return true;
+            } else {
+                MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
+                return false;
+            }
+        }
+
+
+        private async void SaveToNewFile(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele == null)
+                return;
+            ele.IsEnabled = false;
+            string portName = GetPortName(sender as FrameworkElement);
+            if (!string.IsNullOrEmpty(portName)) {
+                if (SetNewSaveFileName(portName)) {
+                    MessageNotify.Success(LangManager.GetValueByKey("LogSaveAsOK"));
+                    await Task.Delay(500); // 防止频繁点保存
+                }
+            }
+            ele.IsEnabled = true;
+        }
+
+        private async void mainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // 保存配置
+            SaveOpeningPorts();
+            SaveComSettings();
+            SaveConfigValue();
+            vieModel.SaveBaudRate();
+            
+            // 保存扩展功能面板配置
+            SaveQuickCommandPanelConfig();
+            
+            // 停止串口移除监听器
+            StopPortRemovalWatcher();
+            
+            try {
+                await CloseAllConnectPort();
+            } catch (Exception ex) {
+                App.Logger.Error(ex.Message);
+            }
+
+            // 注意，只有启用防止系统休眠，关闭 App 后才取消该休眠
+            if (ConfigManager.Settings.AvoidScreenClose)
+                Win32Helper.CancelPreventSleep();
+        }
+
+        /// <summary>
+        /// 保存扩展功能面板配置
+        /// </summary>
+        private void SaveQuickCommandPanelConfig()
+        {
+            // 保存面板宽度
+            var column = this.FindName("quickCommandColumn") as ColumnDefinition;
+            if (column != null && column.Width.Value > 0)
+            {
+                ConfigManager.QuickCommandSettings.PanelWidth = column.Width.Value;
+            }
+            
+            // 保存所有数据
+            ConfigManager.QuickCommandSettings.SaveAll();
+        }
+
+        /// <summary>
+        /// 分割条拖动中 - 防止左侧列被压得太窄（低于 MinWidth）
+        /// </summary>
+        private void QuickCommandSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            var grid = FindVisualChild<Grid>(this)
+                .FirstOrDefault(g => g.Name == "rootGrid" && g.ColumnDefinitions.Count == 3);
+            if (grid == null) return;
+
+            var leftCol = grid.ColumnDefinitions[0];
+            // 如果左侧实际宽度已接近最小值，阻止向左拖动（但允许向右拖动恢复）
+            if (leftCol.ActualWidth <= leftCol.MinWidth + 10 && e.HorizontalChange < 0)
+            {
+                e.Handled = true;
+            }
+
+            // 实时检查：如果左侧列宽度小于 300px，强制 AvalonEdit 换行
+            var textEditor = this.FindName("textEditor") as ICSharpCode.AvalonEdit.TextEditor;
+            if (textEditor != null && leftCol.ActualWidth < 300)
+            {
+                textEditor.WordWrap = true;
+            }
+        }
+
+        private void QuickCommandSplitter_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            var grid = FindVisualChild<Grid>(this)
+                .FirstOrDefault(g => g.Name == "rootGrid" && g.ColumnDefinitions.Count == 3);
+            if (grid == null) return;
+
+            var settings = ConfigManager.QuickCommandSettings;
+            var leftCol = grid.ColumnDefinitions[0];
+
+            // 隐藏时归零，展开时记录当前像素宽度
+            if (!settings.IsPanelVisible)
+            {
+                grid.ColumnDefinitions[2].Width = new GridLength(0);
+            }
+            else
+            {
+                var actualWidth = grid.ColumnDefinitions[2].ActualWidth;
+                if (actualWidth > 0)
+                {
+                    settings.PanelWidth = actualWidth;
+                    settings.SaveAll();
+                }
+
+                // 展开时：如果左侧列宽度小于 300px，强制换行
+                var textEditor = this.FindName("textEditor") as ICSharpCode.AvalonEdit.TextEditor;
+                if (textEditor != null && leftCol.ActualWidth < 300)
+                {
+                    textEditor.WordWrap = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 恢复扩展功能面板状态
+        /// </summary>
+        private void RestoreQuickCommandPanel()
+        {
+            var column = this.FindName("quickCommandColumn") as ColumnDefinition;
+            if (column != null && ConfigManager.QuickCommandSettings.IsPanelVisible)
+            {
+                column.Width = new GridLength(ConfigManager.QuickCommandSettings.PanelWidth);
+            }
+        }
+
+        /// <summary>
+        /// 保存串口的配置文件
+        /// </summary>
+        private void SaveComSettings()
+        {
+            foreach (var portTabItem in vieModel.PortTabItems) {
+
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portTabItem.Name));
+                if (comSettings == null)
+                    comSettings = new ComSettings();
+                comSettings.PortName = portTabItem.Name;
+                comSettings.Connected = portTabItem.Connected;
+                // PortTabItem portTabItem = item.PortTabItem;
+
+                comSettings.WriteData = portTabItem.WriteData;
+                comSettings.AddNewLineWhenWrite = portTabItem.AddNewLineWhenWrite;
+                comSettings.SendHex = portTabItem.SendHex;
+                comSettings.RecvShowHex = portTabItem.RecvShowHex;
+                comSettings.EnabledFilter = portTabItem.EnabledFilter;
+                comSettings.EnabledMonitor = portTabItem.EnabledMonitor;
+                comSettings.AddTimeStamp = portTabItem.AddTimeStamp;
+                portTabItem.SerialPort.RefreshSetting();
+                comSettings.PortSetting = portTabItem.SerialPort?.SettingJson;
+
+                MapperManager.ComMapper.Insert(comSettings, InsertMode.Replace);
+            }
+        }
+
+        private void SaveOpeningPorts()
+        {
+            ConfigManager.Main.OpeningPorts = JsonUtils.TrySerializeObject(vieModel.PortTabItems.Select(arg => arg.Name).ToList());
+            ConfigManager.Main.Save();
+        }
+
+
+        private void SaveConfigValue()
+        {
+            ConfigManager.Main.X = this.Left;
+            ConfigManager.Main.Y = this.Top;
+            ConfigManager.Main.Width = this.Width;
+            ConfigManager.Main.Height = this.Height;
+            //ConfigManager.Main.WindowState = (long)baseWindowState;
+            ConfigManager.Main.SideGridWidth = SideGridColumn.ActualWidth;
+            ConfigManager.Main.Save();
+        }
+
+
+        private void OpenHexTransform(object sender, RoutedEventArgs e)
+        {
+            string text = GetCurrentText(sender as FrameworkElement);
+            OpenHex(text);
+        }
+
+        private void OpenHex(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return;
+            if (text.Length > MAX_TRANSFORM_SIZE) {
+                MessageNotify.Warning($"{LangManager.GetValueByKey("Over")}: {MAX_TRANSFORM_SIZE}");
+                return;
+            }
+            hexTransPopup.IsOpen = true;
+            HexTextBox.Text = text;
+            HexToStr(null, null);
+        }
+
+
+        private string GetCurrentText(FrameworkElement element)
+        {
+            MenuItem menuItem = element as MenuItem;
+            if (menuItem != null && menuItem.Parent is ContextMenu contextMenu) {
+                if (contextMenu.PlacementTarget is TextEditor textEditor) {
+                    return textEditor.SelectedText;
+                }
+            }
+            return null;
+        }
+
+        private void OpenTimeTransform(object sender, RoutedEventArgs e)
+        {
+            string text = GetCurrentText(sender as FrameworkElement);
+            OpenTime(text);
+        }
+
+        private void OpenTime(string text)
+        {
+            if (text.Length > MAX_TIMESTAMP_LENGTH) {
+                MessageNotify.Warning($"{LangManager.GetValueByKey("Over")}: {MAX_TIMESTAMP_LENGTH}");
+                return;
+            }
+            if (string.IsNullOrEmpty(text))
+                return;
+            timeTransPopup.IsOpen = true;
+            TimeStampTextBox.Text = text;
+            TimeStampToLocalTime(null, null);
+        }
+
+        private void HexToStr(object sender, RoutedEventArgs e)
+        {
+            StrTextBox.Text = TransformHelper.HexToStr(HexTextBox.Text);
+        }
+
+        private void StrToHex(object sender, RoutedEventArgs e)
+        {
+            string text = TransformHelper.StrToHex(StrTextBox.Text);
+            if ((bool)HexToStrSwitch.IsChecked) {
+                HexTextBox.Text = text;
+            } else {
+                HexTextBox.Text = text.ToLower();
+            }
+
+        }
+
+        private void Switch_Click(object sender, RoutedEventArgs e)
+        {
+            Switch obj = sender as Switch;
+            if ((bool)obj.IsChecked) {
+                HexTextBox.Text = HexTextBox.Text.ToUpper();
+            } else {
+                HexTextBox.Text = HexTextBox.Text.ToLower();
+            }
+        }
+
+
+        private void TimeStampToLocalTime(object sender, RoutedEventArgs e)
+        {
+            bool success = long.TryParse(TimeStampTextBox.Text, out long timeStamp);
+            if (!success) {
+                LocalTimeTextBox.Text = LangManager.GetValueByKey("ParseFailed");
+                return;
+            }
+            try {
+                DateTime dateTime = DateHelper.UnixTimeStampToDateTime(timeStamp, TimeComboBox.SelectedIndex == 0);
+                LocalTimeTextBox.Text = dateTime.ToLocalDate();
+            } catch (Exception ex) {
+                LocalTimeTextBox.Text = ex.Message;
+            }
+        }
+
+        private void LocalTimeToTimeStamp(object sender, RoutedEventArgs e)
+        {
+            bool success = DateTime.TryParse(LocalTimeTextBox.Text, out DateTime dt);
+            if (!success) {
+                TimeStampTextBox.Text = LangManager.GetValueByKey("ParseFailed");
+            } else {
+                TimeStampTextBox.Text = DateHelper.DateTimeToUnixTimeStamp(dt, TimeComboBox.SelectedIndex == 0).ToString();
+            }
+
+        }
+
+        private void ShowAdvancedOptions(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            WrapPanel wrapPanel = button.Parent as WrapPanel;
+            Grid grid = (wrapPanel.Parent as Border).Parent as Grid;
+            Grid rootGrid = grid.Parent as Grid;
+            Grid advancedGrid = VisualHelper.FindChild(rootGrid, "advancedGrid") as Grid;
+            if (advancedGrid != null)
+                advancedGrid.Visibility = Visibility.Visible;
+        }
+
+        private void HideAdvancedGrid(object sender, RoutedEventArgs e)
+        {
+            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            Grid grid = stackPanel.Parent as Grid;
+            (grid.Parent as Grid).Visibility = Visibility.Hidden;
+        }
+
+        private void RestorePortSetting(object sender, RoutedEventArgs e)
+        {
+            StackPanel stackPanel = (sender as Button).Parent as StackPanel;
+            if (stackPanel.Tag == null || !(stackPanel.Tag.ToString() is string name))
+                return;
+
+            if (!(bool)new MsgBox($"{LangManager.GetValueByKey("RestoreSpec")}: {name} ?").ShowDialog(this))
+                return;
+            if (vieModel.PortTabItems != null &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(name)) is PortTabItem tabItem &&
+                tabItem.SerialPort is SerialPortEx port) {
+                port.RestoreDefault();
+                port.PrintSetting();
+            }
+        }
+
+        private void SetStayOpenStatus(object sender, RoutedEventArgs e)
+        {
+            ToggleButton toggleButton = sender as ToggleButton;
+            bool isChecked = (bool)toggleButton.IsChecked;
+            Grid grid = (toggleButton.Parent as Grid).Parent as Grid;
+            Popup popup = grid.Parent as Popup;
+            if (popup != null)
+                popup.StaysOpen = isChecked;
+        }
+
+        private void OpenByDefaultApp(object sender, RoutedEventArgs e)
+        {
+            PortTabItem portTabItem = GetPortItem(sender as FrameworkElement);
+            if (portTabItem != null) {
+                Logger.Info($"open log file, portName: {portTabItem.Name}");
+                string fileName = portTabItem.SaveFileName;
+                if (File.Exists(fileName)) {
+                    FileHelper.TryOpenByDefaultApp(fileName);
+                } else {
+                    MessageCard.Warning(LangManager.GetValueByKey("CurrentNoLog"));
+                }
+
+            }
+        }
+
+
+        public void ApplyScreenStatus()
+        {
+            if (ConfigManager.Settings.AvoidScreenClose)
+                Win32Helper.PreventSleep();
+        }
+
+        public void InitNotice()
+        {
+            noticeViewer.SetConfig(UrlManager.NOTICE_URL, ConfigManager.Main.LatestNotice);
+            noticeViewer.onError += (error) => {
+                App.Logger?.Error(error);
+            };
+
+            noticeViewer.onShowMarkdown += (markdown) => {
+                //MessageCard.Info(markdown);
+            };
+            noticeViewer.onNewNotice += (newNotice) => {
+                ConfigManager.Main.LatestNotice = newNotice;
+                ConfigManager.Main.Save();
+            };
+
+            noticeViewer.BeginCheckNotice();
+        }
+
+        public void SetBaudRateAction()
+        {
+            vieModel.OnBaudRatesChanged += (beforePorts) => {
+                if (vieModel.PortTabItems == null)
+                    return;
+                if (itemsControl == null || itemsControl.ItemsSource == null)
+                    return;
+                for (int i = 0; i < itemsControl.Items.Count; i++) {
+                    ContentPresenter presenter = (ContentPresenter)itemsControl.ItemContainerGenerator.ContainerFromItem(itemsControl.Items[i]);
+                    if (presenter == null)
+                        continue;
+                    ComboBox comboBox = VisualHelper.FindElementByName<ComboBox>(presenter, "baudRateComboBox");
+                    if (comboBox == null || comboBox.Tag == null)
+                        continue;
+                    string portName = comboBox.Tag.ToString();
+                    PortTabItem portTabItem = beforePorts.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (portTabItem == null || portTabItem.SerialPort == null)
+                        continue;
+                    int number = portTabItem.SerialPort.BaudRate;
+                    bool found = false;
+                    for (int j = 0; j < comboBox.Items.Count; j++) {
+                        if (comboBox.Items[j].ToString().Equals(number.ToString())) {
+                            comboBox.SelectedIndex = j;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        comboBox.SelectedIndex = 0;
+                }
+            };
+        }
+
+        private void LoadFontFamily()
+        {
+            int idx = 1;
+            int count = VisualHelper.SYSTEM_FONT_FAMILIES.Keys.Count;
+            foreach (string fontName in VisualHelper.SYSTEM_FONT_FAMILIES.Keys) {
+                MenuItem menuItem = new MenuItem();
+                menuItem.Header = fontName;
+                menuItem.FontFamily = VisualHelper.SYSTEM_FONT_FAMILIES[fontName];
+                menuItem.IsCheckable = true;
+                menuItem.IsChecked = fontName.Equals(ConfigManager.Main.TextFontName);
+                menuItem.Checked += (s, e) => {
+                    string name = (s as MenuItem).Header.ToString();
+                    SetFontFamily(name);
+
+
+                };
+                FontMenuItem.Items.Add(menuItem);
+                //Logger.Info($"[{idx++}/{count}]load font: {fontName}");
+            }
+        }
+
+        public void SetFontFamily(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return;
+            foreach (MenuItem item in FontMenuItem.Items) {
+                if (name.Equals(item.Header.ToString()))
+                    continue;
+                item.IsChecked = false;
+            }
+
+            foreach (PortTabItem item in vieModel.PortTabItems) {
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor != null)
+                    textEditor.FontFamily = VisualHelper.SYSTEM_FONT_FAMILIES[name];
+            }
+            ConfigManager.Main.TextFontName = name;
+            ConfigManager.Main.Save();
+            Logger.Info($"set font: {name}");
+        }
+
+        public void InitUpgrade()
+        {
+            UpgradeHelper.Init();
+            UpgradeHelper.OnBeforeCopyFile += () => {
+                CloseAllPorts(null, null);
+                this.CloseToTaskBar = false;
+                this.Close();
+            };
+            CheckUpgrade();
+        }
+
+        private void LoadDonateConfig()
+        {
+            vieModel.ShowDonate = true;
+            string json_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app_config.json");
+            if (File.Exists(json_path)) {
+                string v = FileHelper.TryReadFile(json_path);
+                if (!string.IsNullOrEmpty(v)) {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(v);
+                    if (dict != null && dict.ContainsKey("ShowDonate")) {
+                        string showDonate = dict["ShowDonate"].ToString();
+                        if (!string.IsNullOrEmpty(showDonate)) {
+                            vieModel.ShowDonate = showDonate.ToLower().Equals("false") ? false : true;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void InitThemeSelector()
+        {
+            ThemeSelectorDefault.AddTransParentColor("TabItem.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Title.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Side.Background");
+            ThemeSelectorDefault.AddTransParentColor("Window.Side.Hover.Background");
+            ThemeSelectorDefault.AddTransParentColor("ListBoxItem.Background");
+            ThemeSelectorDefault.SetThemeConfig(ConfigManager.Settings.ThemeIdx, ConfigManager.Settings.ThemeID);
+            ThemeSelectorDefault.onThemeChanged += (ThemeIdx, ThemeID) => {
+                ConfigManager.Settings.ThemeIdx = ThemeIdx;
+                ConfigManager.Settings.ThemeID = ThemeID;
+                ConfigManager.Settings.Save();
+            };
+            ThemeSelectorDefault.onBackGroundImageChanged += (image) => {
+                ImageBackground.Source = image;
+            };
+            ThemeSelectorDefault.onSetBgColorTransparent += () => {
+                BorderTitle.Background = Brushes.Transparent;
+            };
+
+            ThemeSelectorDefault.onReSetBgColorBinding += () => {
+                BorderTitle.SetResourceReference(Control.BackgroundProperty, "Window.Title.Background");
+            };
+
+            ThemeSelectorDefault.InitThemes();
+        }
+
+        private async void OpenBeforePorts()
+        {
+            if (string.IsNullOrEmpty(ConfigManager.Main.OpeningPorts))
+                return;
+            List<string> list = JsonUtils.TryDeserializeObject<List<string>>(ConfigManager.Main.OpeningPorts);
+            foreach (string portName in list) {
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portName));
+                if (comSettings != null && comSettings.Connected) {
+                    // 这里不需要等待
+                    await OpenPort(portName);
+                } else {
+                    // 这里不需要等待
+                    //OpenPortTabItem(portName, false);
+                    await OpenPort(portName, false);
+                }
+            }
+            SetFontFamily(ConfigManager.Main.TextFontName);
+        }
+
+        public void AdjustWindow()
+        {
+
+            if (ConfigManager.Main.FirstRun) {
+                this.Width = SystemParameters.WorkArea.Width * 0.8;
+                this.Height = SystemParameters.WorkArea.Height * 0.8;
+                this.Left = SystemParameters.WorkArea.Width * 0.1;
+                this.Top = SystemParameters.WorkArea.Height * 0.1;
+            } else {
+                //if (ConfigManager.Main.Height == SystemParameters.WorkArea.Height && ConfigManager.Main.Width < SystemParameters.WorkArea.Width)
+                //{
+                //    //baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                //    this.CanResize = true;
+                //}
+                //else
+                //{
+                //    this.Left = ConfigManager.Main.X;
+                //    this.Top = ConfigManager.Main.Y;
+                //    this.Width = ConfigManager.Main.Width;
+                //    this.Height = ConfigManager.Main.Height;
+                //}
+
+
+                //baseWindowState = (BaseWindowState)ConfigManager.Main.WindowState;
+                //if (baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    this.WindowState = System.Windows.WindowState.Maximized;
+                //}
+                //else if (baseWindowState == BaseWindowState.None)
+                //{
+                //    baseWindowState = 0;
+                //    this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                ////}
+                //if (this.Width == SystemParameters.WorkArea.Width
+                //    && this.Height == SystemParameters.WorkArea.Height) baseWindowState = BaseWindowState.Maximized;
+
+                //if (baseWindowState == BaseWindowState.Maximized || baseWindowState == BaseWindowState.FullScreen)
+                //{
+                //    MaxPath.Data = Geometry.Parse(PathData.MaxToNormalPath);
+                //    MaxMenuItem.Header = "窗口化";
+                //}
+
+
+            }
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (SideGridColumn.ActualWidth <= 100) {
+                SideGridColumn.Width = new GridLength(0);
+                sideGridMenuItem.IsChecked = false;
+            }
+        }
+
+        private void OpenSetting(object sender, RoutedEventArgs e)
+        {
+            window_Setting?.Close();
+            window_Setting = new Window_Setting();
+            window_Setting.Owner = this;
+            window_Setting.Show();
+            window_Setting.Focus();
+            window_Setting.BringIntoView();
+        }
+
+        #region "历史记录弹窗"
+        private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            //TextBox textBox = sender as TextBox;
+            //string text = textBox.Text.Trim().ToLower();
+            //if (string.IsNullOrEmpty(text)) return;
+            //List<string> list = vieModel.SendHistory.FirstOrDefault(arg => arg.ToLower().IndexOf(text) >= 0).ToList();
+            //if (list.Count > 0)
+            //{
+            //    Grid grid = (textBox.Parent as Border).Parent as Grid;
+            //    Popup popup = grid.Children.OfType<Popup>().FirstOrDefault();
+            //    if (popup != null)
+            //    {
+            //        popup.IsOpen = true;
+            //        Grid g = popup.Child as Grid;
+            //        ItemsControl itemsControl = g.FindName("itemsControl") as ItemsControl;
+            //        if (itemsControl != null)
+            //        {
+            //            itemsControl.ItemsSource = list;
+            //            vieModel.SendHistorySelectedIndex = 0;
+            //        }
+            //    }
+            //}
+        }
+
+        private void SetSendHistory(object sender, MouseButtonEventArgs e)
+        {
+            Border border = sender as Border;
+            Grid grid = border.Child as Grid;
+            TextBlock textBlock = grid.Children.OfType<TextBlock>().FirstOrDefault();
+            if (textBlock != null) {
+                string value = textBlock.Text;
+                vieModel.SendHistorySelectedValue = value;
+                Popup popup = textBlock.Tag as Popup;
+                if (popup != null && popup.Tag != null) {
+                    string portName = popup.Tag.ToString();
+                    PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                    if (portTabItem != null) {
+                        portTabItem.WriteData = value;
+                        popup.IsOpen = false;
+                        TextBox textBox = (popup.Parent as Grid).Children.OfType<Border>().FirstOrDefault().Child as TextBox;
+                        textBox.CaretIndex = textBox.Text.Length;
+                    }
+                }
+            }
+        }
+
+        private void SetSendHistory(TextBox textBox, string portName, bool up)
+        {
+            string history = vieModel.GetSelectSendHistory(up);
+            if (string.IsNullOrEmpty(history))
+                return;
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null)
+                return;
+
+            portTabItem.WriteData = history;
+            textBox.SelectionStart = textBox.Text.Length;
+        }
+
+        private void SendTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) {
+                TextBox textBox = sender as TextBox;
+                if (textBox == null || textBox.Tag == null)
+                    return;
+                string portName = textBox.Tag.ToString();
+                if (string.IsNullOrEmpty(portName))
+                    return;
+                string text = textBox.Text.Trim();
+                if (!string.IsNullOrEmpty(text))
+                    SendCommand(portName);
+            } else if (e.Key == Key.Up || e.Key == Key.Down) {
+                TextBox textBox = sender as TextBox;
+                if (textBox == null || textBox.Tag == null)
+                    return;
+                string portName = textBox.Tag.ToString();
+                SetSendHistory(sender as TextBox, portName, e.Key == Key.Up);
+            }
+        }
+
+        private void HistoryMouseEnter(object sender, MouseEventArgs e)
+        {
+            Border border = sender as Border;
+            if (border.Background == null || !border.Background.Equals((Brush)FindResource("ListBoxItem.Selected.Active.Background")))
+                border.Background = (Brush)FindResource("ListBoxItem.Hover.Background");
+        }
+
+        private void HistoryMouseLeave(object sender, MouseEventArgs e)
+        {
+            Border border = sender as Border;
+            if (border.Background == null || !border.Background.Equals((Brush)FindResource("ListBoxItem.Selected.Active.Background")))
+                border.Background = Brushes.Transparent;
+        }
+
+
+        // todo
+        private void DeleteSendHistory(object sender, RoutedEventArgs e)
+        {
+            //Popup popup = (sender as Button).Tag as Popup;
+            //string value = ((sender as Button).Parent as Border).Tag.ToString();
+            //vieModel.SendHistory.RemoveWhere(arg => arg.Equals(value));
+            //vieModel.SaveSendHistory();
+            //if (popup != null && popup.IsOpen)
+            //{
+            //    Grid grid1 = popup.Child as Grid;
+            //    ItemsControl itemsControl = grid1.FindName("itemsControl") as ItemsControl;
+            //    if (itemsControl.ItemsSource != null)
+            //    {
+            //        List<string> list = itemsControl.ItemsSource as List<string>;
+            //        list.RemoveAll(arg => arg.Equals(value));
+            //        itemsControl.ItemsSource = null;
+            //        itemsControl.ItemsSource = list;
+            //        if (list.Count == 0) popup.IsOpen = false;
+            //    }
+
+            //}
+        }
+        #endregion
+
+        private void OpenSendPanel(object sender, RoutedEventArgs e)
+        {
+
+            Button button = sender as Button;
+            int index = 0;
+            if (button != null && button.Tag != null)
+                int.TryParse(button.Tag.ToString(), out index);
+
+            window_AdvancedSend?.Close();
+            window_AdvancedSend = new Window_AdvancedSend();
+            window_AdvancedSend.SideSelectedIndex = index;
+            window_AdvancedSend.Show();
+            window_AdvancedSend.Focus();
+            window_AdvancedSend.BringIntoView();
+            window_AdvancedSend.Activate();
+            window_AdvancedSend.SetSelect();
+            Logger.Info("open send window");
+
+        }
+
+        private void HideSide(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem.IsChecked) {
+                SideGridColumn.Width = new GridLength(200);
+            } else {
+                SideGridColumn.Width = new GridLength(0);
+                Border_SizeChanged(null, null);
+            }
+
+        }
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            Grid grid = (comboBox.Parent as StackPanel).Parent as Grid;
+            ItemsControl itemsControl = grid.Children.OfType<ItemsControl>().LastOrDefault();
+            if (itemsControl == null) {
+                return;
+            }
+            itemsControl.ItemsSource = null;
+            if (comboBox.SelectedValue == null)
+                return;
+            string id = comboBox.SelectedValue.ToString();
+            if (string.IsNullOrEmpty(id))
+                return;
+            AdvancedSend advancedSend = vieModel.SendCommandProjects.FirstOrDefault(arg => arg.ProjectID.ToString().Equals(id));
+            vieModel.CurrentAdvancedSend = advancedSend;
+            Logger.Info($"set current run project: {advancedSend.ProjectName}");
+            if (!string.IsNullOrEmpty(advancedSend.Commands)) {
+                itemsControl.ItemsSource = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands).OrderBy(arg => arg.Order);
+                vieModel.CommandsSelectIndex = comboBox.SelectedIndex;
+                ConfigManager.Main.CommandsSelectIndex = comboBox.SelectedIndex;
+                ConfigManager.Main.Save();
+            }
+        }
+
+
+
+        public void RefreshSendCommands()
+        {
+            vieModel.LoadSendCommands();
+            SetComboboxStatus();
+        }
+
+        public void SetComboboxStatus()
+        {
+            foreach (PortTabItem item in vieModel.PortTabItems) {
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor == null)
+                    textEditor = FindTextBoxByPortName(item.Name);
+                if (textEditor != null) {
+                    ComboBox comboBox = FindCombobox(textEditor);
+                    if (comboBox != null) {
+                        if (vieModel.CommandsSelectIndex < comboBox.Items.Count)
+                            comboBox.SelectedIndex = vieModel.CommandsSelectIndex;
+                        else
+                            comboBox.SelectedIndex = 0;
+                    }
+                }
+            }
+        }
+
+        private ComboBox FindCombobox(TextEditor textEditor)
+        {
+            Grid grid = (textEditor.Parent as Border).Parent as Grid;
+            Grid rootGrid = grid.Parent as Grid;
+            Grid borderGrid = rootGrid.Children.OfType<Grid>().LastOrDefault();
+            Border border = borderGrid.Children.OfType<Border>().Last();
+            Grid grid1 = border.Child as Grid;
+            StackPanel stackPanel = grid1.Children.OfType<StackPanel>().FirstOrDefault();
+            if (stackPanel != null)
+                return stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+
+            return null;
+        }
+
+        // todo 多命令同时发送
+        private async void SendToFindResultTask(PortTabItem item, string recvResult, int timeOut, string command)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(item.Name));
+            if (portTabItem.ResultChecks == null)
+                portTabItem.ResultChecks = new Queue<ResultCheck>();
+            ResultCheck resultCheck = new ResultCheck();
+            resultCheck.Command = command;
+            resultCheck.Buffer = new StringBuilder();
+            portTabItem.ResultChecks.Enqueue(resultCheck);
+            int time = 0;
+            bool find = false;
+            while (!find && time <= timeOut) {
+                ResultCheck check = portTabItem.ResultChecks.FirstOrDefault(arg => arg.Command.Equals(command));
+                if (check != null) {
+                    string[] buffers = check.Buffer.ToString().Split(Environment.NewLine.ToCharArray());
+                    foreach (string line in buffers) {
+
+                    }
+                    if (find)
+                        break;
+
+
+                    await Task.Delay(100);
+                    time += 100;
+                    //System.Diagnostics.Debug.WriteLine("查找中...");
+                } else {
+                    break;
+                }
+            }
+
+            if (find) {
+                MessageCard.Info($"{LangManager.GetValueByKey("Found")} \n{resultCheck.Buffer}");
+            } else {
+                MessageNotify.Info(LangManager.GetValueByKey("FoundTimeOut"));
+            }
+            portTabItem.ResultChecks.Dequeue();
+        }
+
+
+        private async void SendCustomCommand(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            string command = "";
+            int commandID = -1;
+            if (button.ToolTip != null)
+                command = button.ToolTip.ToString();
+            if (button.Tag != null)
+                int.TryParse(button.Tag.ToString(), out commandID);
+            Border border = button.FindParentOfType<Border>("sendBorder");
+            if (border == null || border.Tag == null)
+                return;
+
+            string portName = border.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null) {
+                MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
+                return;
+            }
+
+            AdvancedSend send = vieModel.CurrentAdvancedSend;
+            if (send == null || string.IsNullOrEmpty(send.Commands))
+                return;
+
+            // 未连接时自动连接
+            if (!portTabItem.Connected) {
+                bool ok = await OpenPort(portName);
+                if (!ok) {
+                    MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                    return;
+                }
+            }
+
+            Logger.Info($"click send btn, name: {send.ProjectName}, port name: {portName}");
+
+            send.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(send.Commands);
+            SendCommand sendCommand = send.CommandList.FirstOrDefault(arg => arg.CommandID == commandID);
+            if (sendCommand != null && sendCommand.IsResultCheck) {
+                // 过滤找到需要的字符串
+                string recvResult = sendCommand.RecvResult;
+                int timeOut = sendCommand.RecvTimeOut;
+                SendToFindResultTask(portTabItem, recvResult, timeOut, command);
+            }
+
+            portTabItem.SendCustomCommand(command);
+        }
+
+        private async void StartSendCommands(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button == null || button.Tag == null)
+                return;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+            string portName = button.Tag.ToString();
+            if (comboBox != null && comboBox.SelectedValue != null &&
+                vieModel.SendCommandProjects?.Count > 0) {
+                string projectID = comboBox.SelectedValue.ToString();
+
+                // 开始执行队列
+                AdvancedSend advancedSend = vieModel.SendCommandProjects.FirstOrDefault(arg => arg.ProjectID.ToString().Equals(projectID));
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (portTabItem == null) {
+                    MessageCard.Error($"未找到端口 {portName}，请检查端口设置");
+                    return;
+                }
+
+                // 未连接时自动连接
+                if (!portTabItem.Connected) {
+                    bool ok = await OpenPort(portName);
+                    if (!ok) {
+                        MessageCard.Error($"发送失败，端口 {portName} 连接失败，请检查端口");
+                        return;
+                    }
+                }
+
+                if (advancedSend != null) {
+                    Logger.Info($"start run command: {advancedSend.ProjectName}");
+                    try {
+                        advancedSend.BeginSendCommands(advancedSend, portTabItem, (status) => {
+                            SetRunningStatus(button, status);
+                        });
+                    } catch (Exception ex) {
+                        Logger.Error(ex);
+                        MessageCard.Error(ex.Message);
+                        SetRunningStatus(button, false);
+                        portTabItem.RunningCommands = false;
+                    }
+                }
+            }
+        }
+
+
+        private void StopSendCommands(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button == null || button.Tag == null)
+                return;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            ComboBox comboBox = stackPanel.Children.OfType<ComboBox>().LastOrDefault();
+            string portName = button.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (comboBox != null && comboBox.SelectedValue != null &&
+                vieModel.SendCommandProjects?.Count > 0 && portTabItem != null) {
+                string projectID = comboBox.SelectedValue.ToString();
+                // 执行队列
+                AdvancedSend advancedSend = vieModel.SendCommandProjects.FirstOrDefault(arg => arg.ProjectID.ToString().Equals(projectID));
+                if (advancedSend == null)
+                    return;
+
+                Logger.Info($"stop run command: {advancedSend.ProjectName}");
+
+                portTabItem.RunningCommands = false;
+                if (advancedSend.CommandList?.Count > 0)
+                    foreach (var item in advancedSend.CommandList)
+                        item.Status = RunningStatus.WaitingToRun;
+
+            }
+
+
+        }
+
+        public void SetRunningStatus(Button button, bool running)
+        {
+            button.IsEnabled = !running;
+            StackPanel stackPanel = button.Parent as StackPanel;
+            Button stopButton = stackPanel.Children.OfType<Button>().LastOrDefault();
+            if (stopButton != null)
+                stopButton.IsEnabled = running;
+        }
+
+        private void Remark(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            FrameworkElement frameworkElement = contextMenu.PlacementTarget as FrameworkElement;
+            if (frameworkElement != null && frameworkElement.Tag != null) {
+                string portName = frameworkElement.Tag.ToString();
+                Remark(portName);
+            }
+        }
+
+
+        private void Remark(string name)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems?.FirstOrDefault(arg => arg.Name.Equals(name));
+            if (portTabItem == null) {
+                MessageNotify.Info(LangManager.GetValueByKey("RemarkAfterOpenPort"));
+                return;
+            }
+
+            DialogInput dialogInput = new DialogInput(LangManager.GetValueByKey("PleaseEnterRemark"), portTabItem.Remark);
+            if (dialogInput.ShowDialog(this) == true) {
+                string value = dialogInput.Text;
+                portTabItem.Remark = value;
+                portTabItem.SerialPort.SaveRemark(value);
+                comSidePanel.Update(name.GetHashCode(), "Remark", value);
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(name));
+                if (comSettings != null) {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                    if (dict != null && dict.ContainsKey("Remark")) {
+                        dict["Remark"] = value;
+                        comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                        Logger.Info($"set remark: {value}");
+                    }
+                }
+            }
+        }
+
+        private void OpenLog(object sender, RoutedEventArgs e)
+        {
+            MessageNotify.Info(LangManager.GetValueByKey("Developing"));
+        }
+
+        private void BaudRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            if (!comboBox.IsLoaded)
+                return;
+
+            if (e.AddedItems == null || e.AddedItems.Count <= 0)
+                return;
+            string text = e.AddedItems[0].ToString();
+            if (VieModel_Main.DEFAULT_ADD_TEXT.Equals(text)) {
+                Logger.Info("add new baudrate");
+                // 记录原来的下标
+                int index = 0;
+                string origin = e.RemovedItems[0].ToString();
+                if (!string.IsNullOrEmpty(origin)) {
+                    for (int i = 0; i < vieModel.BaudRates.Count; i++) {
+                        if (vieModel.BaudRates[i].Equals(origin)) {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+                DialogInput dialogInput = new DialogInput(Window_Setting.INPUT_NOTICE_TEXT);
+                bool success = false;
+                if ((bool)dialogInput.ShowDialog(this)) {
+                    string value = dialogInput.Text;
+
+                    if (!string.IsNullOrEmpty(value) && int.TryParse(value, out int baudrate) &&
+                        !vieModel.BaudRates.Contains(baudrate.ToString())) {
+                        Logger.Info($"new baudrate = {value}");
+                        vieModel.BaudRates.RemoveAt(vieModel.BaudRates.Count - 1);
+                        vieModel.BaudRates.Add(baudrate.ToString());
+                        vieModel.BaudRates.Add(VieModel_Main.DEFAULT_ADD_TEXT);
+                        success = true;
+                        (sender as ComboBox).SelectedIndex = vieModel.BaudRates.Count - 2;
+                        // 保存当前项目
+                        vieModel.SaveBaudRate();
+                        vieModel.SaveBaudRate((sender as ComboBox).Tag.ToString(), text);
+                    }
+
+                }
+                if (!success) {
+                    (sender as ComboBox).SelectedIndex = index;
+
+                }
+            } else {
+                Logger.Info($"set baudrate: {text}");
+            }
+
+        }
+
+
+        private void ShowPluginWindow(object sender, RoutedEventArgs e)
+        {
+            Window_Plugin window_Plugin = new Window_Plugin();
+
+            PluginConfig config = new PluginConfig();
+            config.PluginBaseDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+            config.RemoteUrl = UrlManager.GetPluginUrl();
+            // 读取本地配置
+            window_Plugin.OnEnabledChange += (data, enabled) => {
+                return true;
+            };
+
+            window_Plugin.OnBeginDelete += (data) => {
+                return true;
+            };
+
+            window_Plugin.OnBeginDownload += (data) => {
+                return true;
+            };
+
+            window_Plugin.SetConfig(config);
+            window_Plugin.Icon = this.Icon;
+            window_Plugin.Show();
+        }
+
+        private async void CheckUpgrade()
+        {
+            // 启动后检查更新
+            try {
+                await Task.Delay(UpgradeHelper.AUTO_CHECK_UPGRADE_DELAY);
+                (string LatestVersion, string ReleaseDate, string ReleaseNote) result = await UpgradeHelper.GetUpgradeInfo();
+                string remote = result.LatestVersion;
+                string ReleaseDate = result.ReleaseDate;
+                if (!string.IsNullOrEmpty(remote)) {
+                    string local = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    local = local.Substring(0, local.Length - ".0.0".Length);
+                    if (local.CompareTo(remote) < 0) {
+                        MessageCard.Info($"{LangManager.GetValueByKey("ExistNewVersion")}\n{LangManager.GetValueByKey("Version")}：{remote}\n{LangManager.GetValueByKey("Date")}：{ReleaseDate}", () => {
+                            UpgradeHelper.OpenWindow(this);
+                        }, targetWindow: this);
+                    }
+                }
+            } catch (Exception ex) {
+                App.Logger.Error(ex.Message);
+            }
+        }
+
+        private void ClearHexSpace(object sender, RoutedEventArgs e)
+        {
+            string text = HexTextBox.Text;
+            text = text.Trim().Replace(" ", "");
+            HexTextBox.Text = text;
+        }
+
+
+        private async Task<bool> BackupData()
+        {
+            if (ConfigManager.Settings.AutoBackup) {
+                int period = Config.WindowConfig.Settings.BackUpPeriods[(int)ConfigManager.Settings.AutoBackupPeriodIndex];
+                bool backup = false;
+                string BackupPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backup");
+                string[] arr = DirHelper.TryGetDirList(BackupPath);
+                if (arr != null && arr.Length > 0) {
+                    string dirname = arr[arr.Length - 1];
+                    if (Directory.Exists(dirname)) {
+                        string dirName = Path.GetFileName(dirname);
+                        DateTime before = DateTime.Now.AddDays(1);
+                        DateTime now = DateTime.Now;
+                        DateTime.TryParse(dirName, out before);
+                        if (now.CompareTo(before) < 0 || (now - before).TotalDays > period) {
+                            backup = true;
+                        }
+                    }
+                } else {
+                    backup = true;
+                }
+
+                if (backup) {
+                    string dir = Path.Combine(BackupPath, DateHelper.NowDate());
+                    bool created = DirHelper.TryCreateDirectory(dir);
+                    if (!created)
+                        return false;
+                    string target_file = Path.Combine(dir, ConfigManager.SQLITE_DATA_PATH);
+                    string origin_file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ConfigManager.SQLITE_DATA_PATH);
+                    FileHelper.TryCopyFile(origin_file, target_file);
+                    // 复制语法高亮
+                    string highLightDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AvalonEdit");
+                    DirHelper.TryCopy(highLightDir, Path.Combine(dir, "AvalonEdit"));
+                }
+            }
+
+            await Task.Delay(1);
+            return false;
+        }
+
+        private void Button_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Button button = sender as Button;
+            button.ContextMenu.PlacementTarget = button;
+            button.ContextMenu.IsOpen = true;
+        }
+
+        private void EditSendCommand(object sender, RoutedEventArgs e)
+        {
+            editTextBoxOrder.Text = "";
+            editTextBoxName.Text = "";
+            editTextBoxDelay.Text = "";
+            editTextBoxCommand.Text = "";
+
+
+            MenuItem menuItem = sender as MenuItem;
+            Button button = (menuItem.Parent as ContextMenu).PlacementTarget as Button;
+            if (button != null && button.Tag != null && vieModel.CurrentAdvancedSend != null) {
+                string commandID = button.Tag.ToString();
+                List<SendCommand> sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(vieModel.CurrentAdvancedSend.Commands).OrderBy(arg => arg.Order).ToList();
+                SendCommand sendCommand = sendCommands.FirstOrDefault(arg => arg.CommandID.ToString().Equals(commandID));
+                if (sendCommand != null) {
+                    CurrentEditCommand = sendCommand;
+                    editTextBoxOrder.Text = sendCommand.Order.ToString();
+                    editTextBoxName.Text = sendCommand.Name;
+                    editTextBoxDelay.Text = sendCommand.Delay.ToString();
+                    editTextBoxCommand.Text = sendCommand.Command;
+
+                    editSendCommandPopup.IsOpen = true;
+                }
+            }
+        }
+
+
+        private void DeleteSendCommand(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            Button button = (menuItem.Parent as ContextMenu).PlacementTarget as Button;
+            if (button != null && button.Tag != null && vieModel.CurrentAdvancedSend != null) {
+                string commandID = button.Tag.ToString();
+                List<SendCommand> sendCommands = JsonUtils.TryDeserializeObject<List<SendCommand>>(vieModel.CurrentAdvancedSend.Commands).OrderBy(arg => arg.Order).ToList();
+                SendCommand sendCommand = sendCommands.FirstOrDefault(arg => arg.CommandID.ToString().Equals(commandID));
+                if (sendCommand != null) {
+                    sendCommands.Remove(sendCommand);
+                    AdvancedSend advancedSend = vieModel.CurrentAdvancedSend;
+                    if (!string.IsNullOrEmpty(advancedSend.Commands)) {
+                        advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+                        advancedSend.CommandList.RemoveAll(arg => arg.CommandID == sendCommand.CommandID);
+                        advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
+                        vieModel.UpdateProject(advancedSend);
+                        RefreshSendCommands();
+                        SetComboboxStatus();
+                    }
+
+                }
+            }
+
+        }
+
+        private void EditCommandConfirm(object sender, RoutedEventArgs e)
+        {
+            editSendCommandPopup.IsOpen = false;
+            AdvancedSend advancedSend = vieModel.CurrentAdvancedSend;
+            if (!string.IsNullOrEmpty(advancedSend.Commands) && CurrentEditCommand != null) {
+                advancedSend.CommandList = JsonUtils.TryDeserializeObject<List<SendCommand>>(advancedSend.Commands);
+
+                for (int i = 0; i < advancedSend.CommandList.Count; i++) {
+                    if (advancedSend.CommandList[i].CommandID.Equals(CurrentEditCommand.CommandID)) {
+                        advancedSend.CommandList[i].Name = editTextBoxName.Text;
+                        advancedSend.CommandList[i].Command = editTextBoxCommand.Text;
+                        int.TryParse(editTextBoxDelay.Text, out int delay);
+                        int.TryParse(editTextBoxOrder.Text, out int order);
+                        advancedSend.CommandList[i].Delay = delay;
+                        advancedSend.CommandList[i].Order = order;
+                        break;
+                    }
+                }
+
+                advancedSend.Commands = JsonUtils.TrySerializeObject(advancedSend.CommandList);
+                vieModel.UpdateProject(advancedSend);
+                RefreshSendCommands();
+                SetComboboxStatus();
+            }
+        }
+
+        private void EditCommandCancel(object sender, RoutedEventArgs e)
+        {
+            editSendCommandPopup.IsOpen = false;
+        }
+
+
+
+
+        private void OpenShortCut(object sender, RoutedEventArgs e)
+        {
+            if (window_ShortCut != null)
+                window_ShortCut.Close();
+            window_ShortCut = null;
+            window_ShortCut = new Window_ShortCut();
+            window_ShortCut.ShowDialog();
+            window_ShortCut.BringIntoView();
+            window_ShortCut.Activate();
+        }
+
+        #region "快捷键处理"
+
+        private async void OpenCloseCurrentPort(string portName)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems?.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem == null) {
+                MessageCard.Error($"{LangManager.GetValueByKey("OpenPortFailed")}: {portName}");
+                return;
+            }
+
+            if (portTabItem.Connected) {
+                await ClosePort(portName);
+            } else {
+                // 连接
+                await OpenPort(portName);
+            }
+        }
+
+        /// <summary>
+        /// 收起展开发送栏
+        /// </summary>
+        /// <param name="sender"></param>
+        private void ExpandSendPanel(object sender)
+        {
+            Grid baseGrid = sender as Grid;
+            if (baseGrid != null) {
+                double height = baseGrid.RowDefinitions[2].ActualHeight;
+                if (height <= 10)
+                    baseGrid.RowDefinitions[2].Height = new GridLength(DEFAULT_SEND_PANEL_HEIGHT, GridUnitType.Pixel);
+                else
+                    baseGrid.RowDefinitions[2].Height = new GridLength(0, GridUnitType.Pixel);
+            }
+        }
+
+        #endregion
+
+        private bool KeyDownInTab(object sender)
+        {
+            return sender is Grid;
+        }
+
+        private void onPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            string portName = "";
+            if (vieModel.PortTabItems?.Count > 0) {
+                foreach (var portTabItem in vieModel.PortTabItems) {
+                    if (portTabItem.Selected) {
+                        portName = portTabItem.Name;
+                        break;
+                    }
+                }
+            }
+
+            App.Logger.Debug($"{LangManager.GetValueByKey("PressKey")}：{e.Key}");
+
+            // 快捷键检测
+            ShortCutBinding shortCutBinding = null;
+            int max = 0;
+            foreach (var item in vieModel.ShortCutBindings) {
+                // 贪婪匹配：最多的按键按下
+                if (KeyBoardHelper.IsAllKeyDown(item.KeyList) && item.KeyList.Count > max) {
+                    shortCutBinding = item;
+                    max = item.KeyList.Count;
+                }
+            }
+            if (shortCutBinding == null)
+                return;
+            ShortCutType type = (ShortCutType)shortCutBinding.KeyID;
+            switch (type) {
+                case ShortCutType.OpenCloseCurrentPort:
+                    if (KeyDownInTab(sender))
+                        OpenCloseCurrentPort(portName);
+                    break;
+                case ShortCutType.ExpandSendingBar:
+                    if (KeyDownInTab(sender))
+                        ExpandSendPanel(sender);
+                    break;
+                case ShortCutType.FullScreen:
+                    // 全屏
+                    if (this.WindowState == WindowState.Maximized) {
+                        this.WindowState = WindowState.Normal;
+                    } else if (this.WindowState == WindowState.Normal) {
+                        this.WindowState = WindowState.Maximized;
+                    }
+                    e.Handled = true;
+                    break;
+                case ShortCutType.PinOrScroll: {
+                        if (!KeyDownInTab(sender))
+                            return;
+                        // 固定滚屏
+                        PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                        if (portTabItem != null)
+                            portTabItem.FixedText = !portTabItem.FixedText;
+                    }
+                    break;
+                case ShortCutType.HexTransform: {
+                        if (!KeyDownInTab(sender))
+                            return;
+                        // hex 转换
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                            OpenHex(textEditor.SelectedText);
+                    }
+                    break;
+                case ShortCutType.TimeStampTransform: {
+                        if (!KeyDownInTab(sender))
+                            return;
+                        // 时间戳
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null)
+                            OpenTime(textEditor.SelectedText);
+                    }
+                    break;
+                case ShortCutType.FormatToJSON: {
+                        if (!KeyDownInTab(sender))
+                            return;
+                        // 格式化为 JSON
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null) {
+                            string origin = textEditor.SelectedText;
+                            string format = FormatString(FormatType.JSON, origin);
+                            textEditor.SelectedText = format;
+                        }
+                    }
+                    break;
+                case ShortCutType.JoinLine: {
+                        if (!KeyDownInTab(sender))
+                            return;
+                        // 合并为一行
+                        Grid baseGrid = sender as Grid;
+                        (ToggleButton toggleButton, TextEditor textEditor) = FindToggleButtonByBaseGrid(baseGrid);
+                        if (textEditor != null) {
+                            string origin = textEditor.SelectedText;
+                            string format = FormatString(FormatType.JOINLINE, origin);
+                            textEditor.SelectedText = format;
+                        }
+                    }
+
+                    break;
+                case ShortCutType.SaveLogAs:
+                    SaveLog(null, null);// 另存为
+                    e.Handled = true;
+                    break;
+                case ShortCutType.Close:
+                    ClosePortTabItemByName(portName);
+                    e.Handled = true;
+                    break;
+                case ShortCutType.PinnedTab:
+                    PinPort(vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)));
+                    e.Handled = true;
+                    break;
+                case ShortCutType.ClearText:
+                    ClearDataByPortName(portName);
+                    e.Handled = true;
+                    break;
+                default:
+
+
+                    break;
+
+            }
+        }
+
+        public void OnShortCutChanged()
+        {
+            vieModel.LoadShortCut();
+        }
+
+        private void OpenFeedBack(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.FeedbackUrl);
+        }
+
+        private void OpenHelp(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.HelpUrl);
+        }
+
+        private void OpenDonate(object sender, RoutedEventArgs e)
+        {
+            Window_Donate window_Donate = new Window_Donate();
+            window_Donate.SetUrl(UrlManager.GetDonateJsonUrl());
+            window_Donate.ShowDialog();
+        }
+
+        private TextEditor GetTextEditorFromMenuItem(MenuItem menuItem, int depth = 0)
+        {
+            if (depth == 0) {
+                if (menuItem != null && menuItem.Parent is ContextMenu contextMenu) {
+                    if (contextMenu.PlacementTarget is TextEditor textEditor) {
+                        return textEditor;
+                    }
+                }
+            } else if (depth == 1) {
+                if (menuItem != null && (menuItem.Parent as MenuItem).Parent is ContextMenu contextMenu) {
+                    if (contextMenu.PlacementTarget is TextEditor textEditor) {
+                        return textEditor;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void FormatJson(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = GetTextEditorFromMenuItem((MenuItem)sender, 1);
+            if (textEditor == null)
+                return;
+            string origin = textEditor.SelectedText;
+            string format = FormatString(FormatType.JSON, origin);
+            textEditor.SelectedText = format;
+        }
+
+        private string FormatString(FormatType formatType, string origin)
+        {
+            if (string.IsNullOrEmpty(origin))
+                return "";
+            switch (formatType) {
+                case FormatType.JSON:
+                    Dictionary<string, object> dictionary = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(origin);
+                    if (dictionary != null) {
+                        string json_text = JsonUtils.TrySerializeObject(dictionary, Newtonsoft.Json.Formatting.Indented);
+                        if (!string.IsNullOrEmpty(json_text))
+                            return $"{Environment.NewLine}{json_text}";
+                    }
+                    break;
+                case FormatType.JOINLINE:
+                    return origin.Replace("\n", "").Replace("\r", "");
+
+                default:
+                    break;
+            }
+            return origin;
+        }
+
+        private void JoinLine(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = GetTextEditorFromMenuItem((MenuItem)sender, 1);
+            if (textEditor == null)
+                return;
+            string origin = textEditor.SelectedText;
+            string format = FormatString(FormatType.JOINLINE, origin);
+            textEditor.SelectedText = format;
+        }
+
+        private void ShowUpgradeWindow(object sender, RoutedEventArgs e)
+        {
+            UpgradeHelper.OpenWindow(this);
+        }
+
+        private void CopyCommand(object sender, RoutedEventArgs e)
+        {
+            string text = editTextBoxCommand.Text;
+            if (!string.IsNullOrEmpty(text))
+                ClipBoard.TrySetDataObject(text);
+
+        }
+
+
+
+        private bool GetMenuItemCheckedStatus(object sender)
+        {
+            return (sender as MenuItem).IsChecked;
+        }
+
+
+        private void SetTextEditOption(string optionName, object status)
+        {
+            Logger.Info($"set {optionName}: {status}");
+            foreach (PortTabItem item in vieModel.PortTabItems) {
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor != null) {
+                    TextEditorOptions options = textEditor.Options;
+                    if (options == null)
+                        continue;
+                    System.Reflection.PropertyInfo propertyInfo = options.GetType().GetProperty(optionName);
+                    if (propertyInfo == null)
+                        continue;
+                    propertyInfo.SetValue(options, status);
+                }
+            }
+        }
+        private void SetTextPropOption(string propName, object status)
+        {
+            foreach (PortTabItem item in vieModel.PortTabItems) {
+                TextEditor textEditor = item.TextEditor;
+                if (textEditor != null) {
+                    System.Reflection.PropertyInfo propertyInfo = textEditor.GetType().GetProperty(propName);
+                    if (propertyInfo == null)
+                        continue;
+                    propertyInfo.SetValue(textEditor, status);
+                }
+            }
+
+        }
+
+        private void SetTextViewReturn(object sender, RoutedEventArgs e)
+        {
+            bool status = GetMenuItemCheckedStatus(sender);
+            SetTextEditOption("ShowEndOfLine", status);
+        }
+
+        private void SetTextViewSpace(object sender, RoutedEventArgs e)
+        {
+            bool status = GetMenuItemCheckedStatus(sender);
+            SetTextEditOption("ShowSpaces", status);
+        }
+
+        private void SetTextViewTab(object sender, RoutedEventArgs e)
+        {
+            bool status = GetMenuItemCheckedStatus(sender);
+            SetTextEditOption("ShowTabs", status);
+        }
+
+        private void SetTextHighLightCurrent(object sender, RoutedEventArgs e)
+        {
+            bool status = GetMenuItemCheckedStatus(sender);
+            SetTextEditOption("HighlightCurrentLine", status);
+        }
+
+        private void SetTextViewLineNumber(object sender, RoutedEventArgs e)
+        {
+            bool value = GetMenuItemCheckedStatus(sender);
+            SetTextPropOption("ShowLineNumbers", value);
+
+        }
+
+        private void colorPicker_SelectedColorChanged(object sender, EventArgs e)
+        {
+            ColorPicker colorPicker = sender as ColorPicker;
+            SolidColorBrush brush = new SolidColorBrush(colorPicker.SelectedColor);
+            SetTextPropOption("Foreground", brush);
+            ConfigManager.Main.TextForeground = brush.ToString();
+
+        }
+
+        private void textBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = sender as TextEditor;
+            if (textEditor == null || textEditor.Parent == null)
+                return;
+            Border border = textEditor.Parent as Border;
+            if (border == null)
+                return;
+            border.BorderBrush = (SolidColorBrush)Application.Current.Resources["Button.Selected.BorderBrush"];
+            // 设置不滚动
+            FixedTextEditor(border, true);
+        }
+
+        private void FixedTextEditor(Border border, bool fixedText)
+        {
+            // 将文本固定
+            if (ConfigManager.Settings.FixedWhenFocus) {
+                Grid rootGrid = border.Parent as Grid;
+                ToggleButton toggleButton = rootGrid.FindName("pinToggleButton") as ToggleButton;
+                string portName = rootGrid.Tag.ToString();
+                PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+                if (portTabItem != null &&
+                    portTabItem.FixedText != fixedText) {
+                    portTabItem.FixedText = fixedText;
+                }
+            }
+        }
+
+        private void textBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextEditor textEditor = sender as TextEditor;
+            if (textEditor != null && textEditor.Parent is Border border)
+                border.BorderBrush = Brushes.Transparent;
+        }
+
+        private void ShowVirtualPort(object sender, RoutedEventArgs e)
+        {
+            if (virtualPort == null) {
+                virtualPort = new Window_VirtualPort();
+                virtualPort.Show();
+            } else {
+                if (virtualPort.IsClosed) {
+                    virtualPort = new Window_VirtualPort();
+                    virtualPort.Show();
+                }
+                virtualPort.BringIntoView();
+                virtualPort.Focus();
+            }
+        }
+
+
+        private void CloseForegroundSelected(object sender, RoutedEventArgs e)
+        {
+            ForegroundPopup.IsOpen = false;
+        }
+
+        private void OpenForegroundSelected(object sender, RoutedEventArgs e)
+        {
+            ForegroundPopup.IsOpen = true;
+            string colorText = ConfigManager.Main.TextForeground;
+            if (!string.IsNullOrEmpty(colorText)) {
+
+                Brush brush = VisualHelper.HexStringToBrush(colorText);
+                if (brush != null) {
+                    SolidColorBrush solidColorBrush = (SolidColorBrush)brush;
+                    colorPicker.SetCurrentColor(solidColorBrush.Color);
+
+                }
+            }
+        }
+
+        private string GetPortNameByMenuItem(object sender)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem == null)
+                return "";
+            ContextMenu contextMenu = menuItem.Parent as ContextMenu;
+            if (contextMenu != null && contextMenu.PlacementTarget is Border border) {
+                if (border.Tag != null)
+                    return border.Tag.ToString();
+            }
+            return "";
+        }
+
+
+
+        private void MoveToFirst(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem.Pinned) {
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                    if (vieModel.PortTabItems[i].Name.Equals(portName)) {
+                        oldIndex = i;
+                        break;
+                    }
+                }
+                if (oldIndex < 0)
+                    return;
+                vieModel.PortTabItems.Move(oldIndex, 0);
+            } else {
+                bool hasPinned = false;
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                    if (vieModel.PortTabItems[i].Pinned) {
+                        hasPinned = true;
+                        targetIndex = i;
+                    }
+
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                }
+                if (oldIndex < 0)
+                    return;
+                if (targetIndex < 0 || targetIndex + 1 >= vieModel.PortTabItems.Count)
+                    targetIndex = 0;
+                if (hasPinned && targetIndex + 1 < vieModel.PortTabItems.Count)
+                    vieModel.PortTabItems.Move(oldIndex, targetIndex + 1);
+                else
+                    vieModel.PortTabItems.Move(oldIndex, 0);
+            }
+        }
+
+        private void MoveToLast(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem.Pinned) {
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                    if (vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                }
+                if (oldIndex < 0 || targetIndex < 0)
+                    return;
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            } else {
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                    if (vieModel.PortTabItems[i].Name.Equals(portName)) {
+                        oldIndex = i;
+                        break;
+                    }
+                }
+                if (oldIndex < 0)
+                    return;
+                if (vieModel.PortTabItems.Count - 1 >= 0)
+                    vieModel.PortTabItems.Move(oldIndex, vieModel.PortTabItems.Count - 1);
+            }
+        }
+
+        private async void CloseAllLeftPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++) {
+                if (list[i].Name.Equals(portName)) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx <= 0 || idx >= list.Count)
+                return;
+            List<string> names = new List<string>();
+            for (int i = 0; i < idx; i++) {
+                if (list[i].Pinned)
+                    continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private async void CloseAllRightPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++) {
+                if (list[i].Name.Equals(portName)) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= list.Count - 1)
+                return;
+            List<string> names = new List<string>();
+            for (int i = idx + 1; i < list.Count; i++) {
+                if (list[i].Pinned)
+                    continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private void PinPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            PinPort(portTabItem);
+        }
+
+
+        private void PinPort(PortTabItem portTabItem)
+        {
+            string portName = portTabItem.Name;
+            if (portTabItem.Pinned) {
+                // 取消固定
+                // todo 所有的都无固定
+                int targetIndex = vieModel.PortTabItems.Count;
+                int oldIndex = -1;
+                for (int i = vieModel.PortTabItems.Count - 1; i >= 0; i--) {
+                    if (targetIndex == vieModel.PortTabItems.Count && vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                    if (targetIndex < vieModel.PortTabItems.Count && oldIndex >= 0)
+                        break;
+                }
+                if (oldIndex < 0)
+                    return;
+                if (targetIndex == vieModel.PortTabItems.Count)
+                    targetIndex = 0;
+                portTabItem.Pinned = false;
+                // 移动到前面
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            } else {
+                // 固定
+                // todo 所有的都固定
+                int targetIndex = -1;
+                int oldIndex = -1;
+                for (int i = 0; i < vieModel.PortTabItems.Count; i++) {
+                    if (targetIndex < 0 && !vieModel.PortTabItems[i].Pinned)
+                        targetIndex = i;
+                    if (vieModel.PortTabItems[i].Name.Equals(portName))
+                        oldIndex = i;
+                    if (targetIndex >= 0 && oldIndex >= 0)
+                        break;
+                }
+                if (targetIndex < 0 || oldIndex < 0)
+                    return;
+                portTabItem.Pinned = true;
+                // 移动到前面
+                vieModel.PortTabItems.Move(oldIndex, targetIndex);
+            }
+
+            SavePinnedByName(portName, portTabItem.Pinned);
+
+        }
+
+        private void SavePinnedByName(string portName, bool pinned)
+        {
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem != null) {
+                portTabItem.SerialPort.SavePinned(pinned);
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portName));
+                if (comSettings != null) {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                    if (dict != null && dict.ContainsKey("Pinned")) {
+                        dict["Pinned"] = pinned.ToString();
+                        comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                    }
+                }
+            }
+        }
+
+
+        private void CloseCurrentPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            ClosePortTabItemByName(portName);
+        }
+
+        private async void CloseOtherPort(object sender, RoutedEventArgs e)
+        {
+            string portName = GetPortNameByMenuItem(sender);
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<PortTabItem> list = vieModel.PortTabItems.ToList();
+            int idx = -1;
+            for (int i = 0; i < list.Count; i++) {
+                if (list[i].Name.Equals(portName)) {
+                    idx = i;
+                    break;
+                }
+            }
+            List<string> names = new List<string>();
+            for (int i = idx + 1; i < list.Count; i++) {
+                if (list[i].Pinned)
+                    continue;
+                names.Add(list[i].Name);
+            }
+            for (int i = 0; i < idx; i++) {
+                if (list[i].Pinned)
+                    continue;
+                names.Add(list[i].Name);
+            }
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private async void CloseAllPorts(object sender, RoutedEventArgs e)
+        {
+            if (vieModel == null || vieModel.PortTabItems == null || vieModel.PortTabItems.Count == 0)
+                return;
+            List<string> names = vieModel.PortTabItems.Where(arg => !arg.Pinned).Select(arg => arg.Name).ToList();
+            vieModel.DoingLongWork = true;
+            await RemovePortsByName(names);
+            vieModel.DoingLongWork = false;
+        }
+
+        private void highlightingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count == 0)
+                return;
+            ComboBox comboBox = sender as ComboBox;
+            string portName = comboBox.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            if (portTabItem != null && portTabItem.TextEditor != null) {
+                portTabItem.TextEditor.SyntaxHighlighting = e.AddedItems[0] as IHighlightingDefinition;
+                Logger.Debug($"set SyntaxHighlighting: {portTabItem.TextEditor.SyntaxHighlighting}");
+            }
+        }
+
+        private void ShowHighLightEdit(object sender, RoutedEventArgs e)
+        {
+            OpenSetting(null, null);
+            window_Setting.SetTabSelected(Window_Setting.HIGH_LIGHT_TAB_INDEX);
+            // 选中项
+            if (sender is FrameworkElement element && element.Tag.ToString() is string portName &&
+                 vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem &&
+                 portTabItem != null && portTabItem.SerialPort is SerialPortEx serialPort &&
+                 serialPort.HighLightIndex is long index &&
+                 index >= 0) {
+                window_Setting.SetHighLightIndex((int)index);
+            }
+        }
+
+        private void ToggleQuickCommandPanel(object sender, RoutedEventArgs e)
+        {
+            // 切换扩展功能面板的显示/隐藏
+            ConfigManager.QuickCommandSettings.TogglePanel();
+
+            var settings = ConfigManager.QuickCommandSettings;
+
+            // 遍历所有 rootGrid 实例（每个标签页在 DataTemplate 中各有一个）
+            foreach (var grid in FindVisualChild<Grid>(this)
+                .Where(g => g.Name == "rootGrid" && g.ColumnDefinitions.Count == 3))
+            {
+                var splitterCol = grid.ColumnDefinitions[1];
+                var panelCol = grid.ColumnDefinitions[2];
+                if (settings.IsPanelVisible)
+                {
+                    // 展开：恢复上次拖拽的像素宽度，保留分割条列
+                    double w = ConfigManager.QuickCommandSettings.PanelWidth;
+                    panelCol.Width = new GridLength(Math.Max(w, 220));
+                    panelCol.MinWidth = 220;
+                    panelCol.MaxWidth = 600;
+                    splitterCol.Width = new GridLength(5); // 显示分割条
+                    // 恢复右侧 5px margin（按子元素索引定位，不依赖 Name）
+                    SetChildBorderMargin(grid, 0, new Thickness(0, 0, 5, 0));   // outputContentBorder
+                    SetChildBorderMargin(grid, 2, new Thickness(0, 5, 5, 0));    // outputNavBorder
+                }
+                else
+                {
+                    // 关闭：分割条列归零，输出区右侧不留空白
+                    panelCol.Width = new GridLength(0);
+                    panelCol.MinWidth = 0;  // MinWidth 也归零，防止被撑开
+                    splitterCol.Width = new GridLength(0);
+                    // 归零输出区和导航栏的右侧 margin
+                    SetChildBorderMargin(grid, 0, new Thickness(0));             // outputContentBorder
+                    SetChildBorderMargin(grid, 2, new Thickness(0, 5, 0, 0));     // outputNavBorder
+                }
+
+                // 同步面板 Border 可见性
+                var panelBorder = grid.Children
+                    .OfType<Border>()
+                    .FirstOrDefault(b => Grid.GetColumn(b) == 2);
+                if (panelBorder != null)
+                    panelBorder.Visibility = settings.IsPanelVisible ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// 按 VisualChildren 索引设置 Border 的 Margin（避免 DataTemplate 中 Name 查找失败）
+        /// </summary>
+        private static void SetChildBorderMargin(Grid grid, int childIndex, Thickness margin)
+        {
+            int borderCount = -1;
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(grid); i++)
+            {
+                var child = VisualTreeHelper.GetChild(grid, i);
+                if (child is Border)
+                {
+                    borderCount++;
+                    if (borderCount == childIndex)
+                    {
+                        ((Border)child).Margin = margin;
+                        return;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 更新扩展功能面板列宽度
+        /// </summary>
+        private void UpdateQuickCommandPanelWidth()
+        {
+            // 已整合到 ToggleQuickCommandPanel；保留方法用于兼容
+            var settings = ConfigManager.QuickCommandSettings;
+
+            var grid = FindVisualChild<Grid>(this)
+                .FirstOrDefault(g => g.Name == "rootGrid" && g.ColumnDefinitions.Count == 3);
+            if (grid != null)
+            {
+                var splitterCol = grid.ColumnDefinitions[1];
+                var panelCol = grid.ColumnDefinitions[2];
+                if (settings.IsPanelVisible)
+                {
+                    double w = ConfigManager.QuickCommandSettings.PanelWidth;
+                    panelCol.Width = new GridLength(Math.Max(w, 220));
+                    panelCol.MinWidth = 220;
+                    panelCol.MaxWidth = 600;
+                    splitterCol.Width = new GridLength(5);
+                    var contentBorder = grid.Children
+                        .OfType<Border>()
+                        .FirstOrDefault(b => b.Name == "outputContentBorder");
+                    if (contentBorder != null) contentBorder.Margin = new Thickness(0, 0, 5, 0);
+                    var navBorder = grid.Children
+                        .OfType<Border>()
+                        .FirstOrDefault(b => b.Name == "outputNavBorder");
+                    if (navBorder != null) navBorder.Margin = new Thickness(0, 5, 5, 0);
+                }
+                else
+                {
+                    panelCol.Width = new GridLength(0);
+                    splitterCol.Width = new GridLength(0);
+                    var contentBorder = grid.Children
+                        .OfType<Border>()
+                        .FirstOrDefault(b => b.Name == "outputContentBorder");
+                    if (contentBorder != null) contentBorder.Margin = new Thickness(0);
+                    var navBorder = grid.Children
+                        .OfType<Border>()
+                        .FirstOrDefault(b => b.Name == "outputNavBorder");
+                    if (navBorder != null) navBorder.Margin = new Thickness(0, 5, 0, 0);
+                }
+
+                var panelBorder = grid.Children
+                    .OfType<Border>()
+                    .FirstOrDefault(b => Grid.GetColumn(b) == 2);
+                if (panelBorder != null)
+                    panelBorder.Visibility = settings.IsPanelVisible ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// 同步面板和分割条的 Visibility（兼容性保留）
+        /// </summary>
+        private void UpdatePanelVisibility()
+        {
+            // 已整合到 UpdateQuickCommandPanelWidth 中，此方法保留用于兼容
+            UpdateQuickCommandPanelWidth();
+        }
+
+        /// <summary>
+        /// 输出区域宽度变化时动态切换自动换行
+        /// </summary>
+        private void OutputContentBorder_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is Border border && border.Child is ICSharpCode.AvalonEdit.TextEditor textEditor)
+            {
+                // 宽度阈值：小于 400px 时强制换行，大于等于时恢复用户设置
+                const double wrapThreshold = 400;
+                bool shouldWrap = border.ActualWidth < wrapThreshold;
+                
+                if (shouldWrap)
+                {
+                    // 窄窗口：强制换行
+                    textEditor.WordWrap = true;
+                }
+                else
+                {
+                    // 宽窗口：恢复用户设置
+                    textEditor.WordWrap = ConfigManager.Main.AutoWrap;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 递归查找视觉树中的子元素
+        /// </summary>
+        private static IEnumerable<T> FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) yield break;
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                    yield return typedChild;
+                foreach (var descendant in FindVisualChild<T>(child))
+                    yield return descendant;
+            }
+        }
+
+        private DateTime _lastHeaderClickTime = DateTime.MinValue;
+        private DateTime _lastCellClickTime = DateTime.MinValue;
+
+        /// <summary>
+        /// 点击 HEX 表头 - 双击全选/取消全选
+        /// </summary>
+        private void QuickCommandHeaderHex_Click(object sender, MouseButtonEventArgs e)
+        {
+            // 检测双击（两次点击间隔 < 500ms）
+            if ((DateTime.Now - _lastHeaderClickTime).TotalMilliseconds < 500)
+            {
+                e.Handled = true;
+                
+                // 获取当前状态
+                bool allSelected = ConfigManager.QuickCommandSettings.Commands.All(c => c.IsHex);
+                bool newState = !allSelected;
+                
+                // 设置所有行
+                foreach (var item in ConfigManager.QuickCommandSettings.Commands)
+                {
+                    item.IsHex = newState;
+                }
+                
+                ConfigManager.QuickCommandSettings.SaveAll();
+            }
+            
+            _lastHeaderClickTime = DateTime.Now;
+        }
+
+        private void QuickCommandCell_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // 单击 TextBox 时选中文本，方便直接覆盖输入
+            if (sender is System.Windows.Controls.TextBox tb)
+            {
+                tb.SelectAll();
+            }
+        }
+
+        private void QuickCommandCell_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // 失焦时保存修改
+            if (sender is System.Windows.Controls.TextBox tb && tb.DataContext is QuickCommandItem item)
+            {
+                if (item.Command != tb.Text)
+                {
+                    item.Command = tb.Text;
+                    ConfigManager.QuickCommandSettings.SaveAll();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 点击指令单元格 - 单击编辑（全选），双击弹出备注编辑窗口
+        /// </summary>
+        private void QuickCommandCell_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2)
+            {
+                // 双击：弹出备注窗口
+                e.Handled = true;
+
+                QuickCommandItem item = null;
+                if (sender is System.Windows.Controls.TextBox textBox)
+                {
+                    item = textBox.DataContext as QuickCommandItem;
+                }
+
+                if (item != null)
+                {
+                    string memo = ShowMemoDialog(item.Memo);
+                    if (memo != null)
+                    {
+                        item.Memo = memo;
+                        ConfigManager.QuickCommandSettings.SaveAll();
+                    }
+                }
+            }
+            else if (e.ClickCount == 1)
+            {
+                // 单击：全选文本方便覆盖输入
+                if (sender is System.Windows.Controls.TextBox textBox)
+                {
+                    textBox.SelectAll();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行按钮点击
+        /// </summary>
+        private async void QuickCommandExecute_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is QuickCommandItem item)
+            {
+                // 获取当前选中的串口
+                var selectedPort = vieModel?.PortTabItems?.FirstOrDefault(p => p.Selected);
+                if (selectedPort == null) {
+                    MessageCard.Error("未找到端口，请检查端口设置");
+                    return;
+                }
+
+                // 未连接时自动连接
+                if (!selectedPort.Connected) {
+                    bool ok = await OpenPort(selectedPort.Name);
+                    if (!ok) {
+                        MessageCard.Error($"发送失败，端口 {selectedPort.Name} 连接失败，请检查端口");
+                        return;
+                    }
+                }
+
+                // 发送前检查端口是否实际可用
+                if (selectedPort.SerialPort == null || !selectedPort.SerialPort.IsOpen)
+                {
+                    selectedPort.Connected = false;
+                    MessageCard.Error($"串口 {selectedPort.Name} 已断开连接");
+                    return;
+                }
+
+                try
+                {
+                    // 发送指令
+                    string command = item.Command;
+                    if (item.IsHex)
+                    {
+                        // HEX 模式发送
+                        byte[] bytes = selectedPort.CalcHexValue(command);
+                        if (bytes != null && bytes.Length > 0)
+                            selectedPort.SerialPort.Write(bytes, 0, bytes.Length);
+                    }
+                    else
+                    {
+                        // 字符串模式发送
+                        selectedPort.SerialPort.WriteLine(command);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // 端口已关闭，更新连接状态
+                    selectedPort.Connected = false;
+                    MessageCard.Error($"串口 {selectedPort.Name} 已断开连接");
+                }
+                catch (Exception ex)
+                {
+                    MessageCard.Error($"发送失败：{ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 添加指令按钮点击
+        /// </summary>
+        private void QuickCommandAdd_Click(object sender, RoutedEventArgs e)
+        {
+            // 通过按钮向上遍历找到 TextBox
+            var button = sender as Button;
+            if (button == null) return;
+
+            var parentGrid = button.Parent as Grid;
+            if (parentGrid == null) return;
+
+            var textBox = parentGrid.Children.OfType<TextBox>().FirstOrDefault();
+            if (textBox != null && !string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                ConfigManager.QuickCommandSettings.AddCommand(textBox.Text, 1000);
+                textBox.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// 弹出备注输入对话框
+        /// </summary>
+        private string ShowMemoDialog(string currentMemo)
+        {
+            var inputWindow = new Window
+            {
+                Title = "备注",
+                Width = 450,
+                Height = 200,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            var grid = new Grid();
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+            var label = new TextBlock 
+            { 
+                Text = "请输入备注：", 
+                Margin = new Thickness(10, 10, 10, 5),
+                FontSize = 14
+            };
+            Grid.SetRow(label, 0);
+
+            var textBox = new TextBox
+            {
+                Text = currentMemo,
+                Margin = new Thickness(10, 0, 10, 10),
+                Padding = new Thickness(8, 6, 8, 6),
+                FontSize = 14,
+                AcceptsReturn = true,
+                TextWrapping = TextWrapping.Wrap,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            Grid.SetRow(textBox, 1);
+
+            var buttonPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(10)
+            };
+            Grid.SetRow(buttonPanel, 2);
+
+            var okButton = new Button { Content = "确定", Width = 70, Margin = new Thickness(5, 0, 0, 0) };
+            var cancelButton = new Button { Content = "取消", Width = 70, Margin = new Thickness(5, 0, 0, 0) };
+
+            okButton.Click += (s, args) => { inputWindow.DialogResult = true; inputWindow.Close(); };
+            cancelButton.Click += (s, args) => { inputWindow.DialogResult = false; inputWindow.Close(); };
+
+            buttonPanel.Children.Add(cancelButton);
+            buttonPanel.Children.Add(okButton);
+
+            grid.Children.Add(label);
+            grid.Children.Add(textBox);
+            grid.Children.Add(buttonPanel);
+
+            inputWindow.Content = grid;
+
+            bool? result = inputWindow.ShowDialog();
+            return result == true ? textBox.Text : null;
+        }
+
+        private async void CloseAllConnectPort(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem  menuItem && menuItem.Header.ToString() is string header) {
+                if (header.Equals(LangManager.GetValueByKey("ConnectAll"))) {
+                    List<string> nameList = new List<string>();
+                    foreach (var item in vieModel.PortTabItems) {
+                        string portName = item.Name;
+                        if (!item.Connected)
+                            nameList.Add(portName);
+                    }
+
+                    ConnectAllPort(nameList, true, ConnectType.Com);
+                } else if (header.Equals(LangManager.GetValueByKey("DisConnectAll"))) {
+                    await CloseAllConnectPort();
+                }
+            }
+          
+        }
+
+        private async Task<bool> CloseAllConnectPort()
+        {
+            foreach (var item in vieModel.PortTabItems) {
+                string portName = item.Name;
+                if (item.Connected)
+                    await ClosePort(portName);
+            }
+
+            return true;
+        }
+
+        private void SaveLog(object sender, RoutedEventArgs e)
+        {
+            SaveLog(SaveLogType.String);
+        }
+
+        private string BuildLogByType(TextEditor textEditor, SaveLogType saveLogType)
+        {
+            string text = textEditor.Text;
+            switch (saveLogType) {
+                case SaveLogType.String:
+                    return text;
+                case SaveLogType.Bin:
+                    return TransformHelper.StrToBinStr(text);
+                case SaveLogType.Hex:
+                    return TransformHelper.StrToHex(text);
+                default:
+                    return string.Empty;
+            }
+        }
+
+        private void SaveLog(SaveLogType saveLogType)
+        {
+            PortTabItem portTabItem = null;
+            foreach (var item in vieModel.PortTabItems) {
+                if (item.Selected) {
+                    portTabItem = item;
+                    break;
+                }
+            }
+
+            if (portTabItem == null) {
+                return;
+            }
+
+            TextEditor textEditor = portTabItem.TextEditor;
+            if (textEditor == null || textEditor.Text.Length == 0) {
+                MessageNotify.Warning(LangManager.GetValueByKey("CurrentNoLog"));
+                return;
+            }
+
+            // 传入当前标签页默认日志路径，让用户可选择保存位置
+            string defaultPath = portTabItem?.SaveFileName;
+            string suggestedFileName = string.IsNullOrEmpty(defaultPath) ? "log.txt" : System.IO.Path.GetFileName(defaultPath);
+            string target = FileHelper.SaveFile(null, suggestedFileName, "Normal text file|*.txt|All types|*.*");
+            if (string.IsNullOrEmpty(target)) {
+                return;
+            }
+            if (!FileHelper.IsProperDirName(target)) {
+                MessageNotify.Error(LangManager.GetValueByKey("FileNameInvalid"));
+                return;
+            }
+
+            string data = BuildLogByType(textEditor, saveLogType);
+            if (string.IsNullOrEmpty(data)) {
+                Logger.Error("data is empty");
+                return;
+            }
+
+            FileHelper.TryWriteToFile(target, data, encoding: Encoding.UTF8);
+            FileHelper.TryOpenSelectPath(target);
+            Logger.Info($"save log to {target}");
+        }
+
+        private void SaveLogAsBin(object sender, RoutedEventArgs e)
+        {
+            SaveLog(SaveLogType.Bin);
+        }
+
+        private void SaveLogAsHex(object sender, RoutedEventArgs e)
+        {
+            SaveLog(SaveLogType.Hex);
+        }
+
+
+        private void pinToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (ConfigManager.Settings.HintWhenPin)
+                MessageNotify.Info(LangManager.GetValueByKey("PinLogHint"));
+        }
+
+        private void OpenAppDir(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenPath(AppDomain.CurrentDomain.BaseDirectory);
+        }
+
+        private void ShowAscii(object sender, RoutedEventArgs e)
+        {
+            Window_Ascii window_Ascii = new Window_Ascii((int)ConfigManager.CommonSettings.AsciiSelectedIndex);
+            window_Ascii.OnSelectedChanged += (index) => {
+                ConfigManager.CommonSettings.AsciiSelectedIndex = index;
+                ConfigManager.CommonSettings.Save();
+            };
+            window_Ascii.Icon = this.Icon;
+            window_Ascii.Show();
+        }
+
+        private void ShowReferences(object sender, RoutedEventArgs e)
+        {
+            Window_References reference = new Window_References(UrlManager.REFERENCE_DATAS,
+                (int)ConfigManager.CommonSettings.RefSelectedIndex);
+            reference.OnSelectedChanged += (index) => {
+                ConfigManager.CommonSettings.RefSelectedIndex = index;
+                ConfigManager.CommonSettings.Save();
+            };
+            reference.Icon = this.Icon;
+            reference.Show();
+        }
+
+        private void OnPortSettingChanged(object sender, RoutedEventArgs e)
+        {
+            PortSettingChanged(sender);
+        }
+
+        private void PortSettingChanged(object sender)
+        {
+            FrameworkElement frameworkElement = sender as FrameworkElement;
+            object tag = (frameworkElement.Parent as FrameworkElement).Tag;
+            if (tag != null && tag.ToString() is string portName &&
+                !string.IsNullOrEmpty(portName) &&
+                vieModel.PortTabItems != null &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem &&
+                portTabItem.SerialPort is SerialPortEx port) {
+                port.PrintSetting();
+            };
+        }
+
+        private void OnPortSettingChanged(object sender, TextChangedEventArgs e)
+        {
+            PortSettingChanged(sender);
+        }
+
+        private void OnPortSettingChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            if (!comboBox.IsLoaded)
+                return;
+            // 等待数据更新后在打印
+            Task.Run(async () => {
+                await Task.Delay(100);
+                await App.GetDispatcher()?.BeginInvoke(DispatcherPriority.Normal, (Action)delegate {
+                    PortSettingChanged(sender);
+                });
+            });
+
+        }
+
+        private void OpenHFAQ(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_FAQ);
+        }
+
+        private void OpenDevelop(object sender, RoutedEventArgs e)
+        {
+            FileHelper.TryOpenUrl(UrlManager.WIKI_DEVELOP);
+        }
+
+        private void mainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            Logger.Info("main window loaded");
+            try
+            {
+                // 窗口加载后强制折叠扩展功能面板（此时视觉树已构建完成）
+                ForceCollapseQuickCommandPanel();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"ForceCollapseQuickCommandPanel failed: {ex}");
+            }
+        }
+
+        private void ExportAllCmd(object sender, RoutedEventArgs e)
+        {
+            List<DataBaseInfo> dataBaseInfos = ConfigImport.GetCurrentDataBaseInfo();
+            if (dataBaseInfos == null || dataBaseInfos.Count == 0)
+                return;
+
+            Window_Import import = new Window_Import(dataBaseInfos, export: true);
+            if ((bool)import.ShowDialog(this)) {
+                if (import.CurrentBaseInfos == null)
+                    return;
+
+                string json = ConfigImport.ExportDataBaseInfo(import.CurrentBaseInfos.ToList());
+                if (string.IsNullOrEmpty(json)) {
+                    MessageCard.Error(LangManager.GetValueByKey("ExportFailed"));
+                    return;
+                }
+
+                string fileName = FileHelper.SaveFile(this, filter: ConstValues.FILTER_JSON);
+
+                FileHelper.TryWriteToFile(fileName, json, Encoding.UTF8);
+                MessageNotify.Success(LangManager.GetValueByKey("ExportSuccess"));
+                FileHelper.TryOpenSelectPath(fileName);
+                Logger.Info($"export config to {fileName}");
+
+
+            }
+        }
+
+        private void ImportAllCmd(object sender, RoutedEventArgs e)
+        {
+            string filePath = FileHelper.SelectFile(this, filter: ConstValues.FILTER_JSON);
+            if (!File.Exists(filePath))
+                return;
+
+            string content = FileHelper.TryReadFile(filePath);
+            if (string.IsNullOrEmpty(content))
+                return;
+
+
+            List<DataBaseInfo> dataBaseInfos = ConfigImport.ParseInfo(content);
+
+            if (dataBaseInfos == null || dataBaseInfos.Count == 0) {
+                MessageCard.Error(LangManager.GetValueByKey("ParseFailed"));
+                return;
+            }
+            Window_Import window_Import = new Window_Import(dataBaseInfos, export: false);
+            if ((bool)window_Import.ShowDialog(this))
+                if (ConfigImport.ImportDataBaseInfo(dataBaseInfos, content)) {
+                    RefreshSendCommands();
+                    SetComboboxStatus();
+                    MessageNotify.Success(LangManager.GetValueByKey("ImportAllSuccess"));
+                    MessageCard.Info(LangManager.GetValueByKey("ImportHighLightHint"));
+                }
+        }
+
+        private void ShowVarMonitor(object sender, RoutedEventArgs e)
+        {
+            window_Monitor?.Close();
+            window_Monitor = new Window_Monitor();
+            window_Monitor.Show();
+            window_Monitor.Focus();
+            window_Monitor.BringIntoView();
+        }
+
+        public void RefreshPortsStatus(object sender, RoutedEventArgs e)
+        {
+            comSidePanel.RefreshPortsStatus(null, null);
+        }
+
+        private void GotoBottom(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Parent is Grid grid) {
+                TextEditor textEditor = FindTextBox(grid);
+                if (textEditor != null) {
+                    textEditor.ScrollToEnd();
+                    if (ConfigManager.Settings.PinOnMouseWheel)
+                        FixedTextEditor(textEditor.Parent as Border, false);
+                }
+            }
+        }
+
+        private void GotoTop(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            if (ele != null && ele.Parent is Grid grid) {
+                TextEditor textEditor = FindTextBox(grid);
+                if (textEditor != null)
+                    textEditor.ScrollToHome();
+            }
+        }
+
+        private void PinTabItem(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            Grid grid = (ele.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            PortTabItem portTabItem = vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName));
+            PinPort(portTabItem);
+        }
+
+        private void CloseTabItem(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement ele = sender as FrameworkElement;
+            Grid grid = (ele.Parent as FrameworkElement).Parent as Grid;
+            Border baseBorder = grid.Parent as Border;
+            string portName = baseBorder.Tag.ToString();
+            ClosePortTabItemByName(portName, null);
+        }
+
+        private void StartTelnetServer(object sender, RoutedEventArgs e)
+        {
+            if (Window_TelnetServer == null) {
+                Window_TelnetServer = new Window_TelnetServer();
+                Window_TelnetServer.Show();
+            } else {
+                if (Window_TelnetServer.IsClosed) {
+                    Window_TelnetServer = new Window_TelnetServer();
+                    Window_TelnetServer.Show();
+                }
+                Window_TelnetServer.BringIntoView();
+                Window_TelnetServer.Focus();
+            }
+        }
+
+        private void OpenCmdTool(object sender, RoutedEventArgs e)
+        {
+            if (window_CMD == null) {
+                window_CMD = new Window_CMD();
+                window_CMD.Show();
+            } else {
+                if (window_CMD.IsClosed) {
+                    window_CMD = new Window_CMD();
+                    window_CMD.Show();
+                }
+                window_CMD.BringIntoView();
+                window_CMD.Focus();
+            }
+        }
+
+        private Window_BandCalc window_BandCalc;
+
+        private void OpenBandCalcTool(object sender, RoutedEventArgs e)
+        {
+            if (window_BandCalc == null) {
+                window_BandCalc = new Window_BandCalc();
+                window_BandCalc.Show();
+            } else {
+                if (window_BandCalc.IsClosed) {
+                    window_BandCalc = new Window_BandCalc();
+                    window_BandCalc.Show();
+                }
+                window_BandCalc.BringIntoView();
+                window_BandCalc.Focus();
+            }
+        }
+
+        private void onPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.XButton1 == MouseButtonState.Pressed) {
+                SetPortTabSelected(true);
+            } else if (e.XButton2 == MouseButtonState.Pressed) {
+                SetPortTabSelected(false);
+            }
+        }
+
+        /// <summary>
+        /// 添加默认端口Tab，使无端口时也能显示主界面
+        /// </summary>
+        private void AddDefaultPortTab()
+        {
+            string defaultPortName = "COM1";
+            PortTabItem portTabItem = new PortTabItem(defaultPortName, false);
+            portTabItem.Setting = PortSetting.GetDefaultSetting();
+            if (portTabItem.SerialPort == null)
+                portTabItem.SerialPort = new SerialPortEx(defaultPortName);
+            portTabItem.Selected = true;
+            vieModel.PortTabItems.Add(portTabItem);
+        }
+
+        private void ShowHexCheckSettings(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement ele && ele.Parent is Grid grid &&
+                grid.Children.OfType<Popup>().FirstOrDefault() is Popup popup) {
+                popup.IsOpen = true;
+            }
+        }
+
+        private PortTabItem GetCurrentPort(object sender)
+        {
+            if (sender is FrameworkElement ele &&
+                ele.Tag != null && ele.Tag.ToString() is string portName &&
+                vieModel.PortTabItems.FirstOrDefault(arg => arg.Name.Equals(portName)) is PortTabItem portTabItem) {
+                return portTabItem;
+            }
+            return null;
+        }
+
+        private void SaveDataCheck(object sender)
+        {
+            if (GetCurrentPort(sender) is PortTabItem portTabItem) {
+                portTabItem.SerialPort.SaveDataCheck();
+                ComSettings comSettings = vieModel.ComSettingList.FirstOrDefault(arg => arg.PortName.Equals(portTabItem.Name));
+                if (comSettings != null) {
+                    Dictionary<string, object> dict = JsonUtils.TryDeserializeObject<Dictionary<string, object>>(comSettings.PortSetting);
+                    if (dict != null && dict.ContainsKey("DataCheck")) {
+                        dict["DataCheck"] = portTabItem.SerialPort.DataCheck;
+                        comSettings.PortSetting = JsonUtils.TrySerializeObject(dict);
+                        Logger.Info($"set datacheck");
+                        portTabItem.RefreshSendHexValue();
+                        portTabItem.SerialPort.SaveDataCheck();
+                    }
+                }
+            }
+        }
+
+        private void SaveDataCheck(object sender, RoutedEventArgs e) => SaveDataCheck(sender);
+
+        private void SaveDataCheck(object sender, SelectionChangedEventArgs e) => SaveDataCheck(sender);
+
+        private void SaveDataCheck(object sender, TextChangedEventArgs e) => SaveDataCheck(sender);
+
+        private void textEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (ConfigManager.Settings.PinOnMouseWheel &&
+                sender is TextEditor textEditor &&
+                textEditor.IsLoaded && textEditor.Parent is Border border) {
+                if (e.Delta > 0) {
+                    FixedTextEditor(border, true);
+                } else {
+                    // 鼠标滚动到底部
+                    TextView textView = textEditor.TextArea.TextView;
+                    bool isAtEnd = textView.VerticalOffset + textView.ActualHeight + 1 >= textView.DocumentHeight;
+                    if (isAtEnd)
+                        FixedTextEditor(border, false);
+                }
+            }
+        }
+
+        private bool IsAllClose()
+        {
+            bool close = false;
+            foreach (var item in vieModel.PortTabItems) {
+                if (item.Connected) {
+                    close = true;
+                    break;
+                }
+            }
+            return close;
+        }
+
+        private void ContextMenu_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (sender is FrameworkElement ele && ele.ContextMenu is ContextMenu contextMenu &&
+                contextMenu.Items.OfType<MenuItem>().FirstOrDefault(arg => arg.Name.Equals("_CloseOpenAllMenuItem")) is MenuItem menuItem) {
+                if (IsAllClose()) {
+                    menuItem.Header = LangManager.GetValueByKey("DisConnectAll");
+                } else {
+                    menuItem.Header = LangManager.GetValueByKey("ConnectAll");
+                }
+            }
+        }
+    }
+}

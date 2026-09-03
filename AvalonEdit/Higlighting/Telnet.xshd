@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SyntaxDefinition name="Telnet" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <RuleSet >
+       <Rule foreground="#FF4A4A4A">\[\d\d\d\d-\d\d-\d\d\ \d\d:\d\d:\d\d\.\d\d\d\]</Rule>
+       <Rule foreground="#FF8D8D8D">\[client\ \d+\]</Rule>
+       <Rule fontWeight="bold" foreground="#FFFDA522">\d+\.\d+\.\d+\.\d+</Rule>
+       <Keywords fontWeight="bold" foreground="#FF72B677">
+           <Word>success</Word>
+        </Keywords>
+
+       <Keywords fontWeight="bold" foreground="#FFAB46BD">
+           <Word>connected</Word>
+        </Keywords>
+
+       <Keywords fontWeight="bold" foreground="#FFE34A4B">
+           <Word>disconnected</Word>
+        </Keywords>
+
+    </RuleSet>
+</SyntaxDefinition>
